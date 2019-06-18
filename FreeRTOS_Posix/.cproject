@@ -28,7 +28,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.1277108792" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.exe.debug.option.debugging.level.765598125" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.default" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.448258475" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../Common_Demo/include"/>
+									<listOptionValue builtIn="false" value="../Lib/include"/>
 									<listOptionValue builtIn="false" value=".."/>
 									<listOptionValue builtIn="false" value="../FreeRTOS_Kernel/include"/>
 									<listOptionValue builtIn="false" value="../FreeRTOS_Kernel/portable/GCC/Posix"/>
@@ -99,7 +99,7 @@
 									<listOptionValue builtIn="false" value="__GCC_POSIX__=1"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.769330613" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../Common_Demo/include"/>
+									<listOptionValue builtIn="false" value="../Lib/include"/>
 									<listOptionValue builtIn="false" value=".."/>
 									<listOptionValue builtIn="false" value="../FreeRTOS_Kernel/include"/>
 									<listOptionValue builtIn="false" value="../FreeRTOS_Kernel/portable/GCC/Posix"/>
@@ -1629,5 +1629,16 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments/>
+				<buildTarget>all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
 </cproject>

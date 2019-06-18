@@ -105,14 +105,10 @@
 #include "crflash.h"
 #include "print.h"
 #include "fileIO.h"
-#include "semtest.h"
 #include "integer.h"
 #include "dynamic.h"
-#include "mevents.h"
 #include "crhook.h"
 #include "blocktim.h"
-#include "GenQTest.h"
-#include "QPeek.h"
 #include "countsem.h"
 #include "recmutex.h"
 
@@ -213,14 +209,10 @@ struct sockaddr_in xReceiveAddress;
 	}
 
 	/* CREATE ALL THE DEMO APPLICATION TASKS. */
-	vStartSemaphoreTasks( mainSEMAPHORE_TASK_PRIORITY );
-	vStartMultiEventTasks();
-	vStartQueuePeekTasks();
 	vStartBlockingQueueTasks( mainQUEUE_BLOCK_PRIORITY );
 #if mainCPU_INTENSIVE_TASKS == 1
 	vStartRecursiveMutexTasks();
 	vStartDynamicPriorityTasks();
-	vStartGenericQueueTasks( mainGENERIC_QUEUE_PRIORITY );
 	vStartCountingSemaphoreTasks();
 #endif
 
@@ -464,27 +456,9 @@ static unsigned long uxLastHookCallCount = 0, uxLastQueueSendCount = 0;
 		sErrorHasOccurred = pdTRUE;
 	}
 
-	if( xAreSemaphoreTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Semaphore take count unchanged!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xAreMultiEventTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Error in multi events tasks!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
 	if( xAreHookCoRoutinesStillRunning() != pdTRUE )
 	{
 		vDisplayMessage( "Error in tick hook to co-routine communications!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xAreQueuePeekTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Error in queue peek test task!\r\n" );
 		sErrorHasOccurred = pdTRUE;
 	}
 
@@ -498,12 +472,6 @@ static unsigned long uxLastHookCallCount = 0, uxLastQueueSendCount = 0;
 	if( xAreDynamicPriorityTasksStillRunning() != pdTRUE )
 	{
 		vDisplayMessage( "Dynamic priority count unchanged!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xAreGenericQueueTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Error in generic queue test task!\r\n" );
 		sErrorHasOccurred = pdTRUE;
 	}
 
