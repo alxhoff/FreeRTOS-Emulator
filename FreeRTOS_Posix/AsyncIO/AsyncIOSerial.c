@@ -7,6 +7,8 @@
 
 #include <termios.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 #include <fcntl.h>
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -30,7 +32,8 @@ long lReturn = pdFALSE;
 	else
 	{
 		/* Grab a copy of the current terminal settings. */
-		if ( 0 == tcgetattr( iSerialDevice, &xTerminalSettings ) )
+		int ret = tcgetattr( iSerialDevice, &xTerminalSettings );
+		if ( 0 == ret )
 		{
 			/* Configure the port to the Hard-coded values. */
 			cfmakeraw( &xTerminalSettings );
@@ -41,6 +44,8 @@ long lReturn = pdFALSE;
 			/* Pass out the device descriptor for subsequent calls to AsyncIORegisterCallback() */
 			*piDeviceDescriptor = iSerialDevice;
 		}
+		else
+			printf("tcgetattr err: %s\n", strerror(errno));
 	}
 
 	return lReturn;
