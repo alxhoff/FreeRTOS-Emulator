@@ -6,7 +6,6 @@
 C_SRCS += \
 ../Lib/Minimal/GenQTest.c \
 ../Lib/Minimal/QPeek.c \
-../Lib/Minimal/blocktim.c \
 ../Lib/Minimal/countsem.c \
 ../Lib/Minimal/crflash.c \
 ../Lib/Minimal/crhook.c \
@@ -15,7 +14,6 @@ C_SRCS += \
 OBJS += \
 ./Lib/Minimal/GenQTest.o \
 ./Lib/Minimal/QPeek.o \
-./Lib/Minimal/blocktim.o \
 ./Lib/Minimal/countsem.o \
 ./Lib/Minimal/crflash.o \
 ./Lib/Minimal/crhook.o \
@@ -24,7 +22,6 @@ OBJS += \
 C_DEPS += \
 ./Lib/Minimal/GenQTest.d \
 ./Lib/Minimal/QPeek.d \
-./Lib/Minimal/blocktim.d \
 ./Lib/Minimal/countsem.d \
 ./Lib/Minimal/crflash.d \
 ./Lib/Minimal/crhook.d \

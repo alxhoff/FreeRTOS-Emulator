@@ -101,7 +101,6 @@
 #include "partest.h"
 
 /* Demo file headers. */
-#include "BlockQ.h"
 #include "death.h"
 #include "crflash.h"
 #include "print.h"
@@ -214,7 +213,6 @@ struct sockaddr_in xReceiveAddress;
 	}
 
 	/* CREATE ALL THE DEMO APPLICATION TASKS. */
-	vCreateBlockTimeTasks();
 	vStartSemaphoreTasks( mainSEMAPHORE_TASK_PRIORITY );
 	vStartMultiEventTasks();
 	vStartQueuePeekTasks();
@@ -481,12 +479,6 @@ static unsigned long uxLastHookCallCount = 0, uxLastQueueSendCount = 0;
 	if( xAreHookCoRoutinesStillRunning() != pdTRUE )
 	{
 		vDisplayMessage( "Error in tick hook to co-routine communications!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xAreBlockTimeTestTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Error in block time test tasks!\r\n" );
 		sErrorHasOccurred = pdTRUE;
 	}
 
