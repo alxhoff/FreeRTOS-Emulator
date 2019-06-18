@@ -216,7 +216,6 @@ struct sockaddr_in xReceiveAddress;
 	}
 
 	/* CREATE ALL THE DEMO APPLICATION TASKS. */
-	vStartMathTasks( tskIDLE_PRIORITY );
 	vStartPolledQueueTasks( mainQUEUE_POLL_PRIORITY );
 	vCreateBlockTimeTasks();
 	vStartSemaphoreTasks( mainSEMAPHORE_TASK_PRIORITY );
@@ -467,12 +466,6 @@ static unsigned long uxLastHookCallCount = 0, uxLastQueueSendCount = 0;
 	if( xAreBlockingQueuesStillRunning() != pdTRUE )
 	{
 		vDisplayMessage( "Blocking queues count unchanged!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xAreMathsTaskStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Maths task count unchanged!\r\n" );
 		sErrorHasOccurred = pdTRUE;
 	}
 
