@@ -5,7 +5,6 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Lib/Full/BlockQ.c \
-../Lib/Full/PollQ.c \
 ../Lib/Full/death.c \
 ../Lib/Full/dynamic.c \
 ../Lib/Full/events.c \
@@ -16,7 +15,6 @@ C_SRCS += \
 
 OBJS += \
 ./Lib/Full/BlockQ.o \
-./Lib/Full/PollQ.o \
 ./Lib/Full/death.o \
 ./Lib/Full/dynamic.o \
 ./Lib/Full/events.o \
@@ -27,7 +25,6 @@ OBJS += \
 
 C_DEPS += \
 ./Lib/Full/BlockQ.d \
-./Lib/Full/PollQ.d \
 ./Lib/Full/death.d \
 ./Lib/Full/dynamic.d \
 ./Lib/Full/events.d \

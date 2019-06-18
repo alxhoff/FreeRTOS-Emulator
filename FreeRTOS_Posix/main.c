@@ -102,10 +102,8 @@
 
 /* Demo file headers. */
 #include "BlockQ.h"
-#include "PollQ.h"
 #include "death.h"
 #include "crflash.h"
-#include "flop.h"
 #include "print.h"
 #include "fileIO.h"
 #include "semtest.h"
@@ -216,7 +214,6 @@ struct sockaddr_in xReceiveAddress;
 	}
 
 	/* CREATE ALL THE DEMO APPLICATION TASKS. */
-	vStartPolledQueueTasks( mainQUEUE_POLL_PRIORITY );
 	vCreateBlockTimeTasks();
 	vStartSemaphoreTasks( mainSEMAPHORE_TASK_PRIORITY );
 	vStartMultiEventTasks();
@@ -466,12 +463,6 @@ static unsigned long uxLastHookCallCount = 0, uxLastQueueSendCount = 0;
 	if( xAreBlockingQueuesStillRunning() != pdTRUE )
 	{
 		vDisplayMessage( "Blocking queues count unchanged!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xArePollingQueuesStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Polling queue count unchanged!\r\n" );
 		sErrorHasOccurred = pdTRUE;
 	}
 
