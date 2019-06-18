@@ -4,22 +4,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Lib/Minimal/countsem.c \
 ../Lib/Minimal/crflash.c \
-../Lib/Minimal/crhook.c \
-../Lib/Minimal/recmutex.c 
+../Lib/Minimal/crhook.c 
 
 OBJS += \
-./Lib/Minimal/countsem.o \
 ./Lib/Minimal/crflash.o \
-./Lib/Minimal/crhook.o \
-./Lib/Minimal/recmutex.o 
+./Lib/Minimal/crhook.o 
 
 C_DEPS += \
-./Lib/Minimal/countsem.d \
 ./Lib/Minimal/crflash.d \
-./Lib/Minimal/crhook.d \
-./Lib/Minimal/recmutex.d 
+./Lib/Minimal/crhook.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

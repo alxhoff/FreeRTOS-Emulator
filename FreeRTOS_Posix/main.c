@@ -106,11 +106,8 @@
 #include "print.h"
 #include "fileIO.h"
 #include "integer.h"
-#include "dynamic.h"
 #include "crhook.h"
 #include "blocktim.h"
-#include "countsem.h"
-#include "recmutex.h"
 
 #include "AsyncIO/AsyncIO.h"
 #include "AsyncIO/AsyncIOSocket.h"
@@ -209,12 +206,6 @@ struct sockaddr_in xReceiveAddress;
 	}
 
 	/* CREATE ALL THE DEMO APPLICATION TASKS. */
-	vStartBlockingQueueTasks( mainQUEUE_BLOCK_PRIORITY );
-#if mainCPU_INTENSIVE_TASKS == 1
-	vStartRecursiveMutexTasks();
-	vStartDynamicPriorityTasks();
-	vStartCountingSemaphoreTasks();
-#endif
 
 	/* Create the co-routines that communicate with the tick hook. */
 	vStartHookCoRoutines();
@@ -450,37 +441,11 @@ static void prvCheckOtherTasksAreStillRunning( void )
 static short sErrorHasOccurred = pdFALSE;
 static unsigned long uxLastHookCallCount = 0, uxLastQueueSendCount = 0;
 
-	if( xAreBlockingQueuesStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Blocking queues count unchanged!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
 	if( xAreHookCoRoutinesStillRunning() != pdTRUE )
 	{
 		vDisplayMessage( "Error in tick hook to co-routine communications!\r\n" );
 		sErrorHasOccurred = pdTRUE;
 	}
-
-#if mainCPU_INTENSIVE_TASKS == 1
-	if( xAreRecursiveMutexTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Error in recursive mutex tasks!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xAreDynamicPriorityTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Dynamic priority count unchanged!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-
-	if( xAreCountingSemaphoreTasksStillRunning() != pdTRUE )
-	{
-		vDisplayMessage( "Error in counting semaphore demo task!\r\n" );
-		sErrorHasOccurred = pdTRUE;
-	}
-#endif /* mainCPU_INTENSIVE_TASKS */
 
 #if mainUSE_SUICIDAL_TASKS_DEMO == 1
 	if( xIsCreateTaskStillRunning() != pdTRUE )
