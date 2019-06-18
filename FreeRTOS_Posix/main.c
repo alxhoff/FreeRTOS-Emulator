@@ -10,6 +10,7 @@
 #include <mqueue.h>
 #include <errno.h>
 #include <unistd.h>
+#include "SDL/SDL.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -29,8 +30,25 @@
  */
 static void vDemoTask1( void *pvParameters );
 
-int main( void )
+int main( int argc, char *argv[] )
 {
+    SDL_Surface *hello = NULL;
+    SDL_Surface *screen = NULL;
+
+    SDL_Init( SDL_INIT_EVERYTHING );
+
+    screen = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
+
+    hello = SDL_LoadBMP("/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/Debug/test.bmp");
+
+    SDL_BlitSurface( hello, NULL, screen, NULL);
+
+    SDL_Flip(screen);
+
+    SDL_Delay(2000);
+
+    SDL_FreeSurface(hello);
+
     /*
      * Demo task
      */
@@ -40,6 +58,7 @@ int main( void )
 	/* Set the scheduler running.  This function will not return unless a task calls vTaskEndScheduler(). */
 	vTaskStartScheduler();
 
+    SDL_Quit();
 	return 1;
 }
 
