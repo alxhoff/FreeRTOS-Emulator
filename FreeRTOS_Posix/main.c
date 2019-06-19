@@ -10,7 +10,7 @@
 #include <mqueue.h>
 #include <errno.h>
 #include <unistd.h>
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -34,7 +34,8 @@ const int SCREEN_BPP = 32;
 /*
  * Drawing
  */
-SDL_Surface *screen = NULL;
+SDL_Window *window = NULL;
+SDL_Renderer *ren = NULL;
 static void vInitDrawing( void );
 static void vDrawTask( void *pvParameters );
 
@@ -60,9 +61,21 @@ void vInitDrawing( void )
 {
     SDL_Init( SDL_INIT_EVERYTHING );
 
-    screen = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
+    window = SDL_CreateWindow("FreeRTOS Simulator", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
-    SDL_WM_SetCaption("FreeRTOS Simulator", NULL);
+    if (!window){
+        printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(0);
+    }
+
+    ren = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+    if(!ren){
+        printf("SDL_CreateRenderer Error: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(0);
+    }
 }
 
 void drawRect(int x, int y, int w, int h, SDL_Surface *screen)
@@ -74,27 +87,41 @@ void drawRect(int x, int y, int w, int h, SDL_Surface *screen)
 SDL_Surface *load_image(char *filename)
 {
     SDL_Surface *loadedImage = NULL;
-    SDL_Surface *optimizedImage = NULL;
 
     loadedImage = SDL_LoadBMP(filename);
 
-    if( loadedImage != NULL){
-        optimizedImage = SDL_DisplayFormat(loadedImage);
-
-        SDL_FreeSurface(loadedImage);
+    if (!loadedImage)
+    {
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(window);
+        printf("SDL_LoadBMP Error: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(0);
     }
 
-    return optimizedImage;
+    return loadedImage;
 }
 
-void apply_surface( int x, int y, SDL_Surface *source, SDL_Surface *destination )
+void DrawImage(SDL_Surface *source)
 {
-    SDL_Rect offset;
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(ren, source);
 
-    offset.x = x;
-    offset.y = y;
+    if(!tex)
+    {
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(window);
+        printf("SDL_CreateTextureFromSurface Error: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(0);
+    }
 
-    SDL_BlitSurface(source, NULL, destination, &offset);
+    SDL_RenderCopy(ren, tex, NULL, NULL);
+}
+
+
+void vDrawRect( int x, int y, int width, int height )
+{
+    ;
 }
 
 void vDrawTask ( void *pvParameters )
@@ -106,11 +133,16 @@ void vDrawTask ( void *pvParameters )
     
     hello = load_image("/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/Debug/test.bmp");
 
-    apply_surface(0,0,background,screen);
+    SDL_RenderClear(ren);
+
+    DrawImage(hello);
+
+    SDL_RenderPresent(ren);
+    
+    SDL_Delay(1000);
     
     while(1){
 
-        SDL_Flip(screen);
 
         vTaskDelay(1000);
     }

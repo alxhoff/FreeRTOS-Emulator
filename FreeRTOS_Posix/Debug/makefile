@@ -11,6 +11,7 @@ RM := rm -rf
 -include FreeRTOS_Kernel/portable/MemMang/subdir.mk
 -include FreeRTOS_Kernel/portable/GCC/Posix/subdir.mk
 -include FreeRTOS_Kernel/subdir.mk
+-include Draw/subdir.mk
 -include Build/FreeRTOS_Kernel/portable/MemMang/subdir.mk
 -include Build/FreeRTOS_Kernel/portable/GCC/Posix/subdir.mk
 -include Build/FreeRTOS_Kernel/subdir.mk
@@ -37,7 +38,7 @@ all: FreeRTOS_Posix
 FreeRTOS_Posix: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -pthread -lSDL -lrt -o "FreeRTOS_Posix" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -pthread -lSDL2 -lrt -o "FreeRTOS_Posix" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
