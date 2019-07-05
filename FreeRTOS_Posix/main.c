@@ -11,6 +11,8 @@
 #include <errno.h>
 #include <unistd.h>
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -85,43 +87,67 @@ void vInitDrawing( void )
 
 SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 {
-    SDL_Surface *loadedImage = NULL;
     SDL_Texture *tex = NULL;
 
-    loadedImage = SDL_LoadBMP(filename);
+    tex = IMG_LoadTexture(ren, filename);
 
-    if (!loadedImage)
+    if (!tex)
     {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(window);
         logSDLError("loadImage->LoadBMP");
         SDL_Quit();
         exit(0);
-    }else{
-        tex = SDL_CreateTextureFromSurface(ren, loadedImage);
-        SDL_FreeSurface(loadedImage);
-        if(!tex){
-            SDL_DestroyRenderer(ren);
-            SDL_DestroyWindow(window);
-            logSDLError("loadImage->CreateTextureFromSurface");
-            SDL_Quit();
-        }
     }
-
+    
     return tex;
+}
+
+void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h)
+{
+    SDL_Rect dst;
+    dst.w = w;
+    dst.h = h;
+    dst.x = x;
+    dst.y = y;
+    SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
 void vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, int x, int y)
 {
+    int w, h;
+    SDL_QueryTexture(tex, NULL, NULL, &w, &h); //Get texture dimensions
+    vDrawScaledImage(tex, ren, x, y, w, h);
+}
+
+void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip){
+    SDL_RenderCopy(ren, tex, clip, &dst);
+}
+
+void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip){
     SDL_Rect dst;
     dst.x = x;
     dst.y = y;
-    SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h); //Get texture dimensions
-    SDL_RenderCopy(ren, tex, NULL, &dst);
 
-    SDL_RenderCopy(ren, tex, NULL, NULL);
+    if(!clip){
+        dst.w = clip->w;
+        dst.h = clip->h;
+    }else{
+        SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
+    }
+
+    vDrawRectImage(tex, ren, dst, clip);
 }
 
+void vHandleSDLEvents(void)
+{
+    SDL_Event e;
+    while(SDL_PollEvent(&e)){
+        if(e.type == SDL_QUIT){
+            SDL_Quit();
+        }
+    }
+}
 
 void vDrawTask ( void *pvParameters )
 {
