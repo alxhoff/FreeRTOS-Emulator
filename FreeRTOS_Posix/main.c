@@ -51,6 +51,7 @@ TTF_Font *font1 = NULL;
 SDL_Colour fontColour = {0,0,0,255};
 
 xSemaphoreHandle DrawReady;
+xSemaphoreHandle DisplayReady;
 
 static void vInitDrawing( void );
 static void vDrawTask( void *pvParameters );
@@ -88,6 +89,7 @@ int main( int argc, char *argv[] )
     xTaskCreate( vDrawTask, "DrawTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
     xTaskCreate( vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
 
+    DisplayReady = xSemaphoreCreateMutex();
     vSemaphoreCreateBinary(DrawReady);
 
 	vTaskStartScheduler();
@@ -97,15 +99,22 @@ int main( int argc, char *argv[] )
 }
 
 void vDrawRectangle(int x, int y, int w, int h, unsigned int colour){
+
     rectangleColor(renderer, x, y, x+w, y+h, SwapBytes((colour << 8) | 0xFF));
 }
 
 void vDrawCircle(int x, int y, int radius, unsigned int colour){
-    filledCircleColor(renderer, x, y, radius, SwapBytes((colour << 8) | 0xFF));
+    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
+        filledCircleColor(renderer, x, y, radius, SwapBytes((colour << 8) | 0xFF));
+        xSemaphoreGive(DisplayReady);
+    }
 }
 
 void vDrawLine(int x1, int y1, int x2, int y2, int colour){
-    lineColor(renderer, x1, y1, x2, y2, SwapBytes((colour << 8) | 0xFF)); 
+    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
+        lineColor(renderer, x1, y1, x2, y2, SwapBytes((colour << 8) | 0xFF)); 
+        xSemaphoreGive(DisplayReady);
+    }
 }
 
 void vDrawPoly(coord_t *points, unsigned int n, int colour)
@@ -118,7 +127,10 @@ void vDrawPoly(coord_t *points, unsigned int n, int colour)
         y_coords[i] = points[i].y;
     }
 
-    polygonColor(renderer, x_coords, y_coords, n, SwapBytes((colour << 8) | 0xFF));
+    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
+        polygonColor(renderer, x_coords, y_coords, n, SwapBytes((colour << 8) | 0xFF));
+        xSemaphoreGive(DisplayReady);
+    }
 
     free(x_coords);
     free(y_coords);
@@ -126,8 +138,11 @@ void vDrawPoly(coord_t *points, unsigned int n, int colour)
 }
 
 void vDrawTriangle(coord_t *points, int colour){
-    filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x, points[1].y,
+    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
+        filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x, points[1].y,
             points[2].x, points[2].y, colour << 8);
+        xSemaphoreGive(DisplayReady);
+    }
 }
 
 void vInitDrawing( void )
@@ -266,11 +281,12 @@ void vDrawTask ( void *pvParameters )
     vSetupScreen();
 
     while(1){
-        /** vDrawCircle(200, 200, 100, 0xFF); */
+        if(xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE){
+            vDrawCircle(200, 200, 100, 0xFF);
         /** vDrawRectangle(400,100,50,50, 0xFF0000); */
         /** vDrawLine(500,400,550,400,0xFF00); */
         /** vDrawText("hello", 200, 200, 0x000000); */
-        vTaskDelay(5);
+        }
     }
 }
 
