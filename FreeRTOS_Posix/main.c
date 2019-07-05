@@ -18,6 +18,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 #include "queue.h"
 #include "croutine.h"
 
@@ -48,12 +49,16 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font1 = NULL;
 SDL_Colour fontColour = {0,0,0,255};
+
+xSemaphoreHandle DrawReady;
+
 static void vInitDrawing( void );
 static void vDrawTask( void *pvParameters );
 
 /*
  * Demo task
  */
+void vSwapBuffers(void);
 static void vDemoTask1( void *pvParameters );
 
 uint32_t SwapBytes(uint x)
@@ -80,7 +85,10 @@ int main( int argc, char *argv[] )
     vInitDrawing();
 
     xTaskCreate( vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL );
-    xTaskCreate( vDrawTask, "DrawTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_STACK_SIZE, NULL);
+    xTaskCreate( vDrawTask, "DrawTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
+    xTaskCreate( vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
+
+    vSemaphoreCreateBinary(DrawReady);
 
 	vTaskStartScheduler();
 
@@ -230,12 +238,23 @@ void vHandleSDLEvents(void)
 
 void vClearDisplay(void)
 {
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 }
 
 void vSwapBuffers(void)
 {
-    SDL_RenderPresent(renderer);
+    portTickType xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+    const portTickType frameratePeriod = 20;
+
+    while(1){
+        SDL_RenderPresent(renderer);
+        vClearDisplay();
+        xSemaphoreGive(DrawReady);
+
+        vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
+    }
 }
 
 void vSetupScreen(void)
@@ -246,24 +265,12 @@ void vDrawTask ( void *pvParameters )
 {
     vSetupScreen();
 
-    vDrawCircle(200, 200, 100, 0xFF);
-
-    vDrawRectangle(400,100,50,50, 0xFF0000);
-
-    vDrawLine(500,400,550,400,0xFF00);
-
-    vDrawText("hello", 200, 200, 0x000000);
-
-    SDL_RenderPresent(renderer);
-
-    SDL_Delay(2000);
-
-    SDL_Quit();
-    
     while(1){
-
-
-        vTaskDelay(1000);
+        /** vDrawCircle(200, 200, 100, 0xFF); */
+        /** vDrawRectangle(400,100,50,50, 0xFF0000); */
+        /** vDrawLine(500,400,550,400,0xFF00); */
+        /** vDrawText("hello", 200, 200, 0x000000); */
+        vTaskDelay(5);
     }
 }
 
