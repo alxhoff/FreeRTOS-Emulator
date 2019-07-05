@@ -29,7 +29,7 @@
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
 #define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
 
-#define DEFAULT_FONT_SIZE   20
+#define DEFAULT_FONT_SIZE   40
 
 typedef struct coord{
     unsigned int x;
@@ -56,6 +56,14 @@ static void vDrawTask( void *pvParameters );
  */
 static void vDemoTask1( void *pvParameters );
 
+uint32_t SwapBytes(uint x)
+{
+    return ((x & 0x000000ff) << 24) +
+           ((x & 0x0000ff00) << 8) +
+           ((x & 0x00ff0000) >> 8) +
+           ((x & 0xff000000) >> 24);
+}
+
 void logSDLError(char *msg)
 {
     if(msg)
@@ -80,12 +88,16 @@ int main( int argc, char *argv[] )
 	return 1;
 }
 
-void vDrawCircle(int x, int y, int radius, int colour){
-    filledCircleColor(renderer, x, y, radius, colour | (0xFF << 24));
+void vDrawRectangle(int x, int y, int w, int h, unsigned int colour){
+    rectangleColor(renderer, x, y, x+w, y+h, SwapBytes((colour << 8) | 0xFF));
+}
+
+void vDrawCircle(int x, int y, int radius, unsigned int colour){
+    filledCircleColor(renderer, x, y, radius, SwapBytes((colour << 8) | 0xFF));
 }
 
 void vDrawLine(int x1, int y1, int x2, int y2, int colour){
-    lineColor(renderer, x1, y1, x2, y2, colour | (0xFF << 24)); 
+    lineColor(renderer, x1, y1, x2, y2, SwapBytes((colour << 8) | 0xFF)); 
 }
 
 void vDrawPoly(coord_t *points, unsigned int n, int colour)
@@ -98,7 +110,7 @@ void vDrawPoly(coord_t *points, unsigned int n, int colour)
         y_coords[i] = points[i].y;
     }
 
-    polygonColor(renderer, x_coords, y_coords, n, colour | (0xFF << 24));
+    polygonColor(renderer, x_coords, y_coords, n, SwapBytes((colour << 8) | 0xFF));
 
     free(x_coords);
     free(y_coords);
@@ -107,7 +119,7 @@ void vDrawPoly(coord_t *points, unsigned int n, int colour)
 
 void vDrawTriangle(coord_t *points, int colour){
     filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x, points[1].y,
-            points[2].x, points[2].y, colour | (0xFF << 24));
+            points[2].x, points[2].y, colour << 8);
 }
 
 void vInitDrawing( void )
@@ -126,7 +138,7 @@ void vInitDrawing( void )
     if(!font1)
         logTTFError("InitDrawing->OpenFont");
     
-    window = SDL_CreateWindow("FreeRTOS Simulator", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
     if (!window){
         logSDLError("vInitDrawing->CreateWindow");
@@ -141,6 +153,10 @@ void vInitDrawing( void )
         SDL_Quit();
         exit(0);
     }
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    SDL_RenderClear(renderer);
 }
 
 SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
@@ -197,26 +213,9 @@ void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Re
     vDrawRectImage(tex, ren, dst, clip);
 }
 
-void vDrawText(char *string, int x, int y)
+void vDrawText(char *string, int x, int y, unsigned int colour)
 {
-    SDL_Surface* solid = TTF_RenderText_Solid(font1, string, fontColour);
-
-    if(!solid)
-        logTTFError("DrawText->RenderText");
-
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, solid);
-
-    if(!tex)
-        logSDLError("DrawText->CreateTextureFromSurface");
-
-    SDL_FreeSurface(solid);
-    SDL_Rect rect = {.x = x,
-                    .y = y};
-
-    SDL_QueryTexture(tex, NULL, NULL, &rect.w, &rect.h);
-
-    SDL_RenderCopy(renderer, tex, NULL, &rect);
-
+    stringColor(renderer, 350,350, "sup", SwapBytes((colour << 8) | 0xFF));
 }
 
 void vHandleSDLEvents(void)
@@ -229,28 +228,34 @@ void vHandleSDLEvents(void)
     }
 }
 
+void vClearDisplay(void)
+{
+    SDL_RenderClear(renderer);
+}
+
+void vSwapBuffers(void)
+{
+    SDL_RenderPresent(renderer);
+}
+
+void vSetupScreen(void)
+{
+}
+
 void vDrawTask ( void *pvParameters )
 {
-    SDL_Texture *background = NULL;
-    
-    background = loadImage("background.bmp", renderer);
+    vSetupScreen();
 
-    if(!background){
-        logSDLError("DrawTask->loadImage");
-    }
+    vDrawCircle(200, 200, 100, 0xFF);
 
-    int iW, iH;
-    SDL_QueryTexture(background, NULL, NULL, &iW, &iH);
-    int x = SCREEN_WIDTH / 2 - iW / 2;
-    int y = SCREEN_HEIGHT / 2 - iH / 2;
-    
-    vDrawImage(background, renderer, x, y);
+    vDrawRectangle(400,100,50,50, 0xFF0000);
 
-    vDrawCircle(100, 100, 50, 0x0000FF);
+    vDrawLine(500,400,550,400,0xFF00);
 
-    vDrawText("hello", 200, 200);
+    vDrawText("hello", 200, 200, 0x000000);
 
     SDL_RenderPresent(renderer);
+
     SDL_Delay(2000);
 
     SDL_Quit();
