@@ -3,16 +3,15 @@
 #include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL2_gfxPrimitives.h"
 
+#include "TUM_Draw.h"
 #include "task.h"
 #include "queue.h"
 #include "croutine.h"
 
-#include "TUM_Draw.h"
-
 typedef enum{
     DRAW_CLEAR,
     DRAW_RECT,
-    DRAW_CIRLE,
+    DRAW_CIRCLE,
     DRAW_LINE,
     DRAW_POLY,
     DRAW_TRIANGLE,
@@ -64,7 +63,7 @@ typedef struct text_data{
     unsigned int colour;
 }text_data_t;
     
-union{
+union data_u{
     rect_data_t rect;
     circle_data_t circle;
     line_data_t line;
@@ -72,12 +71,17 @@ union{
     triangle_data_t triangle;
     image_data_t image;
     text_data_t text;
-} data_u;
+};
 
 typedef struct draw_job{
     draw_job_type_t type;
     union data_u *data; 
 }draw_job_t;
+
+const int screen_height = SCREEN_HEIGHT;
+const int screen_width = SCREEN_WIDTH;
+const int screen_x = SCREEN_X;
+const int screen_y = SCREEN_Y;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -116,17 +120,11 @@ void vDrawRectangle(int x, int y, int w, int h, unsigned int colour){
 }
 
 void vDrawCircle(int x, int y, int radius, unsigned int colour){
-    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
-        filledCircleColor(renderer, x, y, radius, SwapBytes((colour << 8) | 0xFF));
-        xSemaphoreGive(DisplayReady);
-    }
+    filledCircleColor(renderer, x, y, radius, SwapBytes((colour << 8) | 0xFF));
 }
 
 void vDrawLine(int x1, int y1, int x2, int y2, unsigned int colour){
-    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
-        lineColor(renderer, x1, y1, x2, y2, SwapBytes((colour << 8) | 0xFF)); 
-        xSemaphoreGive(DisplayReady);
-    }
+    lineColor(renderer, x1, y1, x2, y2, SwapBytes((colour << 8) | 0xFF)); 
 }
 
 void vDrawPoly(coord_t *points, unsigned int n, int colour)
@@ -139,10 +137,7 @@ void vDrawPoly(coord_t *points, unsigned int n, int colour)
         y_coords[i] = points[i].y;
     }
 
-    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
-        polygonColor(renderer, x_coords, y_coords, n, SwapBytes((colour << 8) | 0xFF));
-        xSemaphoreGive(DisplayReady);
-    }
+    polygonColor(renderer, x_coords, y_coords, n, SwapBytes((colour << 8) | 0xFF));
 
     free(x_coords);
     free(y_coords);
@@ -150,11 +145,8 @@ void vDrawPoly(coord_t *points, unsigned int n, int colour)
 }
 
 void vDrawTriangle(coord_t *points, unsigned int colour){
-    if(xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE){
-        filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x, points[1].y,
+    filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x, points[1].y,
             points[2].x, points[2].y, colour << 8);
-        xSemaphoreGive(DisplayReady);
-    }
 }
 
 void vInitDrawing( void )
@@ -173,7 +165,7 @@ void vInitDrawing( void )
     if(!font1)
         logTTFError("InitDrawing->OpenFont");
     
-    window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
 
     if (!window){
         logSDLError("vInitDrawing->CreateWindow");
@@ -193,13 +185,13 @@ void vInitDrawing( void )
 
     SDL_RenderClear(renderer);
 
-    drawJobQueue = xQueueCreate( 100, sizeof(job_t) );
+    drawJobQueue = xQueueCreate( 100, sizeof(draw_job_t) );
     if(!drawJobQueue){
         printf("drawJobQueue init failed\n");
         exit(1);
     }
 
-    xSemaphoreCreateBinary(drawReady);
+    drawReady = xSemaphoreCreateMutex();
 
     if(!drawReady){
         printf("drawReady not created\n");
@@ -266,7 +258,7 @@ void vDrawText(char *string, int x, int y, unsigned int colour)
     stringColor(renderer, 350,350, "sup", SwapBytes((colour << 8) | 0xFF));
 }
 
-void vHandleDrawJob(job_t *job){
+void vHandleDrawJob(draw_job_t *job){
     if(!job) return;
 
     switch(job->type){
@@ -274,22 +266,22 @@ void vHandleDrawJob(job_t *job){
             vClearDisplay();
             break;
         case DRAW_RECT:
-            vDrawRectange(job->data.x, job->data.y, job->data, job->data.w,
-                    job->data->h, job->data.colour);
+            vDrawRectangle(job->data->rect.x, job->data->rect.y, job->data->rect.w,
+                    job->data->rect.h, job->data->rect.colour);
             break;
-        case DRAW_CIRLE:
-            vDrawRectangle(job->data.x, job->data.y, job->data radius,
-                    job->data. colour);
+        case DRAW_CIRCLE:
+            vDrawCircle(job->data->circle.x, job->data->circle.y, 
+                    job->data->circle.radius, job->data->circle.colour);
             break;
         case DRAW_LINE:
-            vDrawLine(job->data.x1, job->data.y1, job->data.x2, job->data.y2,
-                    job->data.colour);
+            vDrawLine(job->data->line.x1, job->data->line.y1, job->data->line.x2, 
+                    job->data->line.y2, job->data->line.colour);
             break;
         case DRAW_POLY:
-            vDrawPoly(job->data.points, job->data.n, job->data.colour);
+            vDrawPoly(job->data->poly.points, job->data->poly.n, job->data->poly.colour);
             break;
         case DRAW_TRIANGLE:
-            vDrawTriangle(job->data.points, job->data.colour);
+            vDrawTriangle(job->data->triangle.points, job->data->triangle.colour);
             break;
         case DRAW_IMAGE:
 
@@ -300,12 +292,23 @@ void vHandleDrawJob(job_t *job){
 }
 
 void vDrawUpdateScreen(void){
-    job_t tmp_job = NULL;
+    draw_job_t tmp_job = {0};
     while(xQueueReceive(drawJobQueue, &tmp_job, 0) == pdTRUE)
-        vHandleDrawJob(tmp_job);
+        vHandleDrawJob(&tmp_job);
     
     SDL_RenderPresent(renderer);
 }
+
+void vHandleSDLEvents(void)
+{
+    SDL_Event e;
+    while(SDL_PollEvent(&e)){
+        if(e.type == SDL_QUIT){
+            SDL_Quit();
+        }
+    }
+}
+
 
 void vSetupScreen(void)
 {
@@ -320,7 +323,8 @@ void vDrawTask ( void *pvParameters )
             vDrawUpdateScreen();
 }
 
-signed char xDrawUpdateScreen(void){
+signed char xDrawUpdateScreen(void)
+{
     if(xSemaphoreGive(drawReady) == pdTRUE)
         return 0;
 
@@ -328,7 +332,7 @@ signed char xDrawUpdateScreen(void){
 }
 
 #define CREATE_JOB(TYPE) \
-    TYPE##_data_t *data = calloc(1, sizeof(TYPE##_data_t));\
+    union data_u *data = calloc(1, sizeof(union data_u));\
     if(!data) \
         logCriticalError("#TYPE data alloc");\
     job.data = data;
@@ -340,8 +344,9 @@ void logCriticalError(char *msg){
 }
         
 
-signed char tumDrawBox(int x, int y, int w, int h, unsigned int colour){
-    job_t job = {.type = DRAW_RECT};
+signed char tumDrawBox(int x, int y, int w, int h, unsigned int colour)
+{
+    draw_job_t job = {.type = DRAW_RECT};
 
     CREATE_JOB(rect);
 
@@ -359,7 +364,7 @@ signed char tumDrawBox(int x, int y, int w, int h, unsigned int colour){
 
 signed char tumDrawClear(void)
 {
-    job_t job = {.type = DRAW_CLEAR};
+    draw_job_t job = {.type = DRAW_CLEAR};
 
     if(xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
         return -1;
@@ -370,7 +375,7 @@ signed char tumDrawClear(void)
 signed char tumDrawCircle(int x, int y, unsigned int radius, 
         unsigned int colour)
 {
-    job_t job = {.type = DRAW_CIRCLE};
+    draw_job_t job = {.type = DRAW_CIRCLE};
 
     CREATE_JOB(circle);
 
@@ -387,7 +392,7 @@ signed char tumDrawCircle(int x, int y, unsigned int radius,
 
 signed char tumDrawLine(int x1, int y1, int x2, int y2, unsigned int colour)
 {
-    job_t job = {.type = DRAW_LINE};
+    draw_job_t job = {.type = DRAW_LINE};
 
     CREATE_JOB(line);
 
@@ -395,7 +400,7 @@ signed char tumDrawLine(int x1, int y1, int x2, int y2, unsigned int colour)
     job.data->line.y1 = y1;
     job.data->line.x2 = x2;
     job.data->line.y2 = y2;
-    job.data->line.colour = colour
+    job.data->line.colour = colour;
     
     if(xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
         return -1;
@@ -405,7 +410,7 @@ signed char tumDrawLine(int x1, int y1, int x2, int y2, unsigned int colour)
 
 signed char tumDrawPoly(coord_t *points, unsigned int n, unsigned int colour)
 {
-    job_t job = {.type = DRAW_POLY};
+    draw_job_t job = {.type = DRAW_POLY};
 
     CREATE_JOB(poly);
 
@@ -421,7 +426,7 @@ signed char tumDrawPoly(coord_t *points, unsigned int n, unsigned int colour)
 
 signed char tumDrawTriangle(coord_t *points, unsigned int colour)
 {
-    job_t job = {.type = DRAW_TRIANGLE};
+    draw_job_t job = {.type = DRAW_TRIANGLE};
 
     CREATE_JOB(triangle);
 

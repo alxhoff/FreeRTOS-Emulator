@@ -28,9 +28,6 @@
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
 #define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
 
-static void vInitDrawing( void );
-static void vDrawTask( void *pvParameters );
-
 void vSwapBuffers(void);
 static void vDemoTask1( void *pvParameters );
 
@@ -39,23 +36,11 @@ int main( int argc, char *argv[] )
     vInitDrawing();
 
     xTaskCreate( vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL );
-    xTaskCreate( vDrawTask, "DrawTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
     xTaskCreate( vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
 
 	vTaskStartScheduler();
 
-    SDL_Quit();
 	return 1;
-}
-
-void vHandleSDLEvents(void)
-{
-    SDL_Event e;
-    while(SDL_PollEvent(&e)){
-        if(e.type == SDL_QUIT){
-            SDL_Quit();
-        }
-    }
 }
 
 void vSwapBuffers(void)

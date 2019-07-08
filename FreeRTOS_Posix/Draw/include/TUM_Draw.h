@@ -1,4 +1,4 @@
-#ifndef __TUM)_DRAW_H__
+#ifndef __TUM_DRAW_H__
 #define __TUM_DRAW_H__
 
 #include "FreeRTOS.h"
@@ -6,11 +6,10 @@
 
 #define DEFAULT_FONT_SIZE   40
 
-
-const int SCREEN_X = 100;
-const int SCREEN_Y = 200;
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+#define SCREEN_X 100;
+#define SCREEN_Y 200;
+#define SCREEN_WIDTH 640;
+#define SCREEN_HEIGHT 480;
 
 typedef struct coord{
     unsigned int x;

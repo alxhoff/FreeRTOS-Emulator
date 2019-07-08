@@ -13,6 +13,7 @@ RM := rm -rf
 -include FreeRTOS_Kernel/subdir.mk
 -include Draw/subdir.mk
 -include Build/FreeRTOS_Kernel/portable/MemMang/subdir.mk
+-include Code/subdir.mk
 -include Build/FreeRTOS_Kernel/portable/GCC/Posix/subdir.mk
 -include Build/FreeRTOS_Kernel/subdir.mk
 -include Build/AsyncIO/subdir.mk
