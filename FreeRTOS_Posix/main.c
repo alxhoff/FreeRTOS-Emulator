@@ -50,7 +50,9 @@ void vSwapBuffers(void)
     const portTickType frameratePeriod = 20;
 
     while(1){
-
+        tumDrawClear();
+        tumDrawCircle(50, 50, 100, 0xFFFFFF);
+        vDrawUpdateScreen();
         vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
     }
 }

@@ -87,7 +87,8 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font1 = NULL;
 xQueueHandle drawJobQueue = NULL;
-xSemaphoreHandle drawReady = NULL;
+
+void vDrawUpdateScreen(void);
 
 uint32_t SwapBytes(uint x)
 {
@@ -190,13 +191,6 @@ void vInitDrawing( void )
         printf("drawJobQueue init failed\n");
         exit(1);
     }
-
-    drawReady = xSemaphoreCreateMutex();
-
-    if(!drawReady){
-        printf("drawReady not created\n");
-        exit(1);
-    }
 }
 
 SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
@@ -291,8 +285,10 @@ void vHandleDrawJob(draw_job_t *job){
         }
 }
 
-void vDrawUpdateScreen(void){
+void vDrawUpdateScreen(void)
+{
     draw_job_t tmp_job = {0};
+
     while(xQueueReceive(drawJobQueue, &tmp_job, 0) == pdTRUE)
         vHandleDrawJob(&tmp_job);
     
@@ -312,23 +308,6 @@ void vHandleSDLEvents(void)
 
 void vSetupScreen(void)
 {
-}
-
-void vDrawTask ( void *pvParameters )
-{
-    vSetupScreen();
-
-    while(1)
-        if(xSemaphoreTake(drawReady, portMAX_DELAY) == pdTRUE)
-            vDrawUpdateScreen();
-}
-
-signed char xDrawUpdateScreen(void)
-{
-    if(xSemaphoreGive(drawReady) == pdTRUE)
-        return 0;
-
-    return -1;
 }
 
 #define CREATE_JOB(TYPE) \

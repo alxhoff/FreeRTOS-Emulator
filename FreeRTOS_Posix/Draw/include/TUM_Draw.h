@@ -11,15 +11,17 @@
 #define SCREEN_WIDTH 640;
 #define SCREEN_HEIGHT 480;
 
+#define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
+#define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
+
+
 typedef struct coord{
     unsigned int x;
     unsigned int y;
 }coord_t;
 
-extern xSemaphoreHandle drawReady;
-
 void vInitDrawing( void );
-signed char xDrawUpdateScreen(void);
+void vDrawUpdateScreen(void);
 
 signed char tumDrawClear(void);
 signed char tumDrawBox(int x, int y, int w, int h, unsigned int colour);
