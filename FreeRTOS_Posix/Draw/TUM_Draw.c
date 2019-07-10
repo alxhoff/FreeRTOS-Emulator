@@ -53,7 +53,10 @@ typedef struct triangle_data{
 }triangle_data_t;
 
 typedef struct image_data{
-
+    char *filename;
+    SDL_Texture *tex;
+    int x;
+    int y;
 }image_data_t;
 
 typedef struct text_data{
@@ -191,6 +194,8 @@ void vInitDrawing( void )
         printf("drawJobQueue init failed\n");
         exit(1);
     }
+
+    
 }
 
 SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
@@ -226,6 +231,13 @@ void vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, int x, int y)
     int w, h;
     SDL_QueryTexture(tex, NULL, NULL, &w, &h); //Get texture dimensions
     vDrawScaledImage(tex, ren, x, y, w, h);
+}
+
+void vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren, int x, int y)
+{
+    SDL_Texture *tex = loadImage(filename, ren);
+
+    vDrawImage(tex, ren, x, y);    
 }
 
 void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip){
@@ -278,7 +290,9 @@ void vHandleDrawJob(draw_job_t *job){
             vDrawTriangle(job->data->triangle.points, job->data->triangle.colour);
             break;
         case DRAW_IMAGE:
-
+            job->data->image.tex = loadImage(job->data->image.filename, renderer);
+            vDrawImage(job->data->image.tex, renderer, job->data->image.x,
+                    job->data->image.y);
             break;
         default:
             break;
@@ -416,4 +430,21 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour)
         return -1;
 
     return 0;
+}
+
+signed char tumDrawImage(char *filename, int x, int y)
+{
+    draw_job_t job = {.type = DRAW_IMAGE};
+
+    CREATE_JOB(image);
+
+    job.data->image.filename = filename;
+    job.data->image.x = x;
+    job.data->image.y = y;
+
+    if(xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
+        return -1;
+
+    return 0;
+    
 }

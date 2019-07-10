@@ -30,5 +30,6 @@ signed char tumDrawCircle(int x, int y, unsigned int radius,
 signed char tumDrawLine(int x1, int y1, int x2, int y2, unsigned int colour);
 signed char tumDrawPoly(coord_t *points, unsigned int n, unsigned int colour);
 signed char tumDrawTriangle(coord_t *points, unsigned int colour);
+signed char tumDrawImage(char *filename, int x, int y);
 
 #endif

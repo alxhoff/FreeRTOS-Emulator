@@ -35,6 +35,9 @@ int main( int argc, char *argv[] )
 {
     vInitDrawing();
 
+    tumDrawImage("background.bmp", 0, 0);
+    vDrawUpdateScreen();
+
     xTaskCreate( vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL );
     xTaskCreate( vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
 
