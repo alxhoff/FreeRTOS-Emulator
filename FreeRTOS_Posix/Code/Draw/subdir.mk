@@ -4,13 +4,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Draw/TUM_Draw.c 
+../Draw/TUM_Draw.c \
+../Draw/TUM_Event.c
 
 OBJS += \
-./Draw/TUM_Draw.o 
+./Draw/TUM_Draw.o \
+./Draw/TUM_Event.o
 
 C_DEPS += \
-./Draw/TUM_Draw.d 
+./Draw/TUM_Draw.d \
+./Draw/TUM_Event.d
 
 
 # Each subdirectory must supply rules for building sources it contributes

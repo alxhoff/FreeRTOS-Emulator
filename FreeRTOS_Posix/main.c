@@ -19,6 +19,7 @@
 #include "croutine.h"
 
 #include "TUM_Draw.h"
+#include "TUM_Event.h"
 
 #include "AsyncIO/AsyncIO.h"
 #include "AsyncIO/AsyncIOSocket.h"
@@ -34,19 +35,8 @@ static void vDemoTask1( void *pvParameters );
 int main( int argc, char *argv[] )
 {
     vInitDrawing();
+    vInitEvents();
 
-    /** tumDrawImage("background.bmp", 0, 0); */
-    /** tumDrawCircle(50, 50, 100, 0xFFFFFF); */
-    /** tumDrawFilledBox(200,300,50, 50, 0x000000); */
-    /** tumDrawLine(300, 200, 300, 300, 0xFF0000); */
-    /** coord_t points[4] = {{.x = 400, .y = 200}, {.x = 450, .y = 250}, */
-    /**     {.x = 400, .y = 300}, {.x = 350, .y = 250}}; */
-    /** tumDrawPoly(points, 4, 0x00FF00); */
-    /** coord_t tri[3] = {{.x = 200, .y = 200},{.x = 300, .y = 200}, {.x = 250, .y = 300}}; */
-    /** tumDrawTriangle(tri, 0x0000FF); */
-    /** vDrawUpdateScreen(); */
-    /** tumDrawDelay(2000);   */
-    /** vExitDrawing(); */
 
     xTaskCreate( vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL );
     xTaskCreate( vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, NULL);
@@ -64,7 +54,6 @@ void vSwapBuffers(void)
 
     while(1){
         tumDrawClear();
-        printf("Drawing circle\n");
         tumDrawCircle(50, 50, 100, 0xFF00FF);
         vDrawUpdateScreen();
         vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
