@@ -26,6 +26,7 @@ void tumDrawDelay(int delay);
 void vDrawUpdateScreen(void);
 
 signed char tumDrawClear(void);
+signed char tumDrawText(char *str, int x, int y, unsigned int colour);
 signed char tumDrawBox(int x, int y, int w, int h, unsigned int colour);
 signed char tumDrawFilledBox(int x, int y, int w, int h, unsigned int colour);
 signed char tumDrawCircle(int x, int y, unsigned int radius, 

@@ -4,12 +4,11 @@
 #include "SDL2/SDL2_gfxPrimitives.h"
 
 #include "TUM_Draw.h"
-#include "task.h"
 #include "queue.h"
-#include "croutine.h"
 
 typedef enum{
     DRAW_CLEAR,
+    DRAW_TEXT,
     DRAW_RECT,
     DRAW_FILLED_RECT,
     DRAW_CIRCLE,
@@ -284,7 +283,7 @@ void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Re
 
 void vDrawText(char *string, int x, int y, unsigned int colour)
 {
-    stringColor(renderer, 350,350, "sup", SwapBytes((colour << 8) | 0xFF));
+    stringColor(renderer, 350,350, string, SwapBytes((colour << 8) | 0xFF));
 }
 
 void vHandleDrawJob(draw_job_t *job){
@@ -293,6 +292,10 @@ void vHandleDrawJob(draw_job_t *job){
     switch(job->type){
         case DRAW_CLEAR:
             vClearDisplay();
+            break;
+        case DRAW_TEXT:
+            vDrawText(job->data->text.str, job->data->text.x, job->data->text.y,
+                    job->data->text.colour);
             break;
         case DRAW_RECT:
             vDrawRectangle(job->data->rect.x, job->data->rect.y, job->data->rect.w,
@@ -336,17 +339,6 @@ void vDrawUpdateScreen(void)
     SDL_RenderPresent(renderer);
 }
 
-void vHandleSDLEvents(void)
-{
-    SDL_Event e;
-    while(SDL_PollEvent(&e)){
-        if(e.type == SDL_QUIT){
-            SDL_Quit();
-        }
-    }
-}
-
-
 void vSetupScreen(void)
 {
 }
@@ -361,6 +353,23 @@ void vSetupScreen(void)
 void logCriticalError(char *msg){
     printf("[ERROR] %s\n", msg);
     exit(-1);
+}
+
+signed char tumDrawText(char *str, int x, int y, unsigned int colour)
+{
+    draw_job_t job = {.type = DRAW_TEXT};
+
+    CREATE_JOB(text);
+
+    job.data->text.str = str;
+    job.data->text.x = x;
+    job.data->text.y = y;
+    job.data->text.colour = colour;
+
+    if(xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
+        return -1;
+
+    return 0;
 }
         
 signed char tumDrawFilledBox(int x, int y, int w, int h, unsigned int colour)

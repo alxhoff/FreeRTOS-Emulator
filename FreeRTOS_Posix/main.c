@@ -29,6 +29,10 @@
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
 #define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
 
+xTaskHandle DemoTask = NULL;
+xTaskHandle StateMachineTask = NULL;
+xTaskHandle checkInput = NULL;
+
 void vSwapBuffers(void);
 static void vDemoTask1( void *pvParameters );
 
@@ -55,6 +59,7 @@ void vSwapBuffers(void)
     while(1){
         tumDrawClear();
         tumDrawCircle(50, 50, 100, 0xFF00FF);
+        tumDrawText("hello world", 50, 50, 0x0000FF);
         vDrawUpdateScreen();
         vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
     }
