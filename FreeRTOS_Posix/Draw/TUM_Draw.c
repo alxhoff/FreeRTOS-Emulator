@@ -11,6 +11,7 @@
 typedef enum{
     DRAW_CLEAR,
     DRAW_RECT,
+    DRAW_FILLED_RECT,
     DRAW_CIRCLE,
     DRAW_LINE,
     DRAW_POLY,
@@ -123,6 +124,11 @@ void vDrawRectangle(int x, int y, int w, int h, unsigned int colour){
     rectangleColor(renderer, x, y, x+w, y+h, SwapBytes((colour << 8) | 0xFF));
 }
 
+void vDrawFilledRectangle(int x, int y, int w, int h, unsigned int colour)
+{
+    boxColor(renderer, x, y, x+w, y+h, SwapBytes((colour << 8) | 0xFF));
+}
+
 void vDrawCircle(int x, int y, int radius, unsigned int colour){
     filledCircleColor(renderer, x, y, radius, SwapBytes((colour << 8) | 0xFF));
 }
@@ -150,7 +156,7 @@ void vDrawPoly(coord_t *points, unsigned int n, int colour)
 
 void vDrawTriangle(coord_t *points, unsigned int colour){
     filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x, points[1].y,
-            points[2].x, points[2].y, colour << 8);
+            points[2].x, points[2].y, SwapBytes((colour << 8) | 0xFF));
 }
 
 void vInitDrawing( void )
@@ -181,6 +187,7 @@ void vInitDrawing( void )
 
     if(!renderer){
         logSDLError("vInitDrawing->CreateRenderer");
+        SDL_DestroyWindow(window);
         SDL_Quit();
         exit(0);
     }
@@ -194,8 +201,24 @@ void vInitDrawing( void )
         printf("drawJobQueue init failed\n");
         exit(1);
     }
+}
 
+void vExitDrawing(void)
+{
+    if(window)
+        SDL_DestroyWindow(window);
+
+    if(renderer)
+        SDL_DestroyRenderer(renderer);
     
+    TTF_Quit();
+
+    SDL_Quit();
+}
+
+void tumDrawDelay(int delay)
+{
+    SDL_Delay(delay);
 }
 
 SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
@@ -275,6 +298,10 @@ void vHandleDrawJob(draw_job_t *job){
             vDrawRectangle(job->data->rect.x, job->data->rect.y, job->data->rect.w,
                     job->data->rect.h, job->data->rect.colour);
             break;
+        case DRAW_FILLED_RECT:
+            vDrawFilledRectangle(job->data->rect.x, job->data->rect.y, job->data->rect.w,
+                    job->data->rect.h, job->data->rect.colour);
+            break;
         case DRAW_CIRCLE:
             vDrawCircle(job->data->circle.x, job->data->circle.y, 
                     job->data->circle.radius, job->data->circle.colour);
@@ -336,6 +363,23 @@ void logCriticalError(char *msg){
     exit(-1);
 }
         
+signed char tumDrawFilledBox(int x, int y, int w, int h, unsigned int colour)
+{
+    draw_job_t job = {.type = DRAW_FILLED_RECT};
+
+    CREATE_JOB(rect);
+
+    job.data->rect.x = x;
+    job.data->rect.y = y;
+    job.data->rect.w = w;
+    job.data->rect.h = h;
+    job.data->rect.colour = colour;
+
+    if(xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
+        return -1;
+
+    return 0;
+}
 
 signed char tumDrawBox(int x, int y, int w, int h, unsigned int colour)
 {

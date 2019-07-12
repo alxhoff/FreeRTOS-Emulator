@@ -21,10 +21,13 @@ typedef struct coord{
 }coord_t;
 
 void vInitDrawing( void );
+void vExitDrawing(void);
+void tumDrawDelay(int delay);
 void vDrawUpdateScreen(void);
 
 signed char tumDrawClear(void);
 signed char tumDrawBox(int x, int y, int w, int h, unsigned int colour);
+signed char tumDrawFilledBox(int x, int y, int w, int h, unsigned int colour);
 signed char tumDrawCircle(int x, int y, unsigned int radius, 
         unsigned int colour);
 signed char tumDrawLine(int x1, int y1, int x2, int y2, unsigned int colour);
