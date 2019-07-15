@@ -91,6 +91,8 @@ SDL_Renderer *renderer = NULL;
 TTF_Font *font1 = NULL;
 xQueueHandle drawJobQueue = NULL;
 
+xSemaphoreHandle DisplayReady = NULL;
+
 void vDrawUpdateScreen(void);
 
 uint32_t SwapBytes(uint x)
@@ -166,20 +168,24 @@ void vInitDrawing( void )
 
     ret = TTF_Init();
 
-    if (ret == -1)
+    if (ret == -1){
         logTTFError("InitDrawing->Init");
+        exit(-1);
+    }
 
     font1 = TTF_OpenFont("fonts/IBMPlexSans-Medium.ttf", DEFAULT_FONT_SIZE);
 
-    if(!font1)
+    if(!font1){
         logTTFError("InitDrawing->OpenFont");
+        exit(-1);
+    }
     
     window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
 
     if (!window){
         logSDLError("vInitDrawing->CreateWindow");
         SDL_Quit();
-        exit(0);
+        exit(-1);
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -188,7 +194,7 @@ void vInitDrawing( void )
         logSDLError("vInitDrawing->CreateRenderer");
         SDL_DestroyWindow(window);
         SDL_Quit();
-        exit(0);
+        exit(-1);
     }
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -198,7 +204,14 @@ void vInitDrawing( void )
     drawJobQueue = xQueueCreate( 100, sizeof(draw_job_t) );
     if(!drawJobQueue){
         printf("drawJobQueue init failed\n");
-        exit(1);
+        exit(-1);
+    }
+
+    DisplayReady = xSemaphoreCreateMutex();
+
+    if(!DisplayReady){
+        printf("DisplayReady semaphore not created\n");
+        exit(-1);
     }
 }
 
@@ -327,6 +340,8 @@ void vHandleDrawJob(draw_job_t *job){
         default:
             break;
         }
+
+    xSemaphoreGive(DisplayReady);
 }
 
 void vDrawUpdateScreen(void)

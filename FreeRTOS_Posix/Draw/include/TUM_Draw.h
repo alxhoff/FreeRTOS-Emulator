@@ -14,6 +14,7 @@
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
 #define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
 
+extern xSemaphoreHandle DisplayReady;
 
 typedef struct coord{
     unsigned int x;
