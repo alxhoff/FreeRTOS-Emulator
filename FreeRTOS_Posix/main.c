@@ -33,11 +33,16 @@
 
 #define STATE_COUNT 2
 
-#define STATE_ONE   1
-#define STATE_TWO   2
+#define STATE_ONE   0
+#define STATE_TWO   1
 
 #define NEXT_TASK   1
 #define PREV_TASK   2
+
+#define STARTING_STATE  STATE_ONE
+
+const unsigned char next_state_signal = NEXT_TASK;
+const unsigned char prev_state_signal = PREV_TASK;
 
 xTaskHandle DemoTask1 = NULL;
 xTaskHandle DemoTask2 = NULL;
@@ -54,12 +59,12 @@ void changeState(volatile unsigned char *state, unsigned char forwards) {
 	switch (forwards) {
 	case 0:
 		if (*state == 0)
-			*state = STATE_COUNT;
+			*state = STATE_COUNT - 1;
 		else
 			(*state)--;
 		break;
 	case 1:
-		if (*state == STATE_COUNT)
+		if (*state == STATE_COUNT - 1)
 			*state = 0;
 		else
 			(*state)++;
@@ -74,7 +79,7 @@ void changeState(volatile unsigned char *state, unsigned char forwards) {
  */
 void basicSequentialStateMachine(void *pvParameters)
 {
-    unsigned char current_state = 1; // Default state 	
+    unsigned char current_state = STARTING_STATE; // Default state 	
     unsigned char state_changed = 1; // Only re-evaluate state if it has changed 	
     unsigned char input = 0; 	
     while (1) { 		
@@ -130,8 +135,25 @@ void vSwapBuffers(void)
 void vDemoTask1 ( void *pvParameters )
 {
     const char hello_string[] = "hello world";
+
+    char button_event;
+
     while(1){
         if(xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE){
+
+            if(xQueueReceive(inputQueue, &button_event, 0) == pdTRUE){
+                switch(button_event){
+                    case 'e':
+                        xQueueSend(StateQueue, &next_state_signal, 100);
+                        break;
+                    case 'f':
+                        xQueueSend(StateQueue, &prev_state_signal, 100);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             tumDrawClear();
             tumDrawText((char*)hello_string, 50, 50, 0x0000FF);
         }
@@ -140,9 +162,25 @@ void vDemoTask1 ( void *pvParameters )
 
 void vDemoTask2 (void *pvParameters )
 {
+    char button_event;
+
     while(1)
     {
         if(xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE){
+
+            if(xQueueReceive(inputQueue, &button_event, 0) == pdTRUE){
+                switch(button_event){
+                    case 'e':
+                        xQueueSend(StateQueue, &next_state_signal, 100);
+                        break;
+                    case 'f':
+                        xQueueSend(StateQueue, &prev_state_signal, 100);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             tumDrawClear();
             tumDrawCircle(50, 50, 100, 0xFF00FF);
         }
@@ -158,6 +196,9 @@ int main( int argc, char *argv[] )
     xTaskCreate( vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, &DemoTask2);
     xTaskCreate( basicSequentialStateMachine, "StateMachine", mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
     xTaskCreate( vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
+    
+    vTaskSuspend(DemoTask1);
+    vTaskSuspend(DemoTask2);
 
     DrawReady = xSemaphoreCreateMutex();
 

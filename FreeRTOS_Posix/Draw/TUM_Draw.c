@@ -340,8 +340,6 @@ void vHandleDrawJob(draw_job_t *job){
         default:
             break;
         }
-
-    xSemaphoreGive(DisplayReady);
 }
 
 void vDrawUpdateScreen(void)
@@ -352,6 +350,8 @@ void vDrawUpdateScreen(void)
         vHandleDrawJob(&tmp_job);
     
     SDL_RenderPresent(renderer);
+    
+    xSemaphoreGive(DisplayReady);
 }
 
 void vSetupScreen(void)
