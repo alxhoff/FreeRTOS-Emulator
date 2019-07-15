@@ -213,6 +213,8 @@ void vInitDrawing( void )
         printf("DisplayReady semaphore not created\n");
         exit(-1);
     }
+
+    atexit(SDL_Quit);
 }
 
 void vExitDrawing(void)
@@ -296,7 +298,7 @@ void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Re
 
 void vDrawText(char *string, int x, int y, unsigned int colour)
 {
-    stringColor(renderer, 350,350, string, SwapBytes((colour << 8) | 0xFF));
+    stringColor(renderer, x, y, string, SwapBytes((colour << 8) | 0xFF));
 }
 
 void vHandleDrawJob(draw_job_t *job){
@@ -307,30 +309,33 @@ void vHandleDrawJob(draw_job_t *job){
             vClearDisplay();
             break;
         case DRAW_TEXT:
-            vDrawText(job->data->text.str, job->data->text.x, job->data->text.y,
-                    job->data->text.colour);
+            vDrawText(job->data->text.str, job->data->text.x, 
+                    job->data->text.y, job->data->text.colour);
+            free(job->data->text.str);
             break;
         case DRAW_RECT:
-            vDrawRectangle(job->data->rect.x, job->data->rect.y, job->data->rect.w,
-                    job->data->rect.h, job->data->rect.colour);
+            vDrawRectangle(job->data->rect.x, job->data->rect.y, 
+                    job->data->rect.w, job->data->rect.h, job->data->rect.colour);
             break;
         case DRAW_FILLED_RECT:
-            vDrawFilledRectangle(job->data->rect.x, job->data->rect.y, job->data->rect.w,
-                    job->data->rect.h, job->data->rect.colour);
+            vDrawFilledRectangle(job->data->rect.x, job->data->rect.y, 
+                    job->data->rect.w, job->data->rect.h, job->data->rect.colour);
             break;
         case DRAW_CIRCLE:
             vDrawCircle(job->data->circle.x, job->data->circle.y, 
                     job->data->circle.radius, job->data->circle.colour);
             break;
         case DRAW_LINE:
-            vDrawLine(job->data->line.x1, job->data->line.y1, job->data->line.x2, 
-                    job->data->line.y2, job->data->line.colour);
+            vDrawLine(job->data->line.x1, job->data->line.y1, 
+                    job->data->line.x2, job->data->line.y2, job->data->line.colour);
             break;
         case DRAW_POLY:
-            vDrawPoly(job->data->poly.points, job->data->poly.n, job->data->poly.colour);
+            vDrawPoly(job->data->poly.points, job->data->poly.n, 
+                    job->data->poly.colour);
             break;
         case DRAW_TRIANGLE:
-            vDrawTriangle(job->data->triangle.points, job->data->triangle.colour);
+            vDrawTriangle(job->data->triangle.points, 
+                    job->data->triangle.colour);
             break;
         case DRAW_IMAGE:
             job->data->image.tex = loadImage(job->data->image.filename, renderer);
@@ -339,7 +344,8 @@ void vHandleDrawJob(draw_job_t *job){
             break;
         default:
             break;
-        }
+    }
+    free(job->data);
 }
 
 void vDrawUpdateScreen(void)
@@ -376,7 +382,9 @@ signed char tumDrawText(char *str, int x, int y, unsigned int colour)
 
     CREATE_JOB(text);
 
-    job.data->text.str = str;
+    job.data->text.str = malloc(sizeof(char) * (strlen(str) + 1));
+    //TODO checking
+    strcpy(job.data->text.str, str);
     job.data->text.x = x;
     job.data->text.y = y;
     job.data->text.colour = colour;

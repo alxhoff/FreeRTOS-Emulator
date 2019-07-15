@@ -6,10 +6,11 @@
 
 #define DEFAULT_FONT_SIZE   40
 
-#define SCREEN_X 100;
-#define SCREEN_Y 200;
-#define SCREEN_WIDTH 640;
-#define SCREEN_HEIGHT 480;
+#define SCREEN_X 100
+#define SCREEN_Y 200
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+#define ASPECT_RATIO SCREEN_WIDTH/SCREEN_HEIGHT
 
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
 #define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
