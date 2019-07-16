@@ -1,5 +1,0 @@
-/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/build/CMakeFiles/rebuild_cache.dir
-/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/build/CMakeFiles/edit_cache.dir
-/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/build/CMakeFiles/FreeRTOS_Simulator.dir
-/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/build/CMakeFiles/FREERTOS.dir
-/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/build/CMakeFiles/GFX.dir

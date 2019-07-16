@@ -5,10 +5,32 @@
 
 #include "TUM_Draw.h"
 
+typedef struct mouse{
+    xSemaphoreHandle lock;
+    signed short x;
+    signed short y;
+}mouse_t;
+
 xTaskHandle eventTask = NULL;
 xQueueHandle inputQueue = NULL;
 
-static unsigned int mouseX = 0, mouseY = 0;
+mouse_t *mouse;
+
+mouse_t *initMouse(void)
+{
+    mouse_t *ret = calloc(1, sizeof(mouse_t));
+
+    if(!ret){
+        printf("Couldn't init mouse\n");
+        exit(-1);
+    }
+
+    ret->lock = xSemaphoreCreateMutex();
+
+    xSemaphoreGive(ret->lock);
+    
+    return ret;
+}
 
 void vEventsTask(void *pvParameters) {
 	portTickType xLastWakeTime;
@@ -107,8 +129,10 @@ void vEventsTask(void *pvParameters) {
 					break;
 				}
 			} else if (event.type == SDL_MOUSEMOTION) {
-				mouseX = event.motion.x;
-				mouseY = event.motion.y;
+                xSemaphoreTake(mouse->lock, portMAX_DELAY);
+				mouse->x = event.motion.x;
+				mouse->y = event.motion.y;
+                xSemaphoreGive(mouse->lock);
 			} else {
 				printf("Other event: %d\n", event.type);
 			}
@@ -123,15 +147,36 @@ void vEventsTask(void *pvParameters) {
 	}
 }
 
-int xGetMouseX(void) {
-	return mouseX;
+int xGetMouseX(void) 
+{
+    signed short ret;
+
+    if(!mouse)
+        return 0;
+
+    xSemaphoreTake(mouse->lock, portMAX_DELAY);
+    ret = mouse->x;
+    xSemaphoreGive(mouse->lock);
+	return ret;
 }
 
-int xGetMouseY(void) {
-	return mouseY;
+int xGetMouseY(void) 
+{
+    signed short ret;
+    
+    if(!mouse)
+        return 0;
+
+    xSemaphoreTake(mouse->lock, portMAX_DELAY);
+    ret = mouse->y;
+    xSemaphoreGive(mouse->lock);
+	return ret;
 }
 
-void vInitEvents(void) {
+void vInitEvents(void) 
+{
+    mouse = initMouse();
+
 	inputQueue = xQueueCreate(10, sizeof(buttons_t));
 	if (!inputQueue) {
 		printf("input queue create failed\n");

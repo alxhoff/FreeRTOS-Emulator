@@ -14,10 +14,10 @@ MESSAGE(STATUS "SDL2_gfx Libraries: " ${SDL2_GFX_LIBRARIES})
 MESSAGE(STATUS "SDL2_gfx Includes: " ${SDL2_GFX_INCLUDE_DIRS})
 include_directories(${SDL2_GFX_INCLUDE_DIRS})
 
-find_package(SDL2_ttf REQUIRED)
-MESSAGE(STATUS "SDL2_ttf Libraries: " ${SDL2_TTF_LIBRARIES})
-MESSAGE(STATUS "SDL2_ttf Includes: " ${SDL2_TTF_INCLUDE_DIRS})
-include_directories(${SDL2_TTF_INCLUDE_DIRS})
+# find_package(SDL2_ttf REQUIRED)
+# MESSAGE(STATUS "SDL2_ttf Libraries: " ${SDL2_TTF_LIBRARIES})
+# MESSAGE(STATUS "SDL2_ttf Includes: " ${SDL2_TTF_INCLUDE_DIRS})
+# include_directories(${SDL2_TTF_INCLUDE_DIRS})
 
 find_package(SDL2_image REQUIRED)
 MESSAGE(STATUS "SDL2_image Libraries: " ${SDL2_IMAGE_LIBRARIES})
@@ -56,6 +56,6 @@ MESSAGE(STATUS "Simulator Sources: " ${SIMULATOR_SOURCES})
 add_executable(FreeRTOS_Simulator ${SIMULATOR_SOURCES})
 
 target_link_libraries(FreeRTOS_Simulator ${SDL2_LIBRARIES} ${SDL2_GFX_LIBRARIES}
-    ${SDL2_TTF_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} FREERTOS GFX)
+    ${SDL2_TTF_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} FREERTOS GFX m)
 
 

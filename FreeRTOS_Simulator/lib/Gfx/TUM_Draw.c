@@ -1,6 +1,5 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-#include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL2_gfxPrimitives.h"
 
 #include "TUM_Draw.h"
@@ -114,7 +113,6 @@ const int screen_y = SCREEN_Y;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-TTF_Font *font1 = NULL;
 xQueueHandle drawJobQueue = NULL;
 
 xSemaphoreHandle DisplayReady = NULL;
@@ -129,11 +127,6 @@ uint32_t SwapBytes(uint x) {
 void logSDLError(char *msg) {
 	if (msg)
 		printf("[ERROR] %s, %s\n", msg, SDL_GetError());
-}
-
-void logTTFError(char *msg) {
-	if (msg)
-		printf("[ERROR] %s, %s\n", msg, TTF_GetError());
 }
 
 void vClearDisplay(unsigned int colour) {
@@ -203,20 +196,6 @@ void vInitDrawing(void) {
 
 	SDL_Init( SDL_INIT_EVERYTHING);
 
-	ret = TTF_Init();
-
-	if (ret == -1) {
-		logTTFError("InitDrawing->Init");
-		exit(-1);
-	}
-
-	font1 = TTF_OpenFont("../lib/fonts/IBMPlexSans-Medium.ttf", DEFAULT_FONT_SIZE);
-
-	if (!font1) {
-		logTTFError("InitDrawing->OpenFont");
-		exit(-1);
-	}
-
 	window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED,
 	SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
 
@@ -262,8 +241,6 @@ void vExitDrawing(void) {
 
 	if (renderer)
 		SDL_DestroyRenderer(renderer);
-
-	TTF_Quit();
 
 	SDL_Quit();
 }

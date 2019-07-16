@@ -11,6 +11,7 @@
 #include <mqueue.h>
 #include <errno.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -21,10 +22,7 @@
 #include "TUM_Draw.h"
 #include "TUM_Event.h"
 
-#include "AsyncIO.h"
-#include "AsyncIOSocket.h"
-#include "PosixMessageQueueIPC.h"
-#include "AsyncIOSerial.h"
+/** #include "AsyncIOSerial.h" */
 
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
 #define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
@@ -49,6 +47,8 @@
 #define Fuchsia 0xFF00FF
 #define White   0xFFFFFF
 #define Black   0x000000
+
+#define PI  3.14159265358979323846
 
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
@@ -181,13 +181,13 @@ void vDemoTask1(void *pvParameters) {
 			if (buttons.f)
 				xQueueSend(StateQueue, &prev_state_signal, 100);
 
-			tumDrawClear(Aqua);
+			tumDrawClear(White);
 
 			tumDrawFilledBox(caveX - cave_thickness, caveY - cave_thickness,
 					caveSizeX + cave_thickness * 2,
 					caveSizeY + cave_thickness * 2,
 					Red);
-			tumDrawFilledBox(caveX, caveY, caveSizeX, caveSizeY, White);
+			tumDrawFilledBox(caveX, caveY, caveSizeX, caveSizeY, Aqua);
 
 			sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(),
 					xGetMouseY());
@@ -211,6 +211,11 @@ void vDemoTask1(void *pvParameters) {
 
 void vDemoTask2(void *pvParameters) {
 	buttons_t buttons;
+    const signed short path_radius = 75;
+    const unsigned char rotation_steps = 255;
+    const char str[] = "Hello World";
+
+    float rotation = 0;
 
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
@@ -222,17 +227,34 @@ void vDemoTask2(void *pvParameters) {
 			if (buttons.f)
 				xQueueSend(StateQueue, &prev_state_signal, 100);
 
-			tumDrawClear(Aqua);
-			tumDrawCircle(200, 200, 100, 0xFF00FF);
-			tumDrawArc(300, 300, 50, 0, 180, 0xFF00FF);
-			tumDrawEllipse(400, 400, 70, 30, 0xFF00FF);
+            if(rotation >= 2 * PI)
+                rotation = 0;
+            else
+                rotation += 2 * PI / rotation_steps;
+
+			tumDrawClear(White);
+
+			tumDrawCircle(
+                    SCREEN_WIDTH / 2 + 2 * path_radius * cos(rotation) - 25, 
+                    SCREEN_HEIGHT / 2 + 2 * path_radius * sin(rotation) - 25, 
+                    25, Green);
+
+            tumDrawFilledBox(
+                    SCREEN_WIDTH / 2 + 2 * path_radius * cos(fmod(rotation + 2 * PI / 3, 2 * PI)) - 25,
+                    SCREEN_HEIGHT / 2 + 2 * path_radius * sin(fmod(rotation + 2 * PI / 3, 2 * PI)) - 25,
+                    50, 50, Blue);
+
+            tumDrawText(str,
+                    SCREEN_WIDTH / 2 + 2 * path_radius * cos(fmod(rotation + 4 * PI / 3, 2 * PI)),
+                    SCREEN_HEIGHT / 2 + 2 * path_radius * sin(fmod(rotation + 4 * PI / 3, 2 * PI)),
+                    Red);
 		}
 	}
 }
 
 int main(int argc, char *argv[]) {
-	vInitDrawing();
 	vInitEvents();
+	vInitDrawing();
 
 	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
 			mainGENERIC_PRIORITY, &DemoTask1);
@@ -269,8 +291,6 @@ void vMainQueueSendPassed(void) {
 	/* This is just an example implementation of the "queue send" trace hook. */
 }
 
-void vMessageQueueReceive(xMessageObject xMsg, void *pvContext) {
-}
 
 void vApplicationIdleHook(void) {
 #ifdef __GCC_POSIX__
