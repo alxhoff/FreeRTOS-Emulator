@@ -211,11 +211,11 @@ void vDemoTask1(void *pvParameters) {
 
 void vDemoTask2(void *pvParameters) {
 	buttons_t buttons;
-    const signed short path_radius = 75;
-    const unsigned char rotation_steps = 255;
-    const char str[] = "Hello World";
+	const signed short path_radius = 75;
+	const unsigned char rotation_steps = 255;
+	const char str[] = "Hello World";
 
-    float rotation = 0;
+	float rotation = 0;
 
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
@@ -227,27 +227,36 @@ void vDemoTask2(void *pvParameters) {
 			if (buttons.f)
 				xQueueSend(StateQueue, &prev_state_signal, 100);
 
-            if(rotation >= 2 * PI)
-                rotation = 0;
-            else
-                rotation += 2 * PI / rotation_steps;
+			if (rotation >= 2 * PI)
+				rotation = 0;
+			else
+				rotation += 2 * PI / rotation_steps;
 
 			tumDrawClear(White);
 
 			tumDrawCircle(
-                    SCREEN_WIDTH / 2 + 2 * path_radius * cos(rotation) - 25, 
-                    SCREEN_HEIGHT / 2 + 2 * path_radius * sin(rotation) - 25, 
-                    25, Green);
+			SCREEN_WIDTH / 2 + 2 * path_radius * cos(rotation) - 25,
+			SCREEN_HEIGHT / 2 + 2 * path_radius * sin(rotation) - 25, 25,
+			Green);
 
-            tumDrawFilledBox(
-                    SCREEN_WIDTH / 2 + 2 * path_radius * cos(fmod(rotation + 2 * PI / 3, 2 * PI)) - 25,
-                    SCREEN_HEIGHT / 2 + 2 * path_radius * sin(fmod(rotation + 2 * PI / 3, 2 * PI)) - 25,
-                    50, 50, Blue);
+			tumDrawFilledBox(
+					SCREEN_WIDTH / 2
+							+ 2 * path_radius
+									* cos(fmod(rotation + 2 * PI / 3, 2 * PI))
+							- 25,
+					SCREEN_HEIGHT / 2
+							+ 2 * path_radius
+									* sin(fmod(rotation + 2 * PI / 3, 2 * PI))
+							- 25, 50, 50, Blue);
 
-            tumDrawText(str,
-                    SCREEN_WIDTH / 2 + 2 * path_radius * cos(fmod(rotation + 4 * PI / 3, 2 * PI)),
-                    SCREEN_HEIGHT / 2 + 2 * path_radius * sin(fmod(rotation + 4 * PI / 3, 2 * PI)),
-                    Red);
+			tumDrawText(str,
+					SCREEN_WIDTH / 2
+							+ 2 * path_radius
+									* cos(fmod(rotation + 4 * PI / 3, 2 * PI)),
+					SCREEN_HEIGHT / 2
+							+ 2 * path_radius
+									* sin(fmod(rotation + 4 * PI / 3, 2 * PI)),
+					Red);
 		}
 	}
 }
@@ -290,7 +299,6 @@ int main(int argc, char *argv[]) {
 void vMainQueueSendPassed(void) {
 	/* This is just an example implementation of the "queue send" trace hook. */
 }
-
 
 void vApplicationIdleHook(void) {
 #ifdef __GCC_POSIX__
