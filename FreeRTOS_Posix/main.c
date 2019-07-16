@@ -86,200 +86,198 @@ void changeState(volatile unsigned char *state, unsigned char forwards) {
 /*
  * Example basic state machine with sequential states
  */
-void basicSequentialStateMachine(void *pvParameters)
-{
-    unsigned char current_state = STARTING_STATE; // Default state 	
-    unsigned char state_changed = 1; // Only re-evaluate state if it has changed 	
-    unsigned char input = 0; 	
+void basicSequentialStateMachine(void *pvParameters) {
+	unsigned char current_state = STARTING_STATE; // Default state
+	unsigned char state_changed = 1; // Only re-evaluate state if it has changed
+	unsigned char input = 0;
 
-    const int state_change_period = 75;
+	const int state_change_period = 75;
 
-    portTickType last_change = xTaskGetTickCount();    
+	portTickType last_change = xTaskGetTickCount();
 
-    while (1) { 		
-        if (state_changed) 			
-            goto initial_state; 		
+	while (1) {
+		if (state_changed)
+			goto initial_state;
 
-        // Handle state machine input 		
-        if (xQueueReceive(StateQueue, &input, portMAX_DELAY) == pdTRUE){ 			
-            if (input == NEXT_TASK) { 				
-                changeState(&current_state, 1); 				
-                if(xTaskGetTickCount() - last_change > state_change_period){
-                    state_changed = 1; 			
-                    last_change = xTaskGetTickCount();
-                }
-            } else if (input == PREV_TASK) { 				
-                changeState(&current_state, 0); 				
-                if(xTaskGetTickCount() - last_change > state_change_period){
-                    state_changed = 1; 			
-                    last_change = xTaskGetTickCount();
-                }
-            } 		
-        } 		
-initial_state: 		
-        // Handle current state 		
-        if (state_changed) { 			
-            switch (current_state) { 			
-                case STATE_ONE: 				
-                    vTaskSuspend(DemoTask2); 				
-                    vTaskResume(DemoTask1); 				
-                    state_changed = 0; 				
-                    break; 			
-                case STATE_TWO: 				
-                    vTaskSuspend(DemoTask1); 				
-                    vTaskResume(DemoTask2); 				
-                    state_changed = 0; 				
-                    break; 			
-                default: 				
-                    break; 			
-            } 		
-        } 	
-    }
+		// Handle state machine input
+		if (xQueueReceive(StateQueue, &input, portMAX_DELAY) == pdTRUE) {
+			if (input == NEXT_TASK) {
+				changeState(&current_state, 1);
+				if (xTaskGetTickCount() - last_change > state_change_period) {
+					state_changed = 1;
+					last_change = xTaskGetTickCount();
+				}
+			} else if (input == PREV_TASK) {
+				changeState(&current_state, 0);
+				if (xTaskGetTickCount() - last_change > state_change_period) {
+					state_changed = 1;
+					last_change = xTaskGetTickCount();
+				}
+			}
+		}
+		initial_state:
+		// Handle current state
+		if (state_changed) {
+			switch (current_state) {
+			case STATE_ONE:
+				vTaskSuspend(DemoTask2);
+				vTaskResume(DemoTask1);
+				state_changed = 0;
+				break;
+			case STATE_TWO:
+				vTaskSuspend(DemoTask1);
+				vTaskResume(DemoTask2);
+				state_changed = 0;
+				break;
+			default:
+				break;
+			}
+		}
+	}
 }
 
-void vSwapBuffers(void)
-{
-    portTickType xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
-    const portTickType frameratePeriod = 20;
+void vSwapBuffers(void) {
+	portTickType xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+	const portTickType frameratePeriod = 20;
 
-    while(1){
+	while (1) {
 
-        xSemaphoreGive(DrawReady);
-        vDrawUpdateScreen();
-        xSemaphoreTake(DisplayReady, portMAX_DELAY);
-        vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
-    }
+		xSemaphoreGive(DrawReady);
+		vDrawUpdateScreen();
+		xSemaphoreTake(DisplayReady, portMAX_DELAY);
+		vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
+	}
 }
 
-void xGetButtonInput(buttons_t *but)
-{
-    while(xQueueReceive(inputQueue, but, 0) == pdTRUE)
-        ; //Get newest packet and clear the rest
+void xGetButtonInput(buttons_t *but) {
+	while (xQueueReceive(inputQueue, but, 0) == pdTRUE)
+		; //Get newest packet and clear the rest
 }
 
-void vDemoTask1 ( void *pvParameters )
-{
-    buttons_t buttons;
-    const unsigned char cave_thickness = 25;
-    signed char ret = 0;
+void vDemoTask1(void *pvParameters) {
+	buttons_t buttons;
+	const unsigned char cave_thickness = 25;
+	signed char ret = 0;
 
-    /* building the cave:
-	caveX and caveY define the top left corner of the cave
-	*/
-    const uint16_t caveSizeX = SCREEN_WIDTH / 2;
-    const uint16_t caveSizeY = SCREEN_HEIGHT / 2;
+	/* building the cave:
+	 caveX and caveY define the top left corner of the cave
+	 */
+	const uint16_t caveSizeX = SCREEN_WIDTH / 2;
+	const uint16_t caveSizeY = SCREEN_HEIGHT / 2;
 	const uint16_t caveX = SCREEN_WIDTH / 2 - caveSizeX / 2;
-    const uint16_t caveY = SCREEN_HEIGHT / 2 - caveSizeY / 2;
+	const uint16_t caveY = SCREEN_HEIGHT / 2 - caveSizeY / 2;
 	uint16_t circlePositionX = caveX, circlePositionY = caveY;
 
-    char str[100];
+	char str[100];
 
-    while(1){
-        if(xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE){
-            
-            xGetButtonInput(&buttons);
+	while (1) {
+		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
 
-           if(buttons.e)
-                xQueueSend(StateQueue, &next_state_signal, 100);
-            if(buttons.f)    
-                xQueueSend(StateQueue, &prev_state_signal, 100);
+			xGetButtonInput(&buttons);
 
-            tumDrawClear();
+			if (buttons.e)
+				xQueueSend(StateQueue, &next_state_signal, 100);
+			if (buttons.f)
+				xQueueSend(StateQueue, &prev_state_signal, 100);
 
-            tumDrawFilledBox(caveX - cave_thickness, caveY - cave_thickness, 
-                    caveSizeX + cave_thickness * 2, caveSizeY + cave_thickness * 2, 
-                    Red);
-            tumDrawFilledBox(caveX, caveY, caveSizeX, caveSizeY, White);
+			tumDrawClear(Aqua);
 
-            sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(), xGetMouseY());
+			tumDrawFilledBox(caveX - cave_thickness, caveY - cave_thickness,
+					caveSizeX + cave_thickness * 2,
+					caveSizeY + cave_thickness * 2,
+					Red);
+			tumDrawFilledBox(caveX, caveY, caveSizeX, caveSizeY, White);
 
-            tumDrawText(str, 5, 5, Black);
+			sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(),
+					xGetMouseY());
 
-            sprintf(str, "A: %d | B: %d | C %d | D: %d | E: %d | F: %d",
-                    buttons.a, buttons.b, buttons.c, buttons.d,
-                    buttons.e, buttons.f);
+			tumDrawText(str, 5, 5, Black);
 
-            tumDrawText(str, 5, 20, Black);
-            //TODO text height and length
+			sprintf(str, "A: %d | B: %d | C %d | D: %d | E: %d | F: %d",
+					buttons.a, buttons.b, buttons.c, buttons.d, buttons.e,
+					buttons.f);
 
-            circlePositionX = caveX + xGetMouseX() / 2;
-            circlePositionY = caveY + xGetMouseY() / 2;
-            
-            tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
-        }
-    }
+			tumDrawText(str, 5, 20, Black);
+			//TODO text height and length
+
+			circlePositionX = caveX + xGetMouseX() / 2;
+			circlePositionY = caveY + xGetMouseY() / 2;
+
+			tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
+		}
+	}
 }
 
-void vDemoTask2 (void *pvParameters )
-{
-    buttons_t buttons;
+void vDemoTask2(void *pvParameters) {
+	buttons_t buttons;
 
-    while(1)
-    {
-        if(xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE){
+	while (1) {
+		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
 
-            xGetButtonInput(&buttons);
+			xGetButtonInput(&buttons);
 
-           if(buttons.e)
-                xQueueSend(StateQueue, &next_state_signal, 100);
-            if(buttons.f)    
-                xQueueSend(StateQueue, &prev_state_signal, 100);
+			if (buttons.e)
+				xQueueSend(StateQueue, &next_state_signal, 100);
+			if (buttons.f)
+				xQueueSend(StateQueue, &prev_state_signal, 100);
 
-            tumDrawClear();
-            tumDrawCircle(200, 200, 100, 0xFF00FF);
-        }
-    }
+			tumDrawClear(Aqua);
+			tumDrawCircle(200, 200, 100, 0xFF00FF);
+			tumDrawArc(300, 300, 50, 0, 180, 0xFF00FF);
+			tumDrawEllipse(400, 400, 70, 30, 0xFF00FF);
+		}
+	}
 }
 
-int main( int argc, char *argv[] )
-{
-    vInitDrawing();
-    vInitEvents();
+int main(int argc, char *argv[]) {
+	vInitDrawing();
+	vInitEvents();
 
-    xTaskCreate( vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, &DemoTask1);
-    xTaskCreate( vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY, &DemoTask2);
-    xTaskCreate( basicSequentialStateMachine, "StateMachine", mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
-    xTaskCreate( vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
-    
-    vTaskSuspend(DemoTask1);
-    vTaskSuspend(DemoTask2);
+	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
+			mainGENERIC_PRIORITY, &DemoTask1);
+	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
+			mainGENERIC_PRIORITY, &DemoTask2);
+	xTaskCreate(basicSequentialStateMachine, "StateMachine",
+			mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL);
+	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL,
+			configMAX_PRIORITIES, NULL);
 
-    DrawReady = xSemaphoreCreateMutex();
+	vTaskSuspend(DemoTask1);
+	vTaskSuspend(DemoTask2);
 
-    if(!DrawReady){
-        printf("DrawReady semaphore not created\n");
-        exit(-1);
-    }
+	DrawReady = xSemaphoreCreateMutex();
 
-    StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
+	if (!DrawReady) {
+		printf("DrawReady semaphore not created\n");
+		exit(-1);
+	}
 
-    if(!StateQueue){
-        printf("StateQueue queue not created\n");
-        exit(-1);
-    }
+	StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
+
+	if (!StateQueue) {
+		printf("StateQueue queue not created\n");
+		exit(-1);
+	}
 
 	vTaskStartScheduler();
 
 	return 1;
 }
 
-void vMainQueueSendPassed( void )
-{
+void vMainQueueSendPassed(void) {
 	/* This is just an example implementation of the "queue send" trace hook. */
 }
 
-void vMessageQueueReceive( xMessageObject xMsg, void *pvContext )
-{
+void vMessageQueueReceive(xMessageObject xMsg, void *pvContext) {
 }
 
-void vApplicationIdleHook( void )
-{
+void vApplicationIdleHook(void) {
 #ifdef __GCC_POSIX__
 	struct timespec xTimeToSleep, xTimeSlept;
-		/* Makes the process more agreeable when using the Posix simulator. */
-		xTimeToSleep.tv_sec = 1;
-		xTimeToSleep.tv_nsec = 0;
-		nanosleep( &xTimeToSleep, &xTimeSlept );
+	/* Makes the process more agreeable when using the Posix simulator. */
+	xTimeToSleep.tv_sec = 1;
+	xTimeToSleep.tv_nsec = 0;
+	nanosleep(&xTimeToSleep, &xTimeSlept);
 #endif
 }
