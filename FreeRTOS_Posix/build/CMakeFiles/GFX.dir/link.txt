@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC -g  -shared -Wl,-soname,libGFX.so -o libGFX.so CMakeFiles/GFX.dir/lib/Gfx/TUM_Draw.c.o CMakeFiles/GFX.dir/lib/Gfx/TUM_Event.c.o 

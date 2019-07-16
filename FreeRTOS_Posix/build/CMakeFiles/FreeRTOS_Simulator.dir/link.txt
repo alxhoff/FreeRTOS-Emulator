@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/FreeRTOS_Simulator.dir/src/main.c.o  -o ../bin/FreeRTOS_Simulator -Wl,-rpath,/home/alxhoff/git/GitHub/FreeRTOS-simulator-demo/FreeRTOS_Posix/build /usr/lib/libSDL2.so -lpthread /usr/lib/libSDL2main.a /usr/lib/libSDL2_gfx.so /usr/lib/libSDL2_ttf.so /usr/lib/libSDL2_image.so libFREERTOS.so libGFX.so 
