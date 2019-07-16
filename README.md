@@ -3,4 +3,6 @@ An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics.
 
 Based on the FreeRTOS simulator developed by William Davy.
 
+For those requiring an IDE run `cmake -G "Eclipse CDT4 - Unix Makefiles" ./`, an appropriate .gdbinit is in the bin directory.
+
 Work in progress.
