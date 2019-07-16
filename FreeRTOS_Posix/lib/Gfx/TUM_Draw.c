@@ -210,7 +210,7 @@ void vInitDrawing(void) {
 		exit(-1);
 	}
 
-	font1 = TTF_OpenFont("fonts/IBMPlexSans-Medium.ttf", DEFAULT_FONT_SIZE);
+	font1 = TTF_OpenFont("../lib/fonts/IBMPlexSans-Medium.ttf", DEFAULT_FONT_SIZE);
 
 	if (!font1) {
 		logTTFError("InitDrawing->OpenFont");
