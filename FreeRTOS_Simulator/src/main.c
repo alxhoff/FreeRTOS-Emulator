@@ -53,12 +53,12 @@
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
 
-xTaskHandle DemoTask1 = NULL;
-xTaskHandle DemoTask2 = NULL;
+TaskHandle_t DemoTask1 = NULL;
+TaskHandle_t DemoTask2 = NULL;
 
-xQueueHandle StateQueue = NULL;
+QueueHandle_t StateQueue = NULL;
 
-xSemaphoreHandle DrawReady = NULL;
+SemaphoreHandle_t DrawReady = NULL;
 
 /*
  * Changes the state, either forwards of backwards
@@ -93,7 +93,7 @@ void basicSequentialStateMachine(void *pvParameters) {
 
 	const int state_change_period = 75;
 
-	portTickType last_change = xTaskGetTickCount();
+	TickType_t last_change = xTaskGetTickCount();
 
 	while (1) {
 		if (state_changed)
@@ -137,9 +137,9 @@ void basicSequentialStateMachine(void *pvParameters) {
 }
 
 void vSwapBuffers(void *pvParameters) {
-	portTickType xLastWakeTime;
+	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
-	const portTickType frameratePeriod = 20;
+	const TickType_t frameratePeriod = 20;
 
 	while (1) {
 		xSemaphoreGive(DrawReady);

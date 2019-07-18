@@ -11,8 +11,8 @@ typedef struct mouse {
 	signed short y;
 } mouse_t;
 
-xTaskHandle eventTask = NULL;
-xQueueHandle inputQueue = NULL;
+TaskHandle_t eventTask = NULL;
+QueueHandle_t inputQueue = NULL;
 
 mouse_t *mouse;
 
@@ -186,4 +186,5 @@ void vInitEvents(void) {
 	SDL_EventState(SDL_AUDIODEVICEREMOVED, SDL_IGNORE);
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
 	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
+	SDL_EventState(771, SDL_IGNORE);
 }

@@ -18,6 +18,6 @@ void vInitEvents(void);
 int xGetMouseX(void);
 int xGetMouseY(void);
 
-extern xQueueHandle inputQueue;
+extern QueueHandle_t inputQueue;
 
 #endif

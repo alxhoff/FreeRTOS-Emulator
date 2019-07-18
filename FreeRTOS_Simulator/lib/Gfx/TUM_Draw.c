@@ -113,9 +113,9 @@ const int screen_y = SCREEN_Y;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-xQueueHandle drawJobQueue = NULL;
+QueueHandle_t drawJobQueue = NULL;
 
-xSemaphoreHandle DisplayReady = NULL;
+SemaphoreHandle_t DisplayReady = NULL;
 
 void vDrawUpdateScreen(void);
 
@@ -206,8 +206,6 @@ void vInitDrawing(void) {
 	}
 
 	renderer = SDL_CreateRenderer(window, -1,0);
-	/** renderer = SDL_CreateRenderer(window, -1, */
-	/**         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); */
 
 	if (!renderer) {
 		logSDLError("vInitDrawing->CreateRenderer");
