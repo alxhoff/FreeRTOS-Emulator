@@ -36,13 +36,13 @@ file(GLOB FREERTOS_SOURCES "lib/FreeRTOS_Kernel/*.c"
     "lib/FreeRTOS_Kernel/portable/MemMang/*.c")
     #    "lib/AsyncIO/*.c")
 
-add_library(FREERTOS SHARED ${FREERTOS_SOURCES})
+# add_library(FREERTOS SHARED ${FREERTOS_SOURCES})
 
 MESSAGE(STATUS "FreeRTOS Sources: " ${FREERTOS_SOURCES})
 
 file(GLOB GFX_SOURCES "lib/Gfx/*.c")
 
-add_library(GFX SHARED ${GFX_SOURCES})
+# add_library(GFX SHARED ${GFX_SOURCES})
 
 MESSAGE(STATUS "Gfx Sources: " ${GFX_SOURCES})
 
@@ -50,9 +50,9 @@ file(GLOB SIMULATOR_SOURCES "src/*.c")
 
 MESSAGE(STATUS "Simulator Sources: " ${SIMULATOR_SOURCES})
 
-add_executable(FreeRTOS_Simulator ${SIMULATOR_SOURCES})
+add_executable(FreeRTOS_Simulator ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES})
 
 target_link_libraries(FreeRTOS_Simulator ${SDL2_LIBRARIES} ${SDL2_GFX_LIBRARIES}
-    ${SDL2_IMAGE_LIBRARIES} FREERTOS GFX m ${CMAKE_THREAD_LIBS_INIT})
+    ${SDL2_IMAGE_LIBRARIES} m ${CMAKE_THREAD_LIBS_INIT})
 
 

@@ -136,7 +136,7 @@ void basicSequentialStateMachine(void *pvParameters) {
 	}
 }
 
-void vSwapBuffers(void) {
+void vSwapBuffers(void *pvParameters) {
 	portTickType xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 	const portTickType frameratePeriod = 20;
@@ -174,37 +174,37 @@ void vDemoTask1(void *pvParameters) {
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
 
-			xGetButtonInput(&buttons);
+            xGetButtonInput(&buttons);
 
-			if (buttons.e)
-				xQueueSend(StateQueue, &next_state_signal, 100);
-			if (buttons.f)
-				xQueueSend(StateQueue, &prev_state_signal, 100);
+            if (buttons.e)
+                xQueueSend(StateQueue, &next_state_signal, 100);
+            if (buttons.f)
+                xQueueSend(StateQueue, &prev_state_signal, 100);
 
-			tumDrawClear(White);
+            tumDrawClear(White);
 
-			tumDrawFilledBox(caveX - cave_thickness, caveY - cave_thickness,
-					caveSizeX + cave_thickness * 2,
-					caveSizeY + cave_thickness * 2,
-					Red);
-			tumDrawFilledBox(caveX, caveY, caveSizeX, caveSizeY, Aqua);
+            tumDrawFilledBox(caveX - cave_thickness, caveY - cave_thickness,
+                    caveSizeX + cave_thickness * 2,
+                    caveSizeY + cave_thickness * 2,
+                    Red);
+            tumDrawFilledBox(caveX, caveY, caveSizeX, caveSizeY, Aqua);
 
-			sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(),
-					xGetMouseY());
+            sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(),
+                    xGetMouseY());
 
-			tumDrawText(str, 5, 5, Black);
+            tumDrawText(str, 5, 5, Black);
 
-			sprintf(str, "A: %d | B: %d | C %d | D: %d | E: %d | F: %d",
-					buttons.a, buttons.b, buttons.c, buttons.d, buttons.e,
-					buttons.f);
+            sprintf(str, "A: %d | B: %d | C %d | D: %d | E: %d | F: %d",
+                    buttons.a, buttons.b, buttons.c, buttons.d, buttons.e,
+                    buttons.f);
 
-			tumDrawText(str, 5, 20, Black);
-			//TODO text height and length
+            tumDrawText(str, 5, 20, Black);
+            //TODO text height and length
 
-			circlePositionX = caveX + xGetMouseX() / 2;
-			circlePositionY = caveY + xGetMouseY() / 2;
+            circlePositionX = caveX + xGetMouseX() / 2;
+            circlePositionY = caveY + xGetMouseY() / 2;
 
-			tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
+            tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
 		}
 	}
 }
@@ -249,7 +249,7 @@ void vDemoTask2(void *pvParameters) {
 									* sin(fmod(rotation + 2 * PI / 3, 2 * PI))
 							- 25, 50, 50, Blue);
 
-			tumDrawText(str,
+			tumDrawText((char*)str,
 					SCREEN_WIDTH / 2
 							+ 2 * path_radius
 									* cos(fmod(rotation + 4 * PI / 3, 2 * PI)),

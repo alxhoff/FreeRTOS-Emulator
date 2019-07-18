@@ -205,8 +205,9 @@ void vInitDrawing(void) {
 		exit(-1);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1,
-			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	renderer = SDL_CreateRenderer(window, -1,0);
+	/** renderer = SDL_CreateRenderer(window, -1, */
+	/**         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); */
 
 	if (!renderer) {
 		logSDLError("vInitDrawing->CreateRenderer");
@@ -378,7 +379,7 @@ void vDrawUpdateScreen(void) {
 	while (xQueueReceive(drawJobQueue, &tmp_job, 0) == pdTRUE)
 		vHandleDrawJob(&tmp_job);
 
-	SDL_RenderPresent(renderer);
+    SDL_RenderPresent(renderer);
 
 	xSemaphoreGive(DisplayReady);
 }
