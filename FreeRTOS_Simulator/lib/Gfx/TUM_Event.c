@@ -138,7 +138,7 @@ void vEventsTask(void *pvParameters) {
 		}
 
 		if (send) {
-			xQueueSend(inputQueue, &buttons, 0);
+			xQueueOverwrite(inputQueue, &buttons);
 			send = 0;
 		}
 
@@ -173,7 +173,7 @@ int xGetMouseY(void) {
 void vInitEvents(void) {
 	mouse = initMouse();
 
-	inputQueue = xQueueCreate(10, sizeof(buttons_t));
+	inputQueue = xQueueCreate(1, sizeof(buttons_t));
 	if (!inputQueue) {
 		printf("input queue create failed\n");
 	}

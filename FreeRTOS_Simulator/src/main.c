@@ -142,7 +142,6 @@ void vSwapBuffers(void *pvParameters) {
 	const portTickType frameratePeriod = 20;
 
 	while (1) {
-
 		xSemaphoreGive(DrawReady);
 		vDrawUpdateScreen();
 		xSemaphoreTake(DisplayReady, portMAX_DELAY);
@@ -151,12 +150,11 @@ void vSwapBuffers(void *pvParameters) {
 }
 
 void xGetButtonInput(buttons_t *but) {
-	while (xQueueReceive(inputQueue, but, 0) == pdTRUE)
-		; //Get newest packet and clear the rest
+	xQueuePeek(inputQueue, but, 0);
 }
 
 void vDemoTask1(void *pvParameters) {
-	buttons_t buttons;
+	buttons_t buttons = {0};
 	const unsigned char cave_thickness = 25;
 	signed char ret = 0;
 
@@ -169,7 +167,7 @@ void vDemoTask1(void *pvParameters) {
 	const uint16_t caveY = SCREEN_HEIGHT / 2 - caveSizeY / 2;
 	uint16_t circlePositionX = caveX, circlePositionY = caveY;
 
-	char str[100];
+	char str[100] = {0};
 
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
