@@ -412,7 +412,7 @@ pthread_t xTaskToResume;
 
 			xTaskToSuspend = prvGetThreadHandle( xTaskGetCurrentTaskHandle() );
 			/* Tick Increment. */
-			vTaskIncrementTick();
+			xTaskIncrementTick();
 
 			/* Select Next Task. */
 #if ( configUSE_PREEMPTION == 1 )

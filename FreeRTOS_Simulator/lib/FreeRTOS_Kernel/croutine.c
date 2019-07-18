@@ -1,59 +1,78 @@
 /*
-    FreeRTOS V6.0.4 - Copyright (C) 2010 Real Time Engineers Ltd.
+    FreeRTOS V9.0.0 - Copyright (C) 2016 Real Time Engineers Ltd.
+    All rights reserved
 
-    ***************************************************************************
-    *                                                                         *
-    * If you are:                                                             *
-    *                                                                         *
-    *    + New to FreeRTOS,                                                   *
-    *    + Wanting to learn FreeRTOS or multitasking in general quickly       *
-    *    + Looking for basic training,                                        *
-    *    + Wanting to improve your FreeRTOS skills and productivity           *
-    *                                                                         *
-    * then take a look at the FreeRTOS eBook                                  *
-    *                                                                         *
-    *        "Using the FreeRTOS Real Time Kernel - a Practical Guide"        *
-    *                  http://www.FreeRTOS.org/Documentation                  *
-    *                                                                         *
-    * A pdf reference manual is also available.  Both are usually delivered   *
-    * to your inbox within 20 minutes to two hours when purchased between 8am *
-    * and 8pm GMT (although please allow up to 24 hours in case of            *
-    * exceptional circumstances).  Thank you for your support!                *
-    *                                                                         *
-    ***************************************************************************
+    VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
 
     This file is part of the FreeRTOS distribution.
 
     FreeRTOS is free software; you can redistribute it and/or modify it under
     the terms of the GNU General Public License (version 2) as published by the
-    Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
-    ***NOTE*** The exception to the GPL is included to allow you to distribute
-    a combined work that includes FreeRTOS without being obliged to provide the
-    source code for proprietary components outside of the FreeRTOS kernel.
-    FreeRTOS is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-    more details. You should have received a copy of the GNU General Public 
-    License and the FreeRTOS license exception along with FreeRTOS; if not it 
-    can be viewed here: http://www.freertos.org/a00114.html and also obtained 
-    by writing to Richard Barry, contact details for whom are available on the
-    FreeRTOS WEB site.
+    Free Software Foundation >>>> AND MODIFIED BY <<<< the FreeRTOS exception.
+
+    ***************************************************************************
+    >>!   NOTE: The modification to the GPL is included to allow you to     !<<
+    >>!   distribute a combined work that includes FreeRTOS without being   !<<
+    >>!   obliged to provide the source code for proprietary components     !<<
+    >>!   outside of the FreeRTOS kernel.                                   !<<
+    ***************************************************************************
+
+    FreeRTOS is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  Full license text is available on the following
+    link: http://www.freertos.org/a00114.html
+
+    ***************************************************************************
+     *                                                                       *
+     *    FreeRTOS provides completely free yet professionally developed,    *
+     *    robust, strictly quality controlled, supported, and cross          *
+     *    platform software that is more than just the market leader, it     *
+     *    is the industry's de facto standard.                               *
+     *                                                                       *
+     *    Help yourself get started quickly while simultaneously helping     *
+     *    to support the FreeRTOS project by purchasing a FreeRTOS           *
+     *    tutorial book, reference manual, or both:                          *
+     *    http://www.FreeRTOS.org/Documentation                              *
+     *                                                                       *
+    ***************************************************************************
+
+    http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
+    the FAQ page "My application does not run, what could be wrong?".  Have you
+    defined configASSERT()?
+
+    http://www.FreeRTOS.org/support - In return for receiving this top quality
+    embedded software for free we request you assist our global community by
+    participating in the support forum.
+
+    http://www.FreeRTOS.org/training - Investing in training allows your team to
+    be as productive as possible as early as possible.  Now you can receive
+    FreeRTOS training directly from Richard Barry, CEO of Real Time Engineers
+    Ltd, and the world's leading authority on the world's leading RTOS.
+
+    http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+    including FreeRTOS+Trace - an indispensable productivity tool, a DOS
+    compatible FAT file system, and our tiny thread aware UDP/IP stack.
+
+    http://www.FreeRTOS.org/labs - Where new FreeRTOS products go to incubate.
+    Come and try FreeRTOS+TCP, our new open source TCP/IP stack for FreeRTOS.
+
+    http://www.OpenRTOS.com - Real Time Engineers ltd. license FreeRTOS to High
+    Integrity Systems ltd. to sell under the OpenRTOS brand.  Low cost OpenRTOS
+    licenses offer ticketed support, indemnification and commercial middleware.
+
+    http://www.SafeRTOS.com - High Integrity Systems also provide a safety
+    engineered and independently SIL3 certified version for use in safety and
+    mission critical applications that require provable dependability.
 
     1 tab == 4 spaces!
-
-    http://www.FreeRTOS.org - Documentation, latest information, license and
-    contact details.
-
-    http://www.SafeRTOS.com - A version that is certified for use in safety
-    critical systems.
-
-    http://www.OpenRTOS.com - Commercial support, development, porting,
-    licensing and training services.
 */
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "croutine.h"
+
+/* Remove the whole file is co-routines are not being used. */
+#if( configUSE_CO_ROUTINES != 0 )
 
 /*
  * Some kernel aware debuggers require data to be viewed to be global, rather
@@ -65,17 +84,17 @@
 
 
 /* Lists for ready and blocked co-routines. --------------------*/
-static xList pxReadyCoRoutineLists[ configMAX_CO_ROUTINE_PRIORITIES ];	/*< Prioritised ready co-routines. */
-static xList xDelayedCoRoutineList1;									/*< Delayed co-routines. */
-static xList xDelayedCoRoutineList2;									/*< Delayed co-routines (two lists are used - one for delays that have overflowed the current tick count. */
-static xList * pxDelayedCoRoutineList;									/*< Points to the delayed co-routine list currently being used. */
-static xList * pxOverflowDelayedCoRoutineList;							/*< Points to the delayed co-routine list currently being used to hold co-routines that have overflowed the current tick count. */
-static xList xPendingReadyCoRoutineList;											/*< Holds co-routines that have been readied by an external event.  They cannot be added directly to the ready lists as the ready lists cannot be accessed by interrupts. */
+static List_t pxReadyCoRoutineLists[ configMAX_CO_ROUTINE_PRIORITIES ];	/*< Prioritised ready co-routines. */
+static List_t xDelayedCoRoutineList1;									/*< Delayed co-routines. */
+static List_t xDelayedCoRoutineList2;									/*< Delayed co-routines (two lists are used - one for delays that have overflowed the current tick count. */
+static List_t * pxDelayedCoRoutineList;									/*< Points to the delayed co-routine list currently being used. */
+static List_t * pxOverflowDelayedCoRoutineList;							/*< Points to the delayed co-routine list currently being used to hold co-routines that have overflowed the current tick count. */
+static List_t xPendingReadyCoRoutineList;								/*< Holds co-routines that have been readied by an external event.  They cannot be added directly to the ready lists as the ready lists cannot be accessed by interrupts. */
 
 /* Other file private variables. --------------------------------*/
-corCRCB * pxCurrentCoRoutine = NULL;
-static unsigned portBASE_TYPE uxTopCoRoutineReadyPriority = 0;
-static portTickType xCoRoutineTickCount = 0, xLastTickCount = 0, xPassedTicks = 0;
+CRCB_t * pxCurrentCoRoutine = NULL;
+static UBaseType_t uxTopCoRoutineReadyPriority = 0;
+static TickType_t xCoRoutineTickCount = 0, xLastTickCount = 0, xPassedTicks = 0;
 
 /* The initial state of the co-routine when it is created. */
 #define corINITIAL_STATE	( 0 )
@@ -93,8 +112,8 @@ static portTickType xCoRoutineTickCount = 0, xLastTickCount = 0, xPassedTicks = 
 	{																												\
 		uxTopCoRoutineReadyPriority = pxCRCB->uxPriority;															\
 	}																												\
-	vListInsertEnd( ( xList * ) &( pxReadyCoRoutineLists[ pxCRCB->uxPriority ] ), &( pxCRCB->xGenericListItem ) );	\
-}	
+	vListInsertEnd( ( List_t * ) &( pxReadyCoRoutineLists[ pxCRCB->uxPriority ] ), &( pxCRCB->xGenericListItem ) );	\
+}
 
 /*
  * Utility to ready all the lists used by the scheduler.  This is called
@@ -122,13 +141,13 @@ static void prvCheckDelayedList( void );
 
 /*-----------------------------------------------------------*/
 
-signed portBASE_TYPE xCoRoutineCreate( crCOROUTINE_CODE pxCoRoutineCode, unsigned portBASE_TYPE uxPriority, unsigned portBASE_TYPE uxIndex )
+BaseType_t xCoRoutineCreate( crCOROUTINE_CODE pxCoRoutineCode, UBaseType_t uxPriority, UBaseType_t uxIndex )
 {
-signed portBASE_TYPE xReturn;
-corCRCB *pxCoRoutine;
+BaseType_t xReturn;
+CRCB_t *pxCoRoutine;
 
 	/* Allocate the memory that will store the co-routine control block. */
-	pxCoRoutine = ( corCRCB * ) pvPortMalloc( sizeof( corCRCB ) );
+	pxCoRoutine = ( CRCB_t * ) pvPortMalloc( sizeof( CRCB_t ) );
 	if( pxCoRoutine )
 	{
 		/* If pxCurrentCoRoutine is NULL then this is the first co-routine to
@@ -155,15 +174,15 @@ corCRCB *pxCoRoutine;
 		vListInitialiseItem( &( pxCoRoutine->xGenericListItem ) );
 		vListInitialiseItem( &( pxCoRoutine->xEventListItem ) );
 
-		/* Set the co-routine control block as a link back from the xListItem.
+		/* Set the co-routine control block as a link back from the ListItem_t.
 		This is so we can get back to the containing CRCB from a generic item
 		in a list. */
 		listSET_LIST_ITEM_OWNER( &( pxCoRoutine->xGenericListItem ), pxCoRoutine );
 		listSET_LIST_ITEM_OWNER( &( pxCoRoutine->xEventListItem ), pxCoRoutine );
-	
+
 		/* Event lists are always in priority order. */
-		listSET_LIST_ITEM_VALUE( &( pxCoRoutine->xEventListItem ), configMAX_PRIORITIES - ( portTickType ) uxPriority );
-		
+		listSET_LIST_ITEM_VALUE( &( pxCoRoutine->xEventListItem ), ( ( TickType_t ) configMAX_CO_ROUTINE_PRIORITIES - ( TickType_t ) uxPriority ) );
+
 		/* Now the co-routine has been initialised it can be added to the ready
 		list at the correct priority. */
 		prvAddCoRoutineToReadyQueue( pxCoRoutine );
@@ -171,17 +190,17 @@ corCRCB *pxCoRoutine;
 		xReturn = pdPASS;
 	}
 	else
-	{		
+	{
 		xReturn = errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY;
 	}
-	
-	return xReturn;	
+
+	return xReturn;
 }
 /*-----------------------------------------------------------*/
 
-void vCoRoutineAddToDelayedList( portTickType xTicksToDelay, xList *pxEventList )
+void vCoRoutineAddToDelayedList( TickType_t xTicksToDelay, List_t *pxEventList )
 {
-portTickType xTimeToWake;
+TickType_t xTimeToWake;
 
 	/* Calculate the time to wake - this may overflow but this is
 	not a problem. */
@@ -190,7 +209,7 @@ portTickType xTimeToWake;
 	/* We must remove ourselves from the ready list before adding
 	ourselves to the blocked list as the same list item is used for
 	both lists. */
-	vListRemove( ( xListItem * ) &( pxCurrentCoRoutine->xGenericListItem ) );
+	( void ) uxListRemove( ( ListItem_t * ) &( pxCurrentCoRoutine->xGenericListItem ) );
 
 	/* The list item will be inserted in wake time order. */
 	listSET_LIST_ITEM_VALUE( &( pxCurrentCoRoutine->xGenericListItem ), xTimeToWake );
@@ -199,13 +218,13 @@ portTickType xTimeToWake;
 	{
 		/* Wake time has overflowed.  Place this item in the
 		overflow list. */
-		vListInsert( ( xList * ) pxOverflowDelayedCoRoutineList, ( xListItem * ) &( pxCurrentCoRoutine->xGenericListItem ) );
+		vListInsert( ( List_t * ) pxOverflowDelayedCoRoutineList, ( ListItem_t * ) &( pxCurrentCoRoutine->xGenericListItem ) );
 	}
 	else
 	{
 		/* The wake time has not overflowed, so we can use the
 		current block list. */
-		vListInsert( ( xList * ) pxDelayedCoRoutineList, ( xListItem * ) &( pxCurrentCoRoutine->xGenericListItem ) );
+		vListInsert( ( List_t * ) pxDelayedCoRoutineList, ( ListItem_t * ) &( pxCurrentCoRoutine->xGenericListItem ) );
 	}
 
 	if( pxEventList )
@@ -222,27 +241,27 @@ static void prvCheckPendingReadyList( void )
 	/* Are there any co-routines waiting to get moved to the ready list?  These
 	are co-routines that have been readied by an ISR.  The ISR cannot access
 	the	ready lists itself. */
-	while( !listLIST_IS_EMPTY( &xPendingReadyCoRoutineList ) )
+	while( listLIST_IS_EMPTY( &xPendingReadyCoRoutineList ) == pdFALSE )
 	{
-		corCRCB *pxUnblockedCRCB;
+		CRCB_t *pxUnblockedCRCB;
 
 		/* The pending ready list can be accessed by an ISR. */
 		portDISABLE_INTERRUPTS();
-		{	
-			pxUnblockedCRCB = ( corCRCB * ) listGET_OWNER_OF_HEAD_ENTRY( (&xPendingReadyCoRoutineList) );			
-			vListRemove( &( pxUnblockedCRCB->xEventListItem ) );
+		{
+			pxUnblockedCRCB = ( CRCB_t * ) listGET_OWNER_OF_HEAD_ENTRY( (&xPendingReadyCoRoutineList) );
+			( void ) uxListRemove( &( pxUnblockedCRCB->xEventListItem ) );
 		}
 		portENABLE_INTERRUPTS();
 
-		vListRemove( &( pxUnblockedCRCB->xGenericListItem ) );
-		prvAddCoRoutineToReadyQueue( pxUnblockedCRCB );	
+		( void ) uxListRemove( &( pxUnblockedCRCB->xGenericListItem ) );
+		prvAddCoRoutineToReadyQueue( pxUnblockedCRCB );
 	}
 }
 /*-----------------------------------------------------------*/
 
 static void prvCheckDelayedList( void )
 {
-corCRCB *pxCRCB;
+CRCB_t *pxCRCB;
 
 	xPassedTicks = xTaskGetTickCount() - xLastTickCount;
 	while( xPassedTicks )
@@ -253,7 +272,7 @@ corCRCB *pxCRCB;
 		/* If the tick count has overflowed we need to swap the ready lists. */
 		if( xCoRoutineTickCount == 0 )
 		{
-			xList * pxTemp;
+			List_t * pxTemp;
 
 			/* Tick count has overflowed so we need to swap the delay lists.  If there are
 			any items in pxDelayedCoRoutineList here then there is an error! */
@@ -263,13 +282,15 @@ corCRCB *pxCRCB;
 		}
 
 		/* See if this tick has made a timeout expire. */
-		while( ( pxCRCB = ( corCRCB * ) listGET_OWNER_OF_HEAD_ENTRY( pxDelayedCoRoutineList ) ) != NULL )
-		{	
-			if( xCoRoutineTickCount < listGET_LIST_ITEM_VALUE( &( pxCRCB->xGenericListItem ) ) )				
-			{			
-				/* Timeout not yet expired. */																			
-				break;																				
-			}																						
+		while( listLIST_IS_EMPTY( pxDelayedCoRoutineList ) == pdFALSE )
+		{
+			pxCRCB = ( CRCB_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxDelayedCoRoutineList );
+
+			if( xCoRoutineTickCount < listGET_LIST_ITEM_VALUE( &( pxCRCB->xGenericListItem ) ) )
+			{
+				/* Timeout not yet expired. */
+				break;
+			}
 
 			portDISABLE_INTERRUPTS();
 			{
@@ -278,18 +299,18 @@ corCRCB *pxCRCB;
 				have been moved to the pending ready list and the following
 				line is still valid.  Also the pvContainer parameter will have
 				been set to NULL so the following lines are also valid. */
-				vListRemove( &( pxCRCB->xGenericListItem ) );											
+				( void ) uxListRemove( &( pxCRCB->xGenericListItem ) );
 
-				/* Is the co-routine waiting on an event also? */												
-				if( pxCRCB->xEventListItem.pvContainer )													
-				{															
-					vListRemove( &( pxCRCB->xEventListItem ) );											
+				/* Is the co-routine waiting on an event also? */
+				if( pxCRCB->xEventListItem.pvContainer )
+				{
+					( void ) uxListRemove( &( pxCRCB->xEventListItem ) );
 				}
 			}
 			portENABLE_INTERRUPTS();
 
-			prvAddCoRoutineToReadyQueue( pxCRCB );													
-		}																									
+			prvAddCoRoutineToReadyQueue( pxCRCB );
+		}
 	}
 
 	xLastTickCount = xCoRoutineTickCount;
@@ -328,16 +349,16 @@ void vCoRoutineSchedule( void )
 
 static void prvInitialiseCoRoutineLists( void )
 {
-unsigned portBASE_TYPE uxPriority;
+UBaseType_t uxPriority;
 
 	for( uxPriority = 0; uxPriority < configMAX_CO_ROUTINE_PRIORITIES; uxPriority++ )
 	{
-		vListInitialise( ( xList * ) &( pxReadyCoRoutineLists[ uxPriority ] ) );
+		vListInitialise( ( List_t * ) &( pxReadyCoRoutineLists[ uxPriority ] ) );
 	}
 
-	vListInitialise( ( xList * ) &xDelayedCoRoutineList1 );
-	vListInitialise( ( xList * ) &xDelayedCoRoutineList2 );
-	vListInitialise( ( xList * ) &xPendingReadyCoRoutineList );
+	vListInitialise( ( List_t * ) &xDelayedCoRoutineList1 );
+	vListInitialise( ( List_t * ) &xDelayedCoRoutineList2 );
+	vListInitialise( ( List_t * ) &xPendingReadyCoRoutineList );
 
 	/* Start with pxDelayedCoRoutineList using list1 and the
 	pxOverflowDelayedCoRoutineList using list2. */
@@ -346,16 +367,17 @@ unsigned portBASE_TYPE uxPriority;
 }
 /*-----------------------------------------------------------*/
 
-signed portBASE_TYPE xCoRoutineRemoveFromEventList( const xList *pxEventList )
+BaseType_t xCoRoutineRemoveFromEventList( const List_t *pxEventList )
 {
-corCRCB *pxUnblockedCRCB;
-signed portBASE_TYPE xReturn;
+CRCB_t *pxUnblockedCRCB;
+BaseType_t xReturn;
 
 	/* This function is called from within an interrupt.  It can only access
-	event lists and the pending ready list. */
-	pxUnblockedCRCB = ( corCRCB * ) listGET_OWNER_OF_HEAD_ENTRY( pxEventList );
-	vListRemove( &( pxUnblockedCRCB->xEventListItem ) );
-	vListInsertEnd( ( xList * ) &( xPendingReadyCoRoutineList ), &( pxUnblockedCRCB->xEventListItem ) );
+	event lists and the pending ready list.  This function assumes that a
+	check has already been made to ensure pxEventList is not empty. */
+	pxUnblockedCRCB = ( CRCB_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxEventList );
+	( void ) uxListRemove( &( pxUnblockedCRCB->xEventListItem ) );
+	vListInsertEnd( ( List_t * ) &( xPendingReadyCoRoutineList ), &( pxUnblockedCRCB->xEventListItem ) );
 
 	if( pxUnblockedCRCB->uxPriority >= pxCurrentCoRoutine->uxPriority )
 	{
@@ -368,4 +390,6 @@ signed portBASE_TYPE xReturn;
 
 	return xReturn;
 }
+
+#endif /* configUSE_CO_ROUTINES == 0 */
 

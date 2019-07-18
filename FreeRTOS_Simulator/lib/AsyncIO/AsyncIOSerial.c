@@ -56,7 +56,7 @@ long lReturn = pdFALSE;
 /* Define a callback function which is called when data is available. */
 void vAsyncSerialIODataAvailableISR( int iFileDescriptor, void *pContext )
 {
-portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 ssize_t iReadResult = -1;
 unsigned char ucRx;
 

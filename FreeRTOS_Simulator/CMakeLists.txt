@@ -27,14 +27,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 #INCLUDES
 include_directories(${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix)
-include_directories(${PROJECT_SOURCE_DIR}/lib/AsyncIO/include)
+# include_directories(${PROJECT_SOURCE_DIR}/lib/AsyncIO/include)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/Gfx/include)
 
 file(GLOB FREERTOS_SOURCES "lib/FreeRTOS_Kernel/*.c"
     "lib/FreeRTOS_Kernel/portable/GCC/Posix/*.c"
-    "lib/FreeRTOS_Kernel/portable/MemMang/*.c"
-    "lib/AsyncIO/*.c")
+    "lib/FreeRTOS_Kernel/portable/MemMang/*.c")
+    #    "lib/AsyncIO/*.c")
 
 add_library(FREERTOS SHARED ${FREERTOS_SOURCES})
 

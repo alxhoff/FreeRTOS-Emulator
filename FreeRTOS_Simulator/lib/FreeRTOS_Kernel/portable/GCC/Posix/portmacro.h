@@ -49,9 +49,16 @@
 	licensing and training services.
 */
 
+/*
+ * Updated by Alex Hoffman - alxhoff@gmail.com July 2019
+ * FreeRTOS version V9.0.0
+ * */
+
 
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
+
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,31 +74,42 @@ extern "C" {
  *-----------------------------------------------------------
  */
 
-/* Type definitions. */
+/* Type definitions. Legacy*/
 #define portCHAR		char
 #define portFLOAT		float
 #define portDOUBLE		double
 #define portLONG		int
 #define portSHORT		short
-#define portSTACK_TYPE  unsigned long
+#define portSTACK_TYPE uint32_t
 #define portBASE_TYPE   long
 
+
+typedef portSTACK_TYPE StackType_t;
+typedef long BaseType_t;
+typedef unsigned long UBaseType_t;
+
 #if( configUSE_16_BIT_TICKS == 1 )
-	typedef unsigned portSHORT portTickType;
-	#define portMAX_DELAY ( portTickType ) 0xffff
+	typedef uint16_t TickType_t;
+	#define portMAX_DELAY ( TickType_t ) 0xffff
 #else
-	typedef unsigned portLONG portTickType;
-	#define portMAX_DELAY ( portTickType ) 0xffffffff
+	typedef uint32_t TickType_t;
+	#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
+
+	/* 32-bit tick type on a 32-bit architecture, so reads of the tick count do
+	not need to be guarded with a critical section. */
+	#define portTICK_TYPE_IS_ATOMIC 1
 #endif
 /*-----------------------------------------------------------*/
 
 /* Architecture specifics. */
 #define portSTACK_GROWTH				( -1 )
-#define portTICK_RATE_MS				( ( portTickType ) 1000 / configTICK_RATE_HZ )
-#define portTICK_RATE_MICROSECONDS		( ( portTickType ) 1000000 / configTICK_RATE_HZ )
+#define portTICK_RATE_MS				( ( TickType_t ) 1000 / configTICK_RATE_HZ )
+#define portTICK_RATE_MICROSECONDS		( ( TickType_t ) 1000000 / configTICK_RATE_HZ )
 #define portBYTE_ALIGNMENT				4
 #define portREMOVE_STATIC_QUALIFIER
 /*-----------------------------------------------------------*/
+
+
 
 
 /* Scheduler utilities. */
@@ -110,8 +128,8 @@ extern void vPortEnableInterrupts( void );
 #define portSET_INTERRUPT_MASK()	( vPortDisableInterrupts() )
 #define portCLEAR_INTERRUPT_MASK()	( vPortEnableInterrupts() )
 
-extern portBASE_TYPE xPortSetInterruptMask( void );
-extern void vPortClearInterruptMask( portBASE_TYPE xMask );
+extern BaseType_t xPortSetInterruptMask( void );
+extern void vPortClearInterruptMask( BaseType_t xMask );
 
 #define portSET_INTERRUPT_MASK_FROM_ISR()		xPortSetInterruptMask()
 #define portCLEAR_INTERRUPT_MASK_FROM_ISR(x)	vPortClearInterruptMask(x)
