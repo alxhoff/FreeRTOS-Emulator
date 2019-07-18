@@ -275,7 +275,7 @@ int main(int argc, char *argv[]) {
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);
 
-	DrawReady = xSemaphoreCreateMutex();
+	DrawReady = xSemaphoreCreateBinary();
 
 	if (!DrawReady) {
 		printf("DrawReady semaphore not created\n");
