@@ -14,21 +14,10 @@ typedef struct mouse {
 TaskHandle_t eventTask = NULL;
 QueueHandle_t inputQueue = NULL;
 
-mouse_t *mouse;
+mouse_t mouse;
 
-mouse_t *initMouse(void) {
-	mouse_t *ret = calloc(1, sizeof(mouse_t));
-
-	if (!ret) {
-		printf("Couldn't init mouse\n");
-		exit(-1);
-	}
-
-	ret->lock = xSemaphoreCreateMutex();
-
-	xSemaphoreGive(ret->lock);
-
-	return ret;
+void initMouse(void) {
+	mouse.lock = xSemaphoreCreateMutex();
 }
 
 void vEventsTask(void *pvParameters) {
@@ -128,10 +117,10 @@ void vEventsTask(void *pvParameters) {
 					break;
 				}
 			} else if (event.type == SDL_MOUSEMOTION) {
-				xSemaphoreTake(mouse->lock, portMAX_DELAY);
-				mouse->x = event.motion.x;
-				mouse->y = event.motion.y;
-				xSemaphoreGive(mouse->lock);
+				xSemaphoreTake(mouse.lock, portMAX_DELAY);
+				mouse.x = event.motion.x;
+				mouse.y = event.motion.y;
+				xSemaphoreGive(mouse.lock);
 			} else {
 				printf("Other event: %d\n", event.type);
 			}
@@ -146,32 +135,26 @@ void vEventsTask(void *pvParameters) {
 	}
 }
 
-int xGetMouseX(void) {
+signed short xGetMouseX(void) {
 	signed short ret;
 
-	if (!mouse)
-		return 0;
-
-	xSemaphoreTake(mouse->lock, portMAX_DELAY);
-	ret = mouse->x;
-	xSemaphoreGive(mouse->lock);
+	xSemaphoreTake(mouse.lock, portMAX_DELAY);
+	ret = mouse.x;
+	xSemaphoreGive(mouse.lock);
 	return ret;
 }
 
-int xGetMouseY(void) {
+signed short xGetMouseY(void) {
 	signed short ret;
 
-	if (!mouse)
-		return 0;
-
-	xSemaphoreTake(mouse->lock, portMAX_DELAY);
-	ret = mouse->y;
-	xSemaphoreGive(mouse->lock);
+	xSemaphoreTake(mouse.lock, portMAX_DELAY);
+	ret = mouse.y;
+	xSemaphoreGive(mouse.lock);
 	return ret;
 }
 
 void vInitEvents(void) {
-	mouse = initMouse();
+	initMouse();
 
 	inputQueue = xQueueCreate(1, sizeof(buttons_t));
 	if (!inputQueue) {

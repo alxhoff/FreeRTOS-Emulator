@@ -15,8 +15,8 @@ typedef struct buttons {
 
 void vInitEvents(void);
 
-int xGetMouseX(void);
-int xGetMouseY(void);
+signed short xGetMouseX(void);
+signed short xGetMouseY(void);
 
 extern QueueHandle_t inputQueue;
 
