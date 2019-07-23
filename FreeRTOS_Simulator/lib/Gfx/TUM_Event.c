@@ -122,7 +122,7 @@ void vEventsTask(void *pvParameters) {
 				mouse.y = event.motion.y;
 				xSemaphoreGive(mouse.lock);
 			} else {
-				printf("Other event: %d\n", event.type);
+                ;
 			}
 		}
 
@@ -169,5 +169,7 @@ void vInitEvents(void) {
 	SDL_EventState(SDL_AUDIODEVICEREMOVED, SDL_IGNORE);
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
 	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
-	SDL_EventState(771, SDL_IGNORE);
+	SDL_EventState(0x303, SDL_IGNORE);
+    SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+    SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
 }
