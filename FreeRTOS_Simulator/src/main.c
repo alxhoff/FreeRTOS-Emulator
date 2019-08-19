@@ -143,22 +143,22 @@ void xGetButtonInput(void) {
 	xSemaphoreGive(buttons.lock);
 }
 
+#define CAVE_SIZE_X 	SCREEN_WIDTH / 2
+#define CAVE_SIZE_Y 	SCREEN_HEIGHT / 2
+#define CAVE_X 		CAVE_SIZE_X / 2
+#define CAVE_Y 		CAVE_SIZE_Y / 2
+#define CAVE_THICKNESS 	25
+
 void vDrawCave(void) {
-	const unsigned char cave_thickness = 25;
-	static const uint16_t caveSizeX = SCREEN_WIDTH / 2;
-	static const uint16_t caveSizeY = SCREEN_HEIGHT / 2;
-	static const uint16_t caveX = SCREEN_WIDTH / 2 - caveSizeX / 2;
-	static const uint16_t caveY = SCREEN_HEIGHT / 2 - caveSizeY / 2;
-	uint16_t circlePositionX = caveX, circlePositionY = caveY;
+	static unsigned short circlePositionX, circlePositionY;
 
-	tumDrawFilledBox(caveX - cave_thickness, caveY - cave_thickness,
-			caveSizeX + cave_thickness * 2, caveSizeY + cave_thickness * 2,
-			Red);
+	tumDrawFilledBox(CAVE_X - CAVE_THICKNESS, CAVE_Y - CAVE_THICKNESS,
+		CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_SIZE_Y + CAVE_THICKNESS * 2, Red);
 	
-    tumDrawFilledBox(caveX, caveY, caveSizeX, caveSizeY, Aqua);
+	tumDrawFilledBox(CAVE_X, CAVE_Y, CAVE_SIZE_X, CAVE_SIZE_Y, Aqua);
 
-	circlePositionX = caveX + xGetMouseX() / 2;
-	circlePositionY = caveY + xGetMouseY() / 2;
+	circlePositionX = CAVE_X + xGetMouseX() / 2;
+	circlePositionY = CAVE_Y + xGetMouseY() / 2;
 
 	tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
 }
