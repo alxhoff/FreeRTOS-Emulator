@@ -190,13 +190,13 @@ void vDemoTask1(void *pvParameters) {
             sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(),
                     xGetMouseY());
 
-            tumDrawText(str, 5, 5, Black);
+            tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black);
 
             sprintf(str, "A: %d | B: %d | C %d | D: %d | E: %d | F: %d",
                     buttons.a, buttons.b, buttons.c, buttons.d, buttons.e,
                     buttons.f);
 
-            tumDrawText(str, 5, 20, Black);
+            tumDrawText(str, 10, DEFAULT_FONT_SIZE * 2, Black);
             //TODO text height and length
 
             circlePositionX = caveX + xGetMouseX() / 2;
@@ -261,7 +261,7 @@ void vDemoTask2(void *pvParameters) {
 
 int main(int argc, char *argv[]) {
 	vInitEvents();
-	vInitDrawing();
+	vInitDrawing( argv[0] );
 
 	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
 			mainGENERIC_PRIORITY, &DemoTask1);

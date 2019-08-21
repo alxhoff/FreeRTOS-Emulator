@@ -4,7 +4,9 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-#define DEFAULT_FONT_SIZE   40
+#define DEFAULT_FONT_SIZE  15 
+
+#define FONT_LOCATION       "/../resources/fonts/IBMPlexSans-Medium.ttf"
 
 #define SCREEN_X 100
 #define SCREEN_Y 200
@@ -22,7 +24,7 @@ typedef struct coord {
 	unsigned short y;
 } coord_t;
 
-void vInitDrawing(void);
+void vInitDrawing( char *path );
 void vExitDrawing(void);
 void tumDrawDelay(int delay);
 void vDrawUpdateScreen(void);

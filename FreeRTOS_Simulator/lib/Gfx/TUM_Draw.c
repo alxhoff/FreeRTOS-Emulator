@@ -1,6 +1,9 @@
+#include <regex.h>
+
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL2_gfxPrimitives.h"
+#include "SDL2/SDL_ttf.h"
 
 #include "TUM_Draw.h"
 #include "queue.h"
@@ -113,6 +116,7 @@ const int screen_y = SCREEN_Y;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
+TTF_Font *font = NULL;
 QueueHandle_t drawJobQueue = NULL;
 
 SemaphoreHandle_t DisplayReady = NULL;
@@ -122,6 +126,11 @@ void vDrawUpdateScreen(void);
 uint32_t SwapBytes(uint x) {
 	return ((x & 0x000000ff) << 24) + ((x & 0x0000ff00) << 8)
 			+ ((x & 0x00ff0000) >> 8) + ((x & 0xff000000) >> 24);
+}
+
+void logSDLTTFError(char *msg) {
+    if (msg)
+        printf("[ERROR] %s, %s\n", msg, TTF_GetError());
 }
 
 void logSDLError(char *msg) {
@@ -191,10 +200,33 @@ void vDrawTriangle(coord_t *points, unsigned int colour) {
 			SwapBytes((colour << 8) | 0xFF));
 }
 
-void vInitDrawing(void) {
+void vInitDrawing( char *path ) {
 	int ret = 0;
+    regex_t re;
+    char *pattern = "(.+bin)";
+    regmatch_t pmatch;
+	
+    SDL_Init(SDL_INIT_EVERYTHING);
+    TTF_Init();
 
-	SDL_Init( SDL_INIT_EVERYTHING);
+    // Font path
+    if (regcomp(&re, pattern, REG_EXTENDED) != 0)
+        exit(EXIT_FAILURE);
+
+    if (0 != (ret = regexec(&re, path, (size_t) 1, &pmatch, 0))){
+        printf("Failed to match '%s' with '%s', returning %d\n",
+                path, pattern, ret);
+    };
+
+    regfree(&re);
+
+    char *buffer = calloc(1, strlen(FONT_LOCATION) + strlen(path + pmatch.rm_so) + 1);
+    strncpy(buffer, path + pmatch.rm_so, pmatch.rm_eo - pmatch.rm_so);
+    strcat(buffer, FONT_LOCATION);
+    font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
+    free(buffer);
+    if (!font)
+        logSDLTTFError("vInitDrawing->OpenFont");
 
 	window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED,
 	SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
@@ -241,6 +273,7 @@ void vExitDrawing(void) {
 	if (renderer)
 		SDL_DestroyRenderer(renderer);
 
+    TTF_Quit();
 	SDL_Quit();
 }
 
@@ -309,9 +342,24 @@ void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 	vDrawRectImage(tex, ren, dst, clip);
 }
 
+#define RED_PORTION(COLOUR)     (COLOUR & 0xFF0000) >> 16 
+#define GREEN_PORTION(COLOUR)   (COLOUR & 0x00FF00) >> 8
+#define BLUE_PORTION(COLOUR)    (COLOUR & 0x0000FF) 
+#define ZERO_ALPHA              0
+
 void vDrawText(char *string, unsigned short x, unsigned short y,
 		unsigned int colour) {
-	stringColor(renderer, x, y, string, SwapBytes((colour << 8) | 0xFF));
+    SDL_Color color = {RED_PORTION(colour), GREEN_PORTION(colour),
+        BLUE_PORTION(colour), ZERO_ALPHA};
+    SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect dst;
+    SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
+    dst.x = x;
+    dst.y = y;
+    SDL_RenderCopy(renderer, texture, NULL, &dst);
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
 }
 
 void vHandleDrawJob(draw_job_t *job) {
