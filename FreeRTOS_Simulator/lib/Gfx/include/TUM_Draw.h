@@ -36,6 +36,7 @@ signed char tumDrawArc(signed short x, signed short y, signed short radius,
 		signed short start, signed short end, unsigned int colour);
 signed char tumDrawText(char *str, signed short x, signed short y,
 		unsigned int colour);
+void tumGetTextSize( char *str, unsigned int *width, unsigned int *height);
 signed char tumDrawBox(signed short x, signed short y, signed short w,
 		signed short h, unsigned int colour);
 signed char tumDrawFilledBox(signed short x, signed short y, signed short w,

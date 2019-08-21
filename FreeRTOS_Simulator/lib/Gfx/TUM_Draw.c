@@ -362,6 +362,16 @@ void vDrawText(char *string, unsigned short x, unsigned short y,
     SDL_FreeSurface(surface);
 }
 
+void vGetTextSize(char * string, unsigned int *width, unsigned int *height)
+{
+    SDL_Color color = {0};
+    SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_QueryTexture(texture, NULL, NULL, width, height);
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+}
+
 void vHandleDrawJob(draw_job_t *job) {
 	if (!job)
 		return;
@@ -461,6 +471,10 @@ signed char tumDrawText(char *str, signed short x, signed short y,
 		return -1;
 
 	return 0;
+}
+
+void tumGetTextSize( char *str,  unsigned int *width, unsigned int *height) {
+    vGetTextSize(str, width, height);
 }
 
 signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
