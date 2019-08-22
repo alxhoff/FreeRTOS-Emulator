@@ -151,47 +151,47 @@ void logSDLError(char *msg) {
 		printf("[ERROR] %s, %s\n", msg, SDL_GetError());
 }
 
-void vClearDisplay(unsigned int colour) {
+static void vClearDisplay(unsigned int colour) {
 	SDL_SetRenderDrawColor(renderer, (colour >> 16) & 0xFF,
 			(colour >> 8) & 0xFF, colour & 0xFF, 255);
 	SDL_RenderClear(renderer);
 }
 
-void vDrawRectangle(signed short x, signed short y, signed short w,
+static void vDrawRectangle(signed short x, signed short y, signed short w,
 		signed short h, unsigned int colour) {
 
 	rectangleColor(renderer, x, y, x + w, y + h,
 			SwapBytes((colour << 8) | 0xFF));
 }
 
-void vDrawFilledRectangle(signed short x, signed short y, signed short w,
+static void vDrawFilledRectangle(signed short x, signed short y, signed short w,
 		signed short h, unsigned int colour) {
 	boxColor(renderer, x, y, x + w, y + h, SwapBytes((colour << 8) | 0xFF));
 }
 
-void vDrawArc(signed short x, signed short y, signed short radius,
+static void vDrawArc(signed short x, signed short y, signed short radius,
 		signed short start, signed short end, unsigned int colour) {
 	arcColor(renderer, x, y, radius, start, end,
 			SwapBytes((colour << 8) | 0xFF));
 }
 
-void vDrawEllipse(signed short x, signed short y, signed short rx,
+static void vDrawEllipse(signed short x, signed short y, signed short rx,
 		signed short ry, unsigned int colour) {
 	ellipseColor(renderer, x, y, rx, ry, SwapBytes((colour << 8) | 0xFF));
 }
 
-void vDrawCircle(signed short x, signed short y, signed short radius,
+static void vDrawCircle(signed short x, signed short y, signed short radius,
 		unsigned int colour) {
 	filledCircleColor(renderer, x, y, radius, SwapBytes((colour << 8) | 0xFF));
 }
 
-void vDrawLine(signed short x1, signed short y1, signed short x2,
+static void vDrawLine(signed short x1, signed short y1, signed short x2,
 		signed short y2, unsigned char thickness, unsigned int colour) {
 	thickLineColor(renderer, x1, y1, x2, y2, thickness,
 			SwapBytes((colour << 8) | 0xFF));
 }
 
-void vDrawPoly(coord_t *points, unsigned int n, signed short colour) {
+static void vDrawPoly(coord_t *points, unsigned int n, signed short colour) {
 	signed short *x_coords = calloc(1, sizeof(signed short) * n);
 	signed short *y_coords = calloc(1, sizeof(signed short) * n);
 
@@ -205,10 +205,9 @@ void vDrawPoly(coord_t *points, unsigned int n, signed short colour) {
 
 	free(x_coords);
 	free(y_coords);
-
 }
 
-void vDrawTriangle(coord_t *points, unsigned int colour) {
+static void vDrawTriangle(coord_t *points, unsigned int colour) {
 	filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x,
 			points[1].y, points[2].x, points[2].y,
 			SwapBytes((colour << 8) | 0xFF));
@@ -292,11 +291,7 @@ void vExitDrawing(void) {
 	SDL_Quit();
 }
 
-void tumDrawDelay(int delay) {
-	SDL_Delay(delay);
-}
-
-SDL_Texture *loadImage(char *filename, SDL_Renderer *ren) {
+static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren) {
 	SDL_Texture *tex = NULL;
 
 	tex = IMG_LoadTexture(ren, filename);
@@ -312,7 +307,7 @@ SDL_Texture *loadImage(char *filename, SDL_Renderer *ren) {
 	return tex;
 }
 
-void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
+static void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 		unsigned short y, unsigned short w, unsigned short h) {
 	SDL_Rect dst;
 	dst.w = w;
@@ -322,26 +317,26 @@ void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 	SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
-void vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
+static void vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 		unsigned short y) {
 	int w, h;
 	SDL_QueryTexture(tex, NULL, NULL, &w, &h); //Get texture dimensions
 	vDrawScaledImage(tex, ren, x, y, w, h);
 }
 
-void vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren, unsigned short x,
+static void vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren, unsigned short x,
 		unsigned short y) {
 	SDL_Texture *tex = loadImage(filename, ren);
 
 	vDrawImage(tex, ren, x, y);
 }
 
-void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
+static void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
 		SDL_Rect *clip) {
 	SDL_RenderCopy(ren, tex, clip, &dst);
 }
 
-void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
+static void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 		unsigned short y, SDL_Rect *clip) {
 	SDL_Rect dst;
 	dst.x = x;
@@ -362,7 +357,7 @@ void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 #define BLUE_PORTION(COLOUR)    (COLOUR & 0x0000FF) 
 #define ZERO_ALPHA              0
 
-void vDrawText(char *string, unsigned short x, unsigned short y,
+static void vDrawText(char *string, unsigned short x, unsigned short y,
 		unsigned int colour) {
 	SDL_Color color = { RED_PORTION(colour), GREEN_PORTION(colour),
 			BLUE_PORTION(colour), ZERO_ALPHA };
@@ -377,7 +372,7 @@ void vDrawText(char *string, unsigned short x, unsigned short y,
 	SDL_FreeSurface(surface);
 }
 
-void vGetTextSize(char * string, unsigned int *width, unsigned int *height) {
+static void vGetTextSize(char * string, unsigned int *width, unsigned int *height) {
 	SDL_Color color = { 0 };
 	SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -386,7 +381,7 @@ void vGetTextSize(char * string, unsigned int *width, unsigned int *height) {
 	SDL_FreeSurface(surface);
 }
 
-void vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
+static void vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
 		unsigned short y2, unsigned short head_length, unsigned char thickness,
 		unsigned int colour) {
 	// Line vector
@@ -416,7 +411,7 @@ void vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
 			SwapBytes((colour << 8) | 0xFF));
 }
 
-void vHandleDrawJob(draw_job_t *job) {
+static void vHandleDrawJob(draw_job_t *job) {
 	if (!job)
 		return;
 
@@ -490,16 +485,13 @@ void vDrawUpdateScreen(void) {
 	xSemaphoreGive(DisplayReady);
 }
 
-void vSetupScreen(void) {
-}
-
 #define CREATE_JOB(TYPE) \
     union data_u *data = calloc(1, sizeof(union data_u));\
     if(!data) \
         logCriticalError("#TYPE data alloc");\
     job.data = data;
 
-void logCriticalError(char *msg) {
+static void logCriticalError(char *msg) {
 	printf("[ERROR] %s\n", msg);
 	exit(-1);
 }
@@ -511,7 +503,13 @@ signed char tumDrawText(char *str, signed short x, signed short y,
 	CREATE_JOB(text);
 
 	job.data->text.str = malloc(sizeof(char) * (strlen(str) + 1));
-	//TODO checking
+
+    if(!job.data->text.str){
+        printf("Error allocating buffer in tumDrawText\n");
+        exit(EXIT_FAILURE);
+    }
+
+
 	strcpy(job.data->text.str, str);
 	job.data->text.x = x;
 	job.data->text.y = y;

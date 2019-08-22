@@ -26,7 +26,6 @@ typedef struct coord {
 
 void vInitDrawing(char *path);
 void vExitDrawing(void);
-void tumDrawDelay(int delay);
 void vDrawUpdateScreen(void);
 
 signed char tumDrawClear(unsigned int colour);
