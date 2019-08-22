@@ -64,6 +64,7 @@ typedef struct line_data {
 	unsigned short y1;
 	unsigned short x2;
 	unsigned short y2;
+    unsigned char thickness;
 	unsigned int colour;
 } line_data_t;
 
@@ -185,8 +186,9 @@ void vDrawCircle(signed short x, signed short y, signed short radius,
 }
 
 void vDrawLine(signed short x1, signed short y1, signed short x2,
-		signed short y2, unsigned int colour) {
-	lineColor(renderer, x1, y1, x2, y2, SwapBytes((colour << 8) | 0xFF));
+		signed short y2, unsigned char thickness, unsigned int colour) {
+	thickLineColor(renderer, x1, y1, x2, y2, thickness,
+            SwapBytes((colour << 8) | 0xFF));
 }
 
 void vDrawPoly(coord_t *points, unsigned int n, signed short colour) {
@@ -408,9 +410,6 @@ void vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
             SwapBytes((colour << 8) | 0xFF));
 	thickLineColor(renderer, head_x2, head_y2, x2, y2, thickness, 
             SwapBytes((colour << 8) | 0xFF));
-    /** SDL_RenderDrawLine(renderer, x1, y1, x2, y2); */
-    /** SDL_RenderDrawLine(renderer, head_x1, head_y1, x2, y2); */
-    /** SDL_RenderDrawLine(renderer, head_x2, head_y2, x2, y2); */
 }
 
 void vHandleDrawJob(draw_job_t *job) {
@@ -450,7 +449,8 @@ void vHandleDrawJob(draw_job_t *job) {
 		break;
 	case DRAW_LINE:
 		vDrawLine(job->data->line.x1, job->data->line.y1, job->data->line.x2,
-				job->data->line.y2, job->data->line.colour);
+				job->data->line.y2, job->data->line.thickness, 
+                job->data->line.colour);
 		break;
 	case DRAW_POLY:
 		vDrawPoly(job->data->poly.points, job->data->poly.n,
@@ -628,7 +628,7 @@ signed char tumDrawCircle(signed short x, signed short y, signed short radius,
 }
 
 signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
-		signed short y2, unsigned int colour) {
+		signed short y2, unsigned char thickness, unsigned int colour) {
 	draw_job_t job = { .type = DRAW_LINE };
 
 	CREATE_JOB(line);
@@ -637,6 +637,7 @@ signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
 	job.data->line.y1 = y1;
 	job.data->line.x2 = x2;
 	job.data->line.y2 = y2;
+    job.data->line.thickness = thickness;
 	job.data->line.colour = colour;
 
 	if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
