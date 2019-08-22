@@ -20,7 +20,7 @@ typedef enum {
 	DRAW_POLY,
 	DRAW_TRIANGLE,
 	DRAW_IMAGE,
-    DRAW_ARROW,
+	DRAW_ARROW,
 } draw_job_type_t;
 
 typedef struct clear_data {
@@ -64,7 +64,7 @@ typedef struct line_data {
 	unsigned short y1;
 	unsigned short x2;
 	unsigned short y2;
-    unsigned char thickness;
+	unsigned char thickness;
 	unsigned int colour;
 } line_data_t;
 
@@ -94,13 +94,13 @@ typedef struct text_data {
 } text_data_t;
 
 typedef struct arrow_data {
-    unsigned short x1;
-    unsigned short y1;
-    unsigned short x2;
-    unsigned short y2;
-    unsigned short head_length;
-    unsigned char thickness;
-    unsigned short colour;
+	unsigned short x1;
+	unsigned short y1;
+	unsigned short x2;
+	unsigned short y2;
+	unsigned short head_length;
+	unsigned char thickness;
+	unsigned short colour;
 } arrow_data_t;
 
 union data_u {
@@ -114,7 +114,7 @@ union data_u {
 	triangle_data_t triangle;
 	image_data_t image;
 	text_data_t text;
-    arrow_data_t arrow;
+	arrow_data_t arrow;
 };
 
 typedef struct draw_job {
@@ -142,8 +142,8 @@ uint32_t SwapBytes(uint x) {
 }
 
 void logSDLTTFError(char *msg) {
-    if (msg)
-        printf("[ERROR] %s, %s\n", msg, TTF_GetError());
+	if (msg)
+		printf("[ERROR] %s, %s\n", msg, TTF_GetError());
 }
 
 void logSDLError(char *msg) {
@@ -188,7 +188,7 @@ void vDrawCircle(signed short x, signed short y, signed short radius,
 void vDrawLine(signed short x1, signed short y1, signed short x2,
 		signed short y2, unsigned char thickness, unsigned int colour) {
 	thickLineColor(renderer, x1, y1, x2, y2, thickness,
-            SwapBytes((colour << 8) | 0xFF));
+			SwapBytes((colour << 8) | 0xFF));
 }
 
 void vDrawPoly(coord_t *points, unsigned int n, signed short colour) {
@@ -214,33 +214,34 @@ void vDrawTriangle(coord_t *points, unsigned int colour) {
 			SwapBytes((colour << 8) | 0xFF));
 }
 
-void vInitDrawing( char *path ) {
+void vInitDrawing(char *path) {
 	int ret = 0;
-    regex_t re;
-    char *pattern = "(.+bin)";
-    regmatch_t pmatch;
-	
-    SDL_Init(SDL_INIT_EVERYTHING);
-    TTF_Init();
+	regex_t re;
+	char *pattern = "(.+bin)";
+	regmatch_t pmatch;
 
-    // Font path
-    if (regcomp(&re, pattern, REG_EXTENDED) != 0)
-        exit(EXIT_FAILURE);
+	SDL_Init(SDL_INIT_EVERYTHING);
+	TTF_Init();
 
-    if (0 != (ret = regexec(&re, path, (size_t) 1, &pmatch, 0))){
-        printf("Failed to match '%s' with '%s', returning %d\n",
-                path, pattern, ret);
-    };
+	// Font path
+	if (regcomp(&re, pattern, REG_EXTENDED) != 0)
+		exit(EXIT_FAILURE);
 
-    regfree(&re);
+	if (0 != (ret = regexec(&re, path, (size_t) 1, &pmatch, 0))) {
+		printf("Failed to match '%s' with '%s', returning %d\n", path, pattern,
+				ret);
+	};
 
-    char *buffer = calloc(1, strlen(FONT_LOCATION) + strlen(path + pmatch.rm_so) + 1);
-    strncpy(buffer, path + pmatch.rm_so, pmatch.rm_eo - pmatch.rm_so);
-    strcat(buffer, FONT_LOCATION);
-    font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
-    free(buffer);
-    if (!font)
-        logSDLTTFError("vInitDrawing->OpenFont");
+	regfree(&re);
+
+	char *buffer = calloc(1,
+			strlen(FONT_LOCATION) + strlen(path + pmatch.rm_so) + 1);
+	strncpy(buffer, path + pmatch.rm_so, pmatch.rm_eo - pmatch.rm_so);
+	strcat(buffer, FONT_LOCATION);
+	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
+	free(buffer);
+	if (!font)
+		logSDLTTFError("vInitDrawing->OpenFont");
 
 	window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED,
 	SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
@@ -251,7 +252,7 @@ void vInitDrawing( char *path ) {
 		exit(-1);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1,0);
+	renderer = SDL_CreateRenderer(window, -1, 0);
 
 	if (!renderer) {
 		logSDLError("vInitDrawing->CreateRenderer");
@@ -287,7 +288,7 @@ void vExitDrawing(void) {
 	if (renderer)
 		SDL_DestroyRenderer(renderer);
 
-    TTF_Quit();
+	TTF_Quit();
 	SDL_Quit();
 }
 
@@ -363,53 +364,56 @@ void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 
 void vDrawText(char *string, unsigned short x, unsigned short y,
 		unsigned int colour) {
-    SDL_Color color = {RED_PORTION(colour), GREEN_PORTION(colour),
-        BLUE_PORTION(colour), ZERO_ALPHA};
-    SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect dst;
-    SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
-    dst.x = x;
-    dst.y = y;
-    SDL_RenderCopy(renderer, texture, NULL, &dst);
-    SDL_DestroyTexture(texture);
-    SDL_FreeSurface(surface);
+	SDL_Color color = { RED_PORTION(colour), GREEN_PORTION(colour),
+			BLUE_PORTION(colour), ZERO_ALPHA };
+	SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_Rect dst;
+	SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
+	dst.x = x;
+	dst.y = y;
+	SDL_RenderCopy(renderer, texture, NULL, &dst);
+	SDL_DestroyTexture(texture);
+	SDL_FreeSurface(surface);
 }
 
-void vGetTextSize(char * string, unsigned int *width, unsigned int *height)
-{
-    SDL_Color color = {0};
-    SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_QueryTexture(texture, NULL, NULL, width, height);
-    SDL_DestroyTexture(texture);
-    SDL_FreeSurface(surface);
+void vGetTextSize(char * string, unsigned int *width, unsigned int *height) {
+	SDL_Color color = { 0 };
+	SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_QueryTexture(texture, NULL, NULL, width, height);
+	SDL_DestroyTexture(texture);
+	SDL_FreeSurface(surface);
 }
 
 void vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
-        unsigned short y2, unsigned short head_length, unsigned char thickness, 
-        unsigned int colour) {
-    // Line vector
-    unsigned short dx = x2 - x1;
-    unsigned short dy = y2 - y1;
+		unsigned short y2, unsigned short head_length, unsigned char thickness,
+		unsigned int colour) {
+	// Line vector
+	unsigned short dx = x2 - x1;
+	unsigned short dy = y2 - y1;
 
-    //Normalize
-    float length = sqrt(dx * dx + dy * dy);
-    float unit_dx = dx / length;
-    float unit_dy = dy / length;
+	//Normalize
+	float length = sqrt(dx * dx + dy * dy);
+	float unit_dx = dx / length;
+	float unit_dy = dy / length;
 
-    unsigned short head_x1 = round(x2 - unit_dx * head_length - unit_dy * head_length);
-    unsigned short head_y1 = round(y2 - unit_dy * head_length + unit_dx * head_length);
+	unsigned short head_x1 = round(
+			x2 - unit_dx * head_length - unit_dy * head_length);
+	unsigned short head_y1 = round(
+			y2 - unit_dy * head_length + unit_dx * head_length);
 
-    unsigned short head_x2 = round(x2 - unit_dx * head_length + unit_dy * head_length);
-    unsigned short head_y2 = round(y2 - unit_dy * head_length - unit_dx * head_length);
+	unsigned short head_x2 = round(
+			x2 - unit_dx * head_length + unit_dy * head_length);
+	unsigned short head_y2 = round(
+			y2 - unit_dy * head_length - unit_dx * head_length);
 
-	thickLineColor(renderer, x1, y1, x2, y2, thickness, 
-            SwapBytes((colour << 8) | 0xFF));
-	thickLineColor(renderer, head_x1, head_y1, x2, y2, thickness, 
-            SwapBytes((colour << 8) | 0xFF));
-	thickLineColor(renderer, head_x2, head_y2, x2, y2, thickness, 
-            SwapBytes((colour << 8) | 0xFF));
+	thickLineColor(renderer, x1, y1, x2, y2, thickness,
+			SwapBytes((colour << 8) | 0xFF));
+	thickLineColor(renderer, head_x1, head_y1, x2, y2, thickness,
+			SwapBytes((colour << 8) | 0xFF));
+	thickLineColor(renderer, head_x2, head_y2, x2, y2, thickness,
+			SwapBytes((colour << 8) | 0xFF));
 }
 
 void vHandleDrawJob(draw_job_t *job) {
@@ -449,8 +453,8 @@ void vHandleDrawJob(draw_job_t *job) {
 		break;
 	case DRAW_LINE:
 		vDrawLine(job->data->line.x1, job->data->line.y1, job->data->line.x2,
-				job->data->line.y2, job->data->line.thickness, 
-                job->data->line.colour);
+				job->data->line.y2, job->data->line.thickness,
+				job->data->line.colour);
 		break;
 	case DRAW_POLY:
 		vDrawPoly(job->data->poly.points, job->data->poly.n,
@@ -464,10 +468,11 @@ void vHandleDrawJob(draw_job_t *job) {
 		vDrawImage(job->data->image.tex, renderer, job->data->image.x,
 				job->data->image.y);
 		break;
-    case DRAW_ARROW:
-        vDrawArrow(job->data->arrow.x1, job->data->arrow.y1, job->data->arrow.x2,
-                job->data->arrow.y2, job->data->arrow.head_length,
-                job->data->arrow.thickness, job->data->arrow.colour);
+	case DRAW_ARROW:
+		vDrawArrow(job->data->arrow.x1, job->data->arrow.y1,
+				job->data->arrow.x2, job->data->arrow.y2,
+				job->data->arrow.head_length, job->data->arrow.thickness,
+				job->data->arrow.colour);
 	default:
 		break;
 	}
@@ -480,7 +485,7 @@ void vDrawUpdateScreen(void) {
 	while (xQueueReceive(drawJobQueue, &tmp_job, 0) == pdTRUE)
 		vHandleDrawJob(&tmp_job);
 
-    SDL_RenderPresent(renderer);
+	SDL_RenderPresent(renderer);
 
 	xSemaphoreGive(DisplayReady);
 }
@@ -518,8 +523,8 @@ signed char tumDrawText(char *str, signed short x, signed short y,
 	return 0;
 }
 
-void tumGetTextSize( char *str,  unsigned int *width, unsigned int *height) {
-    vGetTextSize(str, width, height);
+void tumGetTextSize(char *str, unsigned int *width, unsigned int *height) {
+	vGetTextSize(str, width, height);
 }
 
 signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
@@ -637,7 +642,7 @@ signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
 	job.data->line.y1 = y1;
 	job.data->line.x2 = x2;
 	job.data->line.y2 = y2;
-    job.data->line.thickness = thickness;
+	job.data->line.thickness = thickness;
 	job.data->line.colour = colour;
 
 	if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
@@ -690,9 +695,9 @@ signed char tumDrawImage(char *filename, signed short x, signed short y) {
 	return 0;
 }
 
-signed char tumDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
-        unsigned short y2, unsigned short head_length, unsigned char thickness, 
-        unsigned int colour) {
+signed char tumDrawArrow(unsigned short x1, unsigned short y1,
+		unsigned short x2, unsigned short y2, unsigned short head_length,
+		unsigned char thickness, unsigned int colour) {
 	draw_job_t job = { .type = DRAW_ARROW };
 
 	CREATE_JOB(arrow);
@@ -702,11 +707,11 @@ signed char tumDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2
 	job.data->arrow.x2 = x2;
 	job.data->arrow.y2 = y2;
 	job.data->arrow.head_length = head_length;
-    job.data->arrow.thickness = thickness;
+	job.data->arrow.thickness = thickness;
 	job.data->arrow.colour = colour;
 
-    if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
-        return -1;
-    
-    return 0;
+	if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
+		return -1;
+
+	return 0;
 }

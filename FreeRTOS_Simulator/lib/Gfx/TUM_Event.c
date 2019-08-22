@@ -35,10 +35,10 @@ void vEventsTask(void *pvParameters) {
 				vExitDrawing();
 				exit(1);
 			} else if (event.type == SDL_KEYDOWN) {
-                buttons[event.key.keysym.scancode] = 1;
+				buttons[event.key.keysym.scancode] = 1;
 				send = 1;
 			} else if (event.type == SDL_KEYUP) {
-                buttons[event.key.keysym.scancode] = 0;
+				buttons[event.key.keysym.scancode] = 0;
 				send = 1;
 			} else if (event.type == SDL_MOUSEMOTION) {
 				xSemaphoreTake(mouse.lock, portMAX_DELAY);
@@ -46,7 +46,7 @@ void vEventsTask(void *pvParameters) {
 				mouse.y = event.motion.y;
 				xSemaphoreGive(mouse.lock);
 			} else {
-                ;
+				;
 			}
 		}
 
@@ -94,6 +94,6 @@ void vInitEvents(void) {
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
 	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
 	SDL_EventState(0x303, SDL_IGNORE);
-    SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
-    SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
 }

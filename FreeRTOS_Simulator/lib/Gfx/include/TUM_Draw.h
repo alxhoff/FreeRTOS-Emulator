@@ -24,7 +24,7 @@ typedef struct coord {
 	unsigned short y;
 } coord_t;
 
-void vInitDrawing( char *path );
+void vInitDrawing(char *path);
 void vExitDrawing(void);
 void tumDrawDelay(int delay);
 void vDrawUpdateScreen(void);
@@ -36,7 +36,7 @@ signed char tumDrawArc(signed short x, signed short y, signed short radius,
 		signed short start, signed short end, unsigned int colour);
 signed char tumDrawText(char *str, signed short x, signed short y,
 		unsigned int colour);
-void tumGetTextSize( char *str, unsigned int *width, unsigned int *height);
+void tumGetTextSize(char *str, unsigned int *width, unsigned int *height);
 signed char tumDrawBox(signed short x, signed short y, signed short w,
 		signed short h, unsigned int colour);
 signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
@@ -48,8 +48,8 @@ signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
 signed char tumDrawPoly(coord_t *points, int n, unsigned int colour);
 signed char tumDrawTriangle(coord_t *points, unsigned int colour);
 signed char tumDrawImage(char *filename, signed short x, signed short y);
-signed char tumDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
-        unsigned short y2, unsigned short head_length, unsigned char thickness,
-        unsigned int colour);
+signed char tumDrawArrow(unsigned short x1, unsigned short y1,
+		unsigned short x2, unsigned short y2, unsigned short head_length,
+		unsigned char thickness, unsigned int colour);
 
 #endif
