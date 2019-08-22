@@ -26,7 +26,7 @@ void vEventsTask(void *pvParameters) {
 	const portTickType eventPollPeriod = 5;
 
 	SDL_Event event = { 0 };
-	buttons_t buttons = { 0 };
+	unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
 	unsigned char send = 0;
 
 	while (1) {
@@ -35,87 +35,11 @@ void vEventsTask(void *pvParameters) {
 				vExitDrawing();
 				exit(1);
 			} else if (event.type == SDL_KEYDOWN) {
-				switch (event.key.keysym.sym) {
-				case 'a':
-					if (!buttons.a) {
-						buttons.a = 1;
-						send = 1;
-					}
-					break;
-				case 'b':
-					if (!buttons.b) {
-						buttons.b = 1;
-						send = 1;
-					}
-					break;
-				case 'c':
-					if (!buttons.c) {
-						buttons.c = 1;
-						send = 1;
-					}
-					break;
-				case 'd':
-					if (!buttons.d) {
-						buttons.d = 1;
-						send = 1;
-					}
-					break;
-				case 'e':
-					if (!buttons.e) {
-						buttons.e = 1;
-						send = 1;
-					}
-					break;
-				case 'f':
-					if (!buttons.f) {
-						buttons.f = 1;
-						send = 1;
-					}
-					break;
-				default:
-					break;
-				}
+                buttons[event.key.keysym.scancode] = 1;
+				send = 1;
 			} else if (event.type == SDL_KEYUP) {
-				switch (event.key.keysym.sym) {
-				case 'a':
-					if (buttons.a) {
-						buttons.a = 0;
-						send = 1;
-					}
-					break;
-				case 'b':
-					if (buttons.b) {
-						buttons.b = 0;
-						send = 1;
-					}
-					break;
-				case 'c':
-					if (buttons.c) {
-						buttons.c = 0;
-						send = 1;
-					}
-					break;
-				case 'd':
-					if (buttons.d) {
-						buttons.d = 0;
-						send = 1;
-					}
-					break;
-				case 'e':
-					if (buttons.e) {
-						buttons.e = 0;
-						send = 1;
-					}
-					break;
-				case 'f':
-					if (buttons.f) {
-						buttons.f = 0;
-						send = 1;
-					}
-					break;
-				default:
-					break;
-				}
+                buttons[event.key.keysym.scancode] = 0;
+				send = 1;
 			} else if (event.type == SDL_MOUSEMOTION) {
 				xSemaphoreTake(mouse.lock, portMAX_DELAY);
 				mouse.x = event.motion.x;
@@ -156,7 +80,7 @@ signed short xGetMouseY(void) {
 void vInitEvents(void) {
 	initMouse();
 
-	inputQueue = xQueueCreate(1, sizeof(buttons_t));
+	inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
 	if (!inputQueue) {
 		printf("input queue create failed\n");
 	}
