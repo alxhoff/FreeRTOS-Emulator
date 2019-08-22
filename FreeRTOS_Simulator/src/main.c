@@ -173,12 +173,12 @@ void vDemoTask1(void *pvParameters) {
 			xGetButtonInput();
 
 			xSemaphoreTake(buttons.lock, portMAX_DELAY);
-			if (buttons.buttons[KEYCODE(E)]) {
+			if (buttons.buttons[KEYCODE(C)]) {
 				xSemaphoreGive(buttons.lock);
 				xQueueSend(StateQueue, &next_state_signal, portMAX_DELAY);
 				goto already_unlocked;
 			}
-			if (buttons.buttons[KEYCODE(F)]) {
+			if (buttons.buttons[KEYCODE(S)]) {
 				xSemaphoreGive(buttons.lock);
 				xQueueSend(StateQueue, &prev_state_signal, portMAX_DELAY);
 				goto already_unlocked;
@@ -201,7 +201,7 @@ void vDemoTask1(void *pvParameters) {
 			tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black);
 
 			xSemaphoreTake(buttons.lock, portMAX_DELAY);
-			sprintf(str, "W: %d | S: %d | A: %d | D: %d | Change State [E/F]",
+			sprintf(str, "W: %d | S: %d | A: %d | D: %d | [C]hange [S]tate",
 					buttons.buttons[KEYCODE(W)], buttons.buttons[KEYCODE(S)],
 					buttons.buttons[KEYCODE(A)], buttons.buttons[KEYCODE(D)]);
 			xSemaphoreGive(buttons.lock);
@@ -209,7 +209,7 @@ void vDemoTask1(void *pvParameters) {
 			tumDrawText(str, 10, DEFAULT_FONT_SIZE * 2, Black);
 
 			xSemaphoreTake(buttons.lock, portMAX_DELAY);
-			sprintf(str, "UP: %d | DOWN: %d | LEFT: %d | RIGHT: %d",
+			sprintf(str, "UP: %d | DOWN: %d | LEFT: %d | RIGHT: %d | [Q]uit",
 					buttons.buttons[KEYCODE(UP)],
 					buttons.buttons[KEYCODE(DOWN)],
 					buttons.buttons[KEYCODE(LEFT)],
@@ -242,12 +242,12 @@ void vDemoTask2(void *pvParameters) {
 			xGetButtonInput();
 
 			xSemaphoreTake(buttons.lock, portMAX_DELAY);
-			if (buttons.buttons[KEYCODE(E)]) {
+			if (buttons.buttons[KEYCODE(C)]) {
 				xSemaphoreGive(buttons.lock);
 				xQueueSend(StateQueue, &next_state_signal, portMAX_DELAY);
 				goto already_unlocked;
 			}
-			if (buttons.buttons[KEYCODE(F)]) {
+			if (buttons.buttons[KEYCODE(S)]) {
 				xSemaphoreGive(buttons.lock);
 				xQueueSend(StateQueue, &prev_state_signal, portMAX_DELAY);
 				goto already_unlocked;
