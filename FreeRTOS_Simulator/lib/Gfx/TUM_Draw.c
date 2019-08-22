@@ -19,7 +19,8 @@ typedef enum {
 	DRAW_LINE,
 	DRAW_POLY,
 	DRAW_TRIANGLE,
-	DRAW_IMAGE
+	DRAW_IMAGE,
+    DRAW_ARROW,
 } draw_job_type_t;
 
 typedef struct clear_data {
@@ -91,6 +92,16 @@ typedef struct text_data {
 	unsigned int colour;
 } text_data_t;
 
+typedef struct arrow_data {
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short head_length;
+    unsigned char thickness;
+    unsigned short colour;
+} arrow_data_t;
+
 union data_u {
 	clear_data_t clear;
 	arc_data_t arc;
@@ -102,6 +113,7 @@ union data_u {
 	triangle_data_t triangle;
 	image_data_t image;
 	text_data_t text;
+    arrow_data_t arrow;
 };
 
 typedef struct draw_job {
@@ -372,6 +384,35 @@ void vGetTextSize(char * string, unsigned int *width, unsigned int *height)
     SDL_FreeSurface(surface);
 }
 
+void vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
+        unsigned short y2, unsigned short head_length, unsigned char thickness, 
+        unsigned int colour) {
+    // Line vector
+    unsigned short dx = x2 - x1;
+    unsigned short dy = y2 - y1;
+
+    //Normalize
+    float length = sqrt(dx * dx + dy * dy);
+    float unit_dx = dx / length;
+    float unit_dy = dy / length;
+
+    unsigned short head_x1 = round(x2 - unit_dx * head_length - unit_dy * head_length);
+    unsigned short head_y1 = round(y2 - unit_dy * head_length + unit_dx * head_length);
+
+    unsigned short head_x2 = round(x2 - unit_dx * head_length + unit_dy * head_length);
+    unsigned short head_y2 = round(y2 - unit_dy * head_length - unit_dx * head_length);
+
+	thickLineColor(renderer, x1, y1, x2, y2, thickness, 
+            SwapBytes((colour << 8) | 0xFF));
+	thickLineColor(renderer, head_x1, head_y1, x2, y2, thickness, 
+            SwapBytes((colour << 8) | 0xFF));
+	thickLineColor(renderer, head_x2, head_y2, x2, y2, thickness, 
+            SwapBytes((colour << 8) | 0xFF));
+    /** SDL_RenderDrawLine(renderer, x1, y1, x2, y2); */
+    /** SDL_RenderDrawLine(renderer, head_x1, head_y1, x2, y2); */
+    /** SDL_RenderDrawLine(renderer, head_x2, head_y2, x2, y2); */
+}
+
 void vHandleDrawJob(draw_job_t *job) {
 	if (!job)
 		return;
@@ -423,6 +464,10 @@ void vHandleDrawJob(draw_job_t *job) {
 		vDrawImage(job->data->image.tex, renderer, job->data->image.x,
 				job->data->image.y);
 		break;
+    case DRAW_ARROW:
+        vDrawArrow(job->data->arrow.x1, job->data->arrow.y1, job->data->arrow.x2,
+                job->data->arrow.y2, job->data->arrow.head_length,
+                job->data->arrow.thickness, job->data->arrow.colour);
 	default:
 		break;
 	}
@@ -642,5 +687,25 @@ signed char tumDrawImage(char *filename, signed short x, signed short y) {
 		return -1;
 
 	return 0;
+}
 
+signed char tumDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
+        unsigned short y2, unsigned short head_length, unsigned char thickness, 
+        unsigned int colour) {
+	draw_job_t job = { .type = DRAW_ARROW };
+
+	CREATE_JOB(arrow);
+
+	job.data->arrow.x1 = x1;
+	job.data->arrow.y1 = y1;
+	job.data->arrow.x2 = x2;
+	job.data->arrow.y2 = y2;
+	job.data->arrow.head_length = head_length;
+    job.data->arrow.thickness = thickness;
+	job.data->arrow.colour = colour;
+
+    if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
+        return -1;
+    
+    return 0;
 }

@@ -48,5 +48,8 @@ signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
 signed char tumDrawPoly(coord_t *points, int n, unsigned int colour);
 signed char tumDrawTriangle(coord_t *points, unsigned int colour);
 signed char tumDrawImage(char *filename, signed short x, signed short y);
+signed char tumDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
+        unsigned short y2, unsigned short head_length, unsigned char thickness,
+        unsigned int colour);
 
 #endif
