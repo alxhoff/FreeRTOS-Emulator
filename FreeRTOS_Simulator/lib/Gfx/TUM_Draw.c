@@ -1,5 +1,3 @@
-#include <regex.h>
-
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL2_gfxPrimitives.h"
@@ -215,32 +213,21 @@ static void vDrawTriangle(coord_t *points, unsigned int colour) {
 
 void vInitDrawing(char *path) {
 	int ret = 0;
-	regex_t re;
-	char *pattern = "(.+bin)";
-	regmatch_t pmatch;
+
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
-
-	// Font path
-	if (regcomp(&re, pattern, REG_EXTENDED) != 0)
-		exit(EXIT_FAILURE);
-
-	if (0 != (ret = regexec(&re, path, (size_t) 1, &pmatch, 0))) {
-		printf("Failed to match '%s' with '%s', returning %d\n", path, pattern,
-				ret);
-	};
-
-	regfree(&re);
-
-	char *buffer = calloc(1,
-			strlen(FONT_LOCATION) + strlen(path + pmatch.rm_so) + 1);
-	strncpy(buffer, path + pmatch.rm_so, pmatch.rm_eo - pmatch.rm_so);
+	
+    char *buffer = calloc(1,
+			strlen(FONT_LOCATION) + strlen(path) + 1);
+	strcpy(buffer, path);
 	strcat(buffer, FONT_LOCATION);
+
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
-	free(buffer);
 	if (!font)
 		logSDLTTFError("vInitDrawing->OpenFont");
+
+	free(buffer);
 
 	window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED,
 	SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);

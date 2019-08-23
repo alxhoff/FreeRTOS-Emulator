@@ -11,6 +11,8 @@
 
 #include "TUM_Draw.h"
 #include "TUM_Event.h"
+#include "TUM_Sound.h"
+#include "TUM_Utils.h"
 
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
 #define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
@@ -169,7 +171,7 @@ void vDrawHelpText(void) {
 
 	tumGetTextSize((char *) str, &text_width, NULL);
 
-	sprintf(str, "[Q]uit, [C]hang[e] State", xGetMouseX(), xGetMouseY());
+	sprintf(str, "[Q]uit, [C]hang[e] State");
 
 	tumDrawText(str, SCREEN_WIDTH - text_width - 10, DEFAULT_FONT_SIZE * 0.5,
 			Black);
@@ -213,6 +215,10 @@ void vCheckStateInput(void) {
 		xQueueSend(StateQueue, &prev_state_signal, portMAX_DELAY);
 		return;
 	}
+    if (buttons.buttons[KEYCODE(I)]) {
+        xSemaphoreGive(buttons.lock);
+        vPlayHit();
+    }
 	xSemaphoreGive(buttons.lock);
 }
 
@@ -259,8 +265,12 @@ void vDemoTask2(void *pvParameters) {
 }
 
 int main(int argc, char *argv[]) {
+
+    char *bin_folder_path = getBinFolderPath(argv[0]);
+
+	vInitDrawing(bin_folder_path);
 	vInitEvents();
-	vInitDrawing(argv[0]);
+    vInitAudio(bin_folder_path);
 
 	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
 	    mainGENERIC_PRIORITY, &DemoTask1);

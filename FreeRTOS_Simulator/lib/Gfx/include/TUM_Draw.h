@@ -6,7 +6,9 @@
 
 #define DEFAULT_FONT_SIZE  15 
 
-#define FONT_LOCATION       "/../resources/fonts/IBMPlexSans-Medium.ttf"
+#define DEFAULT_FONT        "IBMPlexSans-Medium.ttf"
+#define FONTS_LOCATION       "/../resources/fonts/"
+#define FONT_LOCATION       FONTS_LOCATION DEFAULT_FONT
 
 #define SCREEN_X 100
 #define SCREEN_Y 200
