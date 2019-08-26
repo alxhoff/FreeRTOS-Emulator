@@ -294,21 +294,22 @@ void vDemoTask3(void *pvParameters) {
     prevWakeTime = xLastWakeTime;
 	const TickType_t updatePeriod = 10;
 
-    ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, Black, 20);
+    ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, Black, 20,
+            &vPlayHit);
     setBallSpeed(my_ball, 250, 250); 
 
     //Left wall
     wall_t *left_wall = createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y,
-        CAVE_THICKNESS, CAVE_SIZE_Y, 0.2, Red);
+        CAVE_THICKNESS, CAVE_SIZE_Y, 0.2, Red, NULL);
     //Right wall
     wall_t *right_wall = createWall(CAVE_X + CAVE_SIZE_X, CAVE_Y,
-            CAVE_THICKNESS, CAVE_SIZE_Y, 0.2, Red);
+            CAVE_THICKNESS, CAVE_SIZE_Y, 0.2, Red, NULL);
     //Top wall
     wall_t *top_wall = createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y - CAVE_THICKNESS,
-            CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS, 0.2, Blue);
+            CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS, 0.2, Blue, NULL);
     //Bottom wall
     wall_t *bottom_wall = createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y + CAVE_SIZE_Y,
-            CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS, 0.2, Blue);
+            CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS, 0.2, Blue, NULL);
 
     while(1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
@@ -329,7 +330,7 @@ void vDemoTask3(void *pvParameters) {
                         bottom_wall->w, bottom_wall->h, bottom_wall->colour),
                     __FUNCTION__);
 
-            checkBallCollisions(my_ball);
+            checkBallCollisions(my_ball, NULL);
             updateBallPosition(my_ball, xLastWakeTime - prevWakeTime);
 
             checkDraw(tumDrawCircle(my_ball->x, my_ball->y, my_ball->radius, 

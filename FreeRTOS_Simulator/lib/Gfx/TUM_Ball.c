@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "TUM_Ball.h"
+#include "TUM_Sound.h"
 
 typedef struct walls{
     wall_t **walls;
@@ -13,7 +14,8 @@ typedef struct walls{
 walls_t walls = {0};
 
 wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
-        unsigned short h, float dampening, unsigned int colour) {
+        unsigned short h, float dampening, unsigned int colour, 
+        void (*callback)()) {
 
     wall_t *ret = calloc(1, sizeof(wall_t));
 
@@ -30,6 +32,7 @@ wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
     ret->y2 = y1 + h;
     ret->colour = colour;
     ret->dampening = dampening;
+    ret->callback = callback;
 
     walls.wall_count++;
     walls.walls = realloc(walls.walls, sizeof(wall_t *) * walls.wall_count);
@@ -46,7 +49,8 @@ wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
 }
 
 ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
-        unsigned int colour, unsigned short radius){
+        unsigned int colour, unsigned short radius, void (*callback)()){
+
     ball_t *ret = calloc(1, sizeof(ball_t));
 
     if (!ret){
@@ -60,16 +64,14 @@ ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
     ret->f_y = initial_y;
     ret->colour = colour;
     ret->radius = radius;
+    ret->callback = callback;
 
     return ret;
 }
 
 void setBallSpeed(ball_t *ball, float dx, float dy) {
-    if(dx)
-        ball->dx = dx;
-
-    if(dy)
-        ball->dy = dy;
+    ball->dx = dx;
+    ball->dy = dy;
 }
 
 void updateBallPosition(ball_t *ball, unsigned int mili_seconds) {
@@ -118,8 +120,14 @@ void changeBallDirection(ball_t *ball, unsigned char direction,
 #define BALL    ((ball_t *)object)
 
 unsigned char collideWall(ball_t *ball, wall_t *wall, 
-        unsigned char collision_type) {
+        unsigned char collision_type, void (*callback)()) {
 
+    if (callback)
+        callback();
+    if(wall->callback)
+        wall->callback();
+    if(ball->callback)
+        ball->callback();
     switch(collision_type){
     case COLLIDE_WALL_TOP:
         changeBallDirection(ball, VERTICAL, wall->dampening);
@@ -140,7 +148,8 @@ unsigned char collideWall(ball_t *ball, wall_t *wall,
     return 0;
 }
 
-unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag) {
+unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
+        void (*callback)()) {
     switch(flag){
     case COLLIDE_WALL:
             //Coming from:
@@ -149,7 +158,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag) {
                     && BALL_TOP_POINT_Y < WALL->y1 
                     && BALL_BOTTOM_POINT_X >= WALL->x1 
                     && BALL_BOTTOM_POINT_X <= WALL->x2){
-                collideWall(ball, WALL, COLLIDE_WALL_TOP);
+                collideWall(ball, WALL, COLLIDE_WALL_TOP, callback);
                 //Place ball next to wall to prevent ball getting stuck in wall
                 ball->f_y = WALL->y1 - ball->radius;
             }
@@ -158,7 +167,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag) {
                     && BALL_BOTTOM_POINT_Y > WALL->y2
                     && BALL_TOP_POINT_X >= WALL->x1
                     && BALL_TOP_POINT_X <= WALL->x2){
-                collideWall(ball, WALL, COLLIDE_WALL_BOTTOM);
+                collideWall(ball, WALL, COLLIDE_WALL_BOTTOM, callback);
                 ball->f_y = WALL->y2 + ball->radius;
             }
             //Left of wall
@@ -166,7 +175,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag) {
                     && BALL_LEFT_POINT_X < WALL->x1
                     && BALL_RIGHT_POINT_Y >= WALL->y1
                     && BALL_RIGHT_POINT_Y <= WALL->y2){
-                collideWall(ball, WALL, COLLIDE_WALL_RIGHT);
+                collideWall(ball, WALL, COLLIDE_WALL_RIGHT, callback);
                 ball->f_x = WALL->x1 - ball->radius;
             }
             //Right of wall
@@ -174,7 +183,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag) {
                     && BALL_RIGHT_POINT_X > WALL->x2
                     && BALL_LEFT_POINT_Y >= WALL->y1
                     && BALL_RIGHT_POINT_Y <= WALL->y2){
-                collideWall(ball, WALL, COLLIDE_WALL_LEFT);
+                collideWall(ball, WALL, COLLIDE_WALL_LEFT, callback);
                 ball->f_x = WALL->x2 + ball->radius;
             }
         break;
@@ -188,16 +197,16 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag) {
     return 0;
 }
 
-void checkBallCollisionsWithWalls(ball_t *ball) {
+void checkBallCollisionsWithWalls(ball_t *ball, void (*callback)()) {
     for(unsigned int i = 0; i < walls.wall_count; i++)
-        handleCollision(ball, walls.walls[i], COLLIDE_WALL);
+        handleCollision(ball, walls.walls[i], COLLIDE_WALL, callback);
 }
 
 void checkBallCollisionsWithBalls(ball_t *ball) {
     //TODO
 }
 
-void checkBallCollisions(ball_t *ball) {
-    checkBallCollisionsWithWalls(ball);
+void checkBallCollisions(ball_t *ball, void (*callback)()) {
+    checkBallCollisionsWithWalls(ball, callback);
     checkBallCollisionsWithBalls(ball);
 }

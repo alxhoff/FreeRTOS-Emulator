@@ -74,5 +74,5 @@ void vPlayHit(void) {
 }
 
 void vPlayFail(void) {
-    Mix_PlayChannel(-1, samples[1], 0);
+    Mix_PlayChannel(-1, samples[0], 0);
 }

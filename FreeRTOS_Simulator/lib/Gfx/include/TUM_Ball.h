@@ -14,6 +14,8 @@ typedef struct ball{
     unsigned int colour;
 
     unsigned short radius;
+
+    void (*callback)(void);
 }ball_t;
 
 typedef struct wall{
@@ -27,16 +29,19 @@ typedef struct wall{
     unsigned short y2;
 
     float dampening;
-
+    
     unsigned int colour;
+    
+    void (*callback)(void);
 }wall_t;
 
 ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
-        unsigned int colour, unsigned short radius);
+        unsigned int colour, unsigned short radius, void (*callback)());
 wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
-        unsigned short h, float dampening, unsigned int colour);
+        unsigned short h, float dampening, unsigned int colour, 
+        void (*callback)());
 void setBallSpeed(ball_t *ball, float dx, float dy);
-void checkBallCollisions(ball_t *ball);
+void checkBallCollisions(ball_t *ball, void (*callback)());
 void updateBallPosition(ball_t *ball, unsigned int mili_seconds);
 
 #endif
