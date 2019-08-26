@@ -2,22 +2,19 @@
 
 #include <SDL2/SDL_mixer.h>
 
-#define SAMPLE_FOLDER   "/../resources/"
+#include "TUM_Sound.h"
 
-#define NUM_WAVEFORMS   2
+#define SAMPLE_FOLDER   "/../resources/waveforms/"
+
+#define NUM_WAVEFORMS   20
 
 #define AUDIO_CHANNELS  2
 #define MIXING_CHANNELS 4
 
-#define GEN_FULL_SAMPLE_PATH(SAMPLE) SAMPLE_FOLDER #SAMPLE,
-
-#define SAMPLES(SAMPLE)      \
-                        SAMPLE(game_over.wav)\
-                        SAMPLE(pong.wav) \
-
+#define GEN_FULL_SAMPLE_PATH(SAMPLE) SAMPLE_FOLDER #SAMPLE ".wav",
 
 char *waveFileNames[] = {
-    SAMPLES(GEN_FULL_SAMPLE_PATH)
+    FOR_EACH_SAMPLE(GEN_FULL_SAMPLE_PATH)
 };
 
 char *fullWaveFileNames[NUM_WAVEFORMS] = {0};
@@ -69,10 +66,6 @@ void vExitAudio(void) {
         Mix_FreeChunk(samples[i]);
 }
 
-void vPlayHit(void) {
-    Mix_PlayChannel(-1, samples[1], 0);
-}
-
-void vPlayFail(void) {
-    Mix_PlayChannel(-1, samples[0], 0);
+void vPlaySample(unsigned char index) {
+    Mix_PlayChannel(-1, samples[index], 0);
 }

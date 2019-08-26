@@ -20,11 +20,10 @@
 
 #define STATE_QUEUE_LENGTH 1
 
-#define STATE_COUNT 3
+#define STATE_COUNT 2
 
 #define STATE_ONE   0
 #define STATE_TWO   1
-#define STATE_THREE 2
 
 #define NEXT_TASK   0 
 #define PREV_TASK   1
@@ -49,7 +48,6 @@ const unsigned char prev_state_signal = PREV_TASK;
 
 static TaskHandle_t DemoTask1 = NULL;
 static TaskHandle_t DemoTask2 = NULL;
-static TaskHandle_t DemoTask3 = NULL;
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawReady = NULL;
 
@@ -124,18 +122,11 @@ void basicSequentialStateMachine(void *pvParameters) {
             switch (current_state) {
             case STATE_ONE:
                 vTaskSuspend(DemoTask2);
-                vTaskSuspend(DemoTask3);
                 vTaskResume(DemoTask1);
                 break;
             case STATE_TWO:
                 vTaskSuspend(DemoTask1);
-                vTaskSuspend(DemoTask3);
                 vTaskResume(DemoTask2);
-                break;
-            case STATE_THREE:
-                vTaskSuspend(DemoTask1);
-                vTaskSuspend(DemoTask2);
-                vTaskResume(DemoTask3);
                 break;
             default:
                 break;
@@ -242,10 +233,6 @@ void vCheckStateInput(void) {
 		xQueueSend(StateQueue, &prev_state_signal, portMAX_DELAY);
 		return;
 	}
-    if (buttons.buttons[KEYCODE(I)]) {
-        xSemaphoreGive(buttons.lock);
-        vPlayHit();
-    }
 	xSemaphoreGive(buttons.lock);
 }
 
@@ -264,38 +251,18 @@ void vDemoTask1(void *pvParameters) {
 	}
 }
 
-void vDrawStateText() {
-	static const char str[] = "Second state";
-	static unsigned int text_width, text_height;
-
-	tumGetTextSize((char *) str, &text_width, &text_height);
-
-    checkDraw(tumDrawText((char*) str, SCREEN_WIDTH / 2 - text_width / 2,
-            SCREEN_HEIGHT / 2 - text_height / 2, Red), __FUNCTION__);
-
+void playBallSound(void) {
+    vPlaySample(a3);
 }
 
 void vDemoTask2(void *pvParameters) {
-
-	while (1) {
-		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
-			vCheckStateInput();
-            checkDraw(tumDrawClear(White), __FUNCTION__);
-			vDrawHelpText();
-		    
-			vDrawStateText();
-		}
-	}
-}
-
-void vDemoTask3(void *pvParameters) {
 	TickType_t xLastWakeTime, prevWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
     prevWakeTime = xLastWakeTime;
 	const TickType_t updatePeriod = 10;
 
     ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, Black, 20,
-            &vPlayHit);
+            &playBallSound);
     setBallSpeed(my_ball, 250, 250); 
 
     //Left wall
@@ -357,8 +324,6 @@ int main(int argc, char *argv[]) {
 	    mainGENERIC_PRIORITY, &DemoTask1);
 	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
 	    mainGENERIC_PRIORITY, &DemoTask2);
-	xTaskCreate(vDemoTask3, "DemoTask3", mainGENERIC_STACK_SIZE, NULL,
-	    mainGENERIC_PRIORITY, &DemoTask3);
 	xTaskCreate(basicSequentialStateMachine, "StateMachine",
 	    mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL);
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL,
@@ -366,7 +331,6 @@ int main(int argc, char *argv[]) {
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);
-	vTaskSuspend(DemoTask3);
 
 	buttons.lock = xSemaphoreCreateMutex(); //Locking mechanism
 
