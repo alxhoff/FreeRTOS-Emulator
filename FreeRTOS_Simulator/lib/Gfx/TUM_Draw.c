@@ -132,11 +132,25 @@ QueueHandle_t drawJobQueue = NULL;
 
 SemaphoreHandle_t DisplayReady = NULL;
 
-void vDrawUpdateScreen(void);
+char *error_message = NULL;
 
 uint32_t SwapBytes(uint x) {
 	return ((x & 0x000000ff) << 24) + ((x & 0x0000ff00) << 8)
 			+ ((x & 0x00ff0000) >> 8) + ((x & 0xff000000) >> 24);
+}
+
+void setErrorMessage(char *msg) {
+    if(error_message)
+        free(error_message);
+
+    error_message = malloc(sizeof(char) * (strlen(msg) + 1));
+    if (!error_message)
+        return;
+    strcpy(error_message, msg);
+}
+
+char *tumGetErrorMessage(void) {
+    return error_message;
 }
 
 void logSDLTTFError(char *msg) {
@@ -594,8 +608,10 @@ signed char tumDrawClear(unsigned int colour) {
 
 	job.data->clear.colour = colour;
 
-	if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
+	if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE){
+        setErrorMessage("tumDrawClear");
 		return -1;
+    }
 
 	return 0;
 }

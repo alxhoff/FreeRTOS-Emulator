@@ -12,6 +12,7 @@
 #include "TUM_Draw.h"
 #include "TUM_Event.h"
 #include "TUM_Sound.h"
+#include "TUM_Ball.h"
 #include "TUM_Utils.h"
 
 #define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
@@ -19,17 +20,18 @@
 
 #define STATE_QUEUE_LENGTH 1
 
-#define STATE_COUNT 2
+#define STATE_COUNT 3
 
 #define STATE_ONE   0
 #define STATE_TWO   1
+#define STATE_THREE 2
 
 #define NEXT_TASK   0 
 #define PREV_TASK   1
 
 #define STARTING_STATE  STATE_ONE
 
-#define STATE_DEBOUNCE_DELAY   75 
+#define STATE_DEBOUNCE_DELAY   100 
 
 #define Red     0xFF0000
 #define Green   0x00FF00
@@ -47,6 +49,7 @@ const unsigned char prev_state_signal = PREV_TASK;
 
 static TaskHandle_t DemoTask1 = NULL;
 static TaskHandle_t DemoTask2 = NULL;
+static TaskHandle_t DemoTask3 = NULL;
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawReady = NULL;
 
@@ -57,23 +60,34 @@ typedef struct buttons_buffer {
 
 static buttons_buffer_t buttons = { 0 };
 
+void checkDraw(unsigned char status, const char *msg) {
+    if(status){
+        if(msg)
+            fprintf(stderr, "[ERROR] %s, %s\n", msg, tumGetErrorMessage());
+        else
+            fprintf(stderr, "[ERROR] %s\n", tumGetErrorMessage());
+
+        exit(EXIT_FAILURE);
+    }
+}
+
 /*
  * Changes the state, either forwards of backwards
  */
 void changeState(volatile unsigned char *state, unsigned char forwards) {
 
 	switch (forwards) {
-	case 0:
-		if (*state == 0)
-			*state = STATE_COUNT - 1;
-		else
-			(*state)--;
-		break;
-	case 1:
+	case NEXT_TASK:
 		if (*state == STATE_COUNT - 1)
 			*state = 0;
 		else
 			(*state)++;
+		break;
+	case PREV_TASK:
+		if (*state == 0)
+			*state = STATE_COUNT - 1;
+		else
+			(*state)--;
 		break;
 	default:
 		break;
@@ -110,11 +124,18 @@ void basicSequentialStateMachine(void *pvParameters) {
             switch (current_state) {
             case STATE_ONE:
                 vTaskSuspend(DemoTask2);
+                vTaskSuspend(DemoTask3);
                 vTaskResume(DemoTask1);
                 break;
             case STATE_TWO:
                 vTaskSuspend(DemoTask1);
+                vTaskSuspend(DemoTask3);
                 vTaskResume(DemoTask2);
+                break;
+            case STATE_THREE:
+                vTaskSuspend(DemoTask1);
+                vTaskSuspend(DemoTask2);
+                vTaskResume(DemoTask3);
                 break;
             default:
                 break;
@@ -147,22 +168,28 @@ void xGetButtonInput(void) {
 
 #define CAVE_SIZE_X 	SCREEN_WIDTH / 2
 #define CAVE_SIZE_Y 	SCREEN_HEIGHT / 2
-#define CAVE_X 		CAVE_SIZE_X / 2
-#define CAVE_Y 		CAVE_SIZE_Y / 2
+#define CAVE_X 		    CAVE_SIZE_X / 2
+#define CAVE_Y 		    CAVE_SIZE_Y / 2
 #define CAVE_THICKNESS 	25
+
+void vDrawCaveBoundingBox(void) {
+	checkDraw(tumDrawFilledBox(CAVE_X - CAVE_THICKNESS, CAVE_Y - CAVE_THICKNESS,
+		CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_SIZE_Y + CAVE_THICKNESS * 2, Red),
+        __FUNCTION__);
+	
+	checkDraw(tumDrawFilledBox(CAVE_X, CAVE_Y, CAVE_SIZE_X, CAVE_SIZE_Y, Aqua),
+            __FUNCTION__);
+}
 
 void vDrawCave(void) {
 	static unsigned short circlePositionX, circlePositionY;
 
-	tumDrawFilledBox(CAVE_X - CAVE_THICKNESS, CAVE_Y - CAVE_THICKNESS,
-		CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_SIZE_Y + CAVE_THICKNESS * 2, Red);
-	
-	tumDrawFilledBox(CAVE_X, CAVE_Y, CAVE_SIZE_X, CAVE_SIZE_Y, Aqua);
+    vDrawCaveBoundingBox();
 
 	circlePositionX = CAVE_X + xGetMouseX() / 2;
 	circlePositionY = CAVE_Y + xGetMouseY() / 2;
 
-	tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
+    tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
 }
 
 void vDrawHelpText(void) {
@@ -173,8 +200,8 @@ void vDrawHelpText(void) {
 
 	sprintf(str, "[Q]uit, [C]hang[e] State");
 
-	tumDrawText(str, SCREEN_WIDTH - text_width - 10, DEFAULT_FONT_SIZE * 0.5,
-			Black);
+    checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10, DEFAULT_FONT_SIZE * 0.5,
+			Black), __FUNCTION__);
 }
 
 void vDrawButtonText(void) {
@@ -182,14 +209,14 @@ void vDrawButtonText(void) {
 	
     sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(), xGetMouseY());
 
-	tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black);
+	checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black), __FUNCTION__);
 
 	if (xSemaphoreTake(buttons.lock, portMAX_DELAY) == pdTRUE){
         sprintf(str, "W: %d | S: %d | A: %d | D: %d", buttons.buttons[KEYCODE(W)],
                 buttons.buttons[KEYCODE(S)], buttons.buttons[KEYCODE(A)],
                 buttons.buttons[KEYCODE(D)]);
         xSemaphoreGive(buttons.lock);
-        tumDrawText(str, 10, DEFAULT_FONT_SIZE * 2, Black);
+        checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 2, Black), __FUNCTION__);
     }
 
 	if (xSemaphoreTake(buttons.lock, portMAX_DELAY) == pdTRUE) {
@@ -197,7 +224,7 @@ void vDrawButtonText(void) {
                 buttons.buttons[KEYCODE(UP)], buttons.buttons[KEYCODE(DOWN)],
                 buttons.buttons[KEYCODE(LEFT)], buttons.buttons[KEYCODE(RIGHT)]);
         xSemaphoreGive(buttons.lock);
-	    tumDrawText(str, 10, DEFAULT_FONT_SIZE * 3.5, Black);
+	    checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 3.5, Black), __FUNCTION__);
     }
 }
 
@@ -232,7 +259,7 @@ void vDemoTask1(void *pvParameters) {
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
 			vCheckStateInput();
-			tumDrawClear(White);
+            checkDraw(tumDrawClear(White), __FUNCTION__);
 			vDrawCave();
 			vDrawButtonText();
 			vDrawHelpText();
@@ -246,22 +273,50 @@ void vDrawStateText() {
 
 	tumGetTextSize((char *) str, &text_width, &text_height);
 
-	tumDrawText((char*) str, SCREEN_WIDTH / 2 - text_width / 2,
-            SCREEN_HEIGHT / 2 - text_height / 2, Red);
+    checkDraw(tumDrawText((char*) str, SCREEN_WIDTH / 2 - text_width / 2,
+            SCREEN_HEIGHT / 2 - text_height / 2, Red), __FUNCTION__);
 
 }
 
 void vDemoTask2(void *pvParameters) {
+
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
-
 			vCheckStateInput();
+		    
+            checkDraw(tumDrawClear(White), __FUNCTION__);
 
-			tumDrawClear(White);
 			vDrawHelpText();
 			vDrawStateText();
 		}
 	}
+}
+
+void vDemoTask3(void *pvParameters) {
+	TickType_t xLastWakeTime, prevWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+    prevWakeTime = xLastWakeTime;
+	const TickType_t updatePeriod = 10;
+
+    ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, Black, 20);
+    setBallSpeed(my_ball, 80, 80); 
+
+    
+    while(1) {
+		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
+		    checkDraw(tumDrawClear(White), __FUNCTION__);
+
+            vDrawCaveBoundingBox();    
+
+            updateBallPosition(my_ball, xLastWakeTime - prevWakeTime);
+
+            checkDraw(tumDrawCircle(my_ball->x, my_ball->y, my_ball->radius, my_ball->colour)
+                    , __FUNCTION__);
+
+            prevWakeTime = xLastWakeTime;
+		    vTaskDelayUntil(&xLastWakeTime, updatePeriod);
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -276,6 +331,8 @@ int main(int argc, char *argv[]) {
 	    mainGENERIC_PRIORITY, &DemoTask1);
 	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
 	    mainGENERIC_PRIORITY, &DemoTask2);
+	xTaskCreate(vDemoTask3, "DemoTask3", mainGENERIC_STACK_SIZE, NULL,
+	    mainGENERIC_PRIORITY, &DemoTask3);
 	xTaskCreate(basicSequentialStateMachine, "StateMachine",
 	    mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL);
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE, NULL,
@@ -283,6 +340,7 @@ int main(int argc, char *argv[]) {
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);
+	vTaskSuspend(DemoTask3);
 
 	buttons.lock = xSemaphoreCreateMutex(); //Locking mechanism
 

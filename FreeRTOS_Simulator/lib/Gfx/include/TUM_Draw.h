@@ -26,6 +26,8 @@ typedef struct coord {
 	unsigned short y;
 } coord_t;
 
+char *tumGetErrorMessage(void);
+
 void vInitDrawing(char *path);
 void vExitDrawing(void);
 void vDrawUpdateScreen(void);
