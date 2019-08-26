@@ -20,10 +20,11 @@ typedef struct wall{
     unsigned short x1;
     unsigned short y1;
 
+    unsigned short w;
+    unsigned short h;
+
     unsigned short x2;
     unsigned short y2;
-
-    double angle;
 
     float dampening;
 
@@ -32,7 +33,10 @@ typedef struct wall{
 
 ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
         unsigned int colour, unsigned short radius);
+wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
+        unsigned short h, float dampening, unsigned int colour);
 void setBallSpeed(ball_t *ball, float dx, float dy);
+void checkBallCollisions(ball_t *ball);
 void updateBallPosition(ball_t *ball, unsigned int mili_seconds);
 
 #endif

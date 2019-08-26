@@ -252,17 +252,14 @@ void vCheckStateInput(void) {
 void vDemoTask1(void *pvParameters) {
 	signed char ret = 0;
 
-	/* building the cave:
-	 caveX and caveY define the top left corner of the cave
-	 */
-
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
 			vCheckStateInput();
             checkDraw(tumDrawClear(White), __FUNCTION__);
+			vDrawHelpText();
+
 			vDrawCave();
 			vDrawButtonText();
-			vDrawHelpText();
 		}
 	}
 }
@@ -283,10 +280,9 @@ void vDemoTask2(void *pvParameters) {
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
 			vCheckStateInput();
-		    
             checkDraw(tumDrawClear(White), __FUNCTION__);
-
 			vDrawHelpText();
+		    
 			vDrawStateText();
 		}
 	}
@@ -299,20 +295,49 @@ void vDemoTask3(void *pvParameters) {
 	const TickType_t updatePeriod = 10;
 
     ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, Black, 20);
-    setBallSpeed(my_ball, 80, 80); 
+    setBallSpeed(my_ball, 250, 250); 
 
-    
+    //Left wall
+    wall_t *left_wall = createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y,
+        CAVE_THICKNESS, CAVE_SIZE_Y, 0.2, Red);
+    //Right wall
+    wall_t *right_wall = createWall(CAVE_X + CAVE_SIZE_X, CAVE_Y,
+            CAVE_THICKNESS, CAVE_SIZE_Y, 0.2, Red);
+    //Top wall
+    wall_t *top_wall = createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y - CAVE_THICKNESS,
+            CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS, 0.2, Blue);
+    //Bottom wall
+    wall_t *bottom_wall = createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y + CAVE_SIZE_Y,
+            CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS, 0.2, Blue);
+
     while(1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
+			vCheckStateInput();
 		    checkDraw(tumDrawClear(White), __FUNCTION__);
+			vDrawHelpText();
 
-            vDrawCaveBoundingBox();    
+            checkDraw(tumDrawFilledBox(left_wall->x1, left_wall->y1,
+                        left_wall->w, left_wall->h, left_wall->colour),
+                    __FUNCTION__);
+            checkDraw(tumDrawFilledBox(right_wall->x1, right_wall->y1,
+                        right_wall->w, right_wall->h, right_wall->colour),
+                    __FUNCTION__);
+            checkDraw(tumDrawFilledBox(top_wall->x1, top_wall->y1,
+                        top_wall->w, top_wall->h, top_wall->colour),
+                    __FUNCTION__);
+            checkDraw(tumDrawFilledBox(bottom_wall->x1, bottom_wall->y1,
+                        bottom_wall->w, bottom_wall->h, bottom_wall->colour),
+                    __FUNCTION__);
 
+            checkBallCollisions(my_ball);
             updateBallPosition(my_ball, xLastWakeTime - prevWakeTime);
 
-            checkDraw(tumDrawCircle(my_ball->x, my_ball->y, my_ball->radius, my_ball->colour)
-                    , __FUNCTION__);
+            checkDraw(tumDrawCircle(my_ball->x, my_ball->y, my_ball->radius, 
+                        my_ball->colour), __FUNCTION__);
 
+            //Keep track of when task last ran so that you know how many ticks
+            //(in our case miliseconds) have passed so that the balls position
+            //can be updated appropriatley
             prevWakeTime = xLastWakeTime;
 		    vTaskDelayUntil(&xLastWakeTime, updatePeriod);
         }
