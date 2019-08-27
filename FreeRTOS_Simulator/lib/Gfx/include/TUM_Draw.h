@@ -1,3 +1,13 @@
+/**
+ * @file TUM_Draw.h
+ * @author Alex Hoffman
+ * @date 27 Auguest 2019
+ * @brief A SDL2 based library to implement work queue based drawing of graphical
+ * elements. Allows for drawing using SDL2 from multiple threads.
+ *
+ * @mainpage FreeRTOS Simulator Graphical Library
+ */
+
 #ifndef __TUM_DRAW_H__
 #define __TUM_DRAW_H__
 
