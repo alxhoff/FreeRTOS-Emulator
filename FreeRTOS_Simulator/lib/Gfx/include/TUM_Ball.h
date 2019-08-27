@@ -1,47 +1,221 @@
+/**
+ * @file TUM_Ball.h
+ * @author Alex Hoffman
+ * @date 27 August 2019
+ * @brief API to create balls and walls that interact with each other on a 2D
+ * plane
+ */
+
 #ifndef __TUM_BALL_H__
 #define __TUM_BALL_H__
 
+/**
+ * @brief Object to represent a ball that bounces off walls
+ *
+ * A ball is created with a starting X and Y location (center of the ball),
+ * initial X and Y axis speeds (dx and dy respectively), as well as a limiting
+ * maximum speed, a colour and a radius. A callback function can be passed to
+ * the ball creation function createBall with the form void (*callback)(void),
+ * which is called each time the ball collides with a wall.
+ *
+ * The absolute location of the ball is stored in the floats f_x and f_y, this
+ * is to avoid situation where the ball is moving so slowly that it cannot escape
+ * its current pixel as the rounding performed during integer mathematics is
+ * causing the ball to become trapped on a pixel.
+ *
+ * The colour of the ball is a 24bit hex colour code of the format RRGGBB.
+ *
+ * A ball is created with initial speeds (dx and dy) of zero. The speed of the
+ * ball must be set to a non-zero value using setBallSpeed before the ball will
+ * start to move.
+ */
 typedef struct ball{
-    unsigned short x;
-    unsigned short y;
+    unsigned short x;       /**< X pixel co-ord of ball on screen */
+    unsigned short y;       /**< Y pixel co-ord of ball on screen */
 
-    float f_x;
-    float f_y;
+    float f_x;              /**< Absolute X location of ball */
+    float f_y;              /**< Absolute Y location of ball */
 
-    float dx;
-    float dy;
+    float dx;               /**< X axis speed in pixels/second */
+    float dy;               /**< Y axis speed in pixels/second */
 
-    unsigned int colour;
+    float max_speed;        /**< Maximum speed the ball is able to achieve in
+                            pixels/second */
 
-    unsigned short radius;
+    unsigned int colour;    /**< Hex RGB colour of the ball */
 
-    void (*callback)(void);
+    unsigned short radius;  /**< Radius of the ball in pixels */
+
+    void (*callback)(void); /**< Collision callback */
 }ball_t;
 
+/**
+ * @brief Object to represent a wall that balls bounce off of
+ *
+ * A wall object is created by passing the top left X and Y locations (in pixels)
+ * and the width and height of the desired wall. The wall also stores a colour that
+ * can be used to render it, allowing for the information to be stored in the object.
+ * A wall interacts with balls automatically as all walls generated are stored in
+ * a list that is iterated though by the function checkBallCollisions.
+ *
+ * When a wall is collided with it causes a ball to loose or gain speed, the
+ * dampening is a normalized percentage value that is used to either increase or
+ * decrease the balls velocity. A dampening of -0.4 represents a 40% decrease in
+ * speed, similarly 0.4 represents a 40% increase in speed.
+ *
+ * Please be aware that the position of a ball can be tested slower than a ball
+ * can move when the ball is moving extremely quickly, this can cause the balls to
+ * jump over objects, this is due to the extremely simple collision detection
+ * implemented.
+ *
+ * A walls callback is a function pointer taking a function of the format
+ * void (*callback)(void). If the function is set the that function is called
+ * when the wall is collided with. This allows for actions to be performed when
+ * a specific wall is collided with.
+ */
 typedef struct wall{
-    unsigned short x1;
-    unsigned short y1;
+    unsigned short x1;      /**< Top left corner X coord of wall */
+    unsigned short y1;      /**< Top left corner Y coord of wall */
 
-    unsigned short w;
-    unsigned short h;
+    unsigned short w;       /**< Width of wall (X axis) */
+    unsigned short h;       /**< Height of wall (Y axis) */
 
-    unsigned short x2;
-    unsigned short y2;
+    unsigned short x2;      /**< Bottom right corner X coord of wall */
+    unsigned short y2;      /**< Bottom right corner Y coord of wall */
 
-    float dampening;
+    float dampening;        /**< Value by which a balls speed is changed,
+                            eg. 0.2 represents a 20% increase in speed*/
     
-    unsigned int colour;
+    unsigned int colour;    /**< Hex RGB colour of the ball */
     
-    void (*callback)(void);
+    void (*callback)(void); /**< Collision callback */
 }wall_t;
 
+/**
+ * @brief Creates a ball object
+ *
+ * @param initial_x Initial X coordinate of the ball (in pixels)
+ * @param initial_y Initial Y coordinate of the ball (in pixels)
+ * @param colour The hex RGB colour of the ball
+ * @param radius The radius of the ball (in pixels)
+ * @param max_speed The maximum speed (in pixels/second) that the ball can travel
+ * @param callback The callback function called (if set) when the ball collides
+ * with a wall
+ * @return A pointer to the created ball, program exits if creation failed
+ */
 ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
-        unsigned int colour, unsigned short radius, void (*callback)());
+        unsigned int colour, unsigned short radius, float max_speed, 
+        void (*callback)());
+
+/**
+ * @brief Creates a wall object
+ *
+ * @param x1 Top left X coordinate of the wall (in pixels)
+ * @param y1 Top left Y coordinate of the wall (in pixels)
+ * @param w X axis width of the wall (in pixels)
+ * @param h Y axis width of the wall (in pixels)
+ * @param dampening Dampening factor that is applied to a ball upon collision
+ * @param colour The hex RGB colour of the wall
+ * @param callback The callback function called (if set) when a ball collides
+ * with the wall
+ * @return A pointer to the created wall, program exits if creation failed
+ */
 wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
         unsigned short h, float dampening, unsigned int colour, 
         void (*callback)());
-void setBallSpeed(ball_t *ball, float dx, float dy);
+
+/**
+ * @defgroup set_ball_speed_flags Ball speed set flags
+ *
+ * The current speed and maximum speed of a ball is set by passing the new values
+ * as well as a flag that signals which values should be updated
+ *
+ * @{
+ */
+
+/**
+ * @def SET_BALL_SPEED_X
+ * @ingroup set_ball_speed_flags
+ *
+ * Sets the X axis speed of the ball (dx)
+ */
+#define SET_BALL_SPEED_X    0b1
+
+/**
+ * @def SET_BALL_SPEED_Y
+ * @ingroup set_ball_speed_flags
+ *
+ * Sets the Y axis speed of the ball (dy)
+ */
+#define SET_BALL_SPEED_Y    0b10
+
+/**
+ * @def SET_BALL_SPEED_MAX
+ * @ingroup set_ball_speed_flags
+ *
+ * Sets the maximum speed either axis of the ball can have
+ */
+#define SET_BALL_SPEED_MAX  0b100
+
+/**
+ * @def SET_BALL_SPEED_AXES
+ * @ingroup set_ball_speed_flags
+ *
+ * Sets both the X and Y axis speeds of the ball (dx and dy)
+ */
+#define SET_BALL_SPEED_AXES SET_BALL_SPEED_X | SET_BALL_SPEED_Y
+
+/**
+ * @def SET_BALL_SPEED_ALL
+ * @ingroup set_ball_speed_flags
+ *
+ * Sets both the axes (X and Y) speeds as well as the max speed that the ball
+ * can have along either axis.
+ */
+#define SET_BALL_SPEED_ALL  SET_BALL_SPEED_AXES | SET_BALL_SPEED_MAX
+
+/**
+ * @brief Sets the speed of the ball
+ *
+ *
+ * @param ball Reference to the ball objects whos parameters are to be modified
+ * @param dx New X axis speed that is to be set
+ * @param dy New Y axis speed that is to be set
+ * @param max_speed New maximum speed limit that is to be set
+ * @param flags Flag specifying which attributes of the references ball are
+ * to be set. See @ref set_ball_speed_flags
+ * @return NULL Always returns NULL
+ */
+void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed, 
+        unsigned char flags);
+
+/**
+ * @brief Checks if a ball is currently collided with other objects
+ *
+ *
+ * @param ball Reference to the ball object which is to be checked
+ * @param callback Callback function that is to be called when a collision is
+ * detected
+ * @return NULL Always returns NULL
+ */
 void checkBallCollisions(ball_t *ball, void (*callback)());
-void updateBallPosition(ball_t *ball, unsigned int mili_seconds);
+
+/**
+ * @brief Updates the position of the ball
+ *
+ * The balls position is updated by passing in the amount of time that has
+ * passed since the ball's position was last updated. The speeds of the ball are
+ * stored in pixel/second and, as such, the position of the ball is updated
+ * by applying scalar amounts of these speeds proportionate to the seconds passed
+ * since the last update.
+ *
+ * The formula used is as follows: 
+ * New position += speed * milliseconds passed / milliseconds in a second
+ *
+ * @param ball Reference to the ball object whos position is to be updated
+ * @param milli_seconds Milliseconds passed since balls position was last updated
+ * @return
+ */
+void updateBallPosition(ball_t *ball, unsigned int milli_seconds);
 
 #endif

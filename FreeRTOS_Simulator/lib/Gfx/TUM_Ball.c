@@ -49,7 +49,8 @@ wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
 }
 
 ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
-        unsigned int colour, unsigned short radius, void (*callback)()){
+        unsigned int colour, unsigned short radius, float max_speed, 
+        void (*callback)()){
 
     ball_t *ret = calloc(1, sizeof(ball_t));
 
@@ -62,6 +63,7 @@ ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
     ret->y = initial_y;
     ret->f_x = initial_x;
     ret->f_y = initial_y;
+    ret->max_speed = max_speed;
     ret->colour = colour;
     ret->radius = radius;
     ret->callback = callback;
@@ -69,13 +71,20 @@ ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
     return ret;
 }
 
-void setBallSpeed(ball_t *ball, float dx, float dy) {
-    ball->dx = dx;
-    ball->dy = dy;
+void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed, 
+        unsigned char flags) {
+    if(flags & 1) //Set X
+        if(dx <= ball->max_speed)
+            ball->dx = dx;
+    if((flags >> 1) & 1) //Set y
+        if(dy <= ball->max_speed)
+            ball->dy = dy;
+    if((flags >> 2) & 1) //Set max speed
+        ball->max_speed = max_speed;
 }
 
-void updateBallPosition(ball_t *ball, unsigned int mili_seconds) {
-    float update_interval = mili_seconds / 1000.0;
+void updateBallPosition(ball_t *ball, unsigned int milli_seconds) {
+    float update_interval = milli_seconds / 1000.0;
     ball->f_x += ball->dx * update_interval;
     ball->f_y += ball->dy * update_interval;
     ball->x = round(ball->f_x);
@@ -89,12 +98,12 @@ void changeBallDirection(ball_t *ball, unsigned char direction,
         float dampening) {
     if(direction & 1){
         ball->dx *= -1;
-        ball->dx -= ball->dx * dampening;
+        setBallSpeed(ball, ball->dx * (1 + dampening), 0, 0, SET_BALL_SPEED_X);
     }
     
     if((direction >> 1) & 1){
         ball->dy *= -1;
-        ball->dy -= ball->dy * dampening;
+        setBallSpeed(ball, 0, ball->dy * (1 + dampening), 0, SET_BALL_SPEED_Y);
     }
 }
 
