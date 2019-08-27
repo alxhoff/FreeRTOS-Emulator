@@ -4,6 +4,22 @@
  * @date 27 August 2019
  * @brief API to create balls and walls that interact with each other on a 2D
  * plane
+ *
+ * @verbatim
+   ----------------------------------------------------------------------
+    Copyright (C) Alexander Hoffman, 2019
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   ----------------------------------------------------------------------
+@endverbatim
  */
 
 #ifndef __TUM_BALL_H__
@@ -30,8 +46,8 @@
  * start to move.
  */
 typedef struct ball{
-    unsigned short x;       /**< X pixel co-ord of ball on screen */
-    unsigned short y;       /**< Y pixel co-ord of ball on screen */
+    unsigned short x;       /**< X pixel coord of ball on screen */
+    unsigned short y;       /**< Y pixel coord of ball on screen */
 
     float f_x;              /**< Absolute X location of ball */
     float f_y;              /**< Absolute Y location of ball */
@@ -190,6 +206,17 @@ void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
         unsigned char flags);
 
 /**
+ * @brief Sets the location of the ball
+ *
+ *
+ * @param ball Reference to the ball objects whose parameters are to be modified
+ * @param x New X axis location that is to be set
+ * @param y New Y axis location that is to be set
+ * @return NULL Always returns NULL
+ */
+void setBallLocation(ball_t *ball, unsigned short x, unsigned short y);
+
+/**
  * @brief Checks if a ball is currently collided with other objects
  *
  *
@@ -212,7 +239,7 @@ void checkBallCollisions(ball_t *ball, void (*callback)());
  * The formula used is as follows: 
  * New position += speed * milliseconds passed / milliseconds in a second
  *
- * @param ball Reference to the ball object whos position is to be updated
+ * @param ball Reference to the ball object whose position is to be updated
  * @param milli_seconds Milliseconds passed since balls position was last updated
  * @return
  */

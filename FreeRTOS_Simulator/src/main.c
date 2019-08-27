@@ -32,17 +32,6 @@
 
 #define STATE_DEBOUNCE_DELAY   100 
 
-#define Red     0xFF0000
-#define Green   0x00FF00
-#define Blue    0x0000FF
-#define Yellow  0xFFFF00
-#define Aqua    0x00FFFF
-#define Fuchsia 0xFF00FF
-#define White   0xFFFFFF
-#define Black   0x000000
-
-#define PI  3.14159265358979323846
-
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
 

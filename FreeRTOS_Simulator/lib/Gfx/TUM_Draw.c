@@ -1,3 +1,29 @@
+/**
+ * @file TUM_Draw.c
+ * @author Alex Hoffman
+ * @date 27 Auguest 2019
+ * @brief A SDL2 based library to implement work queue based drawing of graphical
+ * elements. Allows for drawing using SDL2 from multiple threads.
+ *
+ * @mainpage FreeRTOS Simulator Graphical Library
+ *
+ * @verbatim
+   ----------------------------------------------------------------------
+    Copyright (C) Alexander Hoffman, 2019
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   ----------------------------------------------------------------------
+@endverbatim
+ */
+
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL2_gfxPrimitives.h"
@@ -50,7 +76,7 @@ typedef struct rect_data {
 	unsigned int colour;
 } rect_data_t;
 
-typedef struct circle_date {
+typedef struct circle_data {
 	unsigned short x;
 	unsigned short y;
 	unsigned short radius;
@@ -122,8 +148,6 @@ typedef struct draw_job {
 
 const int screen_height = SCREEN_HEIGHT;
 const int screen_width = SCREEN_WIDTH;
-const int screen_x = SCREEN_X;
-const int screen_y = SCREEN_Y;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -172,13 +196,13 @@ static void vClearDisplay(unsigned int colour) {
 static void vDrawRectangle(signed short x, signed short y, signed short w,
 		signed short h, unsigned int colour) {
 
-	rectangleColor(renderer, x, y, x + w, y + h,
+	rectangleColor(renderer, x + w, y, x, y + h,
 			SwapBytes((colour << 8) | 0xFF));
 }
 
 static void vDrawFilledRectangle(signed short x, signed short y, signed short w,
 		signed short h, unsigned int colour) {
-	boxColor(renderer, x, y, x + w, y + h, SwapBytes((colour << 8) | 0xFF));
+	boxColor(renderer, x + w, y, x, y + h, SwapBytes((colour << 8) | 0xFF));
 }
 
 static void vDrawArc(signed short x, signed short y, signed short radius,

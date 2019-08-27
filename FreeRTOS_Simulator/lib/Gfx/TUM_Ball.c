@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "TUM_Draw.h"
 #include "TUM_Ball.h"
 #include "TUM_Sound.h"
 
@@ -81,6 +82,28 @@ void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
             ball->dy = dy;
     if((flags >> 2) & 1) //Set max speed
         ball->max_speed = max_speed;
+}
+
+#define SET_BALL_COORD(AXIS, VAL) \
+            ball->AXIS = VAL; \
+            ball->f_##AXIS = VAL;
+
+void setBallLocation(ball_t *ball, unsigned short x, unsigned short y) {
+    if (x < ball->radius){
+        SET_BALL_COORD(x, ball->radius);
+    }else if(x > SCREEN_WIDTH - ball->radius){
+        SET_BALL_COORD(x, SCREEN_WIDTH - ball->radius);
+    }else{
+        SET_BALL_COORD(x, x)
+    }
+
+    if (y < ball->radius){
+        SET_BALL_COORD(x, ball->radius);
+    }else if(x > SCREEN_HEIGHT - ball->radius){
+        SET_BALL_COORD(x, SCREEN_HEIGHT - ball->radius);
+    }else{
+        SET_BALL_COORD(x, x)
+    }
 }
 
 void updateBallPosition(ball_t *ball, unsigned int milli_seconds) {
