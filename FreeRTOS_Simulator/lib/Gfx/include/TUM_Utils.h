@@ -24,6 +24,13 @@
 #ifndef __TUM_UTILS_H__
 #define __TUM_UTILS_H__
 
+/**
+ * @brief Prepends a path string to a filename
+ *
+ * @param path Path string to be prepended
+ * @param file Filename to which the path string should be prepended
+ * @return char * to the complete compiled path
+ */
 char *prepend_path(char *path, char *file);
 
 /**

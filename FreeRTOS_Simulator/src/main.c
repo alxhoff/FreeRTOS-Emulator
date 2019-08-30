@@ -184,6 +184,20 @@ void vDrawHelpText(void) {
 			Black), __FUNCTION__);
 }
 
+#define LOGO_FILENAME       "../resources/freertos.jpg"
+
+void vDrawLogo(void) {
+    static unsigned int image_height;
+    tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
+    checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10, 
+                SCREEN_HEIGHT - 10 - image_height * 0.3, 0.3), __FUNCTION__);
+}
+
+void vDrawStaticItems(void) {
+    vDrawHelpText();
+    vDrawLogo();
+}
+
 void vDrawButtonText(void) {
 	static char str[100] = { 0 };
 	
@@ -225,28 +239,19 @@ void vCheckStateInput(void) {
 	xSemaphoreGive(buttons.lock);
 }
 
-#define LOGO_FILENAME       "../resources/freertos.jpg"
-
-void vDrawLogo(void) {
-    static unsigned int image_height;
-    tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
-    checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10, 
-                SCREEN_HEIGHT - 10 - image_height * 0.3, 0.3), __FUNCTION__);
-}
-
 void vDemoTask1(void *pvParameters) {
 	signed char ret = 0;
 
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
+            // Get input and check for state change
 			vCheckStateInput();
-            checkDraw(tumDrawClear(White), __FUNCTION__);
-			vDrawHelpText();
-
-			vDrawCave();
-			vDrawButtonText();
             
-            vDrawLogo();
+            // Clear screen
+            checkDraw(tumDrawClear(White), __FUNCTION__);
+            
+			vDrawCave();
+            vDrawButtonText();
 		}
 	}
 }
@@ -262,7 +267,7 @@ void vDemoTask2(void *pvParameters) {
 	const TickType_t updatePeriod = 10;
 
     ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, Black, 20,
-            250, &playBallSound);
+            1000, &playBallSound);
     setBallSpeed(my_ball, 250, 250, 0, SET_BALL_SPEED_AXES); 
 
     //Left wall
@@ -280,10 +285,15 @@ void vDemoTask2(void *pvParameters) {
 
     while(1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
+            // Get input and check for state change
 			vCheckStateInput();
+            
+            // Clear screen
 		    checkDraw(tumDrawClear(White), __FUNCTION__);
-			vDrawHelpText();
+            
+            vDrawStaticItems();
 
+            // Draw the walls
             checkDraw(tumDrawFilledBox(left_wall->x1, left_wall->y1,
                         left_wall->w, left_wall->h, left_wall->colour),
                     __FUNCTION__);
@@ -297,9 +307,14 @@ void vDemoTask2(void *pvParameters) {
                         bottom_wall->w, bottom_wall->h, bottom_wall->colour),
                     __FUNCTION__);
 
+            // Check if ball has made a collision
             checkBallCollisions(my_ball, NULL);
+        
+            // Update the balls position now that possible collisions have
+            // updated its speeds
             updateBallPosition(my_ball, xLastWakeTime - prevWakeTime);
 
+            // Draw the ball
             checkDraw(tumDrawCircle(my_ball->x, my_ball->y, my_ball->radius, 
                         my_ball->colour), __FUNCTION__);
 

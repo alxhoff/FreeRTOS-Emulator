@@ -28,6 +28,25 @@
 #include "queue.h"
 
 /**
+ * @defgroup tum_event TUM Event API
+ * 
+ * @brief Keyboard and mouse event retrieval API
+ *
+ * API to retrieve event's from the backend SDL library. Events are the movement
+ * of the mouse and keypresses. Mouse coordinates are exposed through 
+ * @ref xGetMouseX and @ref xGetMouseY while keypress events are received by
+ * retriving the most recent copy of the button status lookup table exposed
+ * through the FreeRTOS queue @ref inputQueue. 
+ *
+ * @ref inputQueue holds a single array of unsigned chars of the length
+ * SDL_NUM_SCANCODES. The scancodes that are defind in the SDL header
+ * SDL_scancode.h are used as the indicies when accessing the stored data in
+ * the table.
+ *
+ * @{
+ */
+
+/**
  * @brief Initializes the TUM Event backend
  */
 void vInitEvents(void);
@@ -52,4 +71,5 @@ signed short xGetMouseY(void);
  */
 extern QueueHandle_t inputQueue;
 
+/** @} */
 #endif

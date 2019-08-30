@@ -25,9 +25,18 @@
 #define __TUM_SOUND_H__
 
 /**
+ * @defgroup tum_sound TUM Sound API
+ *
+ * @brief An API wrapper around the SDL Mixer library to play a set of predefined
+ * pong waveforms
+ *
+ * @{
+ */
+
+/**
  * Generates an enum entry for a given string
  */
-#define GEN_ENUM(ENUM)  ENUM,
+#define GEN_ENUM(ENUM)  ENUM, /*!< ENUM pong sample */
 
 /**
  * A list of wav filenames which are loaded
@@ -57,6 +66,10 @@
 /**
  * @enum samples_enum
  * @brief Enum containing the currently loaded wav samples
+ *
+ * The waveforms located in the resource/waveforms folder are added using the
+ * @ref FOR_EACH_SAMPLE macro to generate an enum that can be used to access
+ * the appropriate sample from the internal sample list.
  */
 enum samples_enum{
     FOR_EACH_SAMPLE(GEN_ENUM)
@@ -78,5 +91,7 @@ void vInitAudio(char *bin_dir_str);
  * @return NULL always returns NULL
  */
 void vPlaySample(unsigned char index);
+
+/** @}*/
 
 #endif
