@@ -224,8 +224,8 @@ signed char tumDrawText(char *str, signed short x, signed short y,
  * @brief Finds the width and height of a strings bounding box
  *
  * @param String who's bounding box size is required
- * @param width Variable where the width shall be stored
- * @param height Variable where the height shall be stored
+ * @param width Integer where the width shall be stored
+ * @param height Integer where the height shall be stored
  * @return signed char 0 on success
  */
 void tumGetTextSize(char *str, unsigned int *width, unsigned int *height);
@@ -321,6 +321,17 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour);
  * @return signed char 0 on success
  */
 signed char tumDrawImage(char *filename, signed short x, signed short y);
+
+/**
+* @ingroup tum_draw
+* @brief Gets the width and height of an image
+*
+* @param filename Image filename to be tested
+* @param w Integer where the width shall be stored
+* @param h Integer where the height shall be stored
+* @return NULL always returns NULL
+*/
+void tumGetImageSize(char *filename, int *w, int *h);
 
 /**
  * @ingroup tum_draw

@@ -355,11 +355,18 @@ static void vRenderScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned sho
 	SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
+void vGetImageSize(char *filename, int *w, int *h) {
+	SDL_Texture *tex = loadImage(filename, renderer);
+    SDL_QueryTexture(tex, NULL, NULL, w, h); 
+    SDL_DestroyTexture(tex);
+}
+
 static void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
         unsigned short y, float scale) {
 	int w, h;
-	SDL_QueryTexture(tex, NULL, NULL, &w, &h); //Get texture dimensions
+    SDL_QueryTexture(tex, NULL, NULL, &w, &h);
 	vRenderScaledImage(tex, ren, x, y, w * scale, h * scale);
+    SDL_DestroyTexture(tex);
 }
 
 static void vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
@@ -372,6 +379,8 @@ static void vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren, unsigned sh
 	SDL_Texture *tex = loadImage(filename, ren);
 
 	vDrawImage(tex, ren, x, y);
+
+    SDL_DestroyTexture(tex);
 }
 
 static void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
@@ -744,6 +753,12 @@ signed char tumDrawImage(char *filename, signed short x, signed short y) {
 		return -1;
 
 	return 0;
+}
+
+void tumGetImageSize(char *filename, int *w, int *h) {
+    char *full_filename = prepend_path(bin_folder, filename);
+    vGetImageSize(full_filename, w, h); 
+    free(full_filename);
 }
 
 signed char tumDrawScaledImage(char *filename, signed short x, signed short y,

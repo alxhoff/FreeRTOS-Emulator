@@ -225,9 +225,13 @@ void vCheckStateInput(void) {
 	xSemaphoreGive(buttons.lock);
 }
 
+#define LOGO_FILENAME       "../resources/freertos.jpg"
+
 void vDrawLogo(void) {
-    checkDraw(tumDrawScaledImage("../resources/freertos.jpg", 100, 100, 0.5), __FUNCTION__);
-    checkDraw(tumDrawImage("../resources/freertos.jpg", 300, 300), __FUNCTION__);
+    static unsigned int image_height;
+    tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
+    checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10, 
+                SCREEN_HEIGHT - 10 - image_height * 0.3, 0.3), __FUNCTION__);
 }
 
 void vDemoTask1(void *pvParameters) {
@@ -258,7 +262,7 @@ void vDemoTask2(void *pvParameters) {
 	const TickType_t updatePeriod = 10;
 
     ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, Black, 20,
-            350, &playBallSound);
+            250, &playBallSound);
     setBallSpeed(my_ball, 250, 250, 0, SET_BALL_SPEED_AXES); 
 
     //Left wall
