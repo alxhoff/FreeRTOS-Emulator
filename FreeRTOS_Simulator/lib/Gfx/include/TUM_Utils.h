@@ -24,6 +24,8 @@
 #ifndef __TUM_UTILS_H__
 #define __TUM_UTILS_H__
 
+char *prepend_path(char *path, char *file);
+
 /**
  * @brief Gets the execution folder of the current program, assumes that program
  * is executing from a folder "bin"

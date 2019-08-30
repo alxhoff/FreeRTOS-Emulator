@@ -225,6 +225,11 @@ void vCheckStateInput(void) {
 	xSemaphoreGive(buttons.lock);
 }
 
+void vDrawLogo(void) {
+    checkDraw(tumDrawScaledImage("../resources/freertos.jpg", 100, 100, 0.5), __FUNCTION__);
+    checkDraw(tumDrawImage("../resources/freertos.jpg", 300, 300), __FUNCTION__);
+}
+
 void vDemoTask1(void *pvParameters) {
 	signed char ret = 0;
 
@@ -236,6 +241,8 @@ void vDemoTask1(void *pvParameters) {
 
 			vDrawCave();
 			vDrawButtonText();
+            
+            vDrawLogo();
 		}
 	}
 }

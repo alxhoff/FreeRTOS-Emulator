@@ -30,6 +30,7 @@
 #include "SDL2/SDL_ttf.h"
 
 #include "TUM_Draw.h"
+#include "TUM_Utils.h"
 #include "queue.h"
 
 typedef enum {
@@ -44,6 +45,7 @@ typedef enum {
 	DRAW_POLY,
 	DRAW_TRIANGLE,
 	DRAW_IMAGE,
+    DRAW_SCALED_IMAGE,
 	DRAW_ARROW,
 } draw_job_type_t;
 
@@ -110,6 +112,11 @@ typedef struct image_data {
 	unsigned short y;
 } image_data_t;
 
+typedef struct scaled_image_data {
+    image_data_t image;
+    float scale;
+} scaled_image_data_t;
+
 typedef struct text_data {
 	char *str;
 	unsigned short x;
@@ -137,6 +144,7 @@ union data_u {
 	poly_data_t poly;
 	triangle_data_t triangle;
 	image_data_t image;
+    scaled_image_data_t scaled_image;
 	text_data_t text;
 	arrow_data_t arrow;
 };
@@ -157,6 +165,7 @@ QueueHandle_t drawJobQueue = NULL;
 SemaphoreHandle_t DisplayReady = NULL;
 
 char *error_message = NULL;
+char *bin_folder = NULL;
 
 uint32_t SwapBytes(uint x) {
 	return ((x & 0x000000ff) << 24) + ((x & 0x0000ff00) << 8)
@@ -252,14 +261,17 @@ static void vDrawTriangle(coord_t *points, unsigned int colour) {
 void vInitDrawing(char *path) {
 	int ret = 0;
 
-
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
+    
+    bin_folder = malloc(sizeof(char) * (strlen(path) + 1));
+    if(!bin_folder){
+        fprintf(stderr, "[ERROR] bin folder malloc failed\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(bin_folder, path);
 	
-    char *buffer = calloc(1,
-			strlen(FONT_LOCATION) + strlen(path) + 1);
-	strcpy(buffer, path);
-	strcat(buffer, FONT_LOCATION);
+    char *buffer = prepend_path(path, FONT_LOCATION);
 
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
 	if (!font)
@@ -316,9 +328,10 @@ void vExitDrawing(void) {
 	SDL_Quit();
 }
 
+
 static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren) {
 	SDL_Texture *tex = NULL;
-
+    
 	tex = IMG_LoadTexture(ren, filename);
 
 	if (!tex) {
@@ -332,7 +345,7 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren) {
 	return tex;
 }
 
-static void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
+static void vRenderScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 		unsigned short y, unsigned short w, unsigned short h) {
 	SDL_Rect dst;
 	dst.w = w;
@@ -342,11 +355,16 @@ static void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short
 	SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
-static void vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
-		unsigned short y) {
+static void vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
+        unsigned short y, float scale) {
 	int w, h;
 	SDL_QueryTexture(tex, NULL, NULL, &w, &h); //Get texture dimensions
-	vDrawScaledImage(tex, ren, x, y, w, h);
+	vRenderScaledImage(tex, ren, x, y, w * scale, h * scale);
+}
+
+static void vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
+		unsigned short y) {
+    vDrawScaledImage(tex, ren, x, y, 1);
 }
 
 static void vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren, unsigned short x,
@@ -488,6 +506,14 @@ static void vHandleDrawJob(draw_job_t *job) {
 		vDrawImage(job->data->image.tex, renderer, job->data->image.x,
 				job->data->image.y);
 		break;
+    case DRAW_SCALED_IMAGE:
+        job->data->scaled_image.image.tex = 
+            loadImage(job->data->scaled_image.image.filename,
+                renderer);
+        vDrawScaledImage(job->data->scaled_image.image.tex, renderer, 
+                job->data->scaled_image.image.x, job->data->scaled_image.image.y,
+                job->data->scaled_image.scale);
+        break;
 	case DRAW_ARROW:
 		vDrawArrow(job->data->arrow.x1, job->data->arrow.y1,
 				job->data->arrow.x2, job->data->arrow.y2,
@@ -710,9 +736,27 @@ signed char tumDrawImage(char *filename, signed short x, signed short y) {
 
 	CREATE_JOB(image);
 
-	job.data->image.filename = filename;
+	job.data->image.filename = prepend_path(bin_folder, filename);
 	job.data->image.x = x;
 	job.data->image.y = y;
+
+	if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
+		return -1;
+
+	return 0;
+}
+
+signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
+        float scale) {
+    //TODO
+	draw_job_t job = { .type = DRAW_SCALED_IMAGE };
+
+	CREATE_JOB(image);
+
+	job.data->scaled_image.image.filename = prepend_path(bin_folder, filename);
+	job.data->scaled_image.image.x = x;
+	job.data->scaled_image.image.y = y;
+    job.data->scaled_image.scale = scale;
 
 	if (xQueueSend(drawJobQueue, &job, portMAX_DELAY) != pdTRUE)
 		return -1;

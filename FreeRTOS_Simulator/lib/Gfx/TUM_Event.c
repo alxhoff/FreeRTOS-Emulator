@@ -21,11 +21,11 @@
 @endverbatim
  */
 
+#include "TUM_Event.h"
 #include "task.h"
 
 #include "SDL2/SDL.h"
 
-#include "TUM_Event.h"
 #include "TUM_Draw.h"
 
 typedef struct mouse {

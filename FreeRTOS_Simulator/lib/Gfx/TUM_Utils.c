@@ -26,6 +26,19 @@
 #include <stdio.h>
 #include <string.h>
 
+char *prepend_path(char *path, char *file) {
+    char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
+    if(!ret){
+        fprintf(stderr, "[ERROR] prepend_bin_path malloc failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    strcpy(ret, path);
+    strcat(ret, "/");
+    strcat(ret, file);
+
+    return ret;
+}
 
 char *getBinFolderPath(char *bin_path) {
     int result = 0;

@@ -260,9 +260,11 @@ signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
 
 /**
  * @ingroup tum_draw
- * @brief
+ * @brief Draws a filled circle on the screen
  *
- * @param
+ * @param x X coordinate of the center of the circle 
+ * @param y Y coordinate of the center of the circle
+ * @param radius Radius of the circle in pixels
  * @param colour RGB colour of the ellipse
  * @return signed char 0 on success
  */
@@ -271,9 +273,13 @@ signed char tumDrawCircle(signed short x, signed short y, signed short radius,
 
 /**
  * @ingroup tum_draw
- * @brief
+ * @brief Draws a line on the screen
  *
- * @param
+ * @param x1 X coordinate of the starting point of the line
+ * @param y1 Y coordinate of the starting point of the line
+ * @param x2 X coordinate of the starting point of the line
+ * @param Y2 x coordinate of the starting point of the line
+ * @param thickness The thickness of the line in pixels
  * @param colour RGB colour of the ellipse
  * @return signed char 0 on success
  */
@@ -282,9 +288,14 @@ signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
 
 /**
  * @ingroup tum_draw
- * @brief
+ * @brief Draws a polygon on the screen
  *
- * @param
+ * Drawing a polygon requires an array of points, each given by a @ref coord_t.
+ * The number of points passed through in the coord array must also be passed
+ * to the function.
+ *
+ * @param points Points array specifying each point in the polygon
+ * @param n Number of points in the points array
  * @param colour RGB colour of the ellipse
  * @return signed char 0 on success
  */
@@ -292,9 +303,9 @@ signed char tumDrawPoly(coord_t *points, int n, unsigned int colour);
 
 /**
  * @ingroup tum_draw
- * @brief
+ * @brief Draws a triangle on the screen
  *
- * @param
+ * @param points Points array giving the three corner points of the triangle
  * @param colour RGB colour of the ellipse
  * @return signed char 0 on success
  */
@@ -302,13 +313,27 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour);
 
 /**
  * @ingroup tum_draw
- * @brief
+ * @brief Draws an image on the screen
  *
- * @param
- * @param colour RGB colour of the ellipse
+ * @param Filename of the image to be drawn 
+ * @param x X coordinate of the top left corner of the image 
+ * @param y Y coordinate of the top left corner of the image
  * @return signed char 0 on success
  */
 signed char tumDrawImage(char *filename, signed short x, signed short y);
+
+/**
+ * @ingroup tum_draw
+ * @brief Draws a scaled image on the screen
+ *
+ * @param Filename of the image to be drawn 
+ * @param x X coordinate of the top left corner of the image 
+ * @param y Y coordinate of the top left corner of the image
+ * @param scale The scale factor of the image
+ * @return signed char 0 on success
+ */
+signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
+        float scale);
 
 /**
  * @ingroup tum_draw
