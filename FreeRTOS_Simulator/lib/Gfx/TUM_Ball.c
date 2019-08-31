@@ -189,14 +189,10 @@ unsigned char collideWall(ball_t *ball, wall_t *wall,
         ball->callback(wall->args);
     switch(collision_type){
     case COLLIDE_WALL_TOP:
-        changeBallDirection(ball, VERTICAL, wall->dampening);
-        break;
     case COLLIDE_WALL_BOTTOM:
         changeBallDirection(ball, VERTICAL, wall->dampening);
         break;
     case COLLIDE_WALL_RIGHT:
-        changeBallDirection(ball, HORIZONTAL, wall->dampening);
-        break;
     case COLLIDE_WALL_LEFT:
         changeBallDirection(ball, HORIZONTAL, wall->dampening);
         break;
@@ -216,7 +212,8 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
             if(BALL_BOTTOM_POINT_Y >= WALL->y1 
                     && BALL_TOP_POINT_Y < WALL->y1 
                     && BALL_BOTTOM_POINT_X >= WALL->x1 
-                    && BALL_BOTTOM_POINT_X <= WALL->x2){
+                    && BALL_BOTTOM_POINT_X <= WALL->x2
+                    && ball->dy > 0){
                 //Place ball next to wall to prevent ball getting stuck in wall
                 ball->f_y = WALL->y1 - ball->radius;
                 collideWall(ball, WALL, COLLIDE_WALL_TOP, callback, args);
@@ -225,7 +222,8 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
             if(BALL_TOP_POINT_Y <= WALL->y2
                     && BALL_BOTTOM_POINT_Y > WALL->y2
                     && BALL_TOP_POINT_X >= WALL->x1
-                    && BALL_TOP_POINT_X <= WALL->x2){
+                    && BALL_TOP_POINT_X <= WALL->x2
+                    && ball->dy < 0){
                 ball->f_y = WALL->y2 + ball->radius;
                 collideWall(ball, WALL, COLLIDE_WALL_BOTTOM, callback, args);
             }
@@ -233,7 +231,8 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
             if(BALL_RIGHT_POINT_X >= WALL->x1
                     && BALL_LEFT_POINT_X < WALL->x1
                     && BALL_RIGHT_POINT_Y >= WALL->y1
-                    && BALL_RIGHT_POINT_Y <= WALL->y2){
+                    && BALL_RIGHT_POINT_Y <= WALL->y2
+                    && ball->dx > 0){
                 ball->f_x = WALL->x1 - ball->radius;
                 collideWall(ball, WALL, COLLIDE_WALL_RIGHT, callback, args);
             }
@@ -241,7 +240,8 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
             if(BALL_LEFT_POINT_X <= WALL->x2
                     && BALL_RIGHT_POINT_X > WALL->x2
                     && BALL_LEFT_POINT_Y >= WALL->y1
-                    && BALL_RIGHT_POINT_Y <= WALL->y2){
+                    && BALL_RIGHT_POINT_Y <= WALL->y2
+                    && ball->dx < 0){
                 ball->f_x = WALL->x2 + ball->radius;
                 collideWall(ball, WALL, COLLIDE_WALL_LEFT, callback, args);
             }
