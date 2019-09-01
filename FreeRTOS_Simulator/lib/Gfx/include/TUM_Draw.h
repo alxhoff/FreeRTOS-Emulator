@@ -9,7 +9,7 @@
  *
  * @section intro_sec About this library
  *
- * This basic API aims to provide a simple method for drawing 
+ * This basic API aims to provide a simple method for drawing
  * graphical objects onto a screen in a thread-safe and consistent fashion.
  * The library is built on top of the widely used SDL2 graphics, text and sound
  * libraries. The core of the library is the functionality found in @ref tum_draw
@@ -18,20 +18,20 @@
  *
  * @section licence_sec Licence
  * @verbatim
-   ----------------------------------------------------------------------
-    Copyright (C) Alexander Hoffman, 2019
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-   ----------------------------------------------------------------------
-@endverbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2019
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
  */
 
 #ifndef __TUM_DRAW_H__
@@ -43,17 +43,17 @@
 /**
  * Defines the default font size used by the SDL TTF library
  */
-#define DEFAULT_FONT_SIZE  15 
+#define DEFAULT_FONT_SIZE 15
 
 /**
  * Default font to be used by the SDL TTF library
  */
-#define DEFAULT_FONT        "IBMPlexSans-Medium.ttf"
+#define DEFAULT_FONT "IBMPlexSans-Medium.ttf"
 /**
  * Location of font TTF files
  */
-#define FONTS_LOCATION       "/../resources/fonts/"
-#define FONT_LOCATION       FONTS_LOCATION DEFAULT_FONT
+#define FONTS_LOCATION "/../resources/fonts/"
+#define FONT_LOCATION FONTS_LOCATION DEFAULT_FONT
 
 /**
  * Sets the width (in pixels) of the screen
@@ -67,11 +67,11 @@
 /**
  * Defines a generic priority for tasks to use
  */
-#define mainGENERIC_PRIORITY	( tskIDLE_PRIORITY )
+#define mainGENERIC_PRIORITY (tskIDLE_PRIORITY)
 /**
  * Defines a generic stack size for tasks to use
  */
-#define mainGENERIC_STACK_SIZE  ( ( unsigned short ) 2560 )
+#define mainGENERIC_STACK_SIZE ((unsigned short)2560)
 
 /**
  * @defgroup tum_draw TUM Draw API
@@ -88,14 +88,14 @@
  *
  * @{
  */
-#define Red     0xFF0000
-#define Green   0x00FF00
-#define Blue    0x0000FF
-#define Yellow  0xFFFF00
-#define Aqua    0x00FFFF
+#define Red 0xFF0000
+#define Green 0x00FF00
+#define Blue 0x0000FF
+#define Yellow 0xFFFF00
+#define Aqua 0x00FFFF
 #define Fuchsia 0xFF00FF
-#define White   0xFFFFFF
-#define Black   0x000000
+#define White 0xFFFFFF
+#define Black 0x000000
 /**@}*/
 
 /**
@@ -165,24 +165,25 @@ signed char tumDrawClear(unsigned int colour);
  * @return signed char 0 on success
  */
 signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
-		signed short ry, unsigned int colour);
+			   signed short ry, unsigned int colour);
 
 /**
  * @brief Draws an arc on the screen
  *
- * Draws an arc on the screen, the arc is determined from the starting and 
- * ending angles. 
+ * Draws an arc on the screen, the arc is determined from the starting and
+ * ending angles.
  *
- * @param x X coordinate of the center of the arc 
+ * @param x X coordinate of the center of the arc
  * @param y Y coordinate of the cente of the arc
- * @param radius Radius of the arc in pixels 
+ * @param radius Radius of the arc in pixels
  * @param start Starting radius of the arc, 0 degrees is down
  * @param end Ending radius of the arc, 0 degrees is down
  * @param colour RGB colour of the arc
  * @return signed char 0 on success
  */
 signed char tumDrawArc(signed short x, signed short y, signed short radius,
-		signed short start, signed short end, unsigned int colour);
+		       signed short start, signed short end,
+		       unsigned int colour);
 
 /**
  * @brief Prints a string to the screen
@@ -191,13 +192,13 @@ signed char tumDrawArc(signed short x, signed short y, signed short radius,
  * location is referenced from the top left corner of the strings bounding box.
  *
  * @param str String to print
- * @param x X coordinate of the top left point of the text's bounding box 
- * @param y Y coordinate of the top left point of the text's bounding box 
+ * @param x X coordinate of the top left point of the text's bounding box
+ * @param y Y coordinate of the top left point of the text's bounding box
  * @param colour RGB colour of the text
  * @return signed char 0 on success
  */
 signed char tumDrawText(char *str, signed short x, signed short y,
-		unsigned int colour);
+			unsigned int colour);
 
 /**
  * @brief Finds the width and height of a strings bounding box
@@ -212,40 +213,40 @@ void tumGetTextSize(char *str, unsigned int *width, unsigned int *height);
 /**
  * @brief Draws a filled box on the screen
  *
- * @param x X coordinate of the top left point of the box 
- * @param y Y coordinate of the top left point of the box 
+ * @param x X coordinate of the top left point of the box
+ * @param y Y coordinate of the top left point of the box
  * @param w Width of the box
  * @param h Height of the box
  * @param colour RGB colour of the box
  * @return signed char 0 on success
  */
 signed char tumDrawBox(signed short x, signed short y, signed short w,
-		signed short h, unsigned int colour);
+		       signed short h, unsigned int colour);
 
 /**
  * @brief Draws an unfilled box on the screen
  *
- * @param x X coordinate of the top left point of the box 
- * @param y Y coordinate of the top left point of the box 
+ * @param x X coordinate of the top left point of the box
+ * @param y Y coordinate of the top left point of the box
  * @param w Width of the box
  * @param h Height of the box
  * @param colour RGB colour of the filled box
  * @return signed char 0 on success
  */
 signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
-		signed short h, unsigned int colour);
+			     signed short h, unsigned int colour);
 
 /**
  * @brief Draws a filled circle on the screen
  *
- * @param x X coordinate of the center of the circle 
+ * @param x X coordinate of the center of the circle
  * @param y Y coordinate of the center of the circle
  * @param radius Radius of the circle in pixels
  * @param colour RGB colour of the ellipse
  * @return signed char 0 on success
  */
 signed char tumDrawCircle(signed short x, signed short y, signed short radius,
-		unsigned int colour);
+			  unsigned int colour);
 
 /**
  * @brief Draws a line on the screen
@@ -259,7 +260,8 @@ signed char tumDrawCircle(signed short x, signed short y, signed short radius,
  * @return signed char 0 on success
  */
 signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
-		signed short y2, unsigned char thickness, unsigned int colour);
+			signed short y2, unsigned char thickness,
+			unsigned int colour);
 
 /**
  * @brief Draws a polygon on the screen
@@ -287,34 +289,34 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour);
 /**
  * @brief Draws an image on the screen
  *
- * @param filename Filename of the image to be drawn 
- * @param x X coordinate of the top left corner of the image 
+ * @param filename Filename of the image to be drawn
+ * @param x X coordinate of the top left corner of the image
  * @param y Y coordinate of the top left corner of the image
  * @return signed char 0 on success
  */
 signed char tumDrawImage(char *filename, signed short x, signed short y);
 
 /**
-* @brief Gets the width and height of an image
-*
-* @param filename Image filename to be tested
-* @param w Integer where the width shall be stored
-* @param h Integer where the height shall be stored
-* @return NULL always returns NULL
-*/
+ * @brief Gets the width and height of an image
+ *
+ * @param filename Image filename to be tested
+ * @param w Integer where the width shall be stored
+ * @param h Integer where the height shall be stored
+ * @return NULL always returns NULL
+ */
 void tumGetImageSize(char *filename, int *w, int *h);
 
 /**
  * @brief Draws a scaled image on the screen
  *
- * @param filename Filename of the image to be drawn 
- * @param x X coordinate of the top left corner of the image 
+ * @param filename Filename of the image to be drawn
+ * @param x X coordinate of the top left corner of the image
  * @param y Y coordinate of the top left corner of the image
  * @param scale The scale factor of the image
  * @return signed char 0 on success
  */
 signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
-        float scale);
+			       float scale);
 
 /**
  * @brief Draws an arrow on the screen
@@ -329,12 +331,12 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
  * @return signed char 0 on success
  */
 signed char tumDrawArrow(unsigned short x1, unsigned short y1,
-		unsigned short x2, unsigned short y2, unsigned short head_length,
-		unsigned char thickness, unsigned int colour);
+			 unsigned short x2, unsigned short y2,
+			 unsigned short head_length, unsigned char thickness,
+			 unsigned int colour);
 
 /**
-* @}
-*/
-
+ * @}
+ */
 
 #endif

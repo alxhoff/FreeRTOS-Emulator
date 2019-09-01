@@ -39,11 +39,13 @@ QueueHandle_t inputQueue = NULL;
 
 mouse_t mouse;
 
-void initMouse(void) {
+void initMouse(void)
+{
 	mouse.lock = xSemaphoreCreateMutex();
 }
 
-void vEventsTask(void *pvParameters) {
+void vEventsTask(void *pvParameters)
+{
 	portTickType xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 	const portTickType eventPollPeriod = 5;
@@ -54,7 +56,8 @@ void vEventsTask(void *pvParameters) {
 
 	while (1) {
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT | event.key.keysym.scancode == SDL_SCANCODE_Q) {
+			if (event.type == SDL_QUIT |
+			    event.key.keysym.scancode == SDL_SCANCODE_Q) {
 				vExitDrawing();
 				exit(1);
 			} else if (event.type == SDL_KEYDOWN) {
@@ -82,7 +85,8 @@ void vEventsTask(void *pvParameters) {
 	}
 }
 
-signed short xGetMouseX(void) {
+signed short xGetMouseX(void)
+{
 	signed short ret;
 
 	xSemaphoreTake(mouse.lock, portMAX_DELAY);
@@ -91,7 +95,8 @@ signed short xGetMouseX(void) {
 	return ret;
 }
 
-signed short xGetMouseY(void) {
+signed short xGetMouseY(void)
+{
 	signed short ret;
 
 	xSemaphoreTake(mouse.lock, portMAX_DELAY);
@@ -100,7 +105,8 @@ signed short xGetMouseY(void) {
 	return ret;
 }
 
-void vInitEvents(void) {
+void vInitEvents(void)
+{
 	initMouse();
 
 	inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
@@ -109,9 +115,9 @@ void vInitEvents(void) {
 	}
 
 	xTaskCreate(vEventsTask, "EventsTask", 100, NULL, tskIDLE_PRIORITY,
-			&eventTask);
+		    &eventTask);
 
-	//Ignore SDL events
+	// Ignore SDL events
 	SDL_EventState(SDL_AUDIODEVICEADDED, SDL_IGNORE);
 	SDL_EventState(SDL_AUDIODEVICEREMOVED, SDL_IGNORE);
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);

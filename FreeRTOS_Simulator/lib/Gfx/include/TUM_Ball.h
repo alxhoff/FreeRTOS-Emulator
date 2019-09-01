@@ -6,20 +6,20 @@
  * plane
  *
  * @verbatim
-   ----------------------------------------------------------------------
-    Copyright (C) Alexander Hoffman, 2019
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-   ----------------------------------------------------------------------
-@endverbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2019
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
  */
 
 #ifndef __TUM_BALL_H__
@@ -28,7 +28,7 @@
 /**
  * @defgroup tum_ball TUM Ball API
  *
- * Functions to generate ball and wall object that interact each other in a 
+ * Functions to generate ball and wall object that interact each other in a
  * 2D environment
  *
  * @{
@@ -54,26 +54,26 @@
  * ball must be set to a non-zero value using setBallSpeed before the ball will
  * start to move.
  */
-typedef struct ball{
-    unsigned short x;       /**< X pixel coord of ball on screen */
-    unsigned short y;       /**< Y pixel coord of ball on screen */
+typedef struct ball {
+	unsigned short x; /**< X pixel coord of ball on screen */
+	unsigned short y; /**< Y pixel coord of ball on screen */
 
-    float f_x;              /**< Absolute X location of ball */
-    float f_y;              /**< Absolute Y location of ball */
+	float f_x; /**< Absolute X location of ball */
+	float f_y; /**< Absolute Y location of ball */
 
-    float dx;               /**< X axis speed in pixels/second */
-    float dy;               /**< Y axis speed in pixels/second */
+	float dx; /**< X axis speed in pixels/second */
+	float dy; /**< Y axis speed in pixels/second */
 
-    float max_speed;        /**< Maximum speed the ball is able to achieve in
-                            pixels/second */
+	float max_speed; /**< Maximum speed the ball is able to achieve in
+                              pixels/second */
 
-    unsigned int colour;    /**< Hex RGB colour of the ball */
+	unsigned int colour; /**< Hex RGB colour of the ball */
 
-    unsigned short radius;  /**< Radius of the ball in pixels */
+	unsigned short radius; /**< Radius of the ball in pixels */
 
-    void (*callback)(void *); /**< Collision callback */
-    void *args;                 /**< Collision callback args */
-}ball_t;
+	void (*callback)(void *); /**< Collision callback */
+	void *args; /**< Collision callback args */
+} ball_t;
 
 /**
  * @brief Object to represent a wall that balls bounce off of
@@ -99,24 +99,24 @@ typedef struct ball{
  * when the wall is collided with. This allows for actions to be performed when
  * a specific wall is collided with.
  */
-typedef struct wall{
-    unsigned short x1;      /**< Top left corner X coord of wall */
-    unsigned short y1;      /**< Top left corner Y coord of wall */
+typedef struct wall {
+	unsigned short x1; /**< Top left corner X coord of wall */
+	unsigned short y1; /**< Top left corner Y coord of wall */
 
-    unsigned short w;       /**< Width of wall (X axis) */
-    unsigned short h;       /**< Height of wall (Y axis) */
+	unsigned short w; /**< Width of wall (X axis) */
+	unsigned short h; /**< Height of wall (Y axis) */
 
-    unsigned short x2;      /**< Bottom right corner X coord of wall */
-    unsigned short y2;      /**< Bottom right corner Y coord of wall */
+	unsigned short x2; /**< Bottom right corner X coord of wall */
+	unsigned short y2; /**< Bottom right corner Y coord of wall */
 
-    float dampening;        /**< Value by which a balls speed is changed,
-                            eg. 0.2 represents a 20% increase in speed*/
-    
-    unsigned int colour;    /**< Hex RGB colour of the ball */
-    
-    void (*callback)(void *);   /**< Collision callback */
-    void *args;                 /**< Collision callback args */
-}wall_t;
+	float dampening; /**< Value by which a balls speed is changed,
+                              eg. 0.2 represents a 20% increase in speed*/
+
+	unsigned int colour; /**< Hex RGB colour of the ball */
+
+	void (*callback)(void *); /**< Collision callback */
+	void *args; /**< Collision callback args */
+} wall_t;
 
 /**
  * @brief Creates a ball object
@@ -137,8 +137,8 @@ typedef struct wall{
  * @return A pointer to the created ball, program exits if creation failed
  */
 ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
-        unsigned int colour, unsigned short radius, float max_speed, 
-        void (*callback)(void *), void *args);
+		   unsigned int colour, unsigned short radius, float max_speed,
+		   void (*callback)(void *), void *args);
 
 /**
  * @brief Creates a wall object
@@ -154,8 +154,8 @@ ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
  * @return A pointer to the created wall, program exits if creation failed
  */
 wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
-        unsigned short h, float dampening, unsigned int colour, 
-        void (*callback)(void *), void *args);
+		   unsigned short h, float dampening, unsigned int colour,
+		   void (*callback)(void *), void *args);
 
 /**
  * @name Set wall location flags
@@ -167,19 +167,19 @@ wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
  * @{
  */
 
-#define SET_WALL_X          0b1
+#define SET_WALL_X 0b1
 
-#define SET_WALL_Y          0b10
+#define SET_WALL_Y 0b10
 
-#define SET_WALL_WIDTH      0b100
+#define SET_WALL_WIDTH 0b100
 
-#define SET_WALL_HEIGHT     0b1000
+#define SET_WALL_HEIGHT 0b1000
 
-#define SET_WALL_AXES       SET_WALL_X | SET_WALL_Y
+#define SET_WALL_AXES SET_WALL_X | SET_WALL_Y
 
-#define SET_WALL_SIZE       SET_WALL_WIDTH | SET_WALL_HEIGHT
+#define SET_WALL_SIZE SET_WALL_WIDTH | SET_WALL_HEIGHT
 
-#define SET_WALL_ALL        SET_WALL_AXES | SET_WALL_SIZE
+#define SET_WALL_ALL SET_WALL_AXES | SET_WALL_SIZE
 
 /**@}*/
 
@@ -196,8 +196,8 @@ wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
  *
  */
 void setWallProperty(wall_t *wall, unsigned short x, unsigned short y,
-        unsigned short width, unsigned short height, unsigned char flags);
-
+		     unsigned short width, unsigned short height,
+		     unsigned char flags);
 
 /**
  * @name Set ball speed flags
@@ -212,21 +212,21 @@ void setWallProperty(wall_t *wall, unsigned short x, unsigned short y,
  *
  * Sets the X axis speed of the ball (dx)
  */
-#define SET_BALL_SPEED_X    0b1
+#define SET_BALL_SPEED_X 0b1
 
 /**
  * @def SET_BALL_SPEED_Y
  *
  * Sets the Y axis speed of the ball (dy)
  */
-#define SET_BALL_SPEED_Y    0b10
+#define SET_BALL_SPEED_Y 0b10
 
 /**
  * @def SET_BALL_SPEED_MAX
  *
  * Sets the maximum speed either axis of the ball can have
  */
-#define SET_BALL_SPEED_MAX  0b100
+#define SET_BALL_SPEED_MAX 0b100
 
 /**
  * @def SET_BALL_SPEED_AXES
@@ -241,7 +241,7 @@ void setWallProperty(wall_t *wall, unsigned short x, unsigned short y,
  * Sets both the axes (X and Y) speeds as well as the max speed that the ball
  * can have along either axis.
  */
-#define SET_BALL_SPEED_ALL  SET_BALL_SPEED_AXES | SET_BALL_SPEED_MAX
+#define SET_BALL_SPEED_ALL SET_BALL_SPEED_AXES | SET_BALL_SPEED_MAX
 /**@}*/
 
 /**
@@ -256,8 +256,8 @@ void setWallProperty(wall_t *wall, unsigned short x, unsigned short y,
  * to be set. See @ref speed_flags.
  * @return NULL Always returns NULL
  */
-void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed, 
-        unsigned char flags);
+void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
+		  unsigned char flags);
 
 /**
  * @brief Sets the location of the ball
@@ -290,7 +290,7 @@ void checkBallCollisions(ball_t *ball, void (*callback)(void *), void *args);
  * by applying scalar amounts of these speeds proportionate to the seconds passed
  * since the last update.
  *
- * The formula used is as follows: 
+ * The formula used is as follows:
  * New position += speed * milliseconds passed / milliseconds in a second
  *
  * @param ball Reference to the ball object whose position is to be updated

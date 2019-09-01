@@ -5,20 +5,20 @@
  * @brief Utilities required by other TUM_XXX files
  *
  * @verbatim
-   ----------------------------------------------------------------------
-    Copyright (C) Alexander Hoffman, 2019
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-   ----------------------------------------------------------------------
-@endverbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2019
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
  */
 
 #ifndef __TUM_EVENT_H__
@@ -29,14 +29,14 @@
 
 /**
  * @defgroup tum_event TUM Event API
- * 
+ *
  * @brief Keyboard and mouse event retrieval API
  *
  * API to retrieve event's from the backend SDL library. Events are the movement
- * of the mouse and keypresses. Mouse coordinates are exposed through 
+ * of the mouse and keypresses. Mouse coordinates are exposed through
  * @ref xGetMouseX and @ref xGetMouseY while keypress events are received by
  * retriving the most recent copy of the button status lookup table exposed
- * through the FreeRTOS queue @ref inputQueue. 
+ * through the FreeRTOS queue @ref inputQueue.
  *
  * @ref inputQueue holds a single array of unsigned chars of the length
  * SDL_NUM_SCANCODES. The scancodes that are defind in the SDL header
