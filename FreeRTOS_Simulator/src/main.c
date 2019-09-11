@@ -318,6 +318,7 @@ void vDemoTask2(void *pvParameters)
 		createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y + CAVE_SIZE_Y,
 			   CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS,
 			   0.2, Blue, NULL, NULL);
+	unsigned char collisions = 0;
 
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
@@ -350,7 +351,9 @@ void vDemoTask2(void *pvParameters)
 				  __FUNCTION__);
 
 			// Check if ball has made a collision
-			checkBallCollisions(my_ball, NULL, NULL);
+			collisions = checkBallCollisions(my_ball, NULL, NULL);
+			if (collisions)
+				printf("Collision\n");
 
 			// Update the balls position now that possible collisions have
 			// updated its speeds

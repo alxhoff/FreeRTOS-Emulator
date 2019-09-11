@@ -277,9 +277,10 @@ void setBallLocation(ball_t *ball, unsigned short x, unsigned short y);
  * @param ball Reference to the ball object which is to be checked
  * @param callback Callback function that is to be called when a collision is
  * detected
- * @return NULL Always returns NULL
+ * @return 1 if a collision is detected
  */
-void checkBallCollisions(ball_t *ball, void (*callback)(void *), void *args);
+unsigned char checkBallCollisions(ball_t *ball, void (*callback)(void *),
+				  void *args);
 
 /**
  * @brief Updates the position of the ball

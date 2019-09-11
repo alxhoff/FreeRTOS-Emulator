@@ -208,6 +208,7 @@ unsigned char collideWall(ball_t *ball, wall_t *wall,
 unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
 			      void (*callback)(void *), void *args)
 {
+	unsigned char ret = 0;
 	switch (flag) {
 	case COLLIDE_WALL:
 		// Coming from:
@@ -220,6 +221,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
 			ball->f_y = WALL->y1 - ball->radius;
 			collideWall(ball, WALL, COLLIDE_WALL_TOP, callback,
 				    args);
+			ret = 1;
 		}
 		// Below wall
 		if (BALL_TOP_POINT_Y <= WALL->y2 &&
@@ -229,6 +231,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
 			ball->f_y = WALL->y2 + ball->radius;
 			collideWall(ball, WALL, COLLIDE_WALL_BOTTOM, callback,
 				    args);
+			ret = 1;
 		}
 		// Left of wall
 		if (BALL_RIGHT_POINT_X >= WALL->x1 &&
@@ -238,6 +241,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
 			ball->f_x = WALL->x1 - ball->radius;
 			collideWall(ball, WALL, COLLIDE_WALL_RIGHT, callback,
 				    args);
+			ret = 1;
 		}
 		// Right of wall
 		if (BALL_LEFT_POINT_X <= WALL->x2 &&
@@ -247,6 +251,7 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
 			ball->f_x = WALL->x2 + ball->radius;
 			collideWall(ball, WALL, COLLIDE_WALL_LEFT, callback,
 				    args);
+			ret = 1;
 		}
 		break;
 	case COLLIDE_BALL:
@@ -256,24 +261,33 @@ unsigned char handleCollision(ball_t *ball, void *object, unsigned char flag,
 		break;
 	}
 
+	return ret;
+}
+
+unsigned char checkBallCollisionsWithWalls(ball_t *ball,
+					   void (*callback)(void *), void *args)
+{
+	unsigned char ret = 0;
+	for (unsigned int i = 0; i < walls.wall_count; i++)
+		if (handleCollision(ball, walls.walls[i], COLLIDE_WALL,
+				    callback, args))
+			ret = 1;
+	return ret;
+}
+
+unsigned char checkBallCollisionsWithBalls(ball_t *ball)
+{
+	// TODO
 	return 0;
 }
 
-void checkBallCollisionsWithWalls(ball_t *ball, void (*callback)(void *),
+unsigned char checkBallCollisions(ball_t *ball, void (*callback)(void *),
 				  void *args)
 {
-	for (unsigned int i = 0; i < walls.wall_count; i++)
-		handleCollision(ball, walls.walls[i], COLLIDE_WALL, callback,
-				args);
-}
-
-void checkBallCollisionsWithBalls(ball_t *ball)
-{
-	// TODO
-}
-
-void checkBallCollisions(ball_t *ball, void (*callback)(void *), void *args)
-{
-	checkBallCollisionsWithWalls(ball, callback, args);
-	checkBallCollisionsWithBalls(ball);
+	unsigned char ret = 0;
+	if (checkBallCollisionsWithWalls(ball, callback, args))
+		ret = 1;
+	if (checkBallCollisionsWithBalls(ball))
+		ret = 1;
+	return ret;
 }

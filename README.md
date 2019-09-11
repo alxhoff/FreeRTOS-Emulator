@@ -8,10 +8,21 @@ Based on the FreeRTOS (V5.X) simulator developed by William Davy. Updated to use
 
 The simulator uses the SDL2 graphics libraries.
 
+### Debian/Ubuntu
+
 ```bash
 sudo apt-get install libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
 
 ```
+### Arch
+
+```bash
+sudo pacman -S sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
+```
+### Windows/Mac
+¯\\(°_o)/¯
+
+....install linux?
 
 ## Building
 
@@ -31,5 +42,7 @@ an appropriate .gdbinit is in the bin directory.
 ## Example
 
 Pong game implementation on pong branch
+
+## State of Simulator
 
 Work in progress.
