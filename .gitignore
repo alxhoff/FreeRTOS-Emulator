@@ -1,3 +1,6 @@
+# Trace files
+trace.*
+
 */bin/FreeRTOS_Simulator
 
 CMakeLists.txt.user

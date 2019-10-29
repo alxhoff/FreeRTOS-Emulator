@@ -32,6 +32,10 @@
 
 #define STATE_DEBOUNCE_DELAY 100
 
+#ifdef TRACE_FUNCTIONS
+#include "tracer.h"
+#endif
+
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
 
