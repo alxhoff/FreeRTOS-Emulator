@@ -67,7 +67,7 @@ void vEventsTask(void *pvParameters)
 				buttons[event.key.keysym.scancode] = 0;
 				send = 1;
 			} else if (event.type == SDL_MOUSEMOTION) {
-				xSemaphoreTake(mouse.lock, portMAX_DELAY);
+				xSemaphoreTake(mouse.lock, 0);
 				mouse.x = event.motion.x;
 				mouse.y = event.motion.y;
 				xSemaphoreGive(mouse.lock);
@@ -92,7 +92,10 @@ signed short xGetMouseX(void)
 	xSemaphoreTake(mouse.lock, portMAX_DELAY);
 	ret = mouse.x;
 	xSemaphoreGive(mouse.lock);
-	return ret;
+	if (ret >= 0 && ret <= SCREEN_WIDTH)
+		return ret;
+	else
+		return 0;
 }
 
 signed short xGetMouseY(void)
@@ -102,7 +105,11 @@ signed short xGetMouseY(void)
 	xSemaphoreTake(mouse.lock, portMAX_DELAY);
 	ret = mouse.y;
 	xSemaphoreGive(mouse.lock);
-	return ret;
+
+	if (ret >= 0 && ret <= SCREEN_HEIGHT)
+		return ret;
+	else
+		return 0;
 }
 
 void vInitEvents(void)
