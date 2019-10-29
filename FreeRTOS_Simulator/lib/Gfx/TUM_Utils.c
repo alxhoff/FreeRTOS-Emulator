@@ -35,7 +35,6 @@ char *prepend_path(char *path, char *file)
 	}
 
 	strcpy(ret, path);
-	strcat(ret, "/");
 	strcat(ret, file);
 
 	return ret;
@@ -45,11 +44,11 @@ char *getBinFolderPath(char *bin_path)
 {
 	int result = 0;
 	regex_t re;
-	char *pattern = "(.+bin)";
+	char *pattern = "(.*)\/";
 	regmatch_t pmatch;
 
 	// Font path
-	if (regcomp(&re, pattern, REG_EXTENDED) != 0)
+	if (regcomp(&re, pattern, REG_NEWLINE | REG_EXTENDED) != 0)
 		exit(EXIT_FAILURE);
 
 	if (0 != (result = regexec(&re, bin_path, (size_t)1, &pmatch, 0))) {

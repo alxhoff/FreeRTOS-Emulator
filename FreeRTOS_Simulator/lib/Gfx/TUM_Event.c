@@ -117,7 +117,7 @@ void vInitEvents(void)
 	xTaskCreate(vEventsTask, "EventsTask", 100, NULL, tskIDLE_PRIORITY,
 		    &eventTask);
 
-	// Ignore SDL events
+	//Ignore SDL events
 	SDL_EventState(SDL_AUDIODEVICEADDED, SDL_IGNORE);
 	SDL_EventState(SDL_AUDIODEVICEREMOVED, SDL_IGNORE);
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
