@@ -138,9 +138,10 @@ void vSwapBuffers(void* pvParameters)
     const TickType_t frameratePeriod = 20;
 
     while (1) {
-        xSemaphoreTake(DisplayReady, portMAX_DELAY);
-        xSemaphoreGive(DrawReady);
-        vDrawUpdateScreen();
+        if (xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE) {
+            vDrawUpdateScreen();
+            xSemaphoreGive(DrawReady);
+        }
         vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
     }
 }
