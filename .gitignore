@@ -1,7 +1,12 @@
 # Trace files
 trace.*
 
-*/bin/FreeRTOS_Simulator
+# Documentation
+docs/html
+docs/latex
+
+
+bin/FreeRTOS_Emulator
 
 CMakeLists.txt.user
 CMakeCache.txt

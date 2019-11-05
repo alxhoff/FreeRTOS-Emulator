@@ -1,0 +1,44 @@
+# This will run on Travis' 'new' container-based infrastructure
+sudo: false
+
+language: c
+
+os: linux
+
+compiler: gcc
+
+# Blacklist
+branches:
+    only:
+        - master
+
+# Install dependencies
+addons:
+    apt:
+        packages:
+            - doxygen
+            - cmake
+            - libsdl2-ttf-dev
+            - libsdl2-mixer-dev
+            - libsdl2-image-dev
+            - libsdl2-gfx-dev
+            - libsdl2-dev
+
+# Build your code e.g. by calling make
+script:
+    - doxygen docs/Doxyfile
+    - cd build
+    - cmake ..
+    - make
+
+# Generate and deploy documentation
+deploy:
+    provider: pages
+    skip_cleanup: true
+    local_dir: docs/html
+    github_token: $GH_REPO_TOKEN
+    on:
+        branch: master
+
+
+

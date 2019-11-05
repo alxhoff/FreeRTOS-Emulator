@@ -1,4 +1,4 @@
-project(FreeRTOS_Graphics_Simulator)
+project(FreeRTOS_Emulator)
 
 cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
@@ -33,15 +33,15 @@ file(GLOB FREERTOS_SOURCES "lib/FreeRTOS_Kernel/*.c"
     "lib/FreeRTOS_Kernel/portable/MemMang/*.c")
 file(GLOB GFX_SOURCES "lib/Gfx/*.c")
 file(GLOB SIMULATOR_SOURCES "src/*.c")
-add_executable(FreeRTOS_Simulator ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES})
+add_executable(FreeRTOS_Emulator ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES})
 
 if(TRACE_FUNCTIONS)
     add_definitions(-DTRACE_FUNCTIONS)
     SET(GCC_COVERAGE_COMPILE_FLAGS "-finstrument-functions")
-    target_compile_options(FreeRTOS_Simulator PUBLIC ${GCC_COVERAGE_COMPILE_FLAGS})
+    target_compile_options(FreeRTOS_Emulator PUBLIC ${GCC_COVERAGE_COMPILE_FLAGS})
 endif(TRACE_FUNCTIONS)
 
-target_link_libraries(FreeRTOS_Simulator ${SDL2_LIBRARIES} ${SDL2_GFX_LIBRARIES}
+target_link_libraries(FreeRTOS_Emulator ${SDL2_LIBRARIES} ${SDL2_GFX_LIBRARIES}
     ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_TTF_LIBRARIES}
     m ${CMAKE_THREAD_LIBS_INIT})
 
