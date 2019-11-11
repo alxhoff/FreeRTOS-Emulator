@@ -79,3 +79,61 @@ Work in progress.
 
 
 <a href="https://www.buymeacoffee.com/xmyWYwD" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-green.png" alt="Buy Me A Coffee" style="height: 11px !important;" ></a>
+
+## YouCompleteMe Integration
+
+This is not really related to the project but as I have left in the YCM symlinks and options in the CMake I may as well detail the YouCompleteMe Vim integration as it is applicable for other projects as well.
+
+### Install vim-plug
+
+#### Ubuntu users
+
+Ubuntu does not yet install vim 8.X+ by default and as you must install it manually first
+
+``` bash
+sudo add-apt-repository ppa:jonathonf/vim
+sudo apt update
+sudo apt install vim
+```
+#### Installation
+
+##### Prerequisites
+
+A python version >= 3.5 is required.
+
+``` bash
+sudo apt install build-essential cmake3 python3.5-dev python3.5
+```
+
+##### Vim plugin manager
+
+``` bash
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+```
+
+##### YCM
+
+Add YCM to vimrc
+
+``` bash
+echo "call plug#begin('~/.vim/plugged')" >> $HOME/.vimrc
+echo "Plug 'valloric/youcompleteme'" >> $HOME/.vimrc
+echo "call plug#end()" >> $HOME/.vimrc
+```
+
+Start vim and run `:PlugInstall`
+
+Navigate to vim plugin folder and run install script
+
+```bash
+cd $HOME/.vim/plugged/youcompleteme
+python3.5 install.py --clang-completer
+```
+Get the config script
+
+``` bash
+curl -Lo $HOME/.ycm_extra_conf.py https://raw.githubusercontent.com/alxhoff/dotfiles/master/ycm/.ycm_extra_conf.py
+```
+
+After running, you should be able to complete using CRTL+Space
