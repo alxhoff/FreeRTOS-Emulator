@@ -68,7 +68,8 @@ void checkDraw(unsigned char status, const char* msg)
  */
 void changeState(volatile unsigned char* state, unsigned char forwards)
 {
-    switch (forwards) {
+    tumDra switch (forwards)
+    {
     case NEXT_TASK:
         if (*state == STATE_COUNT - 1)
             *state = 0;

@@ -1,6 +1,13 @@
-[![Build Status](https://travis-ci.org/alxhoff/FreeRTOS-Emulator.svg?branch=master)](https://travis-ci.org/alxhoff/FreeRTOS-Emulator)
-
 # FreeRTOS Emulator
+
+<p>
+  <a href="https://travis-ci.com/alxhoff/FreeRTOS-Emulator">
+  <img src="https://travis-ci.com/alxhoff/FreeRTOS-Emulator.svg?branch=master">
+  </a>
+  <a href="https://github.com/alxhoff/FreeRTOS-Emulator/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/license-GPLv3-blue.svg" />
+  </a>
+</p>
 
 An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware.
 
