@@ -101,13 +101,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>A SDL2 based library to implement work queue based drawing of graphical elements. Allows for drawing using SDL2 from multiple threads.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;SDL2/SDL.h&quot;</code><br />
-<code>#include &quot;SDL2/SDL2_gfxPrimitives.h&quot;</code><br />
-<code>#include &quot;SDL2/SDL_image.h&quot;</code><br />
-<code>#include &quot;SDL2/SDL_ttf.h&quot;</code><br />
+<div class="textblock"><code>#include &lt;SDL2/SDL.h&gt;</code><br />
+<code>#include &lt;SDL2/SDL2_gfxPrimitives.h&gt;</code><br />
+<code>#include &lt;SDL2/SDL_image.h&gt;</code><br />
+<code>#include &lt;SDL2/SDL_ttf.h&gt;</code><br />
+<code>#include &quot;FreeRTOS.h&quot;</code><br />
+<code>#include &quot;queue.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Draw_8h_source.html">TUM_Draw.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Utils_8h_source.html">TUM_Utils.h</a>&quot;</code><br />
-<code>#include &quot;queue.h&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -344,7 +345,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">union </span><a class="code" href="uniondata__u.html">data_u</a>* data = calloc(1, <span class="keyword">sizeof</span>(<span class="keyword">union</span> <a class="code" href="uniondata__u.html">data_u</a>));                                                                                                                                                                                                                                                                                                                                                                                                                                                          \</div><div class="line">    if (!data)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \</div><div class="line">        logCriticalError(<span class="stringliteral">&quot;#TYPE data alloc&quot;</span>);                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \</div><div class="line">    job.data = data;</div><div class="ttc" id="uniondata__u_html"><div class="ttname"><a href="uniondata__u.html">data_u</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:135</div></div>
+<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">union </span><a class="code" href="uniondata__u.html">data_u</a> *data = calloc(1, <span class="keyword">sizeof</span>(<span class="keyword">union</span> <a class="code" href="uniondata__u.html">data_u</a>));                  \</div><div class="line">    if (!data)                                                             \</div><div class="line">        logCriticalError(<span class="stringliteral">&quot;#TYPE data alloc&quot;</span>);                          \</div><div class="line">    job.data = data;</div><div class="ttc" id="uniondata__u_html"><div class="ttname"><a href="uniondata__u.html">data_u</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:137</div></div>
 </div><!-- fragment -->
 </div>
 </div>

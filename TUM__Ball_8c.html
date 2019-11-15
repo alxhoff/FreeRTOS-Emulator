@@ -97,6 +97,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">TUM_Ball.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Utilities required by other TUM_XXX files.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;math.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
@@ -145,9 +148,9 @@ Macros</h2></td></tr>
 <tr class="separator:a947dec942761a3aef61a7b0d60106b0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acebd297355664f47a8663792945e0898"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#acebd297355664f47a8663792945e0898">BALL_BOTTOM_POINT_Y</a>&#160;&#160;&#160;<a class="el" href="structball.html">ball</a>-&gt;f_y + <a class="el" href="structball.html">ball</a>-&gt;radius</td></tr>
 <tr class="separator:acebd297355664f47a8663792945e0898"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac749b87dd5d843e4add3eb8e8a130f62"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#ac749b87dd5d843e4add3eb8e8a130f62">WALL</a>&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a>*)object)</td></tr>
+<tr class="memitem:ac749b87dd5d843e4add3eb8e8a130f62"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#ac749b87dd5d843e4add3eb8e8a130f62">WALL</a>&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *)object)</td></tr>
 <tr class="separator:ac749b87dd5d843e4add3eb8e8a130f62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a56509f77cfe531ba3c43f75ad9fde5f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#a56509f77cfe531ba3c43f75ad9fde5f0">BALL</a>&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a>*)object)</td></tr>
+<tr class="memitem:a56509f77cfe531ba3c43f75ad9fde5f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#a56509f77cfe531ba3c43f75ad9fde5f0">BALL</a>&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *)object)</td></tr>
 <tr class="separator:a56509f77cfe531ba3c43f75ad9fde5f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
@@ -194,13 +197,30 @@ Variables</h2></td></tr>
 <tr class="memitem:a9c42941f1f589be650bfe56dd4b6f218"><td class="memItemLeft" align="right" valign="top"><a class="el" href="TUM__Ball_8c.html#a3b29a16fb5e4a23c1963b76779eda710">walls_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#a9c42941f1f589be650bfe56dd4b6f218">walls</a> = { 0 }</td></tr>
 <tr class="separator:a9c42941f1f589be650bfe56dd4b6f218"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Utilities required by other TUM_XXX files. </p>
+<dl class="section author"><dt>Author</dt><dd>Alex Hoffman </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>27 August 2019 <pre class="fragment">   ----------------------------------------------------------------------
+    Copyright (C) Alexander Hoffman, 2019
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+   ----------------------------------------------------------------------
+</pre> </dd></dl>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a56509f77cfe531ba3c43f75ad9fde5f0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BALL&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a>*)object)</td>
+          <td class="memname">#define BALL&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *)object)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -410,7 +430,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="structball.html">ball</a>-&gt;AXIS = VAL;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              \</div><div class="line">    ball-&gt;f_##AXIS = VAL;</div><div class="ttc" id="structball_html"><div class="ttname"><a href="structball.html">ball</a></div><div class="ttdoc">Object to represent a ball that bounces off walls. </div><div class="ttdef"><b>Definition:</b> TUM_Ball.h:57</div></div>
+<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="structball.html">ball</a>-&gt;AXIS = VAL;                                                      \</div><div class="line">    ball-&gt;f_##AXIS = VAL;</div><div class="ttc" id="structball_html"><div class="ttname"><a href="structball.html">ball</a></div><div class="ttdoc">Object to represent a ball that bounces off walls. </div><div class="ttdef"><b>Definition:</b> TUM_Ball.h:57</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -431,7 +451,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define WALL&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a>*)object)</td>
+          <td class="memname">#define WALL&#160;&#160;&#160;((<a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *)object)</td>
         </tr>
       </table>
 </div><div class="memdoc">
