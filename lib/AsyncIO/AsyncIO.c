@@ -1,182 +1,218 @@
-/*
- * AsyncIO.c
- *
- *  Created on: 9 Apr 2010
- *      Author: William Davy
- */
 
+// Alex Hoffman 2019
 #define _GNU_SOURCE
 
+#include <mqueue.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <errno.h>
 #include <unistd.h>
-#include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <poll.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include "AsyncIO.h"
-/*---------------------------------------------------------------------------*/
+#include <stdint.h>
+#include <string.h>
 
-#define SIG_MSG_RX		SIGIO
-#define SIG_TICK		SIGALRM
-/*---------------------------------------------------------------------------*/
+#define MQ_MAX_NAME_LEN 256
+#define MQ_MAXMSG 256
+#define MQ_MSGSIZE 256
 
-typedef struct ASYNC_IO_CALLBACK
+#define CHECK(x)                                                               \
+	do {                                                                   \
+		if (!(x)) {                                                    \
+			fprintf(stderr, "%s:%d: ", __func__, __LINE__);        \
+			perror(#x);                                            \
+			exit(-1);                                              \
+		}                                                              \
+	} while (0)
+
+typedef enum { NONE, TCP, UDP, MSG_QUEUE, SERIAL } aIO_conn_e;
+
+typedef struct {
+	int fd;
+	struct sockaddr_in addr;
+} aIO_socket_t;
+
+typedef struct {
+	mqd_t fd;
+	char *name;
+	struct sigevent ev;
+} aIO_mq_t;
+
+typedef struct {
+	//TODO
+} aIO_serial_t;
+
+typedef union {
+	aIO_socket_t socket;
+	aIO_mq_t mq;
+	aIO_serial_t tty;
+} aIO_attr;
+
+typedef struct aIO {
+	aIO_conn_e type;
+
+	aIO_attr attr;
+	ssize_t buffer_size;
+	char *buffer;
+
+	void (*callback)(ssize_t, char *, void *);
+	void *args;
+	struct aIO *next;
+} aIO_t;
+
+aIO_t head = { .type = NONE };
+
+typedef void *aIO_handle_t;
+
+static void aIOMQSigHandler(int signal, siginfo_t *info, void *context)
 {
-	int iFileHandle;
-	void (*pvFunction)(int,void*);
-	void *pvContext;
-	struct ASYNC_IO_CALLBACK *pxNext;
-} xAsyncIOCallback;
-/*---------------------------------------------------------------------------*/
+	aIO_t *conn = (aIO_t *)info->si_value.sival_ptr;
 
-void prvSignalHandler( int signal, siginfo_t * data, void * pvParam );
-void prvRegisterSignalHandler( int iSocket );
-/*---------------------------------------------------------------------------*/
+	ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer,
+					conn->buffer_size, NULL);
 
-static xAsyncIOCallback xHead = { 0, NULL, NULL, NULL };
-static volatile int iAlreadyRegisteredHandler = 0;
-/*---------------------------------------------------------------------------*/
+	if (bytes_read > 0)
+		(conn->callback)(bytes_read, conn->buffer, conn->args);
 
-long lAsyncIORegisterCallback( int iFileDescriptor, void (*pvFunction)(int,void*), void *pvContext )
-{
-xAsyncIOCallback *pxIterator;
-	if ( NULL != pvFunction )
-	{
-		/* Record the socket against its call back. */
-		for ( pxIterator = &xHead; pxIterator->pxNext != NULL; pxIterator = pxIterator->pxNext );
-		pxIterator->pxNext = ( xAsyncIOCallback * )malloc( sizeof( xAsyncIOCallback ) );
-		pxIterator->pxNext->iFileHandle = iFileDescriptor;
-		pxIterator->pxNext->pvFunction = pvFunction;
-		pxIterator->pxNext->pvContext = pvContext;
-
-		/* Set the socket as requiring a signal when messages are received. */
-		prvRegisterSignalHandler( iFileDescriptor );
-	}
-	return ( NULL != pvFunction );
+	CHECK(!mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev));
 }
-/*---------------------------------------------------------------------------*/
 
-void vAsyncIOUnregisterCallback( int iFileDescriptor )
+aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
+				 long max_msg_size,
+				 void (*callback)(ssize_t, char *, void *),
+				 void *args)
 {
-xAsyncIOCallback *pxIterator;
-xAsyncIOCallback *pxDelete;
-	for ( pxIterator = &xHead; ( pxIterator->pxNext != NULL ) && ( pxIterator->pxNext->iFileHandle != iFileDescriptor ); pxIterator = pxIterator->pxNext );
-	if ( pxIterator->pxNext != NULL )
-	{
-		if ( pxIterator->pxNext->iFileHandle == iFileDescriptor )
-		{
-			if ( pxIterator->pxNext->pxNext != NULL )
-			{
-				pxDelete = pxIterator->pxNext;
-				pxIterator->pxNext = pxDelete->pxNext;
-			}
-			else
-			{
-				pxDelete = pxIterator->pxNext;
-				pxIterator->pxNext = NULL;
-			}
-			free( pxDelete );
-		}
-	}
+	aIO_t *iterator;
+
+	for (iterator = &head; iterator->next; iterator = iterator->next)
+		;
+
+	iterator->next = (aIO_t *)calloc(1, sizeof(aIO_t));
+	CHECK(iterator->next);
+
+	iterator->next->type = MSG_QUEUE;
+
+	aIO_mq_t *mq = &iterator->next->attr.mq;
+
+	mq->name = (char *)malloc(sizeof(char) * (strlen(name) + 1));
+	CHECK(mq->name);
+	strncpy(mq->name, name, MQ_MAX_NAME_LEN);
+
+	struct mq_attr attr;
+	struct sigaction sa;
+	union sigval sv;
+
+	sv.sival_ptr = iterator->next;
+
+	attr.mq_maxmsg = max_msg_num < MQ_MAXMSG ? max_msg_num : MQ_MAXMSG;
+	attr.mq_msgsize = max_msg_size < MQ_MSGSIZE ? max_msg_size : MQ_MSGSIZE;
+	iterator->next->buffer_size = attr.mq_msgsize;
+	iterator->next->buffer =
+		(char *)malloc(iterator->next->buffer_size * sizeof(char));
+	CHECK(iterator->next->buffer);
+
+	attr.mq_curmsgs = 0;
+
+	CHECK((mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK, 0644,
+				&attr)));
+
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = aIOMQSigHandler;
+	sigfillset(&sa.sa_mask);
+	sigdelset(&sa.sa_mask, SIGIO);
+	CHECK(!sigaction(SIGIO, &sa, NULL));
+
+	return (aIO_handle_t)iterator->next;
 }
-/*---------------------------------------------------------------------------*/
 
-void prvSignalHandler( int signal, siginfo_t * data, void * pvParam )
+static aIO_t *findConnection(aIO_conn_e type, void *arg)
 {
-int iSocket = 0, iReturn;
-xAsyncIOCallback *pxIterator;
-struct pollfd xFileDescriptorPollEvents;
-	if ( SIG_MSG_RX == signal )	/* Are we in the correct signal handler. */
-	{
-		if ( data->si_code == SI_SIGIO )	/* Do we know which socket caused the signal? */
-		{
-			iSocket = data->si_fd;	/* Yes we do. Find the owner. */
+	aIO_t *iterator;
 
-			for ( pxIterator = &xHead; ( pxIterator->pxNext != NULL ) && ( pxIterator->iFileHandle != iSocket ); pxIterator = pxIterator->pxNext );
-
-			if ( pxIterator->iFileHandle == iSocket )
-			{
-				( pxIterator->pvFunction )( iSocket, pxIterator->pvContext );
-			}
-			else
-			{
-				printf( "No socket owner.\n" );
-			}
-		}
-		else
-		{
-			/* We don't know which socket cause the signal. Use poll to find the socket. */
-			for ( pxIterator = &xHead; pxIterator != NULL; pxIterator = pxIterator->pxNext )
-			{
-				xFileDescriptorPollEvents.fd = pxIterator->iFileHandle;
-				xFileDescriptorPollEvents.events = POLLIN;
-				xFileDescriptorPollEvents.revents = 0;
-				if ( xFileDescriptorPollEvents.fd != 0 )
-				{
-					iReturn = poll( &xFileDescriptorPollEvents, 1, 0 );	/* Need to kick off the signal handling. */
-
-					if ( ( 1 == iReturn ) && ( POLLIN == xFileDescriptorPollEvents.revents ) )
-					{
-						if ( pxIterator->pvFunction != NULL )
-						{
-							( pxIterator->pvFunction )( xFileDescriptorPollEvents.fd, pxIterator->pvContext );
-						}
-					}
-				}
-			}
-			/* Note that poll should really be passed all of the sockets in one go and then iterate over the results. */
-		}
-	}
-}
-/*---------------------------------------------------------------------------*/
-
-void prvRegisterSignalHandler( int iSocket )
-{
-struct sigaction xAction;
-
-	if ( 1 != iAlreadyRegisteredHandler )
-	{
-		/* Initialise the sigaction struct for the signal handler. */
-		xAction.sa_sigaction = prvSignalHandler;
-		xAction.sa_flags = SA_SIGINFO;	/* Using this option, the signal handler knows which socket caused the signal. */
-		sigfillset( &xAction.sa_mask );
-		sigdelset( &xAction.sa_mask, SIG_MSG_RX );
-		sigdelset( &xAction.sa_mask, SIG_TICK );
-
-		/* Register the signal handler. */
-		if ( 0 != sigaction( SIG_MSG_RX, &xAction, NULL ) )	/* Register the Signal Handler. */
-		{
-			printf( "Problem installing SIG_MSG_RX\n" );
-		}
-		else
-		{
-			iAlreadyRegisteredHandler = 1;
-		}
-	}
-
-	/* Request that the socket generates a signal. */
-	if ( SIG_MSG_RX == SIGIO )
-	{
-		if ( 0 != fcntl( iSocket, F_SETOWN, getpid() ) )
-		{
-			printf( "fnctl: Failed: %d\n", errno );
-		}
-	}
-	else
-	{
-		/* Use real-time signals instead of SIGIO */
-		if ( 0 != fcntl( iSocket, F_SETSIG, SIG_MSG_RX ) )
-		{
-			printf( "fnctl: Failed: %d\n", errno );
-		}
-	}
-
-	/* Indicate that the socket is Asynchronous. */
-	if ( 0 != fcntl( iSocket, F_SETFL, O_ASYNC ) )
-	{
-		printf( "fcntl: Failed: %d\n", errno );
+	switch (type) {
+	case TCP:
+	case UDP:
+		for (iterator = &head; iterator->next;
+		     iterator = iterator->next)
+			if (iterator->next->type == type)
+				if (iterator->next->attr.socket.fd ==
+				    *(int *)arg)
+					return iterator->next;
+	case MSG_QUEUE:
+		//TODO
+		return NULL;
+	case SERIAL:
+		//TODO
+		return NULL;
+	case NONE:
+	default:
+		return NULL;
 	}
 }
-/*---------------------------------------------------------------------------*/
+
+static void aIOUDPSigHandler(int signal, siginfo_t *info, void *context)
+{
+	ssize_t read_size;
+	int client_fd, server_fd = info->si_fd;
+	struct sockaddr_in client_addr;
+	socklen_t client_sz = sizeof(struct sockaddr_in);
+	aIO_t *conn = findConnection(UDP, &server_fd);
+
+	CHECK((client_fd = accept(server_fd, (struct sockaddr *)&client_addr,
+				  &client_sz)));
+
+	while ((read_size =
+			recv(client_fd, conn->buffer, conn->buffer_size, 0))) {
+		(conn->callback)(read_size, conn->buffer, conn->args);
+	}
+
+	close(client_fd);
+}
+
+aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
+			      void (*callback)(ssize_t, char *, void *),
+			      void *args)
+{
+	aIO_t *iterator;
+
+	for (iterator = &head; iterator->next; iterator = iterator->next)
+		;
+
+	iterator->next = (aIO_t *)calloc(1, sizeof(aIO_t));
+	CHECK(iterator->next);
+
+	iterator->next->buffer_size = buffer_size;
+	iterator->next->buffer =
+		(char *)malloc(iterator->next->buffer_size * sizeof(char));
+	CHECK(iterator->next->buffer);
+
+	aIO_socket_t *s_udp = &iterator->next->attr.socket;
+
+	s_udp->addr.sin_family = AF_INET;
+	s_udp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
+	s_udp->addr.sin_port = htons(port);
+
+	s_udp->fd = socket(AF_INET, SOCK_STREAM, 0);
+	CHECK(s_udp->fd);
+
+	CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
+		    sizeof(s_udp->addr)));
+
+	struct sigaction act = { 0 };
+	int fs;
+
+	act.sa_flags = SA_SIGINFO;
+	act.sa_sigaction = aIOUDPSigHandler;
+	sigfillset(&act.sa_mask);
+	sigdelset(&act.sa_mask, SIGIO);
+	CHECK(!sigaction(SIGIO, &act, NULL));
+
+	fs = fcntl(s_udp->fd, F_GETFL);
+	fs |= O_ASYNC | O_NONBLOCK;
+	fcntl(s_udp->fd, F_SETFL, fs);
+	fcntl(s_udp->fd, F_SETSIG, SIGIO);
+	fcntl(s_udp->fd, F_SETOWN, getpid());
+
+	CHECK(!listen(s_udp->fd, 1));
+}
