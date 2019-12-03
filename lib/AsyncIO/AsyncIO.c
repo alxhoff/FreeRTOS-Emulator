@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <pthread.h>
 
 #define MQ_MAX_NAME_LEN 256
 #define MQ_MAXMSG 256
@@ -159,11 +160,8 @@ static void aIOUDPSigHandler(int signal, siginfo_t *info, void *context)
 	socklen_t client_sz = sizeof(struct sockaddr_in);
 	aIO_t *conn = findConnection(UDP, &server_fd);
 
-	CHECK((client_fd = accept(server_fd, (struct sockaddr *)&client_addr,
-				  &client_sz)));
-
 	while ((read_size =
-			recv(client_fd, conn->buffer, conn->buffer_size, 0))) {
+			recv(server_fd, conn->buffer, conn->buffer_size, 0))) {
 		(conn->callback)(read_size, conn->buffer, conn->args);
 	}
 
@@ -193,11 +191,8 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 	s_udp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
 	s_udp->addr.sin_port = htons(port);
 
-	s_udp->fd = socket(AF_INET, SOCK_STREAM, 0);
+	s_udp->fd = socket(AF_INET, SOCK_DGRAM, 0);
 	CHECK(s_udp->fd);
-
-	CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
-		    sizeof(s_udp->addr)));
 
 	struct sigaction act = { 0 };
 	int fs;
@@ -208,11 +203,105 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 	sigdelset(&act.sa_mask, SIGIO);
 	CHECK(!sigaction(SIGIO, &act, NULL));
 
-	fs = fcntl(s_udp->fd, F_GETFL);
+	CHECK((fs = fcntl(s_udp->fd, F_GETFL)));
 	fs |= O_ASYNC | O_NONBLOCK;
-	fcntl(s_udp->fd, F_SETFL, fs);
+	CHECK(-1 != fcntl(s_udp->fd, F_SETFL, fs));
 	fcntl(s_udp->fd, F_SETSIG, SIGIO);
-	fcntl(s_udp->fd, F_SETOWN, getpid());
+	CHECK(-1 != fcntl(s_udp->fd, F_SETOWN, getpid()));
 
-	CHECK(!listen(s_udp->fd, 1));
+	CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
+		    sizeof(s_udp->addr)));
+}
+
+typedef struct {
+	int client_fd;
+	ssize_t buffer_size;
+
+	void (*callback)(ssize_t, char *, void *);
+	void *args;
+} aIO_tcp_client;
+
+void *aIOTCPHandler(void *conn)
+{
+	ssize_t read_size;
+	aIO_tcp_client *client = (aIO_tcp_client *)conn;
+	int client_fd = client->client_fd;
+	char *buffer = malloc(sizeof(char) * client->buffer_size);
+	CHECK(buffer);
+
+	while ((read_size = recv(client_fd, buffer, client->buffer_size, 0)))
+		(client->callback)(read_size, buffer, client->args);
+
+	free(buffer);
+	free((aIO_tcp_client *)conn);
+	close(client_fd);
+}
+
+static void aIOTCPSigHandler(int signal, siginfo_t *info, void *context)
+{
+	struct sockaddr_in client;
+	int client_fd, server_fd = info->si_fd;
+	socklen_t client_size = sizeof(struct sockaddr_in);
+	aIO_t *conn = findConnection(TCP, &server_fd);
+
+	while ((client_fd = accept(server_fd, (struct sockaddr *)&client,
+				   &client_size)) > 0) {
+		pthread_t handler_thread;
+		aIO_tcp_client *new_client =
+			(aIO_tcp_client *)malloc(sizeof(aIO_tcp_client));
+		new_client->client_fd = client_fd;
+		new_client->buffer_size = conn->buffer_size;
+		new_client->callback = conn->callback;
+		new_client->args = conn->args;
+
+		CHECK(!pthread_create(&handler_thread, NULL, aIOTCPHandler,
+				      (void *)new_client));
+	}
+}
+
+aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
+			      void (*callback)(ssize_t, char *, void *),
+			      void *args)
+{
+	aIO_t *iterator;
+
+	for (iterator = &head; iterator->next; iterator = iterator->next)
+		;
+
+	iterator->next = (aIO_t *)calloc(1, sizeof(aIO_t));
+	CHECK(iterator->next);
+
+	iterator->next->buffer_size = buffer_size;
+	iterator->next->buffer =
+		(char *)malloc(iterator->next->buffer_size * sizeof(char));
+	CHECK(iterator->next->buffer);
+
+	aIO_socket_t *s_tcp = &iterator->next->attr.socket;
+
+	s_tcp->addr.sin_family = AF_INET;
+	s_tcp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
+	s_tcp->addr.sin_port = htons(port);
+
+	s_tcp->fd = socket(AF_INET, SOCK_STREAM, 0);
+	CHECK(s_tcp->fd);
+
+	struct sigaction act = { 0 };
+	int fs;
+
+	act.sa_flags = SA_SIGINFO;
+	act.sa_sigaction = aIOTCPSigHandler;
+	sigfillset(&act.sa_mask);
+	sigdelset(&act.sa_mask, SIGIO);
+	CHECK(!sigaction(SIGIO, &act, NULL));
+
+	CHECK((fs = fcntl(s_tcp->fd, F_GETFL)));
+	fs |= O_ASYNC | O_NONBLOCK;
+	CHECK(-1 != fcntl(s_tcp->fd, F_SETFL, fs));
+	fcntl(s_tcp->fd, F_SETSIG, SIGIO);
+	CHECK(-1 != fcntl(s_tcp->fd, F_SETOWN, getpid()));
+
+	CHECK(!bind(s_tcp->fd, (struct sockaddr *)&s_tcp->addr,
+		    sizeof(s_tcp->addr)));
+
+	CHECK(!listen(s_tcp->fd, 1));
 }
