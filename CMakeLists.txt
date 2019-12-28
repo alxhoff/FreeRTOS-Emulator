@@ -27,14 +27,16 @@ include_directories(${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/Gfx/include)
+include_directories(${PROJECT_SOURCE_DIR}/lib/AsyncIO/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/tracer/include)
 
 file(GLOB FREERTOS_SOURCES "lib/FreeRTOS_Kernel/*.c"
     "lib/FreeRTOS_Kernel/portable/GCC/Posix/*.c"
     "lib/FreeRTOS_Kernel/portable/MemMang/*.c")
 file(GLOB GFX_SOURCES "lib/Gfx/*.c")
+file(GLOB ASYNC_SOURCES "lib/AsyncIO/*.c")
 file(GLOB SIMULATOR_SOURCES "src/*.c")
-add_executable(FreeRTOS_Emulator ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES})
+add_executable(FreeRTOS_Emulator ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES} ${ASYNC_SOURCES})
 
 if(TRACE_FUNCTIONS)
     add_definitions(-DTRACE_FUNCTIONS)
@@ -44,6 +46,6 @@ endif(TRACE_FUNCTIONS)
 
 target_link_libraries(FreeRTOS_Emulator ${SDL2_LIBRARIES} ${SDL2_GFX_LIBRARIES}
     ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_TTF_LIBRARIES}
-    m ${CMAKE_THREAD_LIBS_INIT})
+    m ${CMAKE_THREAD_LIBS_INIT} rt)
 
 

@@ -6,13 +6,14 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <pthread.h>
+
+#include "AsyncIO.h"
 
 #define MQ_MAX_NAME_LEN 256
 #define MQ_MAXMSG 256
@@ -27,7 +28,7 @@
 		}                                                              \
 	} while (0)
 
-typedef enum { NONE, TCP, UDP, MSG_QUEUE, SERIAL } aIO_conn_e;
+typedef enum { NONE = 0, TCP, UDP, MSG_QUEUE, SERIAL } aIO_conn_e;
 
 typedef struct {
 	int fd;
@@ -64,8 +65,6 @@ typedef struct aIO {
 
 aIO_t head = { .type = NONE };
 
-typedef void *aIO_handle_t;
-
 static void aIOMQSigHandler(int signal, siginfo_t *info, void *context)
 {
 	aIO_t *conn = (aIO_t *)info->si_value.sival_ptr;
@@ -93,6 +92,8 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 	CHECK(iterator->next);
 
 	iterator->next->type = MSG_QUEUE;
+	iterator->next->callback = callback;
+	iterator->next->args = args;
 
 	aIO_mq_t *mq = &iterator->next->attr.mq;
 
@@ -154,14 +155,20 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 
 static void aIOUDPSigHandler(int signal, siginfo_t *info, void *context)
 {
+	printf("In UDP handler\n");
 	ssize_t read_size;
 	int client_fd, server_fd = info->si_fd;
 	struct sockaddr_in client_addr;
 	socklen_t client_sz = sizeof(struct sockaddr_in);
 	aIO_t *conn = findConnection(UDP, &server_fd);
 
-	while ((read_size =
-			recv(server_fd, conn->buffer, conn->buffer_size, 0))) {
+	CHECK(conn);
+
+	while ((read_size = recv(server_fd, conn->buffer, conn->buffer_size,
+				 0)) > 0) {
+		conn->buffer[(read_size - 1) <= conn->buffer_size ?
+				     (read_size - 1) :
+				     conn->buffer_size] = '\0';
 		(conn->callback)(read_size, conn->buffer, conn->args);
 	}
 
@@ -184,6 +191,10 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 	iterator->next->buffer =
 		(char *)malloc(iterator->next->buffer_size * sizeof(char));
 	CHECK(iterator->next->buffer);
+
+	iterator->next->type = UDP;
+	iterator->next->callback = callback;
+	iterator->next->args = args;
 
 	aIO_socket_t *s_udp = &iterator->next->attr.socket;
 
