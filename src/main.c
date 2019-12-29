@@ -44,6 +44,7 @@ const unsigned char prev_state_signal = PREV_TASK;
 static TaskHandle_t DemoTask1 = NULL;
 static TaskHandle_t DemoTask2 = NULL;
 static TaskHandle_t UDPDemoTask = NULL;
+static TaskHandle_t TCPDemoTask = NULL;
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawReady = NULL;
 
@@ -122,12 +123,16 @@ void basicSequentialStateMachine(void *pvParameters)
 		if (state_changed) {
 			switch (current_state) {
 			case STATE_ONE:
-				vTaskSuspend(DemoTask2);
-				vTaskResume(DemoTask1);
+				if (DemoTask2)
+					vTaskSuspend(DemoTask2);
+				if (DemoTask1)
+					vTaskResume(DemoTask1);
 				break;
 			case STATE_TWO:
-				vTaskSuspend(DemoTask1);
-				vTaskResume(DemoTask2);
+				if (DemoTask1)
+					vTaskSuspend(DemoTask1);
+				if (DemoTask2)
+					vTaskResume(DemoTask2);
 				break;
 			default:
 				break;
@@ -210,12 +215,12 @@ void vDrawHelpText(void)
 
 void vDrawLogo(void)
 {
-	static unsigned int image_height;
-	tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
-	checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10,
-				     SCREEN_HEIGHT - 10 - image_height * 0.3,
-				     0.3),
-		  __FUNCTION__);
+	/** static unsigned int image_height; */
+	/** tumGetImageSize(LOGO_FILENAME, NULL, &image_height); */
+	/** checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10, */
+	/**                  SCREEN_HEIGHT - 10 - image_height * 0.3, */
+	/**                  0.3), */
+	/**       __FUNCTION__); */
 }
 
 void vDrawStaticItems(void)
@@ -278,7 +283,7 @@ void vCheckStateInput(void)
 
 void UDPHandler(ssize_t read_size, char *buffer, void *args)
 {
-	printf("Recv: %s\n", buffer);
+	printf("UDP Recv: %s\n", buffer);
 }
 
 void vUDPDemoTask(void *pvParameters)
@@ -298,10 +303,32 @@ void vUDPDemoTask(void *pvParameters)
 	}
 }
 
+#define TCP_BUFFER_SIZE 2000
+
+void TCPHandler(ssize_t read_size, char *buffer, void *args)
+{
+	printf("TCP Recv: %s\n", buffer);
+}
+
+void vTCPDemoTask(void *pvParameters)
+{
+	char *addr = NULL; // Loopback
+	in_port_t port = 2222;
+
+	aIO_handle_t soc =
+		aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
+
+	printf("TCP socket opened\n");
+	printf("Demo TCP socket can be tested using\n");
+	printf("*** netcat -vv localhost 2222 ***\n");
+
+	while (1) {
+		vTaskDelay(10);
+	}
+}
+
 void vDemoTask1(void *pvParameters)
 {
-	signed char ret = 0;
-
 	while (1) {
 		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
 			// Get input and check for state change
@@ -418,6 +445,8 @@ int main(int argc, char *argv[])
 	vInitEvents();
 	vInitAudio(bin_folder_path);
 
+	/** atexit(aIODeinit); */
+
 	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
 		    mainGENERIC_PRIORITY, &DemoTask1);
 	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
@@ -429,6 +458,8 @@ int main(int argc, char *argv[])
 		    NULL, configMAX_PRIORITIES, NULL);
 	xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE, NULL,
 		    configMAX_PRIORITIES - 1, NULL);
+	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
+	/**         configMAX_PRIORITIES - 1, NULL); */
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);

@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -28,7 +29,14 @@
 		}                                                              \
 	} while (0)
 
-typedef enum { NONE = 0, TCP, UDP, MSG_QUEUE, SERIAL } aIO_conn_e;
+typedef enum {
+	NONE = 0,
+	TCP,
+	UDP,
+	MSG_QUEUE,
+	SERIAL,
+	NO_OF_CONN_TYPES
+} aIO_conn_e;
 
 typedef struct {
 	int fd;
@@ -58,12 +66,87 @@ typedef struct aIO {
 	ssize_t buffer_size;
 	char *buffer;
 
+	pthread_t thread;
+
 	void (*callback)(ssize_t, char *, void *);
 	void *args;
 	struct aIO *next;
+
+	pthread_mutex_t lock;
 } aIO_t;
 
-aIO_t head = { .type = NONE };
+aIO_t head = { .type = NONE, .lock = PTHREAD_MUTEX_INITIALIZER };
+pthread_cond_t aIO_quit_conn = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t aIO_quit_lock = PTHREAD_MUTEX_INITIALIZER;
+
+aIO_t *getLastConnection(void)
+{
+	aIO_t *iterator;
+
+	for (iterator = &head; iterator->next; iterator = iterator->next)
+		;
+
+	return iterator;
+}
+
+static aIO_t *findConnection(aIO_conn_e type, void *arg)
+{
+	aIO_t *prev = &head, *curr;
+
+	pthread_mutex_lock(&prev->lock);
+	while ((curr = prev->next) != NULL) {
+		pthread_mutex_lock(&curr->lock);
+		switch (type) {
+		case TCP:
+		case UDP:
+			if (curr->type == type)
+				if (curr->attr.socket.fd == *(int *)arg) {
+					pthread_mutex_unlock(&prev->lock);
+					pthread_mutex_unlock(&curr->lock);
+					return curr;
+				}
+		case MSG_QUEUE:
+			//TODO
+			return NULL;
+		case SERIAL:
+			//TODO
+			return NULL;
+		case NONE:
+		default:
+			return NULL;
+		}
+		pthread_mutex_unlock(&prev->lock);
+		prev = curr;
+	}
+	pthread_mutex_unlock(&prev->lock);
+	return NULL;
+}
+
+void aIODeinit(void)
+{
+	printf("Stopping listener threads\n");
+	pthread_cond_broadcast(&aIO_quit_conn);
+}
+
+aIO_t *createAsyncIO(aIO_conn_e type, ssize_t buffer_size,
+		     void (*callback)(ssize_t, char *, void *), void *args)
+{
+	aIO_t *ret = (aIO_t *)calloc(1, sizeof(aIO_t));
+
+	CHECK(ret);
+
+	ret->buffer_size = buffer_size;
+	ret->buffer = (char *)malloc(ret->buffer_size * sizeof(char));
+	CHECK(ret->buffer);
+
+	ret->type = type;
+	ret->callback = callback;
+	ret->args = args;
+
+	pthread_mutex_init(&ret->lock, NULL);
+
+	return ret;
+}
 
 static void aIOMQSigHandler(int signal, siginfo_t *info, void *context)
 {
@@ -83,19 +166,11 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 				 void (*callback)(ssize_t, char *, void *),
 				 void *args)
 {
-	aIO_t *iterator;
+	aIO_t *conn = getLastConnection();
 
-	for (iterator = &head; iterator->next; iterator = iterator->next)
-		;
+	conn->next = createAsyncIO(MSG_QUEUE, max_msg_size, callback, args);
 
-	iterator->next = (aIO_t *)calloc(1, sizeof(aIO_t));
-	CHECK(iterator->next);
-
-	iterator->next->type = MSG_QUEUE;
-	iterator->next->callback = callback;
-	iterator->next->args = args;
-
-	aIO_mq_t *mq = &iterator->next->attr.mq;
+	aIO_mq_t *mq = &conn->next->attr.mq;
 
 	mq->name = (char *)malloc(sizeof(char) * (strlen(name) + 1));
 	CHECK(mq->name);
@@ -103,16 +178,16 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 
 	struct mq_attr attr;
 	struct sigaction sa;
-	union sigval sv;
-
-	sv.sival_ptr = iterator->next;
+	/** volatile union sigval sv; */
+	/**  */
+	/** sv.sival_ptr = conn->next; */
 
 	attr.mq_maxmsg = max_msg_num < MQ_MAXMSG ? max_msg_num : MQ_MAXMSG;
 	attr.mq_msgsize = max_msg_size < MQ_MSGSIZE ? max_msg_size : MQ_MSGSIZE;
-	iterator->next->buffer_size = attr.mq_msgsize;
-	iterator->next->buffer =
-		(char *)malloc(iterator->next->buffer_size * sizeof(char));
-	CHECK(iterator->next->buffer);
+	conn->next->buffer_size = attr.mq_msgsize;
+	conn->next->buffer =
+		(char *)malloc(conn->next->buffer_size * sizeof(char));
+	CHECK(conn->next->buffer);
 
 	attr.mq_curmsgs = 0;
 
@@ -125,78 +200,57 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 	sigdelset(&sa.sa_mask, SIGIO);
 	CHECK(!sigaction(SIGIO, &sa, NULL));
 
-	return (aIO_handle_t)iterator->next;
-}
-
-static aIO_t *findConnection(aIO_conn_e type, void *arg)
-{
-	aIO_t *iterator;
-
-	switch (type) {
-	case TCP:
-	case UDP:
-		for (iterator = &head; iterator->next;
-		     iterator = iterator->next)
-			if (iterator->next->type == type)
-				if (iterator->next->attr.socket.fd ==
-				    *(int *)arg)
-					return iterator->next;
-	case MSG_QUEUE:
-		//TODO
-		return NULL;
-	case SERIAL:
-		//TODO
-		return NULL;
-	case NONE:
-	default:
-		return NULL;
-	}
+	return (aIO_handle_t)conn->next;
 }
 
 static void aIOUDPSigHandler(int signal, siginfo_t *info, void *context)
 {
 	printf("In UDP handler\n");
 	ssize_t read_size;
-	int client_fd, server_fd = info->si_fd;
-	struct sockaddr_in client_addr;
-	socklen_t client_sz = sizeof(struct sockaddr_in);
+	int server_fd = info->si_fd;
 	aIO_t *conn = findConnection(UDP, &server_fd);
 
 	CHECK(conn);
+
+	pthread_mutex_lock(&conn->lock);
 
 	while ((read_size = recv(server_fd, conn->buffer, conn->buffer_size,
 				 0)) > 0) {
 		conn->buffer[(read_size - 1) <= conn->buffer_size ?
 				     (read_size - 1) :
 				     conn->buffer_size] = '\0';
+		printf("Buffer: %s\n", conn->buffer);
 		(conn->callback)(read_size, conn->buffer, conn->args);
 	}
 
-	close(client_fd);
+	pthread_mutex_unlock(&conn->lock);
+}
+
+void *aIOOpenUDPSocketThread(void *s_udp_fd)
+{
+	int fd = *(int *)s_udp_fd;
+	printf("Creating UDP thread\n");
+	CHECK(-1 != fcntl(fd, F_SETOWN, getpid()));
+
+	pthread_mutex_lock(&aIO_quit_lock);
+	pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock);
+	printf("Closing UDP thread\n");
+	pthread_mutex_unlock(&aIO_quit_lock);
+
+	return NULL;
 }
 
 aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 			      void (*callback)(ssize_t, char *, void *),
 			      void *args)
 {
-	aIO_t *iterator;
+	aIO_t *conn = getLastConnection();
 
-	for (iterator = &head; iterator->next; iterator = iterator->next)
-		;
+	conn->next = createAsyncIO(UDP, buffer_size, callback, args);
 
-	iterator->next = (aIO_t *)calloc(1, sizeof(aIO_t));
-	CHECK(iterator->next);
+	pthread_mutex_lock(&conn->next->lock);
 
-	iterator->next->buffer_size = buffer_size;
-	iterator->next->buffer =
-		(char *)malloc(iterator->next->buffer_size * sizeof(char));
-	CHECK(iterator->next->buffer);
-
-	iterator->next->type = UDP;
-	iterator->next->callback = callback;
-	iterator->next->args = args;
-
-	aIO_socket_t *s_udp = &iterator->next->attr.socket;
+	aIO_socket_t *s_udp = &conn->next->attr.socket;
 
 	s_udp->addr.sin_family = AF_INET;
 	s_udp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
@@ -222,6 +276,13 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 
 	CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
 		    sizeof(s_udp->addr)));
+
+	CHECK(!pthread_create(&conn->next->thread, NULL, aIOOpenUDPSocketThread,
+			      (void *)&conn->next->attr.socket.fd));
+
+	pthread_mutex_unlock(&conn->next->lock);
+
+	return (aIO_handle_t)conn->next;
 }
 
 typedef struct {
@@ -246,6 +307,8 @@ void *aIOTCPHandler(void *conn)
 	free(buffer);
 	free((aIO_tcp_client *)conn);
 	close(client_fd);
+
+	return NULL;
 }
 
 static void aIOTCPSigHandler(int signal, siginfo_t *info, void *context)
@@ -254,6 +317,10 @@ static void aIOTCPSigHandler(int signal, siginfo_t *info, void *context)
 	int client_fd, server_fd = info->si_fd;
 	socklen_t client_size = sizeof(struct sockaddr_in);
 	aIO_t *conn = findConnection(TCP, &server_fd);
+
+	CHECK(conn);
+
+	pthread_mutex_lock(&conn->lock);
 
 	while ((client_fd = accept(server_fd, (struct sockaddr *)&client,
 				   &client_size)) > 0) {
@@ -268,26 +335,33 @@ static void aIOTCPSigHandler(int signal, siginfo_t *info, void *context)
 		CHECK(!pthread_create(&handler_thread, NULL, aIOTCPHandler,
 				      (void *)new_client));
 	}
+
+	pthread_mutex_unlock(&conn->lock);
+}
+
+void *aIOOpenTCPSocketThread(void *s_tcp_fd)
+{
+	int fd = *(int *)s_tcp_fd;
+	CHECK(-1 != fcntl(fd, F_SETOWN, getpid()));
+
+	pthread_mutex_lock(&aIO_quit_lock);
+	pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock);
+	pthread_mutex_unlock(&aIO_quit_lock);
+
+	return NULL;
 }
 
 aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 			      void (*callback)(ssize_t, char *, void *),
 			      void *args)
 {
-	aIO_t *iterator;
+	aIO_t *conn = getLastConnection();
 
-	for (iterator = &head; iterator->next; iterator = iterator->next)
-		;
+	conn->next = createAsyncIO(TCP, buffer_size, callback, args);
 
-	iterator->next = (aIO_t *)calloc(1, sizeof(aIO_t));
-	CHECK(iterator->next);
+	pthread_mutex_lock(&conn->next->lock);
 
-	iterator->next->buffer_size = buffer_size;
-	iterator->next->buffer =
-		(char *)malloc(iterator->next->buffer_size * sizeof(char));
-	CHECK(iterator->next->buffer);
-
-	aIO_socket_t *s_tcp = &iterator->next->attr.socket;
+	aIO_socket_t *s_tcp = &conn->next->attr.socket;
 
 	s_tcp->addr.sin_family = AF_INET;
 	s_tcp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
@@ -315,4 +389,11 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 		    sizeof(s_tcp->addr)));
 
 	CHECK(!listen(s_tcp->fd, 1));
+
+	CHECK(!pthread_create(&conn->next->thread, NULL, aIOOpenTCPSocketThread,
+			      (void *)&conn->next->attr.socket.fd));
+
+	pthread_mutex_unlock(&conn->next->lock);
+
+	return (aIO_handle_t)conn->next;
 }
