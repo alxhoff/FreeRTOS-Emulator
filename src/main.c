@@ -45,6 +45,7 @@ static TaskHandle_t DemoTask1 = NULL;
 static TaskHandle_t DemoTask2 = NULL;
 static TaskHandle_t UDPDemoTask = NULL;
 static TaskHandle_t TCPDemoTask = NULL;
+
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawReady = NULL;
 
@@ -110,13 +111,15 @@ void basicSequentialStateMachine(void *pvParameters)
 			goto initial_state;
 
 		// Handle state machine input
-		if (xQueueReceive(StateQueue, &input, portMAX_DELAY) == pdTRUE)
-			if (xTaskGetTickCount() - last_change >
-			    state_change_period) {
-				changeState(&current_state, input);
-				state_changed = 1;
-				last_change = xTaskGetTickCount();
-			}
+		if (StateQueue)
+			if (xQueueReceive(StateQueue, &input, portMAX_DELAY) ==
+			    pdTRUE)
+				if (xTaskGetTickCount() - last_change >
+				    state_change_period) {
+					changeState(&current_state, input);
+					state_changed = 1;
+					last_change = xTaskGetTickCount();
+				}
 
 	initial_state:
 		// Handle current state
@@ -268,12 +271,14 @@ void vCheckStateInput(void)
 	xSemaphoreTake(buttons.lock, 0);
 	if (buttons.buttons[KEYCODE(C)]) {
 		xSemaphoreGive(buttons.lock);
-		xQueueSend(StateQueue, &next_state_signal, 0);
+		if (StateQueue)
+			xQueueSend(StateQueue, &next_state_signal, 0);
 		return;
 	}
 	if (buttons.buttons[KEYCODE(E)]) {
 		xSemaphoreGive(buttons.lock);
-		xQueueSend(StateQueue, &prev_state_signal, 0);
+		if (StateQueue)
+			xQueueSend(StateQueue, &prev_state_signal, 0);
 		return;
 	}
 	xSemaphoreGive(buttons.lock);
@@ -330,18 +335,20 @@ void vTCPDemoTask(void *pvParameters)
 void vDemoTask1(void *pvParameters)
 {
 	while (1) {
-		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
-			// Get input and check for state change
-			vCheckStateInput();
+		if (DrawReady)
+			if (xSemaphoreTake(DrawReady, portMAX_DELAY) ==
+			    pdTRUE) {
+				// Get input and check for state change
+				vCheckStateInput();
 
-			// Clear screen
-			checkDraw(tumDrawClear(White), __FUNCTION__);
+				// Clear screen
+				checkDraw(tumDrawClear(White), __FUNCTION__);
 
-			vDrawStaticItems();
+				vDrawStaticItems();
 
-			vDrawCave();
-			vDrawButtonText();
-		}
+				vDrawCave();
+				vDrawButtonText();
+			}
 	}
 }
 
@@ -441,29 +448,6 @@ int main(int argc, char *argv[])
 	char *bin_folder_path = getBinFolderPath(argv[0]);
 	printf("%s\n", bin_folder_path);
 
-	vInitDrawing(bin_folder_path);
-	vInitEvents();
-	vInitAudio(bin_folder_path);
-
-	/** atexit(aIODeinit); */
-
-	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask1);
-	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask2);
-	xTaskCreate(basicSequentialStateMachine, "StateMachine",
-		    mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1,
-		    NULL);
-	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE,
-		    NULL, configMAX_PRIORITIES, NULL);
-	xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE, NULL,
-		    configMAX_PRIORITIES - 1, NULL);
-	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
-	/**         configMAX_PRIORITIES - 1, NULL); */
-
-	vTaskSuspend(DemoTask1);
-	vTaskSuspend(DemoTask2);
-
 	buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
 
 	if (!buttons.lock) {
@@ -485,6 +469,29 @@ int main(int argc, char *argv[])
 		printf("StateQueue queue not created\n");
 		exit(EXIT_FAILURE);
 	}
+
+	vInitDrawing(bin_folder_path);
+	vInitEvents();
+	vInitAudio(bin_folder_path);
+
+	/** atexit(aIODeinit); */
+
+	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask1);
+	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask2);
+	xTaskCreate(basicSequentialStateMachine, "StateMachine",
+		    mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1,
+		    NULL);
+	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE,
+		    NULL, configMAX_PRIORITIES, NULL);
+	/** xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE, NULL, */
+	/**         configMAX_PRIORITIES - 1, &UDPDemoTask); */
+	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
+	/**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
+
+	vTaskSuspend(DemoTask1);
+	vTaskSuspend(DemoTask2);
 
 	vTaskStartScheduler();
 
