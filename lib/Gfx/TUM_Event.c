@@ -53,7 +53,7 @@ void vEventsTask(void* pvParameters)
 
     while (1) {
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT | event.key.keysym.scancode == SDL_SCANCODE_Q) {
+            if ((event.type == SDL_QUIT) || (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
                 vExitDrawing();
                 exit(1);
             } else if (event.type == SDL_KEYDOWN) {

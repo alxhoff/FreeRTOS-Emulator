@@ -99,12 +99,6 @@
 /**@}*/
 
 /**
- * @brief Semaphore that signals when the TUM Draw backend is finished drawing
- * its current work packets
- */
-extern SemaphoreHandle_t DisplayReady;
-
-/**
  * @brief Holds a pixel co-ordinate
  */
 typedef struct coord {
@@ -208,7 +202,7 @@ signed char tumDrawText(char *str, signed short x, signed short y,
  * @param height Integer where the height shall be stored
  * @return signed char 0 on success
  */
-void tumGetTextSize(char *str, unsigned int *width, unsigned int *height);
+void tumGetTextSize(char *str, int *width, int *height);
 
 /**
  * @brief Draws a filled box on the screen

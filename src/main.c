@@ -47,7 +47,8 @@ static TaskHandle_t UDPDemoTask = NULL;
 static TaskHandle_t TCPDemoTask = NULL;
 
 static QueueHandle_t StateQueue = NULL;
-static SemaphoreHandle_t DrawReady = NULL;
+static SemaphoreHandle_t DrawSignal = NULL;
+static SemaphoreHandle_t ScreenLock = NULL;
 
 typedef struct buttons_buffer {
 	unsigned char buttons[SDL_NUM_SCANCODES];
@@ -152,11 +153,11 @@ void vSwapBuffers(void *pvParameters)
 	const TickType_t frameratePeriod = 20;
 
 	while (1) {
-		if (xSemaphoreTake(DisplayReady, portMAX_DELAY) == pdTRUE) {
-			vDrawUpdateScreen();
-			xSemaphoreGive(DrawReady);
-		}
-		vTaskDelayUntil(&xLastWakeTime, frameratePeriod);
+		xSemaphoreTake(ScreenLock, portMAX_DELAY);
+		vDrawUpdateScreen();
+		xSemaphoreGive(ScreenLock);
+		xSemaphoreGive(DrawSignal);
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(frameratePeriod));
 	}
 }
 
@@ -203,11 +204,12 @@ void vDrawCave(void)
 void vDrawHelpText(void)
 {
 	static char str[100] = { 0 };
-	static unsigned int text_width;
+	static int text_width;
 
-	tumGetTextSize((char *)str, &text_width, NULL);
 
 	sprintf(str, "[Q]uit, [C]hang[e] State");
+	
+    tumGetTextSize((char *)str, &text_width, NULL);
 
 	checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
 			      DEFAULT_FONT_SIZE * 0.5, Black),
@@ -218,12 +220,12 @@ void vDrawHelpText(void)
 
 void vDrawLogo(void)
 {
-	/** static unsigned int image_height; */
-	/** tumGetImageSize(LOGO_FILENAME, NULL, &image_height); */
-	/** checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10, */
-	/**                  SCREEN_HEIGHT - 10 - image_height * 0.3, */
-	/**                  0.3), */
-	/**       __FUNCTION__); */
+    static unsigned int image_height;
+    tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
+    checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10,
+                     SCREEN_HEIGHT - 10 - image_height * 0.3,
+                     0.3),
+          __FUNCTION__);
 }
 
 void vDrawStaticItems(void)
@@ -335,9 +337,11 @@ void vTCPDemoTask(void *pvParameters)
 void vDemoTask1(void *pvParameters)
 {
 	while (1) {
-		if (DrawReady)
-			if (xSemaphoreTake(DrawReady, portMAX_DELAY) ==
+		if (DrawSignal)
+			if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
 			    pdTRUE) {
+				xSemaphoreTake(ScreenLock, portMAX_DELAY);
+
 				// Get input and check for state change
 				vCheckStateInput();
 
@@ -348,6 +352,8 @@ void vDemoTask1(void *pvParameters)
 
 				vDrawCave();
 				vDrawButtonText();
+
+				xSemaphoreGive(ScreenLock);
 			}
 	}
 }
@@ -389,57 +395,68 @@ void vDemoTask2(void *pvParameters)
 	unsigned char collisions = 0;
 
 	while (1) {
-		if (xSemaphoreTake(DrawReady, portMAX_DELAY) == pdTRUE) {
-			// Get input and check for state change
-			vCheckStateInput();
+		if (DrawSignal)
+			if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
+			    pdTRUE) {
+				xSemaphoreTake(ScreenLock, portMAX_DELAY);
 
-			// Clear screen
-			checkDraw(tumDrawClear(White), __FUNCTION__);
+				// Get input and check for state change
+				vCheckStateInput();
 
-			vDrawStaticItems();
+				// Clear screen
+				checkDraw(tumDrawClear(White), __FUNCTION__);
 
-			// Draw the walls
-			checkDraw(tumDrawFilledBox(left_wall->x1, left_wall->y1,
-						   left_wall->w, left_wall->h,
-						   left_wall->colour),
-				  __FUNCTION__);
-			checkDraw(tumDrawFilledBox(right_wall->x1,
-						   right_wall->y1,
-						   right_wall->w, right_wall->h,
-						   right_wall->colour),
-				  __FUNCTION__);
-			checkDraw(tumDrawFilledBox(top_wall->x1, top_wall->y1,
-						   top_wall->w, top_wall->h,
-						   top_wall->colour),
-				  __FUNCTION__);
-			checkDraw(tumDrawFilledBox(
-					  bottom_wall->x1, bottom_wall->y1,
-					  bottom_wall->w, bottom_wall->h,
-					  bottom_wall->colour),
-				  __FUNCTION__);
+				vDrawStaticItems();
 
-			// Check if ball has made a collision
-			collisions = checkBallCollisions(my_ball, NULL, NULL);
-			if (collisions)
-				printf("Collision\n");
+				// Draw the walls
+				checkDraw(tumDrawFilledBox(
+						  left_wall->x1, left_wall->y1,
+						  left_wall->w, left_wall->h,
+						  left_wall->colour),
+					  __FUNCTION__);
+				checkDraw(tumDrawFilledBox(right_wall->x1,
+							   right_wall->y1,
+							   right_wall->w,
+							   right_wall->h,
+							   right_wall->colour),
+					  __FUNCTION__);
+				checkDraw(tumDrawFilledBox(
+						  top_wall->x1, top_wall->y1,
+						  top_wall->w, top_wall->h,
+						  top_wall->colour),
+					  __FUNCTION__);
+				checkDraw(tumDrawFilledBox(bottom_wall->x1,
+							   bottom_wall->y1,
+							   bottom_wall->w,
+							   bottom_wall->h,
+							   bottom_wall->colour),
+					  __FUNCTION__);
 
-			// Update the balls position now that possible collisions have
-			// updated its speeds
-			updateBallPosition(my_ball,
-					   xLastWakeTime - prevWakeTime);
+				// Check if ball has made a collision
+				collisions = checkBallCollisions(my_ball, NULL,
+								 NULL);
+				if (collisions)
+					printf("Collision\n");
 
-			// Draw the ball
-			checkDraw(tumDrawCircle(my_ball->x, my_ball->y,
-						my_ball->radius,
-						my_ball->colour),
-				  __FUNCTION__);
+				// Update the balls position now that possible collisions have
+				// updated its speeds
+				updateBallPosition(
+					my_ball, xLastWakeTime - prevWakeTime);
 
-			// Keep track of when task last ran so that you know how many ticks
-			//(in our case miliseconds) have passed so that the balls position
-			// can be updated appropriatley
-			prevWakeTime = xLastWakeTime;
-			vTaskDelayUntil(&xLastWakeTime, updatePeriod);
-		}
+				// Draw the ball
+				checkDraw(tumDrawCircle(my_ball->x, my_ball->y,
+							my_ball->radius,
+							my_ball->colour),
+					  __FUNCTION__);
+
+				xSemaphoreGive(ScreenLock);
+
+				// Keep track of when task last ran so that you know how many ticks
+				//(in our case miliseconds) have passed so that the balls position
+				// can be updated appropriatley
+				prevWakeTime = xLastWakeTime;
+				vTaskDelayUntil(&xLastWakeTime, updatePeriod);
+			}
 	}
 }
 
@@ -455,10 +472,11 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	DrawReady = xSemaphoreCreateBinary(); // Sync signal
+	DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
+	ScreenLock = xSemaphoreCreateMutex();
 
-	if (!DrawReady) {
-		printf("DrawReady semaphore not created\n");
+	if (!DrawSignal) {
+		printf("DrawSignal semaphore not created\n");
 		exit(EXIT_FAILURE);
 	}
 
