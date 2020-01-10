@@ -32,7 +32,7 @@
 
 #define STARTING_STATE STATE_ONE
 
-#define STATE_DEBOUNCE_DELAY 100
+#define STATE_DEBOUNCE_DELAY 200
 
 #ifdef TRACE_FUNCTIONS
 #include "tracer.h"
@@ -266,24 +266,22 @@ void vDrawButtonText(void)
 	}
 }
 
-void vCheckStateInput(void)
+static int vCheckStateInput(void)
 {
 	xGetButtonInput(); // Update global button data
 
 	xSemaphoreTake(buttons.lock, 0);
 	if (buttons.buttons[KEYCODE(C)]) {
+        buttons.buttons[KEYCODE(C)] = 0;
 		xSemaphoreGive(buttons.lock);
-		if (StateQueue)
+		if (StateQueue){
 			xQueueSend(StateQueue, &next_state_signal, 0);
-		return;
-	}
-	if (buttons.buttons[KEYCODE(E)]) {
-		xSemaphoreGive(buttons.lock);
-		if (StateQueue)
-			xQueueSend(StateQueue, &prev_state_signal, 0);
-		return;
+            return -1;
+        }
 	}
 	xSemaphoreGive(buttons.lock);
+
+    return 0;
 }
 
 #define UDP_BUFFER_SIZE 2000
@@ -340,10 +338,13 @@ void vDemoTask1(void *pvParameters)
 		if (DrawSignal)
 			if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
 			    pdTRUE) {
-				xSemaphoreTake(ScreenLock, portMAX_DELAY);
-
 				// Get input and check for state change
-				vCheckStateInput();
+				if(vCheckStateInput()){
+                    xSemaphoreGive(ScreenLock);
+                    vTaskSuspend(NULL);
+                }
+
+				xSemaphoreTake(ScreenLock, portMAX_DELAY);
 
 				// Clear screen
 				checkDraw(tumDrawClear(White), __FUNCTION__);
@@ -401,7 +402,10 @@ void vDemoTask2(void *pvParameters)
 				xSemaphoreTake(ScreenLock, portMAX_DELAY);
 
 				// Get input and check for state change
-				vCheckStateInput();
+				if(vCheckStateInput()){
+                    xSemaphoreGive(ScreenLock);
+                    vTaskSuspend(NULL);
+                }
 
 				// Clear screen
 				checkDraw(tumDrawClear(White), __FUNCTION__);
