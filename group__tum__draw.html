@@ -80,8 +80,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">TUM Draw API</div>  </div>
 </div><!--header-->
@@ -125,9 +124,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gad5306226cad1efe3818b4439f1f71acf"><td class="memItemLeft" align="right" valign="top">signed char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gad5306226cad1efe3818b4439f1f71acf">tumDrawText</a> (char *str, signed short x, signed short y, unsigned int colour)</td></tr>
 <tr class="memdesc:gad5306226cad1efe3818b4439f1f71acf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a string to the screen.  <a href="#gad5306226cad1efe3818b4439f1f71acf">More...</a><br /></td></tr>
 <tr class="separator:gad5306226cad1efe3818b4439f1f71acf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga2b42bfa1c791a7bf080e006d921422fa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga2b42bfa1c791a7bf080e006d921422fa">tumGetTextSize</a> (char *str, unsigned int *width, unsigned int *height)</td></tr>
-<tr class="memdesc:ga2b42bfa1c791a7bf080e006d921422fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the width and height of a strings bounding box.  <a href="#ga2b42bfa1c791a7bf080e006d921422fa">More...</a><br /></td></tr>
-<tr class="separator:ga2b42bfa1c791a7bf080e006d921422fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga32535b204a5575cf19954b14b5f304bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga32535b204a5575cf19954b14b5f304bf">tumGetTextSize</a> (char *str, int *width, int *height)</td></tr>
+<tr class="memdesc:ga32535b204a5575cf19954b14b5f304bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the width and height of a strings bounding box.  <a href="#ga32535b204a5575cf19954b14b5f304bf">More...</a><br /></td></tr>
+<tr class="separator:ga32535b204a5575cf19954b14b5f304bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8537e8b1c74c650671710b2f475e36d8"><td class="memItemLeft" align="right" valign="top">signed char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga8537e8b1c74c650671710b2f475e36d8">tumDrawBox</a> (signed short x, signed short y, signed short w, signed short h, unsigned int colour)</td></tr>
 <tr class="memdesc:ga8537e8b1c74c650671710b2f475e36d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws a filled box on the screen.  <a href="#ga8537e8b1c74c650671710b2f475e36d8">More...</a><br /></td></tr>
 <tr class="separator:ga8537e8b1c74c650671710b2f475e36d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -158,12 +157,6 @@ Functions</h2></td></tr>
 <tr class="memitem:gaefeea486262892eb247e8ebc6acad7a7"><td class="memItemLeft" align="right" valign="top">signed char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gaefeea486262892eb247e8ebc6acad7a7">tumDrawArrow</a> (unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2, unsigned short head_length, unsigned char thickness, unsigned int colour)</td></tr>
 <tr class="memdesc:gaefeea486262892eb247e8ebc6acad7a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws an arrow on the screen.  <a href="#gaefeea486262892eb247e8ebc6acad7a7">More...</a><br /></td></tr>
 <tr class="separator:gaefeea486262892eb247e8ebc6acad7a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:ga32f05da34ae0a5cda90c8a5771b94db8"><td class="memItemLeft" align="right" valign="top">SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga32f05da34ae0a5cda90c8a5771b94db8">DisplayReady</a></td></tr>
-<tr class="memdesc:ga32f05da34ae0a5cda90c8a5771b94db8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Semaphore that signals when the TUM Draw backend is finished drawing its current work packets.  <a href="#ga32f05da34ae0a5cda90c8a5771b94db8">More...</a><br /></td></tr>
-<tr class="separator:ga32f05da34ae0a5cda90c8a5771b94db8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 Hex RGB colours</h2></td></tr>
@@ -566,6 +559,7 @@ Hex RGB colours</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>signed char 0 on success </dd></dl>
+<p><a class="el" href="TUM__Draw_8c.html#a5167b77ba5946741a7b14d211478023c">INIT_JOB(job, DRAW_CLEAR)</a>; </p>
 
 </div>
 </div>
@@ -1033,7 +1027,7 @@ Hex RGB colours</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga2b42bfa1c791a7bf080e006d921422fa"></a>
+<a class="anchor" id="ga32535b204a5575cf19954b14b5f304bf"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1046,13 +1040,13 @@ Hex RGB colours</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">unsigned int *&#160;</td>
+          <td class="paramtype">int *&#160;</td>
           <td class="paramname"><em>width</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">unsigned int *&#160;</td>
+          <td class="paramtype">int *&#160;</td>
           <td class="paramname"><em>height</em>&#160;</td>
         </tr>
         <tr>
@@ -1137,21 +1131,6 @@ Hex RGB colours</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>NULL always returns NULL </dd></dl>
-
-</div>
-</div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a class="anchor" id="ga32f05da34ae0a5cda90c8a5771b94db8"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">SemaphoreHandle_t DisplayReady</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Semaphore that signals when the TUM Draw backend is finished drawing its current work packets. </p>
 
 </div>
 </div>
