@@ -232,10 +232,11 @@ void *aIOOpenUDPSocketThread(void *s_udp_fd)
 	printf("Creating UDP thread\n");
 	CHECK(-1 != fcntl(fd, F_SETOWN, getpid()));
 
-	pthread_mutex_lock(&aIO_quit_lock);
-	pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock);
-	printf("Closing UDP thread\n");
-	pthread_mutex_unlock(&aIO_quit_lock);
+    pthread_mutex_lock(&aIO_quit_lock);
+    while(1)
+        pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock);
+    printf("Closing UDP thread\n");
+    pthread_mutex_unlock(&aIO_quit_lock);
 
 	return NULL;
 }
@@ -272,13 +273,13 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 	fs |= O_ASYNC | O_NONBLOCK;
 	CHECK(-1 != fcntl(s_udp->fd, F_SETFL, fs));
 	fcntl(s_udp->fd, F_SETSIG, SIGIO);
-	CHECK(-1 != fcntl(s_udp->fd, F_SETOWN, getpid()));
+	/** CHECK(-1 != fcntl(s_udp->fd, F_SETOWN, getpid())); */
 
-	CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
-		    sizeof(s_udp->addr)));
+    CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
+            sizeof(s_udp->addr)));
 
-	CHECK(!pthread_create(&conn->next->thread, NULL, aIOOpenUDPSocketThread,
-			      (void *)&conn->next->attr.socket.fd));
+    CHECK(!pthread_create(&conn->next->thread, NULL, aIOOpenUDPSocketThread,
+                  (void *)&conn->next->attr.socket.fd));
 
 	pthread_mutex_unlock(&conn->next->lock);
 

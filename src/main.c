@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <SDL2/SDL_scancode.h>
 
@@ -32,7 +33,7 @@
 
 #define STARTING_STATE STATE_ONE
 
-#define STATE_DEBOUNCE_DELAY 200
+#define STATE_DEBOUNCE_DELAY 300
 
 #ifdef TRACE_FUNCTIONS
 #include "tracer.h"
@@ -206,10 +207,9 @@ void vDrawHelpText(void)
 	static char str[100] = { 0 };
 	static int text_width;
 
-
 	sprintf(str, "[Q]uit, [C]hang[e] State");
-	
-    tumGetTextSize((char *)str, &text_width, NULL);
+
+	tumGetTextSize((char *)str, &text_width, NULL);
 
 	checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
 			      DEFAULT_FONT_SIZE * 0.5, Black),
@@ -220,12 +220,12 @@ void vDrawHelpText(void)
 
 void vDrawLogo(void)
 {
-    static unsigned int image_height;
-    tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
-    checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10,
-                     SCREEN_HEIGHT - 10 - image_height * 0.3,
-                     0.3),
-          __FUNCTION__);
+	static int image_height;
+	tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
+	checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10,
+				     SCREEN_HEIGHT - 10 - image_height * 0.3,
+				     0.3),
+		  __FUNCTION__);
 }
 
 void vDrawStaticItems(void)
@@ -268,20 +268,18 @@ void vDrawButtonText(void)
 
 static int vCheckStateInput(void)
 {
-	xGetButtonInput(); // Update global button data
-
 	xSemaphoreTake(buttons.lock, 0);
 	if (buttons.buttons[KEYCODE(C)]) {
-        buttons.buttons[KEYCODE(C)] = 0;
+		buttons.buttons[KEYCODE(C)] = 0;
 		xSemaphoreGive(buttons.lock);
-		if (StateQueue){
+		if (StateQueue) {
 			xQueueSend(StateQueue, &next_state_signal, 0);
-            return -1;
-        }
+			return -1;
+		}
 	}
 	xSemaphoreGive(buttons.lock);
 
-    return 0;
+	return 0;
 }
 
 #define UDP_BUFFER_SIZE 2000
@@ -304,7 +302,8 @@ void vUDPDemoTask(void *pvParameters)
 	printf("*** netcat -vv localhost 3333 -u ***\n");
 
 	while (1) {
-		vTaskDelay(10);
+		printf("UDP tick\n");
+		vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 }
 
@@ -338,23 +337,20 @@ void vDemoTask1(void *pvParameters)
 		if (DrawSignal)
 			if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
 			    pdTRUE) {
-				// Get input and check for state change
-				if(vCheckStateInput()){
-                    xSemaphoreGive(ScreenLock);
-                    vTaskSuspend(NULL);
-                }
+				xGetButtonInput(); // Update global input
 
 				xSemaphoreTake(ScreenLock, portMAX_DELAY);
 
 				// Clear screen
 				checkDraw(tumDrawClear(White), __FUNCTION__);
-
 				vDrawStaticItems();
-
 				vDrawCave();
 				vDrawButtonText();
 
 				xSemaphoreGive(ScreenLock);
+
+				// Get input and check for state change
+				vCheckStateInput();
 			}
 	}
 }
@@ -399,14 +395,11 @@ void vDemoTask2(void *pvParameters)
 		if (DrawSignal)
 			if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
 			    pdTRUE) {
+				xLastWakeTime = xTaskGetTickCount();
+
+				xGetButtonInput(); // Update global button data
+
 				xSemaphoreTake(ScreenLock, portMAX_DELAY);
-
-				// Get input and check for state change
-				if(vCheckStateInput()){
-                    xSemaphoreGive(ScreenLock);
-                    vTaskSuspend(NULL);
-                }
-
 				// Clear screen
 				checkDraw(tumDrawClear(White), __FUNCTION__);
 
@@ -455,11 +448,13 @@ void vDemoTask2(void *pvParameters)
 
 				xSemaphoreGive(ScreenLock);
 
+				// Check for state change
+				vCheckStateInput();
+
 				// Keep track of when task last ran so that you know how many ticks
 				//(in our case miliseconds) have passed so that the balls position
 				// can be updated appropriatley
 				prevWakeTime = xLastWakeTime;
-				vTaskDelayUntil(&xLastWakeTime, updatePeriod);
 			}
 	}
 }
@@ -477,7 +472,9 @@ int main(int argc, char *argv[])
 	}
 
 	DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
+	assert(DrawSignal);
 	ScreenLock = xSemaphoreCreateMutex();
+	assert(ScreenLock);
 
 	if (!DrawSignal) {
 		printf("DrawSignal semaphore not created\n");
