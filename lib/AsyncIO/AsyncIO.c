@@ -78,6 +78,7 @@ typedef struct aIO {
 aIO_t head = { .type = NONE, .lock = PTHREAD_MUTEX_INITIALIZER };
 pthread_cond_t aIO_quit_conn = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t aIO_quit_lock = PTHREAD_MUTEX_INITIALIZER;
+static int finished = 0;
 
 aIO_t *getLastConnection(void)
 {
@@ -105,6 +106,7 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 					pthread_mutex_unlock(&curr->lock);
 					return curr;
 				}
+            break;
 		case MSG_QUEUE:
 			//TODO
 			return NULL;
@@ -124,8 +126,11 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 
 void aIODeinit(void)
 {
+    finished = 1;
 	printf("Stopping listener threads\n");
+    pthread_mutex_lock(&aIO_quit_lock);
 	pthread_cond_broadcast(&aIO_quit_conn);
+    pthread_mutex_unlock(&aIO_quit_lock);
 }
 
 aIO_t *createAsyncIO(aIO_conn_e type, ssize_t buffer_size,
@@ -230,10 +235,10 @@ void *aIOOpenUDPSocketThread(void *s_udp_fd)
 {
 	int fd = *(int *)s_udp_fd;
 	printf("Creating UDP thread\n");
-	CHECK(-1 != fcntl(fd, F_SETOWN, getpid()));
+	CHECK(-1 != fcntl(fd, F_SETOWN, gettid()));
 
     pthread_mutex_lock(&aIO_quit_lock);
-    while(1)
+    while(!finished)
         pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock);
     printf("Closing UDP thread\n");
     pthread_mutex_unlock(&aIO_quit_lock);
@@ -343,10 +348,10 @@ static void aIOTCPSigHandler(int signal, siginfo_t *info, void *context)
 void *aIOOpenTCPSocketThread(void *s_tcp_fd)
 {
 	int fd = *(int *)s_tcp_fd;
-	CHECK(-1 != fcntl(fd, F_SETOWN, getpid()));
+	CHECK(-1 != fcntl(fd, F_SETOWN, gettid()));
 
 	pthread_mutex_lock(&aIO_quit_lock);
-	pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock);
+    pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock);
 	pthread_mutex_unlock(&aIO_quit_lock);
 
 	return NULL;

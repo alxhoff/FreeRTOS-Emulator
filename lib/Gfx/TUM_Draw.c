@@ -669,6 +669,10 @@ void vExitDrawing(void)
 
 	TTF_Quit();
 	SDL_Quit();
+
+    free(bin_folder);
+
+    exit(EXIT_SUCCESS);
 }
 
 signed char tumDrawText(char *str, signed short x, signed short y,

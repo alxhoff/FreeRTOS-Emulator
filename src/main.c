@@ -292,7 +292,7 @@ void UDPHandler(ssize_t read_size, char *buffer, void *args)
 void vUDPDemoTask(void *pvParameters)
 {
 	char *addr = NULL; // Loopback
-	in_port_t port = 3333;
+	in_port_t port = 1234;
 
 	aIO_handle_t soc =
 		aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE, UDPHandler, NULL);
@@ -463,39 +463,27 @@ int main(int argc, char *argv[])
 {
 	char *bin_folder_path = getBinFolderPath(argv[0]);
 	printf("%s\n", bin_folder_path);
+	
+    vInitDrawing(bin_folder_path);
+	vInitEvents();
+	vInitAudio(bin_folder_path);
+
+    atexit(aIODeinit);
+
 
 	buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
-
-	if (!buttons.lock) {
-		printf("Button lock mutex not created\n");
-		exit(EXIT_FAILURE);
-	}
+    assert(buttons.lock);
 
 	DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
 	assert(DrawSignal);
 	ScreenLock = xSemaphoreCreateMutex();
 	assert(ScreenLock);
 
-	if (!DrawSignal) {
-		printf("DrawSignal semaphore not created\n");
-		exit(EXIT_FAILURE);
-	}
-
 	// Message sending
 	StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
+    assert(StateQueue);
 
-	if (!StateQueue) {
-		printf("StateQueue queue not created\n");
-		exit(EXIT_FAILURE);
-	}
-
-	vInitDrawing(bin_folder_path);
-	vInitEvents();
-	vInitAudio(bin_folder_path);
-
-	/** atexit(aIODeinit); */
-
-	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE, NULL,
+	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
 		    mainGENERIC_PRIORITY, &DemoTask1);
 	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
 		    mainGENERIC_PRIORITY, &DemoTask2);
@@ -504,8 +492,8 @@ int main(int argc, char *argv[])
 		    NULL);
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE,
 		    NULL, configMAX_PRIORITIES, NULL);
-	/** xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE, NULL, */
-	/**         configMAX_PRIORITIES - 1, &UDPDemoTask); */
+    xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
+            configMAX_PRIORITIES - 1, &UDPDemoTask);
 	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
 	/**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
 
