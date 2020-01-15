@@ -284,9 +284,14 @@ static int vCheckStateInput(void)
 
 #define UDP_BUFFER_SIZE 2000
 
-void UDPHandler(ssize_t read_size, char *buffer, void *args)
+void UDPHandlerOne(ssize_t read_size, char *buffer, void *args)
 {
-	printf("UDP Recv: %s\n", buffer);
+	printf("UDP Recv in first handler: %s\n", buffer);
+}
+
+void UDPHandlerTwo(ssize_t read_size, char *buffer, void *args)
+{
+	printf("UDP Recv in second handler: %s\n", buffer);
 }
 
 void vUDPDemoTask(void *pvParameters)
@@ -294,12 +299,21 @@ void vUDPDemoTask(void *pvParameters)
 	char *addr = NULL; // Loopback
 	in_port_t port = 1234;
 
-	aIO_handle_t soc =
-		aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE, UDPHandler, NULL);
+	aIO_handle_t soc_one =
+		aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE, UDPHandlerOne, NULL);
 
-	printf("UDP socket opened\n");
+	printf("UDP socket opened on port %d\n", port);
 	printf("Demo UDP Socket can be tested using\n");
-	printf("*** netcat -vv localhost 3333 -u ***\n");
+	printf("*** netcat -vv localhost %d -u ***\n", port);
+
+    port = 4321;
+	
+    aIO_handle_t soc_two =
+		aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE, UDPHandlerTwo, NULL);
+
+	printf("UDP socket opened on port %d\n", port);
+	printf("Demo UDP Socket can be tested using\n");
+	printf("*** netcat -vv localhost %d -u ***\n", port);
 
 	while (1) {
 		printf("UDP tick\n");
@@ -307,29 +321,29 @@ void vUDPDemoTask(void *pvParameters)
 	}
 }
 
-#define TCP_BUFFER_SIZE 2000
-
-void TCPHandler(ssize_t read_size, char *buffer, void *args)
-{
-	printf("TCP Recv: %s\n", buffer);
-}
-
-void vTCPDemoTask(void *pvParameters)
-{
-	char *addr = NULL; // Loopback
-	in_port_t port = 2222;
-
-	aIO_handle_t soc =
-		aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
-
-	printf("TCP socket opened\n");
-	printf("Demo TCP socket can be tested using\n");
-	printf("*** netcat -vv localhost 2222 ***\n");
-
-	while (1) {
-		vTaskDelay(10);
-	}
-}
+/** #define TCP_BUFFER_SIZE 2000 */
+/**  */
+/** void TCPHandler(ssize_t read_size, char *buffer, void *args) */
+/** { */
+/**     printf("TCP Recv: %s\n", buffer); */
+/** } */
+/**  */
+/** void vTCPDemoTask(void *pvParameters) */
+/** { */
+/**     char *addr = NULL; // Loopback */
+/**     in_port_t port = 2222; */
+/**  */
+/**     aIO_handle_t soc = */
+/**         aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL); */
+/**  */
+/**     printf("TCP socket opened\n"); */
+/**     printf("Demo TCP socket can be tested using\n"); */
+/**     printf("*** netcat -vv localhost 2222 ***\n"); */
+/**  */
+/**     while (1) { */
+/**         vTaskDelay(10); */
+/**     } */
+/** } */
 
 void vDemoTask1(void *pvParameters)
 {
@@ -365,7 +379,6 @@ void vDemoTask2(void *pvParameters)
 	TickType_t xLastWakeTime, prevWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 	prevWakeTime = xLastWakeTime;
-	const TickType_t updatePeriod = 10;
 
 	ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, Black,
 				     20, 1000, &playBallSound, NULL);
@@ -483,17 +496,17 @@ int main(int argc, char *argv[])
 	StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
     assert(StateQueue);
 
-	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask1);
-	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask2);
-	xTaskCreate(basicSequentialStateMachine, "StateMachine",
-		    mainGENERIC_STACK_SIZE, NULL, configMAX_PRIORITIES - 1,
-		    NULL);
-	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE,
-		    NULL, configMAX_PRIORITIES, NULL);
     xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
             configMAX_PRIORITIES - 1, &UDPDemoTask);
+	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask1);
+	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE *  2, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask2);
+	xTaskCreate(basicSequentialStateMachine, "StateMachine",
+		    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES - 1,
+		    NULL);
+	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
+		    NULL, configMAX_PRIORITIES, NULL);
 	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
 	/**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
 
