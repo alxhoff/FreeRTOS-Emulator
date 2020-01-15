@@ -45,7 +45,8 @@ const unsigned char prev_state_signal = PREV_TASK;
 static TaskHandle_t DemoTask1 = NULL;
 static TaskHandle_t DemoTask2 = NULL;
 static TaskHandle_t UDPDemoTask = NULL;
-static TaskHandle_t TCPDemoTask = NULL;
+/** static TaskHandle_t TCPDemoTask = NULL; */
+static TaskHandle_t MQDemoTask = NULL;
 
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawSignal = NULL;
@@ -299,26 +300,57 @@ void vUDPDemoTask(void *pvParameters)
 	char *addr = NULL; // Loopback
 	in_port_t port = 1234;
 
-	aIO_handle_t soc_one =
-		aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE, UDPHandlerOne, NULL);
+	aIO_handle_t soc_one = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
+						UDPHandlerOne, NULL);
 
 	printf("UDP socket opened on port %d\n", port);
 	printf("Demo UDP Socket can be tested using\n");
 	printf("*** netcat -vv localhost %d -u ***\n", port);
 
-    port = 4321;
-	
-    aIO_handle_t soc_two =
-		aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE, UDPHandlerTwo, NULL);
+	port = 4321;
+
+	aIO_handle_t soc_two = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
+						UDPHandlerTwo, NULL);
 
 	printf("UDP socket opened on port %d\n", port);
 	printf("Demo UDP Socket can be tested using\n");
 	printf("*** netcat -vv localhost %d -u ***\n", port);
 
-	while (1) {
-		printf("UDP tick\n");
+	while (1)
 		vTaskDelay(pdMS_TO_TICKS(1000));
-	}
+}
+
+#define MSG_QUEUE_BUFFER_SIZE 1000
+#define MSG_QUEUE_MAX_MSG_COUNT 10
+
+void MQHandlerOne(ssize_t read_size, char *buffer, void *args)
+{
+	printf("MQ Recv in first handler: %s\n", buffer);
+}
+
+void MQHanderTwo(ssize_t read_size, char *buffer, void *args)
+{
+	printf("MQ Recv in second handler: %s\n", buffer);
+}
+
+void vMQDemoTask(void *pvParameters)
+{
+	char *mq_one_name = "FreeRTOS_MQ_one_18";
+	char *mq_two_name = "FreeRTOS_MQ_two_18";
+
+	aIO_handle_t mq_one =
+		aIOOpenMessageQueue(mq_one_name, MSG_QUEUE_MAX_MSG_COUNT,
+				    MSG_QUEUE_BUFFER_SIZE, MQHandlerOne, NULL);
+	aIO_handle_t mq_two =
+		aIOOpenMessageQueue(mq_two_name, MSG_QUEUE_MAX_MSG_COUNT,
+				    MSG_QUEUE_BUFFER_SIZE, MQHanderTwo, NULL);
+
+    while(1){
+        aIOMessageQueuePut(mq_one_name, "Hello MQ one");
+        aIOMessageQueuePut(mq_two_name, "Hello MQ two");
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }
 
 /** #define TCP_BUFFER_SIZE 2000 */
@@ -476,16 +508,15 @@ int main(int argc, char *argv[])
 {
 	char *bin_folder_path = getBinFolderPath(argv[0]);
 	printf("%s\n", bin_folder_path);
-	
-    vInitDrawing(bin_folder_path);
+
+	vInitDrawing(bin_folder_path);
 	vInitEvents();
 	vInitAudio(bin_folder_path);
 
-    atexit(aIODeinit);
-
+	atexit(aIODeinit);
 
 	buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
-    assert(buttons.lock);
+	assert(buttons.lock);
 
 	DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
 	assert(DrawSignal);
@@ -494,19 +525,21 @@ int main(int argc, char *argv[])
 
 	// Message sending
 	StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
-    assert(StateQueue);
+	assert(StateQueue);
 
-    xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
-            configMAX_PRIORITIES - 1, &UDPDemoTask);
 	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
 		    mainGENERIC_PRIORITY, &DemoTask1);
-	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE *  2, NULL,
+	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2, NULL,
 		    mainGENERIC_PRIORITY, &DemoTask2);
 	xTaskCreate(basicSequentialStateMachine, "StateMachine",
 		    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES - 1,
 		    NULL);
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
 		    NULL, configMAX_PRIORITIES, NULL);
+	xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
+		    configMAX_PRIORITIES - 1, &UDPDemoTask);
+	xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
+		    configMAX_PRIORITIES - 1, &MQDemoTask);
 	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
 	/**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
 

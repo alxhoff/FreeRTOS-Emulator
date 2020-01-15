@@ -78,7 +78,6 @@ typedef struct aIO {
 aIO_t head = { .type = NONE, .lock = PTHREAD_MUTEX_INITIALIZER };
 pthread_cond_t aIO_quit_conn = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t aIO_quit_lock = PTHREAD_MUTEX_INITIALIZER;
-static int finished = 0;
 
 aIO_t *getLastConnection(void)
 {
@@ -106,7 +105,7 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 					pthread_mutex_unlock(&curr->lock);
 					return curr;
 				}
-            break;
+			break;
 		case MSG_QUEUE:
 			//TODO
 			return NULL;
@@ -124,9 +123,38 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 	return NULL;
 }
 
+//TODO move this into functions that are calable such that connections can be
+//closed during runtime
+
 void aIODeinit(void)
 {
-    //TODO import code from standalone 
+	aIO_t *iterator, *del;
+
+	if (head.next)
+		for (iterator = head.next; iterator;) {
+			del = iterator;
+			iterator = iterator->next;
+			switch (del->type) {
+			case UDP:
+			case TCP:
+				printf("Deinit socket %d\n",
+				       ntohs(del->attr.socket.addr.sin_port));
+				CHECK(!close(del->attr.socket.fd));
+				free(del->buffer);
+				free(del);
+				break;
+            case MSG_QUEUE:
+                printf("Deinit MQ %s\n", del->attr.mq.name);
+                mq_close(del->attr.mq.fd);
+                mq_unlink(del->attr.mq.name);
+                free(del->attr.mq.name);
+                free(del->buffer);
+                free(del);
+                break;
+			default:
+				break;
+			}
+		}
 }
 
 aIO_t *createAsyncIO(aIO_conn_e type, ssize_t buffer_size,
@@ -149,64 +177,112 @@ aIO_t *createAsyncIO(aIO_conn_e type, ssize_t buffer_size,
 	return ret;
 }
 
-/** static void aIOMQSigHandler(int signal, siginfo_t *info, void *context) */
-/** { */
-/**     aIO_t *conn = (aIO_t *)info->si_value.sival_ptr; */
-/**  */
-/**     ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer, */
-/**                     conn->buffer_size, NULL); */
-/**  */
-/**     if (bytes_read > 0) */
-/**         (conn->callback)(bytes_read, conn->buffer, conn->args); */
-/**  */
-/**     CHECK(!mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev)); */
-/** } */
-/**  */
-/** aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num, */
-/**                  long max_msg_size, */
-/**                  void (*callback)(ssize_t, char *, void *), */
-/**                  void *args) */
-/** { */
-/**     aIO_t *conn = getLastConnection(); */
-/**  */
-/**     conn->next = createAsyncIO(MSG_QUEUE, max_msg_size, callback, args); */
-/**  */
-/**     aIO_mq_t *mq = &conn->next->attr.mq; */
-/**  */
-/**     mq->name = (char *)malloc(sizeof(char) * (strlen(name) + 1)); */
-/**     CHECK(mq->name); */
-/**     strncpy(mq->name, name, MQ_MAX_NAME_LEN); */
-/**  */
-/**     struct mq_attr attr; */
-/**     struct sigaction sa; */
-/**     [> volatile union sigval sv; <] */
-/**     [>  <] */
-/**     [> sv.sival_ptr = conn->next; <] */
-/**  */
-/**     attr.mq_maxmsg = max_msg_num < MQ_MAXMSG ? max_msg_num : MQ_MAXMSG; */
-/**     attr.mq_msgsize = max_msg_size < MQ_MSGSIZE ? max_msg_size : MQ_MSGSIZE; */
-/**     conn->next->buffer_size = attr.mq_msgsize; */
-/**     conn->next->buffer = */
-/**         (char *)malloc(conn->next->buffer_size * sizeof(char)); */
-/**     CHECK(conn->next->buffer); */
-/**  */
-/**     attr.mq_curmsgs = 0; */
-/**  */
-/**     CHECK((mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK, 0644, */
-/**                 &attr))); */
-/**  */
-/**     sa.sa_flags = SA_SIGINFO; */
-/**     sa.sa_sigaction = aIOMQSigHandler; */
-/**     sigfillset(&sa.sa_mask); */
-/**     sigdelset(&sa.sa_mask, SIGIO); */
-/**     CHECK(!sigaction(SIGIO, &sa, NULL)); */
-/**  */
-/**     return (aIO_handle_t)conn->next; */
-/** } */
+static void aIOMQSigHandler(int signal, siginfo_t *info, void *context)
+{
+    printf("In MQ sighandler: %d\n", getpid());
+	aIO_t *conn = (aIO_t *)info->si_value.sival_ptr;
+
+	ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer,
+					conn->buffer_size, NULL);
+
+	if (bytes_read > 0)
+		(conn->callback)(bytes_read, conn->buffer, conn->args);
+
+    /** reprime MQ notifications */
+	CHECK(!mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev));
+}
+
+int aIOMessageQueuePut(char *mq_name, char* buffer)
+{
+    mqd_t mq;
+    char *full_name = calloc(strlen(mq_name) + 2, sizeof(char));
+    strcpy(full_name + 1, mq_name);
+    full_name[0] = '/';
+
+    mq = mq_open(full_name, O_WRONLY);
+
+    if ((mqd_t)-1 == mq){
+        printf("Unable to open MQ '%s'\n", full_name);
+        return -1;
+    }
+
+    CHECK(0 <= mq_send(mq, buffer, strlen(buffer), 0));
+
+    CHECK((mqd_t)-1 != mq_close(mq));
+
+    return 0;
+}
+
+aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
+				 long max_msg_size,
+				 void (*callback)(ssize_t, char *, void *),
+				 void *args)
+{
+	aIO_t *conn = getLastConnection();
+
+	conn->next = createAsyncIO(MSG_QUEUE, max_msg_size, callback, args);
+	CHECK(conn->next);
+
+    pthread_mutex_lock(&conn->next->lock);
+
+	conn = conn->next;
+
+	aIO_mq_t *mq = &conn->attr.mq;
+
+    size_t str_len = strlen(name) <= MQ_MAX_NAME_LEN ? strlen(name) : MQ_MAX_NAME_LEN;
+
+	mq->name = (char *)malloc(sizeof(char) * (str_len + 2));
+    printf("Name string for %s allocated at %p\n", name, mq->name);
+	CHECK(mq->name);
+	strncpy(mq->name + 1, name, str_len);
+    mq->name[0] = '/';
+
+	struct mq_attr attr;
+	struct sigaction sa;
+	union sigval sv;
+
+	/** Attributes of MQ used in mq_open*/
+	attr.mq_maxmsg = max_msg_num < MQ_MAXMSG ? max_msg_num : MQ_MAXMSG;
+	attr.mq_msgsize = max_msg_size < MQ_MSGSIZE ? max_msg_size : MQ_MSGSIZE;
+	attr.mq_curmsgs = 0;
+
+	/** sigval struct that is passed to handler. sival_ptr is used to pass pointer  */
+	/**     to structure containing MQ information */
+	sv.sival_ptr = conn;
+
+	/** Create MQ */
+	CHECK(-1 != (mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK, 0644,
+				&attr)));
+
+	/** Handler for SIGIO of MQ */
+	sa.sa_flags = SA_SIGINFO; // Use sa_sigaction instead of sa_handler
+	sa.sa_sigaction = aIOMQSigHandler; // Handler function
+	sigfillset(&sa.sa_mask);
+	sigdelset(&sa.sa_mask, SIGIO);
+	CHECK(!sigaction(SIGIO, &sa, NULL));
+    CHECK(-1 != fcntl(mq->fd, F_SETOWN, getpid()));
+
+	/** sigevent needed to enable to passing of si_value to the handler */
+	conn->attr.mq.ev.sigev_notify =
+		SIGEV_SIGNAL; //Enables passing of si_value to handler
+    mq->ev.sigev_signo = SIGIO;
+    mq->ev.sigev_value = sv;
+    /** used by SIGEV_THREAD */
+    mq->ev.sigev_notify_function = NULL;
+    mq->ev.sigev_notify_attributes = NULL;
+
+    CHECK(!mq_notify(mq->fd, &mq->ev));
+
+    pthread_mutex_unlock(&conn->lock);
+
+    printf("MQ '%s' opened and notified\n", name);
+
+	return (aIO_handle_t)conn;
+}
 
 static void aIOUDPSigHandler(int signal, siginfo_t *info, void *context)
 {
-	printf("In UDP handler\n");
+	printf("In UDP handler: %d\n", getpid());
 	ssize_t read_size;
 	int server_fd = info->si_fd;
 	aIO_t *conn = findConnection(UDP, &server_fd);
@@ -259,10 +335,10 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 	fs |= O_ASYNC | O_NONBLOCK;
 	CHECK(-1 != fcntl(s_udp->fd, F_SETFL, fs));
 	fcntl(s_udp->fd, F_SETSIG, SIGIO);
-    CHECK(-1 != fcntl(s_udp->fd, F_SETOWN, getpid()));
+	CHECK(-1 != fcntl(s_udp->fd, F_SETOWN, getpid()));
 
-    CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
-            sizeof(s_udp->addr)));
+	CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
+		    sizeof(s_udp->addr)));
 
 	pthread_mutex_unlock(&conn->next->lock);
 

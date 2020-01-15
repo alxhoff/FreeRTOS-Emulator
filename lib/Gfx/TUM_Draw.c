@@ -207,7 +207,8 @@ static draw_job_t *pushDrawJob(void)
 
 	assert(job);
 
-	for (iterator = &job_list_head; iterator->next; iterator = iterator->next)
+	for (iterator = &job_list_head; iterator->next;
+	     iterator = iterator->next)
 		;
 
 	iterator->next = job;
@@ -219,12 +220,12 @@ static draw_job_t *popDrawJob(void)
 {
 	draw_job_t *ret = job_list_head.next;
 
-	if (ret){
+	if (ret) {
 		if (ret->next)
 			job_list_head.next = ret->next;
-        else 
-            job_list_head.next = NULL;
-    }
+		else
+			job_list_head.next = NULL;
+	}
 
 	return ret;
 }
@@ -320,7 +321,6 @@ static int vDrawTriangle(coord_t *points, unsigned int colour)
 	return 0;
 }
 
-
 static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 {
 	SDL_Texture *tex = NULL;
@@ -328,8 +328,10 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 	tex = IMG_LoadTexture(ren, filename);
 
 	if (!tex) {
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(window);
+		if (ren)
+			SDL_DestroyRenderer(ren);
+		if (window)
+			SDL_DestroyWindow(window);
 		logSDLError("loadImage->LoadBMP");
 		SDL_Quit();
 		exit(0);
@@ -422,7 +424,7 @@ static int vDrawText(char *string, unsigned short x, unsigned short y,
 			    BLUE_PORTION(colour), ZERO_ALPHA };
 	SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-	SDL_Rect dst = {0};
+	SDL_Rect dst = { 0 };
 	SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
 	dst.x = x;
 	dst.y = y;
@@ -433,14 +435,13 @@ static int vDrawText(char *string, unsigned short x, unsigned short y,
 	return 0;
 }
 
-static void vGetTextSize(char *string, int *width,
-			 int *height)
+static void vGetTextSize(char *string, int *width, int *height)
 {
 	SDL_Color color = { 0 };
 	SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
-    assert(surface);
+	assert(surface);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    assert(texture);
+	assert(texture);
 	SDL_QueryTexture(texture, NULL, NULL, width, height);
 	SDL_DestroyTexture(texture);
 	SDL_FreeSurface(surface);
@@ -567,13 +568,13 @@ static int vHandleDrawJob(draw_job_t *job)
 	return ret;
 }
 
-#define INIT_JOB(JOB, TYPE)                                                       \
-    draw_job_t *JOB = pushDrawJob();\
+#define INIT_JOB(JOB, TYPE)                                                    \
+	draw_job_t *JOB = pushDrawJob();                                       \
 	union data_u *data = calloc(1, sizeof(union data_u));                  \
 	if (!data)                                                             \
-		logCriticalError("job->data alloc");                          \
-	JOB->data = data;\
-    JOB->type = TYPE;
+		logCriticalError("job->data alloc");                           \
+	JOB->data = data;                                                      \
+	JOB->type = TYPE;
 
 static void logCriticalError(char *msg)
 {
@@ -581,31 +582,31 @@ static void logCriticalError(char *msg)
 	exit(-1);
 }
 
-#pragma mark - public 
+#pragma mark - public
 
 void vDrawUpdateScreen(void)
 {
-    if(!job_list_head.next){
-        goto done; 
-    }
+	if (!job_list_head.next) {
+		goto done;
+	}
 
 	draw_job_t *tmp_job;
-    
-    while((tmp_job = popDrawJob()) != NULL){
+
+	while ((tmp_job = popDrawJob()) != NULL) {
 		assert(tmp_job->data);
 		if (vHandleDrawJob(tmp_job) == -1)
-            goto draw_error;
-        free(tmp_job);
+			goto draw_error;
+		free(tmp_job);
 	}
 
 	SDL_RenderPresent(renderer);
 
 done:
-    return;
+	return;
 
 draw_error:
-    free(tmp_job);
-    goto done;
+	free(tmp_job);
+	goto done;
 }
 
 char *tumGetErrorMessage(void)
@@ -643,7 +644,9 @@ void vInitDrawing(char *path)
 		exit(-1);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+	renderer = SDL_CreateRenderer(window, -1,
+				      SDL_RENDERER_ACCELERATED |
+					      SDL_RENDERER_TARGETTEXTURE);
 
 	if (!renderer) {
 		logSDLError("vInitDrawing->CreateRenderer");
@@ -670,9 +673,9 @@ void vExitDrawing(void)
 	TTF_Quit();
 	SDL_Quit();
 
-    free(bin_folder);
+	free(bin_folder);
 
-    exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 }
 
 signed char tumDrawText(char *str, signed short x, signed short y,
@@ -700,7 +703,7 @@ signed char tumDrawText(char *str, signed short x, signed short y,
 
 void tumGetTextSize(char *str, int *width, int *height)
 {
-    assert(str);
+	assert(str);
 	vGetTextSize(str, width, height);
 }
 
@@ -765,12 +768,12 @@ signed char tumDrawBox(signed short x, signed short y, signed short w,
 signed char tumDrawClear(unsigned int colour)
 {
 	/** INIT_JOB(job, DRAW_CLEAR); */
-    draw_job_t *job = pushDrawJob();
-	union data_u *data = calloc(1, sizeof(union data_u));                  
-	if (!data)                                                            
-		logCriticalError("job->data alloc");                          
+	draw_job_t *job = pushDrawJob();
+	union data_u *data = calloc(1, sizeof(union data_u));
+	if (!data)
+		logCriticalError("job->data alloc");
 	job->data = data;
-    job->type = DRAW_CLEAR;
+	job->type = DRAW_CLEAR;
 
 	job->data->clear.colour = colour;
 
@@ -786,8 +789,8 @@ signed char tumDrawCircle(signed short x, signed short y, signed short radius,
 	job->data->circle.y = y;
 	job->data->circle.radius = radius;
 	job->data->circle.colour = colour;
-	
-    return 0;
+
+	return 0;
 }
 
 signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
@@ -813,8 +816,8 @@ signed char tumDrawPoly(coord_t *points, int n, unsigned int colour)
 	job->data->poly.points = points;
 	job->data->poly.n = n;
 	job->data->poly.colour = colour;
-	
-    return 0;
+
+	return 0;
 }
 
 signed char tumDrawTriangle(coord_t *points, unsigned int colour)
@@ -823,8 +826,8 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour)
 
 	job->data->triangle.points = points;
 	job->data->triangle.colour = colour;
-	
-    return 0;
+
+	return 0;
 }
 
 signed char tumDrawImage(char *filename, signed short x, signed short y)
