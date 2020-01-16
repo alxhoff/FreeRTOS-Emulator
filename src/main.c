@@ -47,6 +47,7 @@ static TaskHandle_t DemoTask2 = NULL;
 static TaskHandle_t UDPDemoTask = NULL;
 /** static TaskHandle_t TCPDemoTask = NULL; */
 static TaskHandle_t MQDemoTask = NULL;
+static TaskHandle_t MQDemoSendTask = NULL;
 
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawSignal = NULL;
@@ -333,11 +334,22 @@ void MQHanderTwo(ssize_t read_size, char *buffer, void *args)
 	printf("MQ Recv in second handler: %s\n", buffer);
 }
 
+static char *mq_one_name = "FreeRTOS_MQ_one_22";
+static char *mq_two_name = "FreeRTOS_MQ_two_22";
+
+void vMQDemoSendTask(void *pvParameters)
+{
+	while (1) {
+        printf("*****TICK******\n");
+		aIOMessageQueuePut(mq_one_name, "Hello MQ one");
+		aIOMessageQueuePut(mq_two_name, "Hello MQ two");
+
+		vTaskDelay(pdMS_TO_TICKS(1000));
+	}
+}
+
 void vMQDemoTask(void *pvParameters)
 {
-	char *mq_one_name = "FreeRTOS_MQ_one_18";
-	char *mq_two_name = "FreeRTOS_MQ_two_18";
-
 	aIO_handle_t mq_one =
 		aIOOpenMessageQueue(mq_one_name, MSG_QUEUE_MAX_MSG_COUNT,
 				    MSG_QUEUE_BUFFER_SIZE, MQHandlerOne, NULL);
@@ -345,12 +357,9 @@ void vMQDemoTask(void *pvParameters)
 		aIOOpenMessageQueue(mq_two_name, MSG_QUEUE_MAX_MSG_COUNT,
 				    MSG_QUEUE_BUFFER_SIZE, MQHanderTwo, NULL);
 
-    while(1){
-        aIOMessageQueuePut(mq_one_name, "Hello MQ one");
-        aIOMessageQueuePut(mq_two_name, "Hello MQ two");
+	while (1)
 
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+		vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 /** #define TCP_BUFFER_SIZE 2000 */
@@ -536,10 +545,12 @@ int main(int argc, char *argv[])
 		    NULL);
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
 		    NULL, configMAX_PRIORITIES, NULL);
-	xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
-		    configMAX_PRIORITIES - 1, &UDPDemoTask);
+	/** xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+	/**         configMAX_PRIORITIES - 1, &UDPDemoTask); */
 	xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
 		    configMAX_PRIORITIES - 1, &MQDemoTask);
+	xTaskCreate(vMQDemoSendTask, "MQSendTask", mainGENERIC_STACK_SIZE * 2,
+		    NULL, configMAX_PRIORITIES - 1, &MQDemoSendTask);
 	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
 	/**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
 
