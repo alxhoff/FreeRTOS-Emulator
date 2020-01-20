@@ -366,7 +366,7 @@ void vMQDemoTask(void *pvParameters)
 
 void TCPHandler(ssize_t read_size, char *buffer, void *args)
 {
-    printf("TCP Recv: %s\n", buffer);
+    printf("TCP Recv: %s", buffer);
 }
 
 void vTCPDemoTask(void *pvParameters)
@@ -555,10 +555,10 @@ int main(int argc, char *argv[])
             configMAX_PRIORITIES - 1, &TCPDemoTask);
 
     /** POSIX MESSAGE QUEUES */
-	/** xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL, */
-	/**         configMAX_PRIORITIES - 1, &MQDemoTask); */
-	/** xTaskCreate(vMQDemoSendTask, "MQSendTask", mainGENERIC_STACK_SIZE * 2, */
-	/**         NULL, configMAX_PRIORITIES - 1, &MQDemoSendTask); */
+    xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
+            configMAX_PRIORITIES - 1, &MQDemoTask);
+    xTaskCreate(vMQDemoSendTask, "MQSendTask", mainGENERIC_STACK_SIZE * 2,
+            NULL, configMAX_PRIORITIES - 1, &MQDemoSendTask);
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);
