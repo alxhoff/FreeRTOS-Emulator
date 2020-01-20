@@ -545,8 +545,8 @@ int main(int argc, char *argv[])
 		    NULL);
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
 		    NULL, configMAX_PRIORITIES, NULL);
-	/** xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL, */
-	/**         configMAX_PRIORITIES - 1, &UDPDemoTask); */
+    xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
+            configMAX_PRIORITIES - 1, &UDPDemoTask);
 	xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
 		    configMAX_PRIORITIES - 1, &MQDemoTask);
 	xTaskCreate(vMQDemoSendTask, "MQSendTask", mainGENERIC_STACK_SIZE * 2,

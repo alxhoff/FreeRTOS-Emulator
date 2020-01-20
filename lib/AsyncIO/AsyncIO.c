@@ -177,10 +177,9 @@ aIO_t *createAsyncIO(aIO_conn_e type, ssize_t buffer_size,
 	return ret;
 }
 
-static void aIOMQSigHandler(int signal, siginfo_t *info, void *context)
+static void aIOMQSigHandler(union sigval sv)
 {
-	printf("In MQ sighandler: %d, info from %p\n", getpid(), info);
-	aIO_t *conn = (aIO_t *)info->si_value.sival_ptr;
+	aIO_t *conn = (aIO_t *)sv.sival_ptr;
 
 	ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer,
 					conn->buffer_size, NULL);
@@ -188,7 +187,7 @@ static void aIOMQSigHandler(int signal, siginfo_t *info, void *context)
 	if (bytes_read > 0)
 		(conn->callback)(bytes_read, conn->buffer, conn->args);
 
-    printf("Read in handler: %s\n", conn->buffer);
+	printf("Read in handler: %s\n", conn->buffer);
 
 	/** reprime MQ notifications */
 	CHECK(!mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev));
@@ -204,7 +203,7 @@ int aIOMessageQueuePut(char *mq_name, char *buffer)
 
 	mq = mq_open(full_name, O_WRONLY);
 
-    free(full_name);
+	free(full_name);
 
 	if ((mqd_t)-1 == mq) {
 		printf("Unable to open MQ '%s'\n", mq_name);
@@ -213,20 +212,10 @@ int aIOMessageQueuePut(char *mq_name, char *buffer)
 
 	/** Do not use CHECK macro as this systemcall can be interrupted returning */
 	/**     EINTR.If this is the case then the call should be restarted, see signal(7) */
-	if (-1 == mq_send(mq, buffer, strlen(buffer), 0)) 
+	if (-1 == mq_send(mq, buffer, strlen(buffer), 0))
 		printf("Unable to send to MQ: %s, errno: %d\n", mq_name, errno);
-    else 
-        printf("Sent to MQ: %s\n", mq_name);
-	/** retry_send: */
-	/**     err = mq_send(mq, buffer, strlen(buffer), 0); */
-	/**     if (err < 0) { */
-	/**         printf("Error, ret:%d, errno: %d\n", err, errno); */
-	/**         if (errno == EINTR) { // mq_send was interupted */
-	/**             printf("Send interrupted\n"); */
-	/**             goto retry_send; */
-	/**         } else */
-	/**             CHECK(err > 0); // Guarenteed to fail and report error */
-	/**     } */
+	else
+		printf("Sent to MQ: %s\n", mq_name);
 
 	CHECK((mqd_t)-1 != mq_close(mq));
 
@@ -274,24 +263,12 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 	CHECK(-1 != (mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK,
 				      0644, &attr)));
 
-	/** Handler for SIGIO of MQ */
-    /** sa.sa_flags = SA_SIGINFO | */
-    /**           SA_RESTART; // Use sa_sigaction instead of sa_handler */
-    sa.sa_flags = SA_SIGINFO; // Use sa_sigaction instead of sa_handler
-    /** sa.sa_flags = SA_SIGINFO | SA_NODEFER; // Use sa_sigaction instead of sa_handler */
-	sa.sa_sigaction = aIOMQSigHandler; // Handler function
-	sigfillset(&sa.sa_mask);
-	sigdelset(&sa.sa_mask, SIGIO);
-	CHECK(!sigaction(SIGIO, &sa, NULL));
-	CHECK(-1 != fcntl(mq->fd, F_SETOWN, getpid()));
-
 	/** sigevent needed to enable to passing of si_value to the handler */
-	conn->attr.mq.ev.sigev_notify =
-		SIGEV_SIGNAL; //Enables passing of si_value to handler
+	conn->attr.mq.ev.sigev_notify = SIGEV_THREAD;
 	mq->ev.sigev_signo = SIGIO;
 	mq->ev.sigev_value = sv;
 	/** used by SIGEV_THREAD */
-	mq->ev.sigev_notify_function = NULL;
+	mq->ev.sigev_notify_function = aIOMQSigHandler;
 	mq->ev.sigev_notify_attributes = NULL;
 
 	CHECK(!mq_notify(mq->fd, &mq->ev));
