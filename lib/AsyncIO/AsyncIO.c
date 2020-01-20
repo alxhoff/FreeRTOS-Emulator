@@ -29,10 +29,13 @@
 		}                                                              \
 	} while (0)
 
+void *aIOTCPHandler(void *conn);
+
+typedef enum { UDP, TCP } aIO_socket_e;
+
 typedef enum {
 	NONE = 0,
-	TCP,
-	UDP,
+	SOCKET,
 	MSG_QUEUE,
 	SERIAL,
 	NO_OF_CONN_TYPES
@@ -40,6 +43,7 @@ typedef enum {
 
 typedef struct {
 	int fd;
+	aIO_socket_e type;
 	struct sockaddr_in addr;
 } aIO_socket_t;
 
@@ -75,6 +79,14 @@ typedef struct aIO {
 	pthread_mutex_t lock;
 } aIO_t;
 
+typedef struct {
+	int client_fd;
+	ssize_t buffer_size;
+
+	void (*callback)(ssize_t, char *, void *);
+	void *args;
+} aIO_tcp_client;
+
 aIO_t head = { .type = NONE, .lock = PTHREAD_MUTEX_INITIALIZER };
 pthread_cond_t aIO_quit_conn = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t aIO_quit_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -97,8 +109,7 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 	while ((curr = prev->next) != NULL) {
 		pthread_mutex_lock(&curr->lock);
 		switch (type) {
-		case TCP:
-		case UDP:
+		case SOCKET:
 			if (curr->type == type)
 				if (curr->attr.socket.fd == *(int *)arg) {
 					pthread_mutex_unlock(&prev->lock);
@@ -135,8 +146,7 @@ void aIODeinit(void)
 			del = iterator;
 			iterator = iterator->next;
 			switch (del->type) {
-			case UDP:
-			case TCP:
+			case SOCKET:
 				printf("Deinit socket %d\n",
 				       ntohs(del->attr.socket.addr.sin_port));
 				CHECK(!close(del->attr.socket.fd));
@@ -187,8 +197,6 @@ static void aIOMQSigHandler(union sigval sv)
 	if (bytes_read > 0)
 		(conn->callback)(bytes_read, conn->buffer, conn->args);
 
-	printf("Read in handler: %s\n", conn->buffer);
-
 	/** reprime MQ notifications */
 	CHECK(!mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev));
 }
@@ -196,7 +204,6 @@ static void aIOMQSigHandler(union sigval sv)
 int aIOMessageQueuePut(char *mq_name, char *buffer)
 {
 	mqd_t mq;
-	int err;
 	char *full_name = calloc(strlen(mq_name) + 2, sizeof(char));
 	strcpy(full_name + 1, mq_name);
 	full_name[0] = '/';
@@ -247,7 +254,6 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 	mq->name[0] = '/';
 
 	struct mq_attr attr;
-	struct sigaction sa;
 	union sigval sv;
 
 	/** Attributes of MQ used in mq_open*/
@@ -280,24 +286,48 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 	return (aIO_handle_t)conn;
 }
 
-static void aIOUDPSigHandler(int signal, siginfo_t *info, void *context)
+static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 {
-	printf("In UDP handler: %d\n", getpid());
 	ssize_t read_size;
 	int server_fd = info->si_fd;
-	aIO_t *conn = findConnection(UDP, &server_fd);
+	aIO_t *conn = findConnection(SOCKET, &server_fd);
 
 	CHECK(conn);
 
 	pthread_mutex_lock(&conn->lock);
 
-	while ((read_size = recv(server_fd, conn->buffer, conn->buffer_size,
-				 0)) > 0) {
-		conn->buffer[(read_size - 1) <= conn->buffer_size ?
-				     (read_size - 1) :
-				     conn->buffer_size] = '\0';
-		printf("Buffer: %s\n", conn->buffer);
-		(conn->callback)(read_size, conn->buffer, conn->args);
+	switch (conn->attr.socket.type) {
+	case UDP:
+		while ((read_size = recv(server_fd, conn->buffer,
+					 conn->buffer_size, 0)) > 0) {
+			conn->buffer[(read_size - 1) <= conn->buffer_size ?
+					     (read_size - 1) :
+					     conn->buffer_size] = '\0';
+			(conn->callback)(read_size, conn->buffer, conn->args);
+		}
+		break;
+	case TCP: {
+		int client_fd;
+        struct sockaddr_in client;
+		socklen_t client_size = sizeof(struct sockaddr_in);
+		while ((client_fd =
+				accept(server_fd, (struct sockaddr *)&client,
+				       &client_size)) > 0) {
+			pthread_t handler_thread;
+			aIO_tcp_client *new_client = (aIO_tcp_client *)malloc(
+				sizeof(aIO_tcp_client));
+			new_client->client_fd = client_fd;
+			new_client->buffer_size = conn->buffer_size;
+			new_client->callback = conn->callback;
+			new_client->args = conn->args;
+
+			CHECK(!pthread_create(&handler_thread, NULL,
+					      aIOTCPHandler,
+					      (void *)new_client));
+		}
+	} break;
+	default:
+		break;
 	}
 
 	pthread_mutex_unlock(&conn->lock);
@@ -309,7 +339,10 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 {
 	aIO_t *conn = getLastConnection();
 
-	conn->next = createAsyncIO(UDP, buffer_size, callback, args);
+	conn->next = createAsyncIO(SOCKET, buffer_size, callback, args);
+	CHECK(conn->next);
+
+	conn->next->attr.socket.type = UDP;
 
 	pthread_mutex_lock(&conn->next->lock);
 
@@ -322,11 +355,13 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 	s_udp->fd = socket(AF_INET, SOCK_DGRAM, 0);
 	CHECK(s_udp->fd);
 
+	printf("Opened socket on port %d with FD: %d\n", port, s_udp->fd);
+
 	struct sigaction act = { 0 };
 	int fs;
 
 	act.sa_flags = SA_SIGINFO | SA_RESTART;
-	act.sa_sigaction = aIOUDPSigHandler;
+	act.sa_sigaction = aIOSocketSigHandler;
 	sigfillset(&act.sa_mask);
 	sigdelset(&act.sa_mask, SIGIO);
 	CHECK(!sigaction(SIGIO, &act, NULL));
@@ -345,116 +380,68 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
 	return (aIO_handle_t)conn->next;
 }
 
-/** typedef struct { */
-/**     int client_fd; */
-/**     ssize_t buffer_size; */
-/**  */
-/**     void (*callback)(ssize_t, char *, void *); */
-/**     void *args; */
-/** } aIO_tcp_client; */
-/**  */
-/** void *aIOTCPHandler(void *conn) */
-/** { */
-/**     printf("TCP handler\n"); */
-/**     ssize_t read_size; */
-/**     aIO_tcp_client *client = (aIO_tcp_client *)conn; */
-/**     int client_fd = client->client_fd; */
-/**     char *buffer = malloc(sizeof(char) * client->buffer_size); */
-/**     CHECK(buffer); */
-/**  */
-/**     while ((read_size = recv(client_fd, buffer, client->buffer_size, 0))) */
-/**         (client->callback)(read_size, buffer, client->args); */
-/**  */
-/**     free(buffer); */
-/**     free((aIO_tcp_client *)conn); */
-/**     close(client_fd); */
-/**  */
-/**     return NULL; */
-/** } */
-/**  */
-/** static void aIOTCPSigHandler(int signal, siginfo_t *info, void *context) */
-/** { */
-/**     struct sockaddr_in client; */
-/**     int client_fd, server_fd = info->si_fd; */
-/**     socklen_t client_size = sizeof(struct sockaddr_in); */
-/**     aIO_t *conn = findConnection(TCP, &server_fd); */
-/**  */
-/**     CHECK(conn); */
-/**  */
-/**     pthread_mutex_lock(&conn->lock); */
-/**  */
-/**     while ((client_fd = accept(server_fd, (struct sockaddr *)&client, */
-/**                    &client_size)) > 0) { */
-/**         pthread_t handler_thread; */
-/**         aIO_tcp_client *new_client = */
-/**             (aIO_tcp_client *)malloc(sizeof(aIO_tcp_client)); */
-/**         new_client->client_fd = client_fd; */
-/**         new_client->buffer_size = conn->buffer_size; */
-/**         new_client->callback = conn->callback; */
-/**         new_client->args = conn->args; */
-/**  */
-/**         CHECK(!pthread_create(&handler_thread, NULL, aIOTCPHandler, */
-/**                       (void *)new_client)); */
-/**     } */
-/**  */
-/**     pthread_mutex_unlock(&conn->lock); */
-/** } */
-/**  */
-/** void *aIOOpenTCPSocketThread(void *s_tcp_fd) */
-/** { */
-/**     int fd = *(int *)s_tcp_fd; */
-/**     CHECK(-1 != fcntl(fd, F_SETOWN, gettid())); */
-/**  */
-/**     pthread_mutex_lock(&aIO_quit_lock); */
-/**     pthread_cond_wait(&aIO_quit_conn, &aIO_quit_lock); */
-/**     pthread_mutex_unlock(&aIO_quit_lock); */
-/**  */
-/**     return NULL; */
-/** } */
-/**  */
-/** aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, ssize_t buffer_size, */
-/**                   void (*callback)(ssize_t, char *, void *), */
-/**                   void *args) */
-/** { */
-/**     aIO_t *conn = getLastConnection(); */
-/**  */
-/**     conn->next = createAsyncIO(TCP, buffer_size, callback, args); */
-/**  */
-/**     pthread_mutex_lock(&conn->next->lock); */
-/**  */
-/**     aIO_socket_t *s_tcp = &conn->next->attr.socket; */
-/**  */
-/**     s_tcp->addr.sin_family = AF_INET; */
-/**     s_tcp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY; */
-/**     s_tcp->addr.sin_port = htons(port); */
-/**  */
-/**     s_tcp->fd = socket(AF_INET, SOCK_STREAM, 0); */
-/**     CHECK(s_tcp->fd); */
-/**  */
-/**     struct sigaction act = { 0 }; */
-/**     int fs; */
-/**  */
-/**     act.sa_flags = SA_SIGINFO | SA_RESTART; */
-/**     act.sa_sigaction = aIOTCPSigHandler; */
-/**     sigfillset(&act.sa_mask); */
-/**     sigdelset(&act.sa_mask, SIGIO); */
-/**     CHECK(!sigaction(SIGIO, &act, NULL)); */
-/**  */
-/**     CHECK((fs = fcntl(s_tcp->fd, F_GETFL))); */
-/**     fs |= O_ASYNC | O_NONBLOCK; */
-/**     CHECK(-1 != fcntl(s_tcp->fd, F_SETFL, fs)); */
-/**     fcntl(s_tcp->fd, F_SETSIG, SIGIO); */
-/**     CHECK(-1 != fcntl(s_tcp->fd, F_SETOWN, getpid())); */
-/**  */
-/**     CHECK(!bind(s_tcp->fd, (struct sockaddr *)&s_tcp->addr, */
-/**             sizeof(s_tcp->addr))); */
-/**  */
-/**     CHECK(!listen(s_tcp->fd, 1)); */
-/**  */
-/**     CHECK(!pthread_create(&conn->next->thread, NULL, aIOOpenTCPSocketThread, */
-/**                   (void *)&conn->next->attr.socket.fd)); */
-/**  */
-/**     pthread_mutex_unlock(&conn->next->lock); */
-/**  */
-/**     return (aIO_handle_t)conn->next; */
-/** } */
+void *aIOTCPHandler(void *conn)
+{
+	ssize_t read_size;
+	aIO_tcp_client *client = (aIO_tcp_client *)conn;
+	int client_fd = client->client_fd;
+	char *buffer = malloc(sizeof(char) * client->buffer_size);
+	CHECK(buffer);
+
+	while ((read_size = recv(client_fd, buffer, client->buffer_size, 0)))
+		(client->callback)(read_size, buffer, client->args);
+
+	free(buffer);
+	free((aIO_tcp_client *)conn);
+	close(client_fd);
+
+	return NULL;
+}
+
+aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
+			      void (*callback)(ssize_t, char *, void *),
+			      void *args)
+{
+	aIO_t *conn = getLastConnection();
+
+	conn->next = createAsyncIO(SOCKET, buffer_size, callback, args);
+	CHECK(conn->next);
+	conn->next->attr.socket.type = TCP;
+
+	pthread_mutex_lock(&conn->next->lock);
+
+	aIO_socket_t *s_tcp = &conn->next->attr.socket;
+
+	s_tcp->addr.sin_family = AF_INET;
+	s_tcp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
+	s_tcp->addr.sin_port = htons(port);
+
+	s_tcp->fd = socket(AF_INET, SOCK_STREAM, 0);
+	CHECK(s_tcp->fd);
+
+	printf("Opened socket on port %d with FD: %d\n", port, s_tcp->fd);
+
+	struct sigaction act = { 0 };
+	int fs;
+
+	act.sa_flags = SA_SIGINFO;
+	act.sa_sigaction = aIOSocketSigHandler;
+	sigfillset(&act.sa_mask);
+	sigdelset(&act.sa_mask, SIGIO);
+	CHECK(!sigaction(SIGIO, &act, NULL));
+
+	CHECK((fs = fcntl(s_tcp->fd, F_GETFL)));
+	fs |= O_ASYNC | O_NONBLOCK;
+	CHECK(-1 != fcntl(s_tcp->fd, F_SETFL, fs));
+	fcntl(s_tcp->fd, F_SETSIG, SIGIO);
+	CHECK(-1 != fcntl(s_tcp->fd, F_SETOWN, getpid()));
+
+	CHECK(!bind(s_tcp->fd, (struct sockaddr *)&s_tcp->addr,
+		    sizeof(s_tcp->addr)));
+
+	CHECK(!listen(s_tcp->fd, 1));
+
+	pthread_mutex_unlock(&conn->next->lock);
+
+	return (aIO_handle_t)conn->next;
+}

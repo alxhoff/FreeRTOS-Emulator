@@ -45,7 +45,7 @@ const unsigned char prev_state_signal = PREV_TASK;
 static TaskHandle_t DemoTask1 = NULL;
 static TaskHandle_t DemoTask2 = NULL;
 static TaskHandle_t UDPDemoTask = NULL;
-/** static TaskHandle_t TCPDemoTask = NULL; */
+static TaskHandle_t TCPDemoTask = NULL;
 static TaskHandle_t MQDemoTask = NULL;
 static TaskHandle_t MQDemoSendTask = NULL;
 
@@ -362,29 +362,29 @@ void vMQDemoTask(void *pvParameters)
 		vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
-/** #define TCP_BUFFER_SIZE 2000 */
-/**  */
-/** void TCPHandler(ssize_t read_size, char *buffer, void *args) */
-/** { */
-/**     printf("TCP Recv: %s\n", buffer); */
-/** } */
-/**  */
-/** void vTCPDemoTask(void *pvParameters) */
-/** { */
-/**     char *addr = NULL; // Loopback */
-/**     in_port_t port = 2222; */
-/**  */
-/**     aIO_handle_t soc = */
-/**         aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL); */
-/**  */
-/**     printf("TCP socket opened\n"); */
-/**     printf("Demo TCP socket can be tested using\n"); */
-/**     printf("*** netcat -vv localhost 2222 ***\n"); */
-/**  */
-/**     while (1) { */
-/**         vTaskDelay(10); */
-/**     } */
-/** } */
+#define TCP_BUFFER_SIZE 2000
+
+void TCPHandler(ssize_t read_size, char *buffer, void *args)
+{
+    printf("TCP Recv: %s\n", buffer);
+}
+
+void vTCPDemoTask(void *pvParameters)
+{
+    char *addr = NULL; // Loopback
+    in_port_t port = 2222;
+
+    aIO_handle_t soc =
+        aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
+
+    printf("TCP socket opened on port %d\n", port);
+    printf("Demo TCP socket can be tested using\n");
+    printf("*** netcat -vv localhost %d ***\n", port);
+
+    while (1) {
+        vTaskDelay(10);
+    }
+}
 
 void vDemoTask1(void *pvParameters)
 {
@@ -536,23 +536,29 @@ int main(int argc, char *argv[])
 	StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
 	assert(StateQueue);
 
-	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask1);
-	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask2);
 	xTaskCreate(basicSequentialStateMachine, "StateMachine",
 		    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES - 1,
 		    NULL);
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
 		    NULL, configMAX_PRIORITIES, NULL);
+
+    /** Demo Tasks */
+	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask1);
+	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask2);
+
+    /** SOCKETS */
     xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
             configMAX_PRIORITIES - 1, &UDPDemoTask);
-	xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
-		    configMAX_PRIORITIES - 1, &MQDemoTask);
-	xTaskCreate(vMQDemoSendTask, "MQSendTask", mainGENERIC_STACK_SIZE * 2,
-		    NULL, configMAX_PRIORITIES - 1, &MQDemoSendTask);
-	/** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
-	/**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
+    xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL,
+            configMAX_PRIORITIES - 1, &TCPDemoTask);
+
+    /** POSIX MESSAGE QUEUES */
+	/** xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+	/**         configMAX_PRIORITIES - 1, &MQDemoTask); */
+	/** xTaskCreate(vMQDemoSendTask, "MQSendTask", mainGENERIC_STACK_SIZE * 2, */
+	/**         NULL, configMAX_PRIORITIES - 1, &MQDemoSendTask); */
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);
