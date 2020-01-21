@@ -26,16 +26,18 @@ addons:
 
 # Build your code e.g. by calling make
 script:
-    - doxygen docs/Doxyfile
-    - cd build
+    - cd docs
+    - doxygen Doxyfile
+    - cd ../build
     - cmake ..
     - make
+    - cd ..
 
 # Generate and deploy documentation
 deploy:
     provider: pages
     skip_cleanup: true
-    local_dir: docs/html
+    local_dir: docs/docs/html
     github_token: $GH_REPO_TOKEN
     keep_history: true
     on:
