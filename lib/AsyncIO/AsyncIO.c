@@ -371,6 +371,7 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 			conn->buffer[read_size <= conn->buffer_size ?
 					     read_size :
 					     conn->buffer_size] = '\0';
+            if (conn->callback)
 			(conn->callback)(read_size, conn->buffer, conn->args);
 		}
 		break;
@@ -390,7 +391,7 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 			new_client->args = conn->args;
 
 			CHECK(!pthread_create(&handler_thread, NULL,
-					      aIOTCPHandler,
+					      *aIOTCPHandler,
 					      (void *)new_client));
 		}
 	} break;
@@ -457,6 +458,7 @@ void *aIOTCPHandler(void *conn)
 	CHECK(buffer);
 
 	while ((read_size = recv(client_fd, buffer, client->buffer_size, 0)))
+        if(client->callback)
 		(client->callback)(read_size, buffer, client->args);
 
 	close(client_fd);
