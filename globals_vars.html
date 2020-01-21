@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>FreeRTOS Emulator with SDL2 Based Graphics and Input Library: FreeRTOS Simulator Graphical Library</title>
+<title>FreeRTOS Emulator with SDL2 Based Graphics and Input Library: File Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -39,10 +39,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
-      <li><a href="files.html"><span>Files</span></a></li>
+      <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -61,6 +61,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
+      <li class="current"><a href="globals.html"><span>File&#160;Members</span></a></li>
+    </ul>
+  </div>
+  <div id="navrow3" class="tabs2">
+    <ul class="tablist">
+      <li><a href="globals.html"><span>All</span></a></li>
+      <li><a href="globals_func.html"><span>Functions</span></a></li>
+      <li class="current"><a href="globals_vars.html"><span>Variables</span></a></li>
+      <li><a href="globals_type.html"><span>Typedefs</span></a></li>
+      <li><a href="globals_enum.html"><span>Enumerations</span></a></li>
+      <li><a href="globals_eval.html"><span>Enumerator</span></a></li>
+      <li><a href="globals_defs.html"><span>Macros</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -76,30 +93,65 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<div class="header">
-  <div class="headertitle">
-<div class="title">FreeRTOS Simulator Graphical Library </div>  </div>
-</div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="intro_sec"></a>
-About this library</h1>
-<p>This basic API aims to provide a simple method for drawing graphical objects onto a screen in a thread-safe and consistent fashion. The library is built on top of the widely used SDL2 graphics, text and sound libraries. The core of the library is the functionality found in <a class="el" href="group__tum__draw.html">TUM Draw API</a> with extra features such as event handling and sound found in the auxiliary files.</p>
-<h1><a class="anchor" id="licence_sec"></a>
-Licence</h1>
-<pre class="fragment">----------------------------------------------------------------------
-Copyright (C) Alexander Hoffman, 2019
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
-----------------------------------------------------------------------
-</pre> </div></div><!-- contents -->
+&#160;<ul>
+<li>aIO_quit_conn
+: <a class="el" href="AsyncIO_8c.html#ac19e3040f6c2fb6d32c012b2023ba3b3">AsyncIO.c</a>
+</li>
+<li>aIO_quit_lock
+: <a class="el" href="AsyncIO_8c.html#a786390bfd57df4c457c312ae4cd80be7">AsyncIO.c</a>
+</li>
+<li>bin_folder
+: <a class="el" href="TUM__Draw_8c.html#a5d8c3da2f8a8338fb2510775a389c27a">TUM_Draw.c</a>
+</li>
+<li>error_message
+: <a class="el" href="TUM__Draw_8c.html#a1a1c633ac5dcca48c2e8aba77d007207">TUM_Draw.c</a>
+</li>
+<li>eventTask
+: <a class="el" href="TUM__Event_8c.html#a438a969e66eaf6786f88534d5c1efdab">TUM_Event.c</a>
+</li>
+<li>font
+: <a class="el" href="TUM__Draw_8c.html#abf5bfa705e66ffc1ddaa6ce46c960873">TUM_Draw.c</a>
+</li>
+<li>fullWaveFileNames
+: <a class="el" href="TUM__Sound_8c.html#a66b745d4db045c018199149441a1b773">TUM_Sound.c</a>
+</li>
+<li>head
+: <a class="el" href="AsyncIO_8c.html#a9289238f970cc69043fc0e898318de4b">AsyncIO.c</a>
+</li>
+<li>inputQueue
+: <a class="el" href="group__tum__event.html#gaf223cc1048747ffd25a530af9d4ac76b">TUM_Event.h</a>
+, <a class="el" href="group__tum__event.html#gaf223cc1048747ffd25a530af9d4ac76b">TUM_Event.c</a>
+</li>
+<li>job_list_head
+: <a class="el" href="TUM__Draw_8c.html#a0a84c2f2efefb746f1f56166b7813e3e">TUM_Draw.c</a>
+</li>
+<li>mouse
+: <a class="el" href="TUM__Event_8c.html#a2c20eaa54498e32ea16e679ff12d5323">TUM_Event.c</a>
+</li>
+<li>renderer
+: <a class="el" href="TUM__Draw_8c.html#a966da7a60c4ea3ba301e26ccc5efe452">TUM_Draw.c</a>
+</li>
+<li>samples
+: <a class="el" href="TUM__Sound_8c.html#a3e1ac91b6b19fefc2316b2693ba22c0f">TUM_Sound.c</a>
+</li>
+<li>screen_height
+: <a class="el" href="TUM__Draw_8c.html#a52afc0b1078a0ef9af887430f8e8b84c">TUM_Draw.c</a>
+</li>
+<li>screen_width
+: <a class="el" href="TUM__Draw_8c.html#ade92e07203a3ba6835aab188b841658f">TUM_Draw.c</a>
+</li>
+<li>walls
+: <a class="el" href="TUM__Ball_8c.html#a9c42941f1f589be650bfe56dd4b6f218">TUM_Ball.c</a>
+</li>
+<li>waveFileNames
+: <a class="el" href="TUM__Sound_8c.html#a26a082673d2caff7b4f24669d5ac9c04">TUM_Sound.c</a>
+</li>
+<li>window
+: <a class="el" href="TUM__Draw_8c.html#aaa8e409e04dcf575ef63fd5fb3db06f9">TUM_Draw.c</a>
+</li>
+</ul>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

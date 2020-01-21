@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>FreeRTOS Emulator with SDL2 Based Graphics and Input Library: FreeRTOS Simulator Graphical Library</title>
+<title>FreeRTOS Emulator with SDL2 Based Graphics and Input Library: /home/travis/build/alxhoff/FreeRTOS-Emulator/lib/Gfx/include/TUM_Utils.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -39,10 +39,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
-      <li><a href="files.html"><span>Files</span></a></li>
+      <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -61,7 +61,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
-</div><!-- top -->
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
+      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
+    </ul>
+  </div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -76,30 +81,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_97aefd0d527b934f1d99a682da8fe6a9.html">lib</a></li><li class="navelem"><a class="el" href="dir_c319eec3bc346eb817689084f9399cf2.html">Gfx</a></li><li class="navelem"><a class="el" href="dir_203e2a952df2a2926025df2e3d5a6e07.html">include</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">FreeRTOS Simulator Graphical Library </div>  </div>
+<div class="title">TUM_Utils.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="intro_sec"></a>
-About this library</h1>
-<p>This basic API aims to provide a simple method for drawing graphical objects onto a screen in a thread-safe and consistent fashion. The library is built on top of the widely used SDL2 graphics, text and sound libraries. The core of the library is the functionality found in <a class="el" href="group__tum__draw.html">TUM Draw API</a> with extra features such as event handling and sound found in the auxiliary files.</p>
-<h1><a class="anchor" id="licence_sec"></a>
-Licence</h1>
-<pre class="fragment">----------------------------------------------------------------------
-Copyright (C) Alexander Hoffman, 2019
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
-----------------------------------------------------------------------
-</pre> </div></div><!-- contents -->
+<a href="TUM__Utils_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#ifndef __TUM_UTILS_H__</span></div><div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#define __TUM_UTILS_H__</span></div><div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div><div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">char</span> *<a class="code" href="TUM__Utils_8h.html#abc98d1d6f5595d32fc333e4e66aebf72">prepend_path</a>(<span class="keywordtype">char</span> *path, <span class="keywordtype">char</span> *file);</div><div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div><div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keywordtype">char</span> *<a class="code" href="TUM__Utils_8h.html#a2cf02f9acce4e7fd78b0795fe22bcfc8">getBinFolderPath</a>(<span class="keywordtype">char</span> *bin_path);</div><div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div><div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif</span></div><div class="ttc" id="TUM__Utils_8h_html_a2cf02f9acce4e7fd78b0795fe22bcfc8"><div class="ttname"><a href="TUM__Utils_8h.html#a2cf02f9acce4e7fd78b0795fe22bcfc8">getBinFolderPath</a></div><div class="ttdeci">char * getBinFolderPath(char *bin_path)</div><div class="ttdoc">Gets the execution folder of the current program, assumes that program is executing from a folder &quot;bi...</div><div class="ttdef"><b>Definition:</b> TUM_Utils.c:43</div></div>
+<div class="ttc" id="TUM__Utils_8h_html_abc98d1d6f5595d32fc333e4e66aebf72"><div class="ttname"><a href="TUM__Utils_8h.html#abc98d1d6f5595d32fc333e4e66aebf72">prepend_path</a></div><div class="ttdeci">char * prepend_path(char *path, char *file)</div><div class="ttdoc">Prepends a path string to a filename. </div><div class="ttdef"><b>Definition:</b> TUM_Utils.c:29</div></div>
+</div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
