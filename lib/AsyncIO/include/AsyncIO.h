@@ -51,6 +51,13 @@ typedef enum { UDP, TCP } aIO_socket_e;
 typedef void (*aIO_callback_t)(size_t recv_size, char *buffer, void *args);
 
 /**
+ * @brief Closes a async connection
+ *
+ * @param conn Handle to the connection
+ */
+void aIOCloseConn(aIO_handle_t conn);
+
+/**
  * @brief Function that closes all open connections
  *
  * Calling this function will close all connection and free all allocated reources

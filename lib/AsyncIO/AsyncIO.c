@@ -153,6 +153,33 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 //TODO move this into functions that are calable such that connections can be
 //closed during runtime
 
+void aIOCloseConn(aIO_handle_t conn)
+{
+	CHECK(conn);
+
+	aIO_t *del = (aIO_t *)conn;
+
+	switch (del->type) {
+	case SOCKET:
+		printf("Deinit socket %d\n",
+		       ntohs(del->attr.socket.addr.sin_port));
+		CHECK(!close(del->attr.socket.fd));
+		free(del->buffer);
+		free(del);
+		break;
+	case MSG_QUEUE:
+		printf("Deinit MQ %s\n", del->attr.mq.name);
+		mq_close(del->attr.mq.fd);
+		mq_unlink(del->attr.mq.name);
+		free(del->attr.mq.name);
+		free(del->buffer);
+		free(del);
+		break;
+	default:
+		break;
+	}
+}
+
 void aIODeinit(void)
 {
 	aIO_t *iterator, *del;
@@ -161,25 +188,7 @@ void aIODeinit(void)
 		for (iterator = head.next; iterator;) {
 			del = iterator;
 			iterator = iterator->next;
-			switch (del->type) {
-			case SOCKET:
-				printf("Deinit socket %d\n",
-				       ntohs(del->attr.socket.addr.sin_port));
-				CHECK(!close(del->attr.socket.fd));
-				free(del->buffer);
-				free(del);
-				break;
-			case MSG_QUEUE:
-				printf("Deinit MQ %s\n", del->attr.mq.name);
-				mq_close(del->attr.mq.fd);
-				mq_unlink(del->attr.mq.name);
-				free(del->attr.mq.name);
-				free(del->buffer);
-				free(del);
-				break;
-			default:
-				break;
-			}
+			aIOCloseConn((aIO_handle_t)del);
 		}
 }
 
@@ -208,7 +217,7 @@ static void aIOMQSigHandler(union sigval sv)
 	aIO_t *conn = (aIO_t *)sv.sival_ptr;
 
 	ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer,
-				       conn->buffer_size, NULL);
+					conn->buffer_size, NULL);
 
 	if (bytes_read > 0)
 		(conn->callback)(bytes_read, conn->buffer, conn->args);
