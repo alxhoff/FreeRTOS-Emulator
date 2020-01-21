@@ -65,17 +65,29 @@ doxygen
 ```
 from the `docs` directory to generate the Doxygen documentation. Also generated on GitHub via Travis CI, available [*here*](https://alxhoff.github.io/FreeRTOS-Emulator/).
 
+## Asynchronous IO
+
+There are three implemented methods to perform asynchronous IO, with the hope of emulating the sort of IO you find on micro-controllers. The three methods are UDP and TCP sockets and POSIX message queues.
+
+### TCP/UDP Sockets
+
+Both protocols have the same functionality, differing only in that the UDP callback is called for every received transmission whilst the TCP callback is called for every established connection. Both work by establishing a connection to the given IPv4 dot-decimal address and port.
+
+### POSIX Message Queues
+
+Similarly to UDP sockets, message queues trigger their callback once for each message received. The message queue names, unlike the Linux POSIX implementation, do not require the prepending '/'.
+
+### Callbacks
+
+Each type of connection can be assigned its own callback function. The callback, if provided (else `NULL`), must take three arguments: `size_t`, `char *`, `void *`. These parameters, respectively, provide the callback with the number of bytes received into the buffer, the buffer and the args given as an argument when the connection was created.
+
+### Sending to Connections
+
+`aIOMessageQueuePut` and `aIOSocketPut` can be used to send a `char *` buffer to either a message queue (specified using the message queue's name) or a socket (specified using an IPv4 dot-decimal address and a port).
+
 ## Example
 
 Pong game implementation on pong branch
-
-## State of Simulator
-
-Work in progress.
-
-## TODO:
-
-* Async IO
 
 
 <a href="https://www.buymeacoffee.com/xmyWYwD" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-green.png" alt="Buy Me A Coffee" style="height: 11px !important;" ></a>
