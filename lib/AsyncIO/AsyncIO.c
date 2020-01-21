@@ -1,5 +1,27 @@
+/**
+ * @file AsyncIO.c
+ * @author Alex Hoffman
+ * @date 20 January 2020
+ * @brief A single file asyncronous UNIX communications library to perform
+ * UDP, TCP and POSIX message queue communications.
+ *
+ * @verbatim
+   ----------------------------------------------------------------------
+    Copyright (C) Alexander Hoffman, 2019
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   ----------------------------------------------------------------------
+@endverbatim
+ */
 
-// Alex Hoffman 2019
 #define _GNU_SOURCE
 
 #include <mqueue.h>
@@ -16,10 +38,6 @@
 
 #include "AsyncIO.h"
 
-#define MQ_MAX_NAME_LEN 256
-#define MQ_MAXMSG 256
-#define MQ_MSGSIZE 256
-
 #define CHECK(x)                                                               \
 	do {                                                                   \
 		if (!(x)) {                                                    \
@@ -30,8 +48,6 @@
 	} while (0)
 
 void *aIOTCPHandler(void *conn);
-
-typedef enum { UDP, TCP } aIO_socket_e;
 
 typedef enum {
 	NONE = 0,
@@ -67,12 +83,12 @@ typedef struct aIO {
 	aIO_conn_e type;
 
 	aIO_attr attr;
-	ssize_t buffer_size;
+	size_t buffer_size;
 	char *buffer;
 
 	pthread_t thread;
 
-	void (*callback)(ssize_t, char *, void *);
+	void (*callback)(size_t, char *, void *);
 	void *args;
 	struct aIO *next;
 
@@ -81,9 +97,9 @@ typedef struct aIO {
 
 typedef struct {
 	int client_fd;
-	ssize_t buffer_size;
+	size_t buffer_size;
 
-	void (*callback)(ssize_t, char *, void *);
+	void (*callback)(size_t, char *, void *);
 	void *args;
 } aIO_tcp_client;
 
@@ -167,8 +183,8 @@ void aIODeinit(void)
 		}
 }
 
-aIO_t *createAsyncIO(aIO_conn_e type, ssize_t buffer_size,
-		     void (*callback)(ssize_t, char *, void *), void *args)
+aIO_t *createAsyncIO(aIO_conn_e type, size_t buffer_size,
+		     void (*callback)(size_t, char *, void *), void *args)
 {
 	aIO_t *ret = (aIO_t *)calloc(1, sizeof(aIO_t));
 
@@ -192,7 +208,7 @@ static void aIOMQSigHandler(union sigval sv)
 	aIO_t *conn = (aIO_t *)sv.sival_ptr;
 
 	ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer,
-					conn->buffer_size, NULL);
+				       conn->buffer_size, NULL);
 
 	if (bytes_read > 0)
 		(conn->callback)(bytes_read, conn->buffer, conn->args);
@@ -217,8 +233,6 @@ int aIOMessageQueuePut(char *mq_name, char *buffer)
 		return -1;
 	}
 
-	/** Do not use CHECK macro as this systemcall can be interrupted returning */
-	/**     EINTR.If this is the case then the call should be restarted, see signal(7) */
 	if (-1 == mq_send(mq, buffer, strlen(buffer), 0))
 		printf("Unable to send to MQ: %s, errno: %d\n", mq_name, errno);
 	else
@@ -229,9 +243,54 @@ int aIOMessageQueuePut(char *mq_name, char *buffer)
 	return 0;
 }
 
+int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
+		 char *buffer, size_t buffer_size)
+{
+	int fd;
+	struct sockaddr_in server = { .sin_addr.s_addr =
+					      s_addr ? inet_addr(s_addr) : 0,
+				      .sin_family = AF_INET,
+				      .sin_port = htons(port) };
+
+	switch (protocol) {
+	case TCP:
+		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+			goto err_create_socket;
+		break;
+	case UDP:
+		if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+			goto err_create_socket;
+		break;
+	default:
+		return -1;
+	}
+
+	if (connect(fd, (struct sockaddr *)&server, sizeof(server)) < 0)
+		goto err_connect;
+
+	if (send(fd, buffer, buffer_size, 0) < 0)
+		goto err_send;
+
+	close(fd);
+
+	return 0;
+
+err_create_socket:
+	fprintf(stderr, "Failed to create socket %s:%d\n", s_addr, port);
+	return -1;
+
+err_connect:
+	fprintf(stderr, "Connecting to %s:%d failed\n", s_addr, port);
+	return -1;
+
+err_send:
+	fprintf(stderr, "Sending to %s:%d failed\n", s_addr, port);
+	return -1;
+}
+
 aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 				 long max_msg_size,
-				 void (*callback)(ssize_t, char *, void *),
+				 void (*callback)(size_t, char *, void *),
 				 void *args)
 {
 	aIO_t *conn = getLastConnection();
@@ -300,15 +359,15 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 	case UDP:
 		while ((read_size = recv(server_fd, conn->buffer,
 					 conn->buffer_size, 0)) > 0) {
-			conn->buffer[(read_size - 1) <= conn->buffer_size ?
-					     (read_size - 1) :
+			conn->buffer[read_size <= conn->buffer_size ?
+					     read_size :
 					     conn->buffer_size] = '\0';
 			(conn->callback)(read_size, conn->buffer, conn->args);
 		}
 		break;
 	case TCP: {
 		int client_fd;
-        struct sockaddr_in client;
+		struct sockaddr_in client;
 		socklen_t client_size = sizeof(struct sockaddr_in);
 		while ((client_fd =
 				accept(server_fd, (struct sockaddr *)&client,
@@ -333,8 +392,8 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 	pthread_mutex_unlock(&conn->lock);
 }
 
-aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
-			      void (*callback)(ssize_t, char *, void *),
+aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
+			      void (*callback)(size_t, char *, void *),
 			      void *args)
 {
 	aIO_t *conn = getLastConnection();
@@ -391,15 +450,15 @@ void *aIOTCPHandler(void *conn)
 	while ((read_size = recv(client_fd, buffer, client->buffer_size, 0)))
 		(client->callback)(read_size, buffer, client->args);
 
+	close(client_fd);
 	free(buffer);
 	free((aIO_tcp_client *)conn);
-	close(client_fd);
 
 	return NULL;
 }
 
-aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, ssize_t buffer_size,
-			      void (*callback)(ssize_t, char *, void *),
+aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
+			      void (*callback)(size_t, char *, void *),
 			      void *args)
 {
 	aIO_t *conn = getLastConnection();

@@ -35,9 +35,32 @@
 
 #define STATE_DEBOUNCE_DELAY 300
 
+#define KEYCODE(CHAR) SDL_SCANCODE_##CHAR
+#define CAVE_SIZE_X SCREEN_WIDTH / 2
+#define CAVE_SIZE_Y SCREEN_HEIGHT / 2
+#define CAVE_X CAVE_SIZE_X / 2
+#define CAVE_Y CAVE_SIZE_Y / 2
+#define CAVE_THICKNESS 25
+#define LOGO_FILENAME "../resources/freertos.jpg"
+#define UDP_BUFFER_SIZE 2000
+#define UDP_TEST_PORT_1 1234
+#define UDP_TEST_PORT_2 4321
+#define MSG_QUEUE_BUFFER_SIZE 1000
+#define MSG_QUEUE_MAX_MSG_COUNT 10
+#define TCP_BUFFER_SIZE 2000
+#define TCP_TEST_PORT 2222
+
 #ifdef TRACE_FUNCTIONS
 #include "tracer.h"
 #endif
+
+static char *mq_one_name = "FreeRTOS_MQ_one_22";
+static char *mq_two_name = "FreeRTOS_MQ_two_22";
+aIO_handle_t mq_one = NULL;
+aIO_handle_t mq_two = NULL;
+aIO_handle_t udp_soc_one = NULL;
+aIO_handle_t udp_soc_two = NULL;
+aIO_handle_t tcp_soc = NULL;
 
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
@@ -47,7 +70,7 @@ static TaskHandle_t DemoTask2 = NULL;
 static TaskHandle_t UDPDemoTask = NULL;
 static TaskHandle_t TCPDemoTask = NULL;
 static TaskHandle_t MQDemoTask = NULL;
-static TaskHandle_t MQDemoSendTask = NULL;
+static TaskHandle_t DemoSendTask = NULL;
 
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawSignal = NULL;
@@ -164,20 +187,12 @@ void vSwapBuffers(void *pvParameters)
 	}
 }
 
-#define KEYCODE(CHAR) SDL_SCANCODE_##CHAR
-
 void xGetButtonInput(void)
 {
 	xSemaphoreTake(buttons.lock, 0);
 	xQueueReceive(inputQueue, &buttons.buttons, 0);
 	xSemaphoreGive(buttons.lock);
 }
-
-#define CAVE_SIZE_X SCREEN_WIDTH / 2
-#define CAVE_SIZE_Y SCREEN_HEIGHT / 2
-#define CAVE_X CAVE_SIZE_X / 2
-#define CAVE_Y CAVE_SIZE_Y / 2
-#define CAVE_THICKNESS 25
 
 void vDrawCaveBoundingBox(void)
 {
@@ -217,8 +232,6 @@ void vDrawHelpText(void)
 			      DEFAULT_FONT_SIZE * 0.5, Black),
 		  __FUNCTION__);
 }
-
-#define LOGO_FILENAME "../resources/freertos.jpg"
 
 void vDrawLogo(void)
 {
@@ -284,14 +297,12 @@ static int vCheckStateInput(void)
 	return 0;
 }
 
-#define UDP_BUFFER_SIZE 2000
-
-void UDPHandlerOne(ssize_t read_size, char *buffer, void *args)
+void UDPHandlerOne(size_t read_size, char *buffer, void *args)
 {
 	printf("UDP Recv in first handler: %s\n", buffer);
 }
 
-void UDPHandlerTwo(ssize_t read_size, char *buffer, void *args)
+void UDPHandlerTwo(size_t read_size, char *buffer, void *args)
 {
 	printf("UDP Recv in second handler: %s\n", buffer);
 }
@@ -299,19 +310,19 @@ void UDPHandlerTwo(ssize_t read_size, char *buffer, void *args)
 void vUDPDemoTask(void *pvParameters)
 {
 	char *addr = NULL; // Loopback
-	in_port_t port = 1234;
+	in_port_t port = UDP_TEST_PORT_1;
 
-	aIO_handle_t soc_one = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
-						UDPHandlerOne, NULL);
+	udp_soc_one = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
+				       UDPHandlerOne, NULL);
 
 	printf("UDP socket opened on port %d\n", port);
 	printf("Demo UDP Socket can be tested using\n");
 	printf("*** netcat -vv localhost %d -u ***\n", port);
 
-	port = 4321;
+	port = UDP_TEST_PORT_2;
 
-	aIO_handle_t soc_two = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
-						UDPHandlerTwo, NULL);
+	udp_soc_two = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
+				       UDPHandlerTwo, NULL);
 
 	printf("UDP socket opened on port %d\n", port);
 	printf("Demo UDP Socket can be tested using\n");
@@ -321,28 +332,39 @@ void vUDPDemoTask(void *pvParameters)
 		vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
-#define MSG_QUEUE_BUFFER_SIZE 1000
-#define MSG_QUEUE_MAX_MSG_COUNT 10
-
-void MQHandlerOne(ssize_t read_size, char *buffer, void *args)
+void MQHandlerOne(size_t read_size, char *buffer, void *args)
 {
 	printf("MQ Recv in first handler: %s\n", buffer);
 }
 
-void MQHanderTwo(ssize_t read_size, char *buffer, void *args)
+void MQHanderTwo(size_t read_size, char *buffer, void *args)
 {
 	printf("MQ Recv in second handler: %s\n", buffer);
 }
 
-static char *mq_one_name = "FreeRTOS_MQ_one_22";
-static char *mq_two_name = "FreeRTOS_MQ_two_22";
-
-void vMQDemoSendTask(void *pvParameters)
+void vDemoSendTask(void *pvParameters)
 {
+	static char *test_str_1 = "UDP test 1";
+	static char *test_str_2 = "UDP test 2";
+	static char *test_str_3 = "TCP test";
+
 	while (1) {
-        printf("*****TICK******\n");
-		aIOMessageQueuePut(mq_one_name, "Hello MQ one");
-		aIOMessageQueuePut(mq_two_name, "Hello MQ two");
+		printf("*****TICK******\n");
+        if(mq_one)
+            aIOMessageQueuePut(mq_one_name, "Hello MQ one");
+        if(mq_two)
+            aIOMessageQueuePut(mq_two_name, "Hello MQ two");
+
+		if (udp_soc_one)
+			assert(!aIOSocketPut(UDP, NULL, UDP_TEST_PORT_1,
+					     test_str_1, strlen(test_str_1)));
+        if (udp_soc_two)
+            assert(!aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2,
+                         test_str_2, strlen(test_str_2)));
+        if (tcp_soc)
+            assert(!aIOSocketPut(TCP, NULL, TCP_TEST_PORT,
+                         test_str_3, strlen(test_str_3)));
+        
 
 		vTaskDelay(pdMS_TO_TICKS(1000));
 	}
@@ -350,40 +372,36 @@ void vMQDemoSendTask(void *pvParameters)
 
 void vMQDemoTask(void *pvParameters)
 {
-	aIO_handle_t mq_one =
-		aIOOpenMessageQueue(mq_one_name, MSG_QUEUE_MAX_MSG_COUNT,
-				    MSG_QUEUE_BUFFER_SIZE, MQHandlerOne, NULL);
-	aIO_handle_t mq_two =
-		aIOOpenMessageQueue(mq_two_name, MSG_QUEUE_MAX_MSG_COUNT,
-				    MSG_QUEUE_BUFFER_SIZE, MQHanderTwo, NULL);
+	mq_one = aIOOpenMessageQueue(mq_one_name, MSG_QUEUE_MAX_MSG_COUNT,
+				     MSG_QUEUE_BUFFER_SIZE, MQHandlerOne, NULL);
+	mq_two = aIOOpenMessageQueue(mq_two_name, MSG_QUEUE_MAX_MSG_COUNT,
+				     MSG_QUEUE_BUFFER_SIZE, MQHanderTwo, NULL);
 
 	while (1)
 
 		vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
-#define TCP_BUFFER_SIZE 2000
-
-void TCPHandler(ssize_t read_size, char *buffer, void *args)
+void TCPHandler(size_t read_size, char *buffer, void *args)
 {
-    printf("TCP Recv: %s", buffer);
+	printf("TCP Recv: %s\n", buffer);
 }
 
 void vTCPDemoTask(void *pvParameters)
 {
-    char *addr = NULL; // Loopback
-    in_port_t port = 2222;
+	char *addr = NULL; // Loopback
+	in_port_t port = TCP_TEST_PORT;
 
-    aIO_handle_t soc =
-        aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
+	tcp_soc =
+		aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
 
-    printf("TCP socket opened on port %d\n", port);
-    printf("Demo TCP socket can be tested using\n");
-    printf("*** netcat -vv localhost %d ***\n", port);
+	printf("TCP socket opened on port %d\n", port);
+	printf("Demo TCP socket can be tested using\n");
+	printf("*** netcat -vv localhost %d ***\n", port);
 
-    while (1) {
-        vTaskDelay(10);
-    }
+	while (1) {
+		vTaskDelay(10);
+	}
 }
 
 void vDemoTask1(void *pvParameters)
@@ -542,23 +560,23 @@ int main(int argc, char *argv[])
 	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
 		    NULL, configMAX_PRIORITIES, NULL);
 
-    /** Demo Tasks */
+	/** Demo Tasks */
 	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
 		    mainGENERIC_PRIORITY, &DemoTask1);
 	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2, NULL,
 		    mainGENERIC_PRIORITY, &DemoTask2);
 
-    /** SOCKETS */
-    xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
-            configMAX_PRIORITIES - 1, &UDPDemoTask);
+	/** SOCKETS */
+	xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
+		    configMAX_PRIORITIES - 1, &UDPDemoTask);
     xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL,
             configMAX_PRIORITIES - 1, &TCPDemoTask);
 
-    /** POSIX MESSAGE QUEUES */
+	/** POSIX MESSAGE QUEUES */
     xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
             configMAX_PRIORITIES - 1, &MQDemoTask);
-    xTaskCreate(vMQDemoSendTask, "MQSendTask", mainGENERIC_STACK_SIZE * 2,
-            NULL, configMAX_PRIORITIES - 1, &MQDemoSendTask);
+	xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL,
+		    configMAX_PRIORITIES - 1, &DemoSendTask);
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);

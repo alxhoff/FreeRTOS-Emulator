@@ -35,6 +35,13 @@
  */
 
 /**
+ * @brief Callback function attached to an object
+ *
+ * @param args Arguments passed into the callback function upon execution
+ */
+typedef void (*callback_t)(void *args);
+
+/**
  * @brief Object to represent a ball that bounces off walls
  *
  * A ball is created with a starting X and Y location (center of the ball),
@@ -71,7 +78,7 @@ typedef struct ball {
 
 	unsigned short radius; /**< Radius of the ball in pixels */
 
-	void (*callback)(void *); /**< Collision callback */
+	callback_t callback; /**< Collision callback */
 	void *args; /**< Collision callback args */
 } ball_t;
 
@@ -114,7 +121,7 @@ typedef struct wall {
 
 	unsigned int colour; /**< Hex RGB colour of the ball */
 
-	void (*callback)(void *); /**< Collision callback */
+	callback_t callback; /**< Collision callback */
 	void *args; /**< Collision callback args */
 } wall_t;
 
@@ -134,11 +141,12 @@ typedef struct wall {
  * @param max_speed The maximum speed (in pixels/second) that the ball can travel
  * @param callback The callback function called (if set) when the ball collides
  * with a wall
+ * @param args Args passed to callback function
  * @return A pointer to the created ball, program exits if creation failed
  */
 ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
 		   unsigned int colour, unsigned short radius, float max_speed,
-		   void (*callback)(void *), void *args);
+		   callback_t callback, void *args);
 
 /**
  * @brief Creates a wall object
@@ -151,11 +159,12 @@ ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
  * @param colour The hex RGB colour of the wall
  * @param callback The callback function called (if set) when a ball collides
  * with the wall
+ * @param args Args passed to callback function
  * @return A pointer to the created wall, program exits if creation failed
  */
 wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
 		   unsigned short h, float dampening, unsigned int colour,
-		   void (*callback)(void *), void *args);
+		   callback_t callback, void *args);
 
 /**
  * @name Set wall location flags
@@ -192,7 +201,7 @@ wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
  * @param width New width of the wall
  * @param height New height of the wall
  * @param flags Flags specifying which attributes of the referenced wall are
- * to be set. See @ref wall_flags.
+ * to be set. @see wall_flags.
  *
  */
 void setWallProperty(wall_t *wall, unsigned short x, unsigned short y,
@@ -253,7 +262,7 @@ void setWallProperty(wall_t *wall, unsigned short x, unsigned short y,
  * @param dy New Y axis speed that is to be set
  * @param max_speed New maximum speed limit that is to be set
  * @param flags Flag specifying which attributes of the referenced ball are
- * to be set. See @ref speed_flags.
+ * to be set. @see speed_flags.
  * @return NULL Always returns NULL
  */
 void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
@@ -277,9 +286,10 @@ void setBallLocation(ball_t *ball, unsigned short x, unsigned short y);
  * @param ball Reference to the ball object which is to be checked
  * @param callback Callback function that is to be called when a collision is
  * detected
+ * @param args Args passed to callback function
  * @return 1 if a collision is detected
  */
-unsigned char checkBallCollisions(ball_t *ball, void (*callback)(void *),
+unsigned char checkBallCollisions(ball_t *ball, callback_t callback,
 				  void *args);
 
 /**
