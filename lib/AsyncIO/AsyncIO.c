@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <inttypes.h>
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -38,10 +39,12 @@
 
 #include "AsyncIO.h"
 
+#define PRINT_CHECK fprintf(stderr, "[ERRNO: %s] %s:%d -> %s\n", strerror(errno), __FILE__, __LINE__, __func__);
+
 #define CHECK(x)                                                               \
 	do {                                                                   \
 		if (!(x)) {                                                    \
-			fprintf(stderr, "%s:%d: ", __func__, __LINE__);        \
+			PRINT_CHECK                                            \
 			perror(#x);                                            \
 			exit(-1);                                              \
 		}                                                              \
@@ -263,37 +266,41 @@ int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
 
 	switch (protocol) {
 	case TCP:
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-			goto err_create_socket;
+		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
+	        fprintf(stderr, "Failed to create TCP socket %s:%d\n", s_addr, port);
+			goto error_create_socket;
+        }
 		break;
 	case UDP:
-		if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-			goto err_create_socket;
+		if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
+	        fprintf(stderr, "Failed to create UDP socket %s:%d\n", s_addr, port);
+			goto error_create_socket;
+        }
 		break;
 	default:
 		return -1;
 	}
 
-	if (connect(fd, (struct sockaddr *)&server, sizeof(server)) < 0)
-		goto err_connect;
+	if (connect(fd, (struct sockaddr *)&server, sizeof(server)) < 0){
+	    fprintf(stderr, "Connecting to %s:%d failed\n", (s_addr) ? s_addr : "localhost" , port);
+		goto error_connect;
+    }
 
-	if (send(fd, buffer, buffer_size, 0) < 0)
-		goto err_send;
+	if (send(fd, buffer, buffer_size, 0) < 0){
+	    fprintf(stderr, "Sending to %s:%d failed\n", s_addr, port);
+		goto error_send;
+    }
 
 	close(fd);
 
 	return 0;
 
-err_create_socket:
-	fprintf(stderr, "Failed to create socket %s:%d\n", s_addr, port);
-	return -1;
 
-err_connect:
-	fprintf(stderr, "Connecting to %s:%d failed\n", s_addr, port);
-	return -1;
-
-err_send:
-	fprintf(stderr, "Sending to %s:%d failed\n", s_addr, port);
+error_send:
+error_connect:
+    close(fd);
+error_create_socket:
+	PRINT_CHECK;
 	return -1;
 }
 
@@ -371,8 +378,9 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 			conn->buffer[read_size <= conn->buffer_size ?
 					     read_size :
 					     conn->buffer_size] = '\0';
-            if (conn->callback)
-			(conn->callback)(read_size, conn->buffer, conn->args);
+			if (conn->callback)
+				(conn->callback)(read_size, conn->buffer,
+						 conn->args);
 		}
 		break;
 	case TCP: {
@@ -458,8 +466,8 @@ void *aIOTCPHandler(void *conn)
 	CHECK(buffer);
 
 	while ((read_size = recv(client_fd, buffer, client->buffer_size, 0)))
-        if(client->callback)
-		(client->callback)(read_size, buffer, client->args);
+		if (client->callback)
+			(client->callback)(read_size, buffer, client->args);
 
 	close(client_fd);
 	free(buffer);
@@ -475,7 +483,11 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 	aIO_t *conn = getLastConnection();
 
 	conn->next = createAsyncIO(SOCKET, buffer_size, callback, args);
-	CHECK(conn->next);
+	if(! conn->next){
+        fprintf(stderr, "Failed to allocate TCP IO on port %hu\n", (uint16_t) port);
+        goto error_IO;
+    }
+
 	conn->next->attr.socket.type = TCP;
 
 	pthread_mutex_lock(&conn->next->lock);
@@ -485,33 +497,72 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 	s_tcp->addr.sin_family = AF_INET;
 	s_tcp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
 	s_tcp->addr.sin_port = htons(port);
-
 	s_tcp->fd = socket(AF_INET, SOCK_STREAM, 0);
-	CHECK(s_tcp->fd);
+	if(s_tcp->fd < 0){
+       fprintf(stderr, "Failed to open TCP socket on port %" PRIu16 "\n", (uint16_t) port);
+       goto error_socket;
+    }
+
+    /** Sprinkle a little reuseability on our shiny socket */
+    const int optVal = 1;
+    const socklen_t optLen = sizeof(optVal);
+
+    if (setsockopt(s_tcp->fd, SOL_SOCKET, SO_REUSEADDR, (void*) &optVal, optLen)){
+        fprintf(stderr, "Failed to set socket options on port %" PRIu16 "\n", (uint16_t) port);
+        goto error_socket;
+    }
 
 	printf("Opened socket on port %d with FD: %d\n", port, s_tcp->fd);
 
 	struct sigaction act = { 0 };
 	int fs;
 
-	act.sa_flags = SA_SIGINFO;
+	act.sa_flags = SA_SIGINFO | SA_RESTART;
 	act.sa_sigaction = aIOSocketSigHandler;
 	sigfillset(&act.sa_mask);
 	sigdelset(&act.sa_mask, SIGIO);
-	CHECK(!sigaction(SIGIO, &act, NULL));
+	if(sigaction(SIGIO, &act, NULL) < 0){
+        fprintf(stderr, "Getting sigaction for TCP socket on port %" PRIu16 " failed\n", (uint16_t) port);
+        goto error_fcntl;
+    }
 
-	CHECK((fs = fcntl(s_tcp->fd, F_GETFL)));
+	if(!(fs = fcntl(s_tcp->fd, F_GETFL))){
+        fprintf(stderr, "Failed getting fd status\n");
+        goto error_fcntl;
+    }
 	fs |= O_ASYNC | O_NONBLOCK;
-	CHECK(-1 != fcntl(s_tcp->fd, F_SETFL, fs));
+	if(-1 == fcntl(s_tcp->fd, F_SETFL, fs)){
+        fprintf(stderr, "Failed to set fd status\n");
+        goto error_fcntl;
+    }
 	fcntl(s_tcp->fd, F_SETSIG, SIGIO);
-	CHECK(-1 != fcntl(s_tcp->fd, F_SETOWN, getpid()));
+	if(-1 == fcntl(s_tcp->fd, F_SETOWN, getpid())){
+       fprintf(stderr, "Failed to set thread owner\n");
+       goto error_fcntl;
+    }
 
-	CHECK(!bind(s_tcp->fd, (struct sockaddr *)&s_tcp->addr,
-		    sizeof(s_tcp->addr)));
+	if (bind(s_tcp->fd, (struct sockaddr *)&s_tcp->addr,
+		  sizeof(s_tcp->addr)) < 0){
+        fprintf(stderr, "Failed to bind TCP socket %" PRIu16 "\n", (uint16_t) port);
+        PRINT_CHECK;
+        goto error_fcntl;
+    }
 
-	CHECK(!listen(s_tcp->fd, 1));
+	if(listen(s_tcp->fd, 1) < 0){
+        fprintf(stderr, "Failed to listen on TCP port %" PRIu16 "\n", (uint16_t) port);
+        goto error_fcntl;
+    }
 
 	pthread_mutex_unlock(&conn->next->lock);
 
 	return (aIO_handle_t)conn->next;
+
+error_fcntl:
+    close(s_tcp->fd);
+error_socket:
+   free(conn->next);
+   conn->next = NULL;
+error_IO:
+    PRINT_CHECK;
+    return NULL;
 }
