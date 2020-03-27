@@ -106,6 +106,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;sys/socket.h&gt;</code><br />
 <code>#include &lt;arpa/inet.h&gt;</code><br />
+<code>#include &lt;inttypes.h&gt;</code><br />
 <code>#include &lt;errno.h&gt;</code><br />
 <code>#include &lt;unistd.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
@@ -133,6 +134,8 @@ Classes</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:a369266c24eacffb87046522897a570d5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#a369266c24eacffb87046522897a570d5">_GNU_SOURCE</a></td></tr>
 <tr class="separator:a369266c24eacffb87046522897a570d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d28eb068ca97ef73c3328b05b23c0cd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#a7d28eb068ca97ef73c3328b05b23c0cd">PRINT_CHECK</a>&#160;&#160;&#160;fprintf(stderr, &quot;[ERRNO: %s] %s:%d -&gt; %s\n&quot;, strerror(errno), __FILE__, __LINE__, __func__);</td></tr>
+<tr class="separator:a7d28eb068ca97ef73c3328b05b23c0cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a763ffd798508592c5092ac77daa5a659"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#a763ffd798508592c5092ac77daa5a659">CHECK</a>(x)</td></tr>
 <tr class="separator:a763ffd798508592c5092ac77daa5a659"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -233,7 +236,19 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> {                                                                   \</div><div class="line">        if (!(x)) {                                                    \</div><div class="line">            fprintf(stderr, <span class="stringliteral">&quot;%s:%d: &quot;</span>, __func__, __LINE__);        \</div><div class="line">            perror(#x);                                            \</div><div class="line">            exit(-1);                                              \</div><div class="line">        }                                                              \</div><div class="line">    } <span class="keywordflow">while</span> (0)</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> {                                                                   \</div><div class="line">        if (!(x)) {                                                    \</div><div class="line">            PRINT_CHECK                                            \</div><div class="line">            perror(#x);                                            \</div><div class="line">            exit(-1);                                              \</div><div class="line">        }                                                              \</div><div class="line">    } <span class="keywordflow">while</span> (0)</div></div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a7d28eb068ca97ef73c3328b05b23c0cd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRINT_CHECK&#160;&#160;&#160;fprintf(stderr, &quot;[ERRNO: %s] %s:%d -&gt; %s\n&quot;, strerror(errno), __FILE__, __LINE__, __func__);</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 </div>
 </div>
 <h2 class="groupheader">Typedef Documentation</h2>
@@ -446,6 +461,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Sprinkle a little reuseability on our shiny socket </p>
 
 </div>
 </div>
