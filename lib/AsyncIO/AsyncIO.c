@@ -282,6 +282,11 @@ int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
 	}
 
 	if (connect(fd, (struct sockaddr *)&server, sizeof(server)) < 0){
+        if(errno == EINTR || errno == EALREADY){
+            printf("Connection to port %" PRIu16 " interrupted, port is busy\n", (uint16_t) port);
+            return 0;
+        }
+
 	    fprintf(stderr, "Connecting to %s:%d failed\n", (s_addr) ? s_addr : "localhost" , port);
 		goto error_connect;
     }
