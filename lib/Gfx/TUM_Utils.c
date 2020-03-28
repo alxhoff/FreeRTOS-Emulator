@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
+#include <assert.h>
 
 char *prepend_path(char *path, char *file)
 {
@@ -42,29 +44,12 @@ char *prepend_path(char *path, char *file)
 
 char *getBinFolderPath(char *bin_path)
 {
-	int result = 0;
-	regex_t re;
-	char *pattern = "(.*)\/";
-	regmatch_t pmatch;
+	char *dir_name = dirname(bin_path);
 
-	// Font path
-	if (regcomp(&re, pattern, REG_NEWLINE | REG_EXTENDED) != 0)
-		exit(EXIT_FAILURE);
+	char *ret = calloc(1, sizeof(char) * (strlen(dir_name) + 1));
+	assert(ret);
 
-	if (0 != (result = regexec(&re, bin_path, (size_t)1, &pmatch, 0))) {
-		printf("Failed to match '%s' with '%s', returning %d\nn_",
-		       bin_path, pattern, result);
-	};
-
-	regfree(&re);
-
-	char *ret = calloc(1, sizeof(char) * (pmatch.rm_eo - pmatch.rm_so + 1));
-	if (!ret) {
-		fprintf(stderr, "getBinFolderPath malloc failed\n");
-		exit(EXIT_FAILURE);
-	}
-
-	strncpy(ret, bin_path + pmatch.rm_so, pmatch.rm_eo - pmatch.rm_so);
+	strcpy(ret, dir_name);
 
 	return ret;
 }
