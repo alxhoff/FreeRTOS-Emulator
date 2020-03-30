@@ -47,14 +47,10 @@ void initMouse(void)
 	assert(mouse.lock);
 }
 
-void vEventsTask(void *pvParameters)
+void fetchEvents(void)
 {
-	portTickType xLastWakeTime;
-	xLastWakeTime = xTaskGetTickCount();
-	const portTickType eventPollPeriod = 5;
-
 	SDL_Event event = { 0 };
-	unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
+	static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
 	unsigned char send = 0;
 
 	while (1) {
@@ -83,7 +79,6 @@ void vEventsTask(void *pvParameters)
 			send = 0;
 		}
 
-		vTaskDelayUntil(&xLastWakeTime, eventPollPeriod);
 	}
 }
 
@@ -121,8 +116,8 @@ void vInitEvents(void)
 	inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
 	assert(inputQueue);
 
-	xTaskCreate(vEventsTask, "EventsTask", 100, NULL, tskIDLE_PRIORITY,
-		    &eventTask);
+  // No Task for Event Polling, as SDL is not thread safe.
+  // Call fetchEvents() in Draw Loop instead!
 
 	// Ignore SDL events
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);

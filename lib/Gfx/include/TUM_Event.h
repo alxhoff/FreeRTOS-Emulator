@@ -65,6 +65,12 @@ signed short xGetMouseX(void);
  */
 signed short xGetMouseY(void);
 
+/**
+ * @brief Polls all outstanding SDL Events.
+ *        Should be called from Draw Loop
+ */
+void fetchEvents(void);
+
 /*
  * Sends an unsigned char array of length SDL_NUM_SCANCODES. Acts as a lookup
  * table using the SDL scancodes defined in <SDL2/SDL_scancode.h>
