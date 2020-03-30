@@ -180,6 +180,8 @@ void vSwapBuffers(void *pvParameters)
 	xLastWakeTime = xTaskGetTickCount();
 	const TickType_t frameratePeriod = 20;
 
+	vInitDrawing(NULL); // Setup Rendering handle with correct GL context
+
 	while (1) {
 		xSemaphoreTake(ScreenLock, portMAX_DELAY);
 		vDrawUpdateScreen();

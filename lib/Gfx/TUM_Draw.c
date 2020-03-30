@@ -168,6 +168,7 @@ const int screen_width = SCREEN_WIDTH;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
+SDL_GLContext context = NULL;
 TTF_Font *font = NULL;
 
 char *error_message = NULL;
@@ -606,66 +607,109 @@ char *tumGetErrorMessage(void)
 
 int vInitDrawing(char *path)
 {
-	if(SDL_Init(SDL_INIT_EVERYTHING)){
-        PRINT_SDL_ERROR("SDL_Init failed: %s");
-        goto err_sdl;
-    }
-	if(TTF_Init()){
-        PRINT_TTF_ERROR("TTF_Init failed");
-        goto err_ttf;
-    }
+	static char firstCall = 1; // Used to transfer the Thread Context
 
-	char *buffer = prepend_path(path, FONT_LOCATION);
-    if(!buffer){
-        PRINT_ERROR("Prepending font path failed");
-        goto err_font_loc;
-    }
+	if (firstCall) { // Should be called from the Thread running main()
+		firstCall = 0;
 
-	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
-	free(buffer);
+		/* Relevant for Docker-based toolchain */
+#ifdef DOCKER
+#ifndef HOST_OS
+#warning "HOST_OS undefined! Assuming 'linux'..."
+#elif HOST_OS != linux
+		setenv("LIBGL_ALWAYS_INDIRECT","1", 1); // speed up drawings a little bit
+		setenv("SDL_VIDEO_X11_VISUALID", "", 1); // required on windows and macos
+#elif HOST_OS == linux
+		// nothing
+#else
+#error "Unexpected value of HOST_OS!"
+#endif /* HOST_OS */
+#endif /* DOCKER */
 
-	if (!font){
-        PRINT_TTF_ERROR("Opening font @ '%s' failed", buffer);
-        goto err_open_font;
-    }
+		if(SDL_Init(SDL_INIT_EVERYTHING)){
+			PRINT_SDL_ERROR("SDL_Init failed");
+			goto err_sdl;
+		}
+		if(TTF_Init()){
+			PRINT_TTF_ERROR("TTF_Init failed");
+			goto err_ttf;
+		}
 
-	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
-				  SDL_WINDOWPOS_CENTERED, screen_width,
-				  screen_height, SDL_WINDOW_SHOWN);
+		char *buffer = prepend_path(path, FONT_LOCATION);
+		if(!buffer){
+			PRINT_TTF_ERROR("Prepending font path failed");
+			goto err_font_loc;
+		}
 
-	if (!window) {
-        PRINT_SDL_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
-        goto err_window;
+		font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
+		free(buffer);
+
+		if (!font) {
+			PRINT_TTF_ERROR("Opening font @ '%s' failed", buffer);
+			goto err_open_font;
+		}
+
+		window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
+					SDL_WINDOWPOS_CENTERED, screen_width,
+					screen_height, SDL_WINDOW_OPENGL);
+
+		if (!window) {
+			PRINT_SDL_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
+			goto err_window;
+		}
+
+		context = SDL_GL_CreateContext(window);
+
+		if (SDL_GL_MakeCurrent(window, context) < 0) {
+			PRINT_SDL_ERROR("Claiming current context failed", buffer);
+			goto err_make_current;
+		}
+
+		if (SDL_GL_MakeCurrent(window, NULL) < 0) {
+			PRINT_SDL_ERROR("Releasing current context failed", buffer);
+			goto err_make_current;
+		}
+
+		atexit(SDL_Quit);
+
+		return 0;
+
+	} else { // Should be called from the Drawing Thread
+
+		if (SDL_GL_MakeCurrent(window, context) < 0) { // Claim GL Context
+			PRINT_SDL_ERROR("Releasing current context failed", buffer);
+			goto err_make_current;
+		}
+
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
+							SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
+
+		if (!renderer) {
+			PRINT_SDL_ERROR("Failed to create renderer");
+			goto err_renderer;
+		}
+
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+		SDL_RenderClear(renderer);
+
+		return 0;
 	}
-
-	renderer = SDL_CreateRenderer(window, -1,
-				      SDL_RENDERER_ACCELERATED |
-					      SDL_RENDERER_TARGETTEXTURE);
-
-	if (!renderer) {
-        PRINT_SDL_ERROR("Failed to create renderer");
-        goto err_renderer;
-	}
-
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-	SDL_RenderClear(renderer);
-
-	atexit(SDL_Quit);
-
-    return 0;
 
 err_renderer:
-    SDL_DestroyWindow(window);
+	SDL_DestroyWindow(window);
+err_make_current:
+	SDL_GL_DeleteContext(context);
+err_create_context:
 err_window:
-    TTF_CloseFont(font);
+	TTF_CloseFont(font);
 err_open_font:
 err_font_loc:
-    TTF_Quit();
+	TTF_Quit();
 err_ttf:
-    SDL_Quit();
+	SDL_Quit();
 err_sdl:
-    return -1;
+	return -1;
 }
 
 void vExitDrawing(void)
