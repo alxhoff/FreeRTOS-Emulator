@@ -81,6 +81,7 @@ void fetchEvents(void)
 		xQueueOverwrite(inputQueue, &buttons);
 		send = 0;
 	}
+
 }
 
 signed short xGetMouseX(void)
