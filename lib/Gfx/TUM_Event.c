@@ -114,8 +114,8 @@ void vInitEvents(void)
 	inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
 	assert(inputQueue);
 
-  // No Task for Event Polling, as SDL is not thread safe.
-  // Call fetchEvents() in Draw Loop instead!
+	// No Task for Event Polling, as SDL is not thread safe.
+	// Call fetchEvents() in Draw Loop instead!
 
 	// Ignore SDL events
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
