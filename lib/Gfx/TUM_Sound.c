@@ -27,14 +27,17 @@ Mix_Chunk *samples[NUM_WAVEFORMS] = { 0 };
 
 void vExitAudio(void)
 {
+#ifndef DOCKER
 	unsigned int i;
 
 	for (i = 0; i < NUM_WAVEFORMS; i++)
 		Mix_FreeChunk(samples[i]);
+#endif /* DOCKER */
 }
 
 void vInitAudio(char *bin_dir_str)
 {
+#ifndef DOCKER
 	size_t bin_dir_len = strlen(bin_dir_str);
 	unsigned int i;
 
@@ -69,8 +72,14 @@ void vInitAudio(char *bin_dir_str)
 	}
 
 	atexit(vExitAudio);
+#else
+#warning "Sound API is not available in Container!"
+#endif /* DOCKER */
 }
+
 void vPlaySample(unsigned char index)
 {
+#ifndef DOCKER
 	Mix_PlayChannel(-1, samples[index], 0);
+#endif /* DOCKER */
 }
