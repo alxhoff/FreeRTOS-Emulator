@@ -582,8 +582,6 @@ static void logCriticalError(char *msg)
 	exit(-1);
 }
 
-#pragma mark - public
-
 void vDrawUpdateScreen(void)
 {
 	if (!job_list_head.next) {
