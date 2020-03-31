@@ -546,13 +546,13 @@ void vDemoTask2(void *pvParameters)
 							my_ball->colour),
 					  __FUNCTION__);
 
+				// Draw FPS in lower right corner
+				vDrawFPS();
+
 				xSemaphoreGive(ScreenLock);
 
 				// Check for state change
 				vCheckStateInput();
-
-				// Draw FPS in lower right corner
-				vDrawFPS();
 
 				// Keep track of when task last ran so that you know how many ticks
 				//(in our case miliseconds) have passed so that the balls position
