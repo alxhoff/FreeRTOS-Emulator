@@ -21,6 +21,8 @@
    ----------------------------------------------------------------------
 @endverbatim
  */
+#include <limits.h>
+#include <stdlib.h>
 
 #include <assert.h>
 
@@ -169,9 +171,8 @@ SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
 char *error_message = NULL;
-char *bin_folder = NULL;
 
-uint32_t SwapBytes(uint x)
+uint32_t SwapBytes(unsigned int x)
 {
 	return ((x & 0x000000ff) << 24) + ((x & 0x0000ff00) << 8) +
 	       ((x & 0x00ff0000) >> 8) + ((x & 0xff000000) >> 24);
@@ -687,8 +688,6 @@ void vExitDrawing(void)
 	TTF_Quit();
 	SDL_Quit();
 
-	free(bin_folder);
-
 	exit(EXIT_SUCCESS);
 }
 
@@ -848,7 +847,14 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
 {
 	INIT_JOB(job, DRAW_IMAGE);
 
-	job->data->image.filename = prepend_path(bin_folder, filename);
+    char abs_path[PATH_MAX+1];
+
+    if(!realpath(filename, (char *)abs_path)){
+        return -1;
+    }
+
+	job->data->image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
+    strcpy(job->data->image.filename, abs_path);
 	job->data->image.x = x;
 	job->data->image.y = y;
 
@@ -857,9 +863,9 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
 
 void tumGetImageSize(char *filename, int *w, int *h)
 {
-	char *full_filename = prepend_path(bin_folder, filename);
+	char full_filename[PATH_MAX+1];
+    realpath(filename, full_filename);
 	vGetImageSize(full_filename, w, h);
-	free(full_filename);
 }
 
 signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
@@ -869,8 +875,14 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
 
 	INIT_JOB(job, DRAW_SCALED_IMAGE);
 
-	job->data->scaled_image.image.filename =
-		prepend_path(bin_folder, filename);
+    char abs_path[PATH_MAX+1];
+
+    if(!realpath(filename, (char *)abs_path)){
+        return -1;
+    }
+
+	job->data->scaled_image.image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
+    strcpy(job->data->scaled_image.image.filename, abs_path);
 	job->data->scaled_image.image.x = x;
 	job->data->scaled_image.image.y = y;
 	job->data->scaled_image.scale = scale;
