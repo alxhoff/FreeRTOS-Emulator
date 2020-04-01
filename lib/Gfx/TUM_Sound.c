@@ -3,6 +3,7 @@
 #include <SDL2/SDL_mixer.h>
 
 #include "TUM_Sound.h"
+#include "TUM_Utils.h"
 
 #define SAMPLE_FOLDER "/../resources/waveforms/"
 
@@ -33,42 +34,57 @@ void vExitAudio(void)
 		Mix_FreeChunk(samples[i]);
 }
 
-void vInitAudio(char *bin_dir_str)
+int vInitAudio(char *bin_dir_str)
 {
+    int ret;
 	size_t bin_dir_len = strlen(bin_dir_str);
-	unsigned int i;
+	unsigned int i, j;
 
 	for (i = 0; i < NUM_WAVEFORMS; i++) {
 		fullWaveFileNames[i] =
 			calloc(1, sizeof(char) * (strlen(waveFileNames[i]) +
 						  bin_dir_len + 1));
+        if(!fullWaveFileNames[i]){
+            PRINT_ERROR("Failed to allocate file name #%d '%s'", i, waveFileNames[i]);
+            goto err_file_names;
+        }
 		strcpy(fullWaveFileNames[i], bin_dir_str);
 		strcat(fullWaveFileNames[i], waveFileNames[i]);
 	}
 
-	int result = Mix_OpenAudio(22050, AUDIO_S16SYS, AUDIO_CHANNELS, 512);
+	if(Mix_OpenAudio(22050, AUDIO_S16SYS, AUDIO_CHANNELS, 512)){
+        PRINT_ERROR("Failed to open audio with #%d channels", AUDIO_CHANNELS);
+        goto err_open_audio;
+    }
 
-	if (result) {
-		logSDLError("Mix_OpenAudio");
-		exit(EXIT_FAILURE);
-	}
-
-	result = Mix_AllocateChannels(MIXING_CHANNELS);
-
-	if (result < 0) {
-		logSDLError("Mix_AllocateChannels");
-		exit(EXIT_FAILURE);
-	}
+	if((ret = Mix_AllocateChannels(MIXING_CHANNELS)) != MIXING_CHANNELS){
+        PRINT_ERROR("Failed to allocate %d channels, only %d allocated", MIXING_CHANNELS, ret);
+        goto err_allocate_channels;
+    }
 
 	for (i = 0; i < NUM_WAVEFORMS; i++) {
 		samples[i] = Mix_LoadWAV(fullWaveFileNames[i]);
 		if (!samples[i]) {
-			logSDLError("MixLoadWAV");
-			exit(EXIT_FAILURE);
+            PRINT_ERROR("Failed to load WAV: %s", fullWaveFileNames[i]);
+            goto err_loadWAV;
 		}
 	}
 
 	atexit(vExitAudio);
+
+    return 0;
+
+err_loadWAV:
+    for(j=0; j < i; j++)
+        Mix_FreeChunk(samples[j]);
+err_allocate_channels:
+    Mix_CloseAudio();
+err_open_audio:
+    i--;
+err_file_names:
+    for(j=0 ; j < i; j++)
+        free(fullWaveFileNames[j]);
+    return -1;
 }
 void vPlaySample(unsigned char index)
 {
