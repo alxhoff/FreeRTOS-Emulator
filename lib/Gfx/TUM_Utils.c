@@ -33,7 +33,7 @@ char *prepend_path(char *path, char *file)
 	char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
 	if (!ret) {
 		fprintf(stderr, "[ERROR] prepend_bin_path malloc failed\n");
-		exit(EXIT_FAILURE);
+        return NULL;
 	}
 
 	strcpy(ret, path);

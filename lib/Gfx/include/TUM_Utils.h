@@ -24,6 +24,8 @@
 #ifndef __TUM_UTILS_H__
 #define __TUM_UTILS_H__
 
+#define PRINT_ERROR fprintf(stderr, "-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
+
 /**
  * @brief Prepends a path string to a filename
  *
@@ -41,5 +43,6 @@ char *prepend_path(char *path, char *file);
  * @return char * String of the folder's absolute location
  */
 char *getBinFolderPath(char *bin_path);
+
 
 #endif

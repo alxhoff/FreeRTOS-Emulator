@@ -463,6 +463,8 @@ void vDemoTask2(void *pvParameters)
 			   0.2, Blue, NULL, NULL);
 	unsigned char collisions = 0;
 
+    printf("Task 1 init'd\n");
+
 	while (1) {
 		if (DrawSignal)
 			if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
@@ -567,16 +569,16 @@ int main(int argc, char *argv[])
 		    mainGENERIC_PRIORITY, &DemoTask2);
 
 	/** SOCKETS */
-	xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
-		    configMAX_PRIORITIES - 1, &UDPDemoTask);
-    xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL,
-            configMAX_PRIORITIES - 1, &TCPDemoTask);
+	/** xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+	/**         configMAX_PRIORITIES - 1, &UDPDemoTask); */
+    /** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
+    /**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
 
 	/** POSIX MESSAGE QUEUES */
-    xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
-            configMAX_PRIORITIES - 1, &MQDemoTask);
-	xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL,
-		    configMAX_PRIORITIES - 1, &DemoSendTask);
+    /** xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+    /**         configMAX_PRIORITIES - 1, &MQDemoTask); */
+	/** xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+	/**         configMAX_PRIORITIES - 1, &DemoSendTask); */
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);

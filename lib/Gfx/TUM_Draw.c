@@ -612,34 +612,42 @@ char *tumGetErrorMessage(void)
 	return error_message;
 }
 
-void vInitDrawing(char *path)
+int vInitDrawing(char *path)
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
-	TTF_Init();
-
-	bin_folder = malloc(sizeof(char) * (strlen(path) + 1));
-	if (!bin_folder) {
-		fprintf(stderr, "[ERROR] bin folder malloc failed\n");
-		exit(EXIT_FAILURE);
-	}
-	strcpy(bin_folder, path);
+	if(SDL_Init(SDL_INIT_EVERYTHING)){
+        fprintf(stderr, "[ERROR] SDL_Init failed\n");
+        PRINT_ERROR;
+        goto err_sdl;
+    }
+	if(TTF_Init()){
+        fprintf(stderr, "[ERROR] TTF_Init failed\n");
+        PRINT_ERROR;
+        goto err_ttf;
+    }
 
 	char *buffer = prepend_path(path, FONT_LOCATION);
+    if(!buffer){
+        PRINT_ERROR;
+        goto err_font_loc;
+    }
 
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
-	if (!font)
-		logSDLTTFError("vInitDrawing->OpenFont");
+	if (!font){
+        PRINT_ERROR;
+        goto err_open_font;
+    }
 
 	free(buffer);
 
-	window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED,
+	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
 				  SDL_WINDOWPOS_CENTERED, screen_width,
 				  screen_height, SDL_WINDOW_SHOWN);
 
 	if (!window) {
-		logSDLError("vInitDrawing->CreateWindow");
-		SDL_Quit();
-		exit(-1);
+        fprintf(stderr, "[ERROR] failed to create %d x %d window '%s'\n", 
+                screen_width, screen_height, WINDOW_TITLE);
+        PRINT_ERROR;
+        goto err_window;
 	}
 
 	renderer = SDL_CreateRenderer(window, -1,
@@ -647,10 +655,8 @@ void vInitDrawing(char *path)
 					      SDL_RENDERER_TARGETTEXTURE);
 
 	if (!renderer) {
-		logSDLError("vInitDrawing->CreateRenderer");
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		exit(-1);
+        PRINT_ERROR;
+        goto err_renderer;
 	}
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -658,6 +664,19 @@ void vInitDrawing(char *path)
 	SDL_RenderClear(renderer);
 
 	atexit(SDL_Quit);
+
+err_renderer:
+    SDL_DestroyWindow(window);
+err_window:
+    TTF_CloseFont(font);
+err_open_font:
+    free(buffer);
+err_font_loc:
+    TTF_Quit();
+err_ttf:
+    SDL_Quit();
+err_sdl:
+    return -1;
 }
 
 void vExitDrawing(void)
