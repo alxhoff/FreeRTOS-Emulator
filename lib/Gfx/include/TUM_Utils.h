@@ -25,9 +25,8 @@
 #define __TUM_UTILS_H__
 
 #define PRINT_ERROR(msg, ...) \
-    fprintf(stderr, "[ERROR] "); \
-    fprintf(stderr, msg, ##__VA_ARGS__); \
-    fprintf(stderr, "\n@-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
+    fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__); \
+    fprintf(stderr, "    @-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
 
 /**
  * @brief Prepends a path string to a filename
