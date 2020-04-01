@@ -183,6 +183,7 @@ void vSwapBuffers(void *pvParameters)
 	while (1) {
 		xSemaphoreTake(ScreenLock, portMAX_DELAY);
 		vDrawUpdateScreen();
+		fetchEvents();
 		xSemaphoreGive(ScreenLock);
 		xSemaphoreGive(DrawSignal);
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(frameratePeriod));

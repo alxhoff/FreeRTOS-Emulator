@@ -51,43 +51,35 @@ static int initMouse(void)
     return 0;
 }
 
-void vEventsTask(void *pvParameters)
+void fetchEvents(void)
 {
-	portTickType xLastWakeTime;
-	xLastWakeTime = xTaskGetTickCount();
-	const portTickType eventPollPeriod = 5;
-
 	SDL_Event event = { 0 };
-	unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
+	static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
 	unsigned char send = 0;
 
-	while (1) {
-		while (SDL_PollEvent(&event)) {
-			if ((event.type == SDL_QUIT) ||
-			    (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
-				vExitDrawing();
-			} else if (event.type == SDL_KEYDOWN) {
-				buttons[event.key.keysym.scancode] = 1;
-				send = 1;
-			} else if (event.type == SDL_KEYUP) {
-				buttons[event.key.keysym.scancode] = 0;
-				send = 1;
-			} else if (event.type == SDL_MOUSEMOTION) {
-				xSemaphoreTake(mouse.lock, 0);
-				mouse.x = event.motion.x;
-				mouse.y = event.motion.y;
-				xSemaphoreGive(mouse.lock);
-			} else {
-				;
-			}
+	while (SDL_PollEvent(&event)) {
+		if ((event.type == SDL_QUIT) ||
+		    (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
+			vExitDrawing();
+		} else if (event.type == SDL_KEYDOWN) {
+			buttons[event.key.keysym.scancode] = 1;
+			send = 1;
+		} else if (event.type == SDL_KEYUP) {
+			buttons[event.key.keysym.scancode] = 0;
+			send = 1;
+		} else if (event.type == SDL_MOUSEMOTION) {
+			xSemaphoreTake(mouse.lock, 0);
+			mouse.x = event.motion.x;
+			mouse.y = event.motion.y;
+			xSemaphoreGive(mouse.lock);
+		} else {
+			;
 		}
+	}
 
-		if (send) {
-			xQueueOverwrite(inputQueue, &buttons);
-			send = 0;
-		}
-
-		vTaskDelayUntil(&xLastWakeTime, eventPollPeriod);
+	if (send) {
+		xQueueOverwrite(inputQueue, &buttons);
+		send = 0;
 	}
 }
 
@@ -130,12 +122,6 @@ int vInitEvents(void)
     if(!inputQueue){
         PRINT_ERROR("Creating mouse queue failed");
         goto err_queue;
-    }
-
-    if(xTaskCreate(vEventsTask, "EventsTask", 100, NULL, tskIDLE_PRIORITY,
-		    &eventTask) != pdPASS){
-        PRINT_ERROR("Creating event task failed");
-        goto err_events_task;
     }
 
 	// Ignore SDL events
