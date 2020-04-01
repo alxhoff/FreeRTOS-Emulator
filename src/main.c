@@ -235,6 +235,31 @@ void vDrawHelpText(void)
 		  __FUNCTION__);
 }
 
+void vDrawFPS(void)
+{
+	static TickType_t xLastWakeTime = 0, prevWakeTime = 0;
+	static char str[10] = { 0 };
+	static int text_width;
+	int fps = 0;
+
+	xLastWakeTime = xTaskGetTickCount();
+
+	if (prevWakeTime != xLastWakeTime) {
+		fps = configTICK_RATE_HZ/(xLastWakeTime-prevWakeTime);
+	  prevWakeTime = xLastWakeTime;
+	} else {
+		fps = 0;
+	}
+
+	sprintf(str, "FPS: %2d",fps);
+
+	tumGetTextSize((char *)str, &text_width, NULL);
+
+	checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
+							SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5, Blue),
+							__FUNCTION__);
+}
+
 void vDrawLogo(void)
 {
 	static int image_height;
@@ -426,6 +451,9 @@ void vDemoTask1(void *pvParameters)
 
 				// Get input and check for state change
 				vCheckStateInput();
+
+				// Draw FPS in lower right corner
+				vDrawFPS();
 			}
 	}
 }
@@ -521,6 +549,9 @@ void vDemoTask2(void *pvParameters)
 							my_ball->radius,
 							my_ball->colour),
 					  __FUNCTION__);
+
+				// Draw FPS in lower right corner
+				vDrawFPS();
 
 				xSemaphoreGive(ScreenLock);
 
