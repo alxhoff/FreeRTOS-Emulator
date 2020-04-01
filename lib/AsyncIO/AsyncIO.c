@@ -136,14 +136,13 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 					return curr;
 				}
 			break;
+			//TODO
 		case MSG_QUEUE:
-			//TODO
-			return NULL;
 		case SERIAL:
-			//TODO
-			return NULL;
 		case NONE:
 		default:
+            pthread_mutex_unlock(&prev->lock);
+            pthread_mutex_unlock(&curr->lock);
 			return NULL;
 		}
 		pthread_mutex_unlock(&prev->lock);
@@ -245,14 +244,19 @@ int aIOMessageQueuePut(char *mq_name, char *buffer)
 		return -1;
 	}
 
-	if (-1 == mq_send(mq, buffer, strlen(buffer), 0))
+	if (-1 == mq_send(mq, buffer, strlen(buffer), 0)){
 		printf("Unable to send to MQ: %s, errno: %d\n", mq_name, errno);
-	else
+        goto error_send;
+    } else
 		printf("Sent to MQ: %s\n", mq_name);
 
-	CHECK((mqd_t)-1 != mq_close(mq));
+	mq_close(mq);
 
 	return 0;
+
+error_send:
+    mq_close(mq);
+    return -1;
 }
 
 int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
@@ -317,19 +321,23 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 	aIO_t *conn = getLastConnection();
 
 	conn->next = createAsyncIO(MSG_QUEUE, max_msg_size, callback, args);
-	CHECK(conn->next);
+	if(!conn->next){
+        fprintf(stderr, "Failed to allocate MQ IO for MQ '%s'\n", name);
+        goto error_IO;
+    }
 
 	pthread_mutex_lock(&conn->next->lock);
 
-	conn = conn->next;
-
-	aIO_mq_t *mq = &conn->attr.mq;
+	aIO_mq_t *mq = &conn->next->attr.mq;
 
 	size_t str_len = strlen(name) <= MQ_MAX_NAME_LEN ? strlen(name) :
 							   MQ_MAX_NAME_LEN;
 
 	mq->name = (char *)malloc(sizeof(char) * (str_len + 2));
-	CHECK(mq->name);
+	if(!mq->name){
+        fprintf(stderr, "Failed to allocate name for MQ '%s'\n", name);
+        goto error_name;
+    }
 	strncpy(mq->name + 1, name, str_len);
 	mq->name[0] = '/';
 
@@ -343,27 +351,43 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 
 	/** sigval struct that is passed to handler. sival_ptr is used to pass pointer  */
 	/**     to structure containing MQ information */
-	sv.sival_ptr = conn;
+	sv.sival_ptr = conn->next;
 
 	/** Create MQ */
-	CHECK(-1 != (mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK,
-				      0644, &attr)));
+	if(-1 == (mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK,
+				      0644, &attr))){
+        fprintf(stderr, "Couldn't open MQ '%s'\n", mq->name);
+        goto error_open;
+    }
 
 	/** sigevent needed to enable to passing of si_value to the handler */
-	conn->attr.mq.ev.sigev_notify = SIGEV_THREAD;
+	conn->next->attr.mq.ev.sigev_notify = SIGEV_THREAD;
 	mq->ev.sigev_signo = SIGIO;
 	mq->ev.sigev_value = sv;
 	/** used by SIGEV_THREAD */
 	mq->ev.sigev_notify_function = aIOMQSigHandler;
 	mq->ev.sigev_notify_attributes = NULL;
 
-	CHECK(!mq_notify(mq->fd, &mq->ev));
+	if(mq_notify(mq->fd, &mq->ev)){
+        fprintf(stderr, "Failed to notify MQ '%s'\n", mq->name);
+        goto error_notify;
+    }
 
-	pthread_mutex_unlock(&conn->lock);
+	pthread_mutex_unlock(&conn->next->lock);
 
 	printf("MQ '%s' opened and notified\n", name);
 
-	return (aIO_handle_t)conn;
+	return (aIO_handle_t)conn->next;
+
+error_notify:
+error_open:
+    free(mq->name);
+error_name:
+    free(conn->next);
+    conn->next = NULL;
+    pthread_mutex_unlock(&conn->next->lock);
+error_IO:
+    return NULL;
 }
 
 static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
@@ -422,7 +446,10 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 	aIO_t *conn = getLastConnection();
 
 	conn->next = createAsyncIO(SOCKET, buffer_size, callback, args);
-	CHECK(conn->next);
+    if(!conn->next){
+        fprintf(stderr, "Failed to allocate UDP IO on port %" PRIu16 "\n", (uint16_t) port);
+        goto error_IO;
+    }
 
 	conn->next->attr.socket.type = UDP;
 
@@ -435,9 +462,12 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 	s_udp->addr.sin_port = htons(port);
 
 	s_udp->fd = socket(AF_INET, SOCK_DGRAM, 0);
-	CHECK(s_udp->fd);
+    if(s_udp->fd < 0){
+        fprintf(stderr, "Failed to open UDP socket on port %" PRIu16 "\n", (uint16_t) port);
+        goto error_socket;
+    }
 
-	printf("Opened socket on port %d with FD: %d\n", port, s_udp->fd);
+	printf("Opened socket on port %" PRIu16 " with FD: %d\n", port, s_udp->fd);
 
 	struct sigaction act = { 0 };
 	int fs;
@@ -446,20 +476,44 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 	act.sa_sigaction = aIOSocketSigHandler;
 	sigfillset(&act.sa_mask);
 	sigdelset(&act.sa_mask, SIGIO);
-	CHECK(!sigaction(SIGIO, &act, NULL));
+	if (sigaction(SIGIO, &act, NULL) < 0){
+        fprintf(stderr, "Setting sigaction for UDP socket on port %" PRIu16 " failed\n", (uint16_t) port);
+        goto error_fcntl;
+    }
 
-	CHECK((fs = fcntl(s_udp->fd, F_GETFL)));
+	if(!(fs = fcntl(s_udp->fd, F_GETFL))){
+        fprintf(stderr, "Failed getting fd status\n");
+        goto error_fcntl;
+    }
 	fs |= O_ASYNC | O_NONBLOCK;
-	CHECK(-1 != fcntl(s_udp->fd, F_SETFL, fs));
+	if(-1 == fcntl(s_udp->fd, F_SETFL, fs)){
+        fprintf(stderr, "Failed to set fd status\n");
+        goto error_fcntl;
+    }
 	fcntl(s_udp->fd, F_SETSIG, SIGIO);
-	CHECK(-1 != fcntl(s_udp->fd, F_SETOWN, getpid()));
+	if(-1 == fcntl(s_udp->fd, F_SETOWN, getpid())){
+        fprintf(stderr, "Failed to set thread owner\n");
+        goto error_fcntl;
+    }
 
-	CHECK(!bind(s_udp->fd, (struct sockaddr *)&s_udp->addr,
-		    sizeof(s_udp->addr)));
+	if(bind(s_udp->fd, (struct sockaddr *)&s_udp->addr, sizeof(s_udp->addr)) < 0){
+        fprintf(stderr, "Failed to bind UDP socket %" PRIu16 "\n", (uint16_t) port);
+        PRINT_CHECK;
+        goto error_fcntl;
+    }
 
 	pthread_mutex_unlock(&conn->next->lock);
 
 	return (aIO_handle_t)conn->next;
+
+error_fcntl:
+    close(s_udp->fd);
+error_socket:
+    free(conn->next);
+    conn->next = NULL;
+    pthread_mutex_unlock(&conn->next->lock);
+error_IO:
+    return NULL;
 }
 
 void *aIOTCPHandler(void *conn)
@@ -489,7 +543,7 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 
 	conn->next = createAsyncIO(SOCKET, buffer_size, callback, args);
 	if(! conn->next){
-        fprintf(stderr, "Failed to allocate TCP IO on port %hu\n", (uint16_t) port);
+        fprintf(stderr, "Failed to allocate TCP IO on port %" PRIu16 "\n", (uint16_t) port);
         goto error_IO;
     }
 
@@ -527,7 +581,7 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 	sigfillset(&act.sa_mask);
 	sigdelset(&act.sa_mask, SIGIO);
 	if(sigaction(SIGIO, &act, NULL) < 0){
-        fprintf(stderr, "Getting sigaction for TCP socket on port %" PRIu16 " failed\n", (uint16_t) port);
+        fprintf(stderr, "Setting sigaction for TCP socket on port %" PRIu16 " failed\n", (uint16_t) port);
         goto error_fcntl;
     }
 
@@ -565,8 +619,9 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 error_fcntl:
     close(s_tcp->fd);
 error_socket:
-   free(conn->next);
-   conn->next = NULL;
+    free(conn->next);
+    conn->next = NULL;
+    pthread_mutex_unlock(&conn->next->lock);
 error_IO:
     PRINT_CHECK;
     return NULL;

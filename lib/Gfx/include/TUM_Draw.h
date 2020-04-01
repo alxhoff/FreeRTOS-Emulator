@@ -40,6 +40,8 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
+#define WINDOW_TITLE "FreeRTOS Emulator"
+
 /**
  * Defines the default font size used by the SDL TTF library
  */
@@ -118,9 +120,9 @@ char *tumGetErrorMessage(void);
  *
  * @param path Path to the folder's location where the program's binary is
  * located
- * @return NULL always returns NULL
+ * @return 0 on success
  */
-void vInitDrawing(char *path);
+int vInitDrawing(char *path);
 
 /**
  * @brief Exits the TUM Draw backend

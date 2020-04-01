@@ -65,6 +65,8 @@ aIO_handle_t tcp_soc = NULL;
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
 
+static TaskHandle_t StateMachine = NULL;
+static TaskHandle_t BufferSwap = NULL;
 static TaskHandle_t DemoTask1 = NULL;
 static TaskHandle_t DemoTask2 = NULL;
 static TaskHandle_t UDPDemoTask = NULL;
@@ -232,6 +234,31 @@ void vDrawHelpText(void)
 	checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
 			      DEFAULT_FONT_SIZE * 0.5, Black),
 		  __FUNCTION__);
+}
+
+void vDrawFPS(void)
+{
+	static TickType_t xLastWakeTime = 0, prevWakeTime = 0;
+	static char str[10] = { 0 };
+	static int text_width;
+	int fps = 0;
+
+	xLastWakeTime = xTaskGetTickCount();
+
+	if (prevWakeTime != xLastWakeTime) {
+		fps = configTICK_RATE_HZ/(xLastWakeTime-prevWakeTime);
+	  prevWakeTime = xLastWakeTime;
+	} else {
+		fps = 0;
+	}
+
+	sprintf(str, "FPS: %2d",fps);
+
+	tumGetTextSize((char *)str, &text_width, NULL);
+
+	checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
+							SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5, Blue),
+							__FUNCTION__);
 }
 
 void vDrawLogo(void)
@@ -425,6 +452,9 @@ void vDemoTask1(void *pvParameters)
 
 				// Get input and check for state change
 				vCheckStateInput();
+
+				// Draw FPS in lower right corner
+				vDrawFPS();
 			}
 	}
 }
@@ -463,6 +493,8 @@ void vDemoTask2(void *pvParameters)
 			   CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS,
 			   0.2, Blue, NULL, NULL);
 	unsigned char collisions = 0;
+
+    printf("Task 1 init'd\n");
 
 	while (1) {
 		if (DrawSignal)
@@ -519,6 +551,9 @@ void vDemoTask2(void *pvParameters)
 							my_ball->colour),
 					  __FUNCTION__);
 
+				// Draw FPS in lower right corner
+				vDrawFPS();
+
 				xSemaphoreGive(ScreenLock);
 
 				// Check for state change
@@ -532,52 +567,91 @@ void vDemoTask2(void *pvParameters)
 	}
 }
 
+#define PRINT_TASK_ERROR(task) PRINT_ERROR("Failed to print task ##task");
+
 int main(int argc, char *argv[])
 {
 	char *bin_folder_path = getBinFolderPath(argv[0]);
-	printf("%s\n", bin_folder_path);
+    
+    printf("Initializing: ");
 
-	vInitDrawing(bin_folder_path);
-	vInitEvents();
-	vInitAudio(bin_folder_path);
+	if(vInitDrawing(bin_folder_path)){
+        PRINT_ERROR("Failed to intialize drawing");
+        goto err_init_drawing;
+    }
+
+    if(vInitEvents()){
+        PRINT_ERROR("Failed to initialize events");
+        goto err_init_events;
+    }
+
+	if(vInitAudio(bin_folder_path)){
+        PRINT_ERROR("Failed to initialize audio");
+        goto err_init_audio;
+    }
 
 	atexit(aIODeinit);
 
 	buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
+    if(!buttons.lock){
+        PRINT_ERROR("Failed to create buttons lock");
+        goto err_buttons_lock;
+    }
 	assert(buttons.lock);
 
 	DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
-	assert(DrawSignal);
+    if(!DrawSignal){
+        PRINT_ERROR("Failed to create draw signal");
+        goto err_draw_signal;
+    }
 	ScreenLock = xSemaphoreCreateMutex();
-	assert(ScreenLock);
+    if(!ScreenLock){
+        PRINT_ERROR("Failed to create screen lock");
+        goto err_screen_lock;
+    }
 
 	// Message sending
 	StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
-	assert(StateQueue);
+    if(!StateQueue){
+        PRINT_ERROR("Could not open state queue");
+        goto err_state_queue;
+    }
 
-	xTaskCreate(basicSequentialStateMachine, "StateMachine",
+	if(xTaskCreate(basicSequentialStateMachine, "StateMachine",
 		    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES - 1,
-		    NULL);
-	xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
-		    NULL, configMAX_PRIORITIES, NULL);
+		    StateMachine) != pdPASS){
+        PRINT_TASK_ERROR("StateMachine");
+        goto err_statemachine;
+    }
+	if(xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
+		    NULL, configMAX_PRIORITIES, BufferSwap) != pdPASS){
+        PRINT_TASK_ERROR("BufferSwapTask");
+        goto err_bufferswap;
+    }
 
 	/** Demo Tasks */
-	xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask1);
-	xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2, NULL,
-		    mainGENERIC_PRIORITY, &DemoTask2);
+	if(xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask1) != pdPASS){
+        PRINT_TASK_ERROR("DemoTask1");
+        goto err_demotask1;
+    }
+	if(xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2, NULL,
+		    mainGENERIC_PRIORITY, &DemoTask2) != pdPASS){
+        PRINT_TASK_ERROR("DemoTask2");
+        goto err_demotask2;
+    }
 
 	/** SOCKETS */
-	xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
-		    configMAX_PRIORITIES - 1, &UDPDemoTask);
-    xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL,
-            configMAX_PRIORITIES - 1, &TCPDemoTask);
+	/** xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+	/**         configMAX_PRIORITIES - 1, &UDPDemoTask); */
+    /** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
+    /**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
 
 	/** POSIX MESSAGE QUEUES */
-    xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
-            configMAX_PRIORITIES - 1, &MQDemoTask);
-	xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL,
-		    configMAX_PRIORITIES - 1, &DemoSendTask);
+    /** xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+    /**         configMAX_PRIORITIES - 1, &MQDemoTask); */
+	/** xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL, */
+	/**         configMAX_PRIORITIES - 1, &DemoSendTask); */
 
 	vTaskSuspend(DemoTask1);
 	vTaskSuspend(DemoTask2);
@@ -585,6 +659,29 @@ int main(int argc, char *argv[])
 	vTaskStartScheduler();
 
 	return EXIT_SUCCESS;
+
+err_demotask2:
+    vTaskDelete(DemoTask1);
+err_demotask1:
+    vTaskDelete(BufferSwap);
+err_bufferswap:
+    vTaskDelete(StateMachine);
+err_statemachine:
+    vQueueDelete(StateQueue);
+err_state_queue:
+    vSemaphoreDelete(StateQueue);
+err_screen_lock:
+    vSemaphoreDelete(DrawSignal);
+err_draw_signal:
+    vSemaphoreDelete(buttons.lock);
+err_buttons_lock:
+    vExitAudio(); 
+err_init_audio:
+    vExitEvents();
+err_init_events:
+    vExitDrawing();
+err_init_drawing:
+    return EXIT_FAILURE;
 }
 
 void vMainQueueSendPassed(void)

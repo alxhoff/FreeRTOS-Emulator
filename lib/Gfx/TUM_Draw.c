@@ -21,6 +21,8 @@
    ----------------------------------------------------------------------
 @endverbatim
  */
+#include <limits.h>
+#include <stdlib.h>
 
 #include <assert.h>
 
@@ -169,9 +171,8 @@ SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
 char *error_message = NULL;
-char *bin_folder = NULL;
 
-uint32_t SwapBytes(uint x)
+uint32_t SwapBytes(unsigned int x)
 {
 	return ((x & 0x000000ff) << 24) + ((x & 0x0000ff00) << 8) +
 	       ((x & 0x00ff0000) >> 8) + ((x & 0xff000000) >> 24);
@@ -612,34 +613,38 @@ char *tumGetErrorMessage(void)
 	return error_message;
 }
 
-void vInitDrawing(char *path)
+int vInitDrawing(char *path)
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
-	TTF_Init();
-
-	bin_folder = malloc(sizeof(char) * (strlen(path) + 1));
-	if (!bin_folder) {
-		fprintf(stderr, "[ERROR] bin folder malloc failed\n");
-		exit(EXIT_FAILURE);
-	}
-	strcpy(bin_folder, path);
+	if(SDL_Init(SDL_INIT_EVERYTHING)){
+        PRINT_ERROR("SDL_Init failed");
+        goto err_sdl;
+    }
+	if(TTF_Init()){
+        PRINT_ERROR("TTF_Init failed");
+        goto err_ttf;
+    }
 
 	char *buffer = prepend_path(path, FONT_LOCATION);
+    if(!buffer){
+        PRINT_ERROR("Prepending font path failed");
+        goto err_font_loc;
+    }
 
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
-	if (!font)
-		logSDLTTFError("vInitDrawing->OpenFont");
-
 	free(buffer);
 
-	window = SDL_CreateWindow("FreeRTOS Simulator", SDL_WINDOWPOS_CENTERED,
+	if (!font){
+        PRINT_ERROR("Opening font @ '%s' failed", buffer);
+        goto err_open_font;
+    }
+
+	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
 				  SDL_WINDOWPOS_CENTERED, screen_width,
 				  screen_height, SDL_WINDOW_SHOWN);
 
 	if (!window) {
-		logSDLError("vInitDrawing->CreateWindow");
-		SDL_Quit();
-		exit(-1);
+        PRINT_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
+        goto err_window;
 	}
 
 	renderer = SDL_CreateRenderer(window, -1,
@@ -647,10 +652,8 @@ void vInitDrawing(char *path)
 					      SDL_RENDERER_TARGETTEXTURE);
 
 	if (!renderer) {
-		logSDLError("vInitDrawing->CreateRenderer");
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		exit(-1);
+        PRINT_ERROR("Failed to create renderer");
+        goto err_renderer;
 	}
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -658,6 +661,20 @@ void vInitDrawing(char *path)
 	SDL_RenderClear(renderer);
 
 	atexit(SDL_Quit);
+
+    return 0;
+
+err_renderer:
+    SDL_DestroyWindow(window);
+err_window:
+    TTF_CloseFont(font);
+err_open_font:
+err_font_loc:
+    TTF_Quit();
+err_ttf:
+    SDL_Quit();
+err_sdl:
+    return -1;
 }
 
 void vExitDrawing(void)
@@ -670,8 +687,6 @@ void vExitDrawing(void)
 
 	TTF_Quit();
 	SDL_Quit();
-
-	free(bin_folder);
 
 	exit(EXIT_SUCCESS);
 }
@@ -832,7 +847,14 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
 {
 	INIT_JOB(job, DRAW_IMAGE);
 
-	job->data->image.filename = prepend_path(bin_folder, filename);
+    char abs_path[PATH_MAX+1];
+
+    if(!realpath(filename, (char *)abs_path)){
+        return -1;
+    }
+
+	job->data->image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
+    strcpy(job->data->image.filename, abs_path);
 	job->data->image.x = x;
 	job->data->image.y = y;
 
@@ -841,9 +863,9 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
 
 void tumGetImageSize(char *filename, int *w, int *h)
 {
-	char *full_filename = prepend_path(bin_folder, filename);
+	char full_filename[PATH_MAX+1];
+    realpath(filename, full_filename);
 	vGetImageSize(full_filename, w, h);
-	free(full_filename);
 }
 
 signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
@@ -853,8 +875,14 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
 
 	INIT_JOB(job, DRAW_SCALED_IMAGE);
 
-	job->data->scaled_image.image.filename =
-		prepend_path(bin_folder, filename);
+    char abs_path[PATH_MAX+1];
+
+    if(!realpath(filename, (char *)abs_path)){
+        return -1;
+    }
+
+	job->data->scaled_image.image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
+    strcpy(job->data->scaled_image.image.filename, abs_path);
 	job->data->scaled_image.image.x = x;
 	job->data->scaled_image.image.y = y;
 	job->data->scaled_image.scale = scale;

@@ -29,6 +29,7 @@
 #include "SDL2/SDL.h"
 
 #include "TUM_Draw.h"
+#include "TUM_Utils.h"
 
 typedef struct mouse {
 	xSemaphoreHandle lock;
@@ -41,10 +42,13 @@ QueueHandle_t inputQueue = NULL;
 
 mouse_t mouse;
 
-void initMouse(void)
+static int initMouse(void)
 {
 	mouse.lock = xSemaphoreCreateMutex();
-	assert(mouse.lock);
+    if(!mouse.lock)
+        return -1;
+
+    return 0;
 }
 
 void fetchEvents(void)
@@ -107,15 +111,19 @@ signed short xGetMouseY(void)
 		return 0;
 }
 
-void vInitEvents(void)
+int vInitEvents(void)
 {
-	initMouse();
+	if(initMouse()){
+        PRINT_ERROR("Init mouse failed");
+        goto err_init_mouse;
+    }
 
 	inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
-	assert(inputQueue);
 
-	// No Task for Event Polling, as SDL is not thread safe.
-	// Call fetchEvents() in Draw Loop instead!
+    if(!inputQueue){
+        PRINT_ERROR("Creating mouse queue failed");
+        goto err_queue;
+    }
 
 	// Ignore SDL events
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
@@ -123,4 +131,19 @@ void vInitEvents(void)
 	SDL_EventState(0x303, SDL_IGNORE);
 	SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
 	SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+
+    return 0;
+
+err_events_task:
+    vQueueDelete(inputQueue);
+err_queue:
+    vSemaphoreDelete(mouse.lock);
+err_init_mouse:
+    return -1;
+}
+
+void vExitEvents(void)
+{
+    vQueueDelete(inputQueue);
+    vSemaphoreDelete(mouse.lock);
 }

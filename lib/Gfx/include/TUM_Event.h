@@ -48,8 +48,15 @@
 
 /**
  * @brief Initializes the TUM Event backend
+ *
+ * @return 0 on success
  */
-void vInitEvents(void);
+int vInitEvents(void);
+
+/**
+ * @brief Deinitializes the TUM Event backend
+ */
+void vExitEvents(void);
 
 /**
  * @brief Returns a copy of the mouse's most recent X coord (in pixels)

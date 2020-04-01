@@ -78,8 +78,14 @@ enum samples_enum { FOR_EACH_SAMPLE(GEN_ENUM) };
  * in the @ref samples_enum
  *
  * @param bin_dir_str String specifying where the program's binary is located
+ * @return 0 on success
  */
-void vInitAudio(char *bin_dir_str);
+int vInitAudio(char *bin_dir_str);
+
+/**
+ * @brief Deinitializes the SDL2 Mixer library 
+ */
+void vExitAudio(void);
 
 /**
  * @brief Plays a wav sample
