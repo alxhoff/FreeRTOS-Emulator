@@ -155,7 +155,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">fprintf(stderr, <span class="stringliteral">&quot;[ERROR] &quot;</span>); \</div><div class="line">    fprintf(stderr, msg, ##__VA_ARGS__); \</div><div class="line">    fprintf(stderr, <span class="stringliteral">&quot;\n@-&gt; %s:%d, %s\n&quot;</span>, __FILE__, __LINE__, __func__)</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line">fprintf(stderr, <span class="stringliteral">&quot;[ERROR] &quot;</span> msg, ##__VA_ARGS__); \</div><div class="line">    fprintf(stderr, <span class="stringliteral">&quot;    @-&gt; %s:%d, %s\n&quot;</span>, __FILE__, __LINE__, __func__)</div></div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
