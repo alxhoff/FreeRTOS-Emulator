@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['getbinfolderpath',['getBinFolderPath',['../TUM__Utils_8h.html#a2cf02f9acce4e7fd78b0795fe22bcfc8',1,'getBinFolderPath(char *bin_path):&#160;TUM_Utils.c'],['../TUM__Utils_8c.html#a2cf02f9acce4e7fd78b0795fe22bcfc8',1,'getBinFolderPath(char *bin_path):&#160;TUM_Utils.c']]],
-  ['getlastconnection',['getLastConnection',['../AsyncIO_8c.html#a5f5884a494342c3a4a40748accbd316f',1,'AsyncIO.c']]]
+  ['fetchevents',['fetchEvents',['../group__tum__event.html#gab2044a019bdb4c1ceae68a634a461694',1,'fetchEvents(void):&#160;TUM_Event.c'],['../group__tum__event.html#gab2044a019bdb4c1ceae68a634a461694',1,'fetchEvents(void):&#160;TUM_Event.c']]]
 ];
