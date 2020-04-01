@@ -85,7 +85,7 @@ int vInitAudio(char *bin_dir_str);
 /**
  * @brief Deinitializes the SDL2 Mixer library 
  */
-void vExitAutio(void);
+void vExitAudio(void);
 
 /**
  * @brief Plays a wav sample
