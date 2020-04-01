@@ -101,7 +101,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>A SDL2 based library to implement work queue based drawing of graphical elements. Allows for drawing using SDL2 from multiple threads.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;assert.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;limits.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;assert.h&gt;</code><br />
 <code>#include &lt;SDL2/SDL.h&gt;</code><br />
 <code>#include &lt;SDL2/SDL2_gfxPrimitives.h&gt;</code><br />
 <code>#include &lt;SDL2/SDL_image.h&gt;</code><br />
@@ -209,8 +211,8 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:adac8c9172c7b930d05c770b6b0fec3a8"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#adac8c9172c7b930d05c770b6b0fec3a8">SwapBytes</a> (uint x)</td></tr>
-<tr class="separator:adac8c9172c7b930d05c770b6b0fec3a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e287faafd8f3797d5bfb27623f5fa5d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a7e287faafd8f3797d5bfb27623f5fa5d">SwapBytes</a> (unsigned int x)</td></tr>
+<tr class="separator:a7e287faafd8f3797d5bfb27623f5fa5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20669be39049197fc218d5fd078c1e57"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a20669be39049197fc218d5fd078c1e57">setErrorMessage</a> (char *msg)</td></tr>
 <tr class="separator:a20669be39049197fc218d5fd078c1e57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18c6cd7260e900a314b5216c6121c258"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a18c6cd7260e900a314b5216c6121c258">logSDLTTFError</a> (char *msg)</td></tr>
@@ -293,8 +295,6 @@ Variables</h2></td></tr>
 <tr class="separator:abf5bfa705e66ffc1ddaa6ce46c960873"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a1c633ac5dcca48c2e8aba77d007207"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a1a1c633ac5dcca48c2e8aba77d007207">error_message</a> = NULL</td></tr>
 <tr class="separator:a1a1c633ac5dcca48c2e8aba77d007207"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d8c3da2f8a8338fb2510775a389c27a"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a5d8c3da2f8a8338fb2510775a389c27a">bin_folder</a> = NULL</td></tr>
-<tr class="separator:a5d8c3da2f8a8338fb2510775a389c27a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A SDL2 based library to implement work queue based drawing of graphical elements. Allows for drawing using SDL2 from multiple threads. </p>
@@ -369,8 +369,8 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="structdraw__job.html">draw_job_t</a> *JOB = pushDrawJob();                                       \</div><div class="line">    union <a class="code" href="uniondata__u.html">data_u</a> *data = calloc(1, <span class="keyword">sizeof</span>(<span class="keyword">union</span> <a class="code" href="uniondata__u.html">data_u</a>));                  \</div><div class="line">    if (!data)                                                             \</div><div class="line">        logCriticalError(<span class="stringliteral">&quot;job-&gt;data alloc&quot;</span>);                           \</div><div class="line">    JOB-&gt;data = data;                                                      \</div><div class="line">    JOB-&gt;type = TYPE;</div><div class="ttc" id="structdraw__job_html"><div class="ttname"><a href="structdraw__job.html">draw_job</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:155</div></div>
-<div class="ttc" id="uniondata__u_html"><div class="ttname"><a href="uniondata__u.html">data_u</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:140</div></div>
+<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="structdraw__job.html">draw_job_t</a> *JOB = pushDrawJob();                                       \</div><div class="line">    union <a class="code" href="uniondata__u.html">data_u</a> *data = calloc(1, <span class="keyword">sizeof</span>(<span class="keyword">union</span> <a class="code" href="uniondata__u.html">data_u</a>));                  \</div><div class="line">    if (!data)                                                             \</div><div class="line">        logCriticalError(<span class="stringliteral">&quot;job-&gt;data alloc&quot;</span>);                           \</div><div class="line">    JOB-&gt;data = data;                                                      \</div><div class="line">    JOB-&gt;type = TYPE;</div><div class="ttc" id="structdraw__job_html"><div class="ttname"><a href="structdraw__job.html">draw_job</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:157</div></div>
+<div class="ttc" id="uniondata__u_html"><div class="ttname"><a href="uniondata__u.html">data_u</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:142</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -651,14 +651,14 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="adac8c9172c7b930d05c770b6b0fec3a8"></a>
+<a class="anchor" id="a7e287faafd8f3797d5bfb27623f5fa5d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">uint32_t SwapBytes </td>
           <td>(</td>
-          <td class="paramtype">uint&#160;</td>
+          <td class="paramtype">unsigned int&#160;</td>
           <td class="paramname"><em>x</em></td><td>)</td>
           <td></td>
         </tr>
@@ -700,18 +700,6 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a class="anchor" id="a5d8c3da2f8a8338fb2510775a389c27a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">char* bin_folder = NULL</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a1a1c633ac5dcca48c2e8aba77d007207"></a>
 <div class="memitem">
 <div class="memproto">

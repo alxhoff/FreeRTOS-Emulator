@@ -12,7 +12,6 @@ var searchData=
   ['ball_5ft',['ball_t',['../group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd',1,'TUM_Ball.h']]],
   ['ball_5ftop_5fpoint_5fx',['BALL_TOP_POINT_X',['../TUM__Ball_8c.html#a8e4e7ec486fe26dc0db3e4cbf8afe617',1,'TUM_Ball.c']]],
   ['ball_5ftop_5fpoint_5fy',['BALL_TOP_POINT_Y',['../TUM__Ball_8c.html#a489465dca9a6bcc1762e866ed716ee25',1,'TUM_Ball.c']]],
-  ['bin_5ffolder',['bin_folder',['../TUM__Draw_8c.html#a5d8c3da2f8a8338fb2510775a389c27a',1,'TUM_Draw.c']]],
   ['black',['Black',['../group__tum__draw.html#ga68eb1f80b4df2818e5a0774106748141',1,'TUM_Draw.h']]],
   ['blue',['Blue',['../group__tum__draw.html#ga6208a194d702872fdbe1d3c7d7a7c879',1,'TUM_Draw.h']]],
   ['blue_5fportion',['BLUE_PORTION',['../TUM__Draw_8c.html#afa380c49af810175c6e643cf63b8a4e3',1,'TUM_Draw.c']]],
