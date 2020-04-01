@@ -83,6 +83,11 @@ enum samples_enum { FOR_EACH_SAMPLE(GEN_ENUM) };
 int vInitAudio(char *bin_dir_str);
 
 /**
+ * @brief Deinitializes the SDL2 Mixer library 
+ */
+void vExitAutio(void);
+
+/**
  * @brief Plays a wav sample
  *
  * @param index Index to specify which sample to play, @ref samples_enum gives

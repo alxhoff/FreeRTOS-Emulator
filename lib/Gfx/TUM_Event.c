@@ -154,3 +154,9 @@ err_queue:
 err_init_mouse:
     return -1;
 }
+
+void vExitEvents(void)
+{
+    vQueueDelete(inputQueue);
+    vSemaphoreDelete(mouse.lock);
+}
