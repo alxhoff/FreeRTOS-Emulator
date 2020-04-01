@@ -189,17 +189,8 @@ void setErrorMessage(char *msg)
 	strcpy(error_message, msg);
 }
 
-void logSDLTTFError(char *msg)
-{
-	if (msg)
-		printf("[ERROR] %s, %s\n", msg, TTF_GetError());
-}
-
-void logSDLError(char *msg)
-{
-	if (msg)
-		printf("[ERROR] %s, %s\n", msg, SDL_GetError());
-}
+#define PRINT_TTF_ERROR(msg, ...) PRINT_ERROR("[TTF Error] %s\n" #msg, (char *) TTF_GetError(),  ##__VA_ARGS__)
+#define PRINT_SDL_ERROR(msg, ...) PRINT_ERROR("[SDL Error] %s\n" #msg, (char *) SDL_GetError(),  ##__VA_ARGS__)
 
 static draw_job_t *pushDrawJob(void)
 {
@@ -333,7 +324,7 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 			SDL_DestroyRenderer(ren);
 		if (window)
 			SDL_DestroyWindow(window);
-		logSDLError("loadImage->LoadBMP");
+        PRINT_SDL_ERROR("Failed to load image");
 		SDL_Quit();
 		exit(0);
 	}
@@ -616,11 +607,11 @@ char *tumGetErrorMessage(void)
 int vInitDrawing(char *path)
 {
 	if(SDL_Init(SDL_INIT_EVERYTHING)){
-        PRINT_ERROR("SDL_Init failed");
+        PRINT_SDL_ERROR("SDL_Init failed: %s");
         goto err_sdl;
     }
 	if(TTF_Init()){
-        PRINT_ERROR("TTF_Init failed");
+        PRINT_TTF_ERROR("TTF_Init failed");
         goto err_ttf;
     }
 
@@ -634,7 +625,7 @@ int vInitDrawing(char *path)
 	free(buffer);
 
 	if (!font){
-        PRINT_ERROR("Opening font @ '%s' failed", buffer);
+        PRINT_TTF_ERROR("Opening font @ '%s' failed", buffer);
         goto err_open_font;
     }
 
@@ -643,7 +634,7 @@ int vInitDrawing(char *path)
 				  screen_height, SDL_WINDOW_SHOWN);
 
 	if (!window) {
-        PRINT_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
+        PRINT_SDL_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
         goto err_window;
 	}
 
@@ -652,7 +643,7 @@ int vInitDrawing(char *path)
 					      SDL_RENDERER_TARGETTEXTURE);
 
 	if (!renderer) {
-        PRINT_ERROR("Failed to create renderer");
+        PRINT_SDL_ERROR("Failed to create renderer");
         goto err_renderer;
 	}
 
