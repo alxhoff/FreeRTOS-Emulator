@@ -540,16 +540,19 @@ void vDemoTask2(void *pvParameters)
 int main(int argc, char *argv[])
 {
 	char *bin_folder_path = getBinFolderPath(argv[0]);
-	printf("%s\n", bin_folder_path);
+    
+    printf("Initializing: ");
 
 	if(vInitDrawing(bin_folder_path)){
         PRINT_ERROR("Failed to intialize drawing");
         goto err_init_drawing;
     }
+
     if(vInitEvents()){
         PRINT_ERROR("Failed to initialize events");
         goto err_init_events;
     }
+
 	if(vInitAudio(bin_folder_path)){
         PRINT_ERROR("Failed to initialize audio");
         goto err_init_audio;

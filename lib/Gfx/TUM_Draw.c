@@ -630,12 +630,12 @@ int vInitDrawing(char *path)
     }
 
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
+	free(buffer);
+
 	if (!font){
         PRINT_ERROR("Opening font @ '%s' failed", buffer);
         goto err_open_font;
     }
-
-	free(buffer);
 
 	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
 				  SDL_WINDOWPOS_CENTERED, screen_width,
@@ -661,12 +661,13 @@ int vInitDrawing(char *path)
 
 	atexit(SDL_Quit);
 
+    return 0;
+
 err_renderer:
     SDL_DestroyWindow(window);
 err_window:
     TTF_CloseFont(font);
 err_open_font:
-    free(buffer);
 err_font_loc:
     TTF_Quit();
 err_ttf:
