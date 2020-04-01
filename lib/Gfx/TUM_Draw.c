@@ -615,25 +615,23 @@ char *tumGetErrorMessage(void)
 int vInitDrawing(char *path)
 {
 	if(SDL_Init(SDL_INIT_EVERYTHING)){
-        fprintf(stderr, "[ERROR] SDL_Init failed\n");
-        PRINT_ERROR;
+        PRINT_ERROR("SDL_Init failed");
         goto err_sdl;
     }
 	if(TTF_Init()){
-        fprintf(stderr, "[ERROR] TTF_Init failed\n");
-        PRINT_ERROR;
+        PRINT_ERROR("TTF_Init failed");
         goto err_ttf;
     }
 
 	char *buffer = prepend_path(path, FONT_LOCATION);
     if(!buffer){
-        PRINT_ERROR;
+        PRINT_ERROR("Prepending font path failed");
         goto err_font_loc;
     }
 
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
 	if (!font){
-        PRINT_ERROR;
+        PRINT_ERROR("Opening font @ '%s' failed", buffer);
         goto err_open_font;
     }
 
@@ -644,9 +642,7 @@ int vInitDrawing(char *path)
 				  screen_height, SDL_WINDOW_SHOWN);
 
 	if (!window) {
-        fprintf(stderr, "[ERROR] failed to create %d x %d window '%s'\n", 
-                screen_width, screen_height, WINDOW_TITLE);
-        PRINT_ERROR;
+        PRINT_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
         goto err_window;
 	}
 
@@ -655,7 +651,7 @@ int vInitDrawing(char *path)
 					      SDL_RENDERER_TARGETTEXTURE);
 
 	if (!renderer) {
-        PRINT_ERROR;
+        PRINT_ERROR("Failed to create renderer");
         goto err_renderer;
 	}
 

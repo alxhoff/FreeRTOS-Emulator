@@ -538,8 +538,14 @@ int main(int argc, char *argv[])
 	char *bin_folder_path = getBinFolderPath(argv[0]);
 	printf("%s\n", bin_folder_path);
 
-	vInitDrawing(bin_folder_path);
-	vInitEvents();
+	if(vInitDrawing(bin_folder_path)){
+        PRINT_ERROR("Failed to intialize drawing");
+        goto err_init_drawing;
+    }
+    if(vInitEvents()){
+        PRINT_ERROR("Failed to initialize events");
+        goto err_init_events;
+    }
 	vInitAudio(bin_folder_path);
 
 	atexit(aIODeinit);
@@ -586,6 +592,11 @@ int main(int argc, char *argv[])
 	vTaskStartScheduler();
 
 	return EXIT_SUCCESS;
+
+err_init_events:
+    vExitDrawing();
+err_init_drawing:
+    return EXIT_FAILURE;
 }
 
 void vMainQueueSendPassed(void)
