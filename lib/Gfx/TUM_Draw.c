@@ -849,8 +849,9 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
 
     char abs_path[PATH_MAX+1];
 
-    if(!realpath(filename, (char *)abs_path))
+    if(!realpath(filename, (char *)abs_path)){
         return -1;
+    }
 
 	job->data->image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
     strcpy(job->data->image.filename, abs_path);
@@ -876,8 +877,9 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
 
     char abs_path[PATH_MAX+1];
 
-    if(!realpath(filename, (char *)abs_path))
+    if(!realpath(filename, (char *)abs_path)){
         return -1;
+    }
 
 	job->data->scaled_image.image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
     strcpy(job->data->scaled_image.image.filename, abs_path);
