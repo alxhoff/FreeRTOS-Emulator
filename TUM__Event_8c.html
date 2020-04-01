@@ -104,6 +104,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &quot;task.h&quot;</code><br />
 <code>#include &quot;SDL2/SDL.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Draw_8h_source.html">TUM_Draw.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="TUM__Utils_8h_source.html">TUM_Utils.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -117,8 +118,6 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:adf164f47281fccb51fdb7eacb7ea9151"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Event_8c.html#adf164f47281fccb51fdb7eacb7ea9151">initMouse</a> (void)</td></tr>
-<tr class="separator:adf164f47281fccb51fdb7eacb7ea9151"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75328e4e04f80791111b361f680310df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Event_8c.html#a75328e4e04f80791111b361f680310df">vEventsTask</a> (void *pvParameters)</td></tr>
 <tr class="separator:a75328e4e04f80791111b361f680310df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8d47a9265358fe61a85c1b7357772352"><td class="memItemLeft" align="right" valign="top">signed short&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga8d47a9265358fe61a85c1b7357772352">xGetMouseX</a> (void)</td></tr>
@@ -127,9 +126,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga867d27f705b273f980faf79ce84aec4d"><td class="memItemLeft" align="right" valign="top">signed short&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga867d27f705b273f980faf79ce84aec4d">xGetMouseY</a> (void)</td></tr>
 <tr class="memdesc:ga867d27f705b273f980faf79ce84aec4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a copy of the mouse's most recent Y coord (in pixels)  <a href="group__tum__event.html#ga867d27f705b273f980faf79ce84aec4d">More...</a><br /></td></tr>
 <tr class="separator:ga867d27f705b273f980faf79ce84aec4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga32e568ec1c91ab567053819dbd138e46"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga32e568ec1c91ab567053819dbd138e46">vInitEvents</a> (void)</td></tr>
-<tr class="memdesc:ga32e568ec1c91ab567053819dbd138e46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the TUM Event backend.  <a href="group__tum__event.html#ga32e568ec1c91ab567053819dbd138e46">More...</a><br /></td></tr>
-<tr class="separator:ga32e568ec1c91ab567053819dbd138e46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2b8cf4f58446da0160df9b8956ed7718"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga2b8cf4f58446da0160df9b8956ed7718">vInitEvents</a> (void)</td></tr>
+<tr class="memdesc:ga2b8cf4f58446da0160df9b8956ed7718"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the TUM Event backend.  <a href="group__tum__event.html#ga2b8cf4f58446da0160df9b8956ed7718">More...</a><br /></td></tr>
+<tr class="separator:ga2b8cf4f58446da0160df9b8956ed7718"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga13becd1974d7f9630ae9f86da76efac9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga13becd1974d7f9630ae9f86da76efac9">vExitEvents</a> (void)</td></tr>
+<tr class="memdesc:ga13becd1974d7f9630ae9f86da76efac9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deinitializes the TUM Event backend.  <a href="group__tum__event.html#ga13becd1974d7f9630ae9f86da76efac9">More...</a><br /></td></tr>
+<tr class="separator:ga13becd1974d7f9630ae9f86da76efac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -171,22 +173,6 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="adf164f47281fccb51fdb7eacb7ea9151"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void initMouse </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a75328e4e04f80791111b361f680310df"></a>
 <div class="memitem">
 <div class="memproto">

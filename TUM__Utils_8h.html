@@ -88,6 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">TUM_Utils.h File Reference</div>  </div>
@@ -99,6 +100,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p><a href="TUM__Utils_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:abd4b982e6561fbe1e6bad710a93475e1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(msg, ...)</td></tr>
+<tr class="separator:abd4b982e6561fbe1e6bad710a93475e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:abc98d1d6f5595d32fc333e4e66aebf72"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#abc98d1d6f5595d32fc333e4e66aebf72">prepend_path</a> (char *path, char *file)</td></tr>
@@ -125,7 +131,34 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 ----------------------------------------------------------------------
 </pre> </dd></dl>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a class="anchor" id="abd4b982e6561fbe1e6bad710a93475e1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRINT_ERROR</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">msg, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">fprintf(stderr, <span class="stringliteral">&quot;[ERROR] &quot;</span>); \</div><div class="line">    fprintf(stderr, msg, ##__VA_ARGS__); \</div><div class="line">    fprintf(stderr, <span class="stringliteral">&quot;\n@-&gt; %s:%d, %s\n&quot;</span>, __FILE__, __LINE__, __func__)</div></div><!-- fragment -->
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="a2cf02f9acce4e7fd78b0795fe22bcfc8"></a>
 <div class="memitem">
 <div class="memproto">
