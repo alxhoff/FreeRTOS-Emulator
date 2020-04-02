@@ -191,8 +191,12 @@ void setErrorMessage(char *msg)
 	strcpy(error_message, msg);
 }
 
-#define PRINT_TTF_ERROR(msg, ...) PRINT_ERROR("[TTF Error] %s\n" #msg, (char *) TTF_GetError(),  ##__VA_ARGS__)
-#define PRINT_SDL_ERROR(msg, ...) PRINT_ERROR("[SDL Error] %s\n" #msg, (char *) SDL_GetError(),  ##__VA_ARGS__)
+#define PRINT_TTF_ERROR(msg, ...)                                              \
+	PRINT_ERROR("[TTF Error] %s\n" #msg, (char *)TTF_GetError(),           \
+		    ##__VA_ARGS__)
+#define PRINT_SDL_ERROR(msg, ...)                                              \
+	PRINT_ERROR("[SDL Error] %s\n" #msg, (char *)SDL_GetError(),           \
+		    ##__VA_ARGS__)
 
 static draw_job_t *pushDrawJob(void)
 {
@@ -326,7 +330,7 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 			SDL_DestroyRenderer(ren);
 		if (window)
 			SDL_DestroyWindow(window);
-        PRINT_SDL_ERROR("Failed to load image");
+		PRINT_SDL_ERROR("Failed to load image");
 		SDL_Quit();
 		exit(0);
 	}
@@ -576,34 +580,36 @@ static void logCriticalError(char *msg)
 	exit(-1);
 }
 
-static long timespecDiffMilli(struct timespec *start, struct timespec *stop)
+static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 {
-    if((stop->tv_nsec - start->tv_nsec) < 0)
-        return (stop->tv_sec - start->tv_sec - 1) * 1000 + (stop->tv_nsec - start->tv_nsec + 1000000000) / 1000000;
-    else 
-        return (stop->tv_sec - start->tv_sec) * 1000 + (stop->tv_nsec - start->tv_nsec + 1000000000) / 1000000;
+	if ((stop->tv_nsec - start->tv_nsec) < 0)
+		return (stop->tv_sec - start->tv_sec - 1) * 1000 +
+		       (stop->tv_nsec - start->tv_nsec + 1000000000) /
+			       1000000.0;
+	else
+		return (stop->tv_sec - start->tv_sec) * 1000 +
+		       (stop->tv_nsec - start->tv_nsec) / 1000000.0;
 }
 
-#define FRAMELIMIT  60
-#define FRAMELIMIT_PERIOD 1000/60
+#define FRAMELIMIT 60.0
+#define FRAMELIMIT_PERIOD 1000 / FRAMELIMIT
 
 void vDrawUpdateScreen(void)
 {
-    static struct timespec last_time = {0}, cur_time = {0};
+	static struct timespec last_time = { 0 }, cur_time = { 0 };
 
-    if(clock_gettime(CLOCK_MONOTONIC, &cur_time)){
-        PRINT_ERROR("Failed to get monotonic clock");
-        return;
-    }
+	if (clock_gettime(CLOCK_MONOTONIC, &cur_time)) {
+		PRINT_ERROR("Failed to get monotonic clock");
+		return;
+	}
 
-    if(timespecDiffMilli(&last_time, &cur_time) < FRAMELIMIT_PERIOD)
-        return;
-    else 
-        memcpy(&last_time, &cur_time, sizeof(struct timespec));
+	if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD)
+		return;
+	else
+		memcpy(&last_time, &cur_time, sizeof(struct timespec));
 
-
-	if (!job_list_head.next) 
-        return;
+	if (!job_list_head.next)
+		return;
 
 	draw_job_t *tmp_job;
 
@@ -634,8 +640,10 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 #ifndef HOST_OS
 #warning "HOST_OS undefined! Assuming 'linux'..."
 #elif HOST_OS != linux
-	setenv("LIBGL_ALWAYS_INDIRECT","1", 1); // speed up drawings a little bit
-	setenv("SDL_VIDEO_X11_VISUALID", "", 1); // required on windows and macos
+	setenv("LIBGL_ALWAYS_INDIRECT", "1",
+	       1); // speed up drawings a little bit
+	setenv("SDL_VIDEO_X11_VISUALID", "",
+	       1); // required on windows and macos
 #elif HOST_OS == linux
 	// nothing
 #else
@@ -643,17 +651,17 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 #endif /* HOST_OS */
 #endif /* DOCKER */
 
-	if(SDL_Init(SDL_INIT_EVERYTHING)){
+	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		PRINT_SDL_ERROR("SDL_Init failed");
 		goto err_sdl;
 	}
-	if(TTF_Init()){
+	if (TTF_Init()) {
 		PRINT_TTF_ERROR("TTF_Init failed");
 		goto err_ttf;
 	}
 
 	char *buffer = prepend_path(path, FONT_LOCATION);
-	if(!buffer){
+	if (!buffer) {
 		PRINT_ERROR("Prepending font path failed");
 		goto err_font_loc;
 	}
@@ -661,17 +669,18 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
 	free(buffer);
 
-	if (!font){
+	if (!font) {
 		PRINT_TTF_ERROR("Opening font @ '%s' failed", FONT_LOCATION);
 		goto err_open_font;
 	}
 
 	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
-				SDL_WINDOWPOS_CENTERED, screen_width,
-				screen_height, SDL_WINDOW_OPENGL);
+				  SDL_WINDOWPOS_CENTERED, screen_width,
+				  screen_height, SDL_WINDOW_OPENGL);
 
 	if (!window) {
-		PRINT_SDL_ERROR("Failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
+		PRINT_SDL_ERROR("Failed to create %d x %d window '%s'",
+				screen_width, screen_height, WINDOW_TITLE);
 		goto err_window;
 	}
 
@@ -713,14 +722,15 @@ err_sdl:
 
 int vBindDrawing(void) // Should be called from the Drawing Thread
 {
-
 	if (SDL_GL_MakeCurrent(window, context) < 0) {
 		PRINT_SDL_ERROR("Releasing current context failed");
 		goto err_make_current;
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
-						SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
+	renderer = SDL_CreateRenderer(window, -1,
+				      SDL_RENDERER_ACCELERATED |
+					      SDL_RENDERER_TARGETTEXTURE |
+					      SDL_RENDERER_PRESENTVSYNC);
 
 	if (!renderer) {
 		PRINT_SDL_ERROR("Failed to create renderer");
@@ -913,14 +923,15 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
 {
 	INIT_JOB(job, DRAW_IMAGE);
 
-    char abs_path[PATH_MAX+1];
+	char abs_path[PATH_MAX + 1];
 
-    if(!realpath(filename, (char *)abs_path)){
-        return -1;
-    }
+	if (!realpath(filename, (char *)abs_path)) {
+		return -1;
+	}
 
-	job->data->image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
-    strcpy(job->data->image.filename, abs_path);
+	job->data->image.filename =
+		malloc(sizeof(char) * (strlen(abs_path) + 1));
+	strcpy(job->data->image.filename, abs_path);
 	job->data->image.x = x;
 	job->data->image.y = y;
 
@@ -929,8 +940,8 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
 
 void tumGetImageSize(char *filename, int *w, int *h)
 {
-	char full_filename[PATH_MAX+1];
-    realpath(filename, full_filename);
+	char full_filename[PATH_MAX + 1];
+	realpath(filename, full_filename);
 	vGetImageSize(full_filename, w, h);
 }
 
@@ -941,14 +952,15 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
 
 	INIT_JOB(job, DRAW_SCALED_IMAGE);
 
-    char abs_path[PATH_MAX+1];
+	char abs_path[PATH_MAX + 1];
 
-    if(!realpath(filename, (char *)abs_path)){
-        return -1;
-    }
+	if (!realpath(filename, (char *)abs_path)) {
+		return -1;
+	}
 
-	job->data->scaled_image.image.filename = malloc(sizeof(char) * (strlen(abs_path) + 1));
-    strcpy(job->data->scaled_image.image.filename, abs_path);
+	job->data->scaled_image.image.filename =
+		malloc(sizeof(char) * (strlen(abs_path) + 1));
+	strcpy(job->data->scaled_image.image.filename, abs_path);
 	job->data->scaled_image.image.x = x;
 	job->data->scaled_image.image.y = y;
 	job->data->scaled_image.scale = scale;
