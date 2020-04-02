@@ -654,11 +654,16 @@ int vInitDrawing(char *path)
 					screen_height, SDL_WINDOW_OPENGL);
 
 		if (!window) {
-			PRINT_SDL_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
+			PRINT_SDL_ERROR("Failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
 			goto err_window;
 		}
 
 		context = SDL_GL_CreateContext(window);
+
+		if (!context) {
+			PRINT_SDL_ERROR("Failed to create context");
+			goto err_create_context;
+		}
 
 		if (SDL_GL_MakeCurrent(window, context) < 0) {
 			PRINT_SDL_ERROR("Claiming current context failed");
