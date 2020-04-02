@@ -90,6 +90,7 @@ err_file_names:
     return -1;
 #else
 #warning "Sound API is not available in Container!"
+    return 0;
 #endif /* DOCKER */
 }
 
