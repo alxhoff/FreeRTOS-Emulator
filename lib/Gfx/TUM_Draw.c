@@ -168,6 +168,7 @@ const int screen_width = SCREEN_WIDTH;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
+SDL_GLContext context = NULL;
 TTF_Font *font = NULL;
 
 char *error_message = NULL;
@@ -604,68 +605,121 @@ char *tumGetErrorMessage(void)
 	return error_message;
 }
 
-int vInitDrawing(char *path)
+int vInitDrawing(char *path) // Should be called from the Thread running main()
 {
+	/* Relevant for Docker-based toolchain */
+#ifdef DOCKER
+#ifndef HOST_OS
+#warning "HOST_OS undefined! Assuming 'linux'..."
+#elif HOST_OS != linux
+	setenv("LIBGL_ALWAYS_INDIRECT","1", 1); // speed up drawings a little bit
+	setenv("SDL_VIDEO_X11_VISUALID", "", 1); // required on windows and macos
+#elif HOST_OS == linux
+	// nothing
+#else
+#error "Unexpected value of HOST_OS!"
+#endif /* HOST_OS */
+#endif /* DOCKER */
+
 	if(SDL_Init(SDL_INIT_EVERYTHING)){
-        PRINT_SDL_ERROR("SDL_Init failed: %s");
-        goto err_sdl;
-    }
+		PRINT_SDL_ERROR("SDL_Init failed");
+		goto err_sdl;
+	}
 	if(TTF_Init()){
-        PRINT_TTF_ERROR("TTF_Init failed");
-        goto err_ttf;
-    }
+		PRINT_TTF_ERROR("TTF_Init failed");
+		goto err_ttf;
+	}
 
 	char *buffer = prepend_path(path, FONT_LOCATION);
-    if(!buffer){
-        PRINT_ERROR("Prepending font path failed");
-        goto err_font_loc;
-    }
+	if(!buffer){
+		PRINT_ERROR("Prepending font path failed");
+		goto err_font_loc;
+	}
 
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
 	free(buffer);
 
 	if (!font){
-        PRINT_TTF_ERROR("Opening font @ '%s' failed", buffer);
-        goto err_open_font;
-    }
-
-	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
-				  SDL_WINDOWPOS_CENTERED, screen_width,
-				  screen_height, SDL_WINDOW_SHOWN);
-
-	if (!window) {
-        PRINT_SDL_ERROR("failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
-        goto err_window;
+		PRINT_TTF_ERROR("Opening font @ '%s' failed", FONT_LOCATION);
+		goto err_open_font;
 	}
 
-	renderer = SDL_CreateRenderer(window, -1,
-				      SDL_RENDERER_ACCELERATED |
-					      SDL_RENDERER_TARGETTEXTURE);
+	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
+				SDL_WINDOWPOS_CENTERED, screen_width,
+				screen_height, SDL_WINDOW_OPENGL);
+
+	if (!window) {
+		PRINT_SDL_ERROR("Failed to create %d x %d window '%s'", screen_width, screen_height, WINDOW_TITLE);
+		goto err_window;
+	}
+
+	context = SDL_GL_CreateContext(window);
+
+	if (!context) {
+		PRINT_SDL_ERROR("Failed to create context");
+		goto err_create_context;
+	}
+
+	if (SDL_GL_MakeCurrent(window, context) < 0) {
+		PRINT_SDL_ERROR("Claiming current context failed");
+		goto err_make_current;
+	}
+
+	if (SDL_GL_MakeCurrent(window, NULL) < 0) {
+		PRINT_SDL_ERROR("Releasing current context failed");
+		goto err_make_current;
+	}
+
+	atexit(SDL_Quit);
+
+	return 0;
+
+err_renderer:
+	SDL_DestroyWindow(window);
+err_make_current:
+	SDL_GL_DeleteContext(context);
+err_create_context:
+err_window:
+	TTF_CloseFont(font);
+err_open_font:
+err_font_loc:
+	TTF_Quit();
+err_ttf:
+	SDL_Quit();
+err_sdl:
+	return -1;
+}
+
+int vBindDrawing(void) // Should be called from the Drawing Thread
+{
+
+	if (SDL_GL_MakeCurrent(window, context) < 0) {
+		PRINT_SDL_ERROR("Releasing current context failed");
+		goto err_make_current;
+	}
+
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
+						SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
 
 	if (!renderer) {
-        PRINT_SDL_ERROR("Failed to create renderer");
-        goto err_renderer;
+		PRINT_SDL_ERROR("Failed to create renderer");
+		goto err_renderer;
 	}
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 	SDL_RenderClear(renderer);
 
-	atexit(SDL_Quit);
-
-    return 0;
+	return 0;
 
 err_renderer:
-    SDL_DestroyWindow(window);
-err_window:
-    TTF_CloseFont(font);
-err_open_font:
-err_font_loc:
-    TTF_Quit();
-err_ttf:
-    SDL_Quit();
-err_sdl:
-    return -1;
+	SDL_DestroyWindow(window);
+err_make_current:
+	SDL_GL_DeleteContext(context);
+	TTF_CloseFont(font);
+	TTF_Quit();
+	SDL_Quit();
+	return -1;
 }
 
 void vExitDrawing(void)
