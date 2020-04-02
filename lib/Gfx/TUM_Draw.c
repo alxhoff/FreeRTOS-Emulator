@@ -632,14 +632,14 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 
 	char *buffer = prepend_path(path, FONT_LOCATION);
 	if(!buffer){
-		PRINT_TTF_ERROR("Prepending font path failed");
+		PRINT_ERROR("Prepending font path failed");
 		goto err_font_loc;
 	}
 
 	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
 	free(buffer);
 
-	if (!font) {
+	if (!font){
 		PRINT_TTF_ERROR("Opening font @ '%s' failed", FONT_LOCATION);
 		goto err_open_font;
 	}
