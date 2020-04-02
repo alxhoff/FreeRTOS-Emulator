@@ -230,6 +230,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5801d083de4e7f2f1ff624f3dd195d86"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga5801d083de4e7f2f1ff624f3dd195d86">vInitDrawing</a> (char *path)</td></tr>
 <tr class="memdesc:ga5801d083de4e7f2f1ff624f3dd195d86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the TUM Draw backend.  <a href="group__tum__draw.html#ga5801d083de4e7f2f1ff624f3dd195d86">More...</a><br /></td></tr>
 <tr class="separator:ga5801d083de4e7f2f1ff624f3dd195d86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1e230292238f37d3dc8b9c6f27819c7d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga1e230292238f37d3dc8b9c6f27819c7d">vBindDrawing</a> (void)</td></tr>
+<tr class="memdesc:ga1e230292238f37d3dc8b9c6f27819c7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transfers the drawing ability to the calling thread/taskd.  <a href="group__tum__draw.html#ga1e230292238f37d3dc8b9c6f27819c7d">More...</a><br /></td></tr>
+<tr class="separator:ga1e230292238f37d3dc8b9c6f27819c7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga026e6991e35928947fe7475bb56ba6f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga026e6991e35928947fe7475bb56ba6f2">vExitDrawing</a> (void)</td></tr>
 <tr class="memdesc:ga026e6991e35928947fe7475bb56ba6f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exits the TUM Draw backend.  <a href="group__tum__draw.html#ga026e6991e35928947fe7475bb56ba6f2">More...</a><br /></td></tr>
 <tr class="separator:ga026e6991e35928947fe7475bb56ba6f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -291,6 +294,8 @@ Variables</h2></td></tr>
 <tr class="separator:aaa8e409e04dcf575ef63fd5fb3db06f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a966da7a60c4ea3ba301e26ccc5efe452"><td class="memItemLeft" align="right" valign="top">SDL_Renderer *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a966da7a60c4ea3ba301e26ccc5efe452">renderer</a> = NULL</td></tr>
 <tr class="separator:a966da7a60c4ea3ba301e26ccc5efe452"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83a290c99bf9979b975b2c2a6069fe99"><td class="memItemLeft" align="right" valign="top">SDL_GLContext&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a83a290c99bf9979b975b2c2a6069fe99">context</a> = NULL</td></tr>
+<tr class="separator:a83a290c99bf9979b975b2c2a6069fe99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf5bfa705e66ffc1ddaa6ce46c960873"><td class="memItemLeft" align="right" valign="top">TTF_Font *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#abf5bfa705e66ffc1ddaa6ce46c960873">font</a> = NULL</td></tr>
 <tr class="separator:abf5bfa705e66ffc1ddaa6ce46c960873"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a1c633ac5dcca48c2e8aba77d007207"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8c.html#a1a1c633ac5dcca48c2e8aba77d007207">error_message</a> = NULL</td></tr>
@@ -720,6 +725,18 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a class="anchor" id="a83a290c99bf9979b975b2c2a6069fe99"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SDL_GLContext context = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a1a1c633ac5dcca48c2e8aba77d007207"></a>
 <div class="memitem">
 <div class="memproto">
