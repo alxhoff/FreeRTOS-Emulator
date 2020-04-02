@@ -645,7 +645,7 @@ int vInitDrawing(char *path)
 		free(buffer);
 
 		if (!font) {
-			PRINT_TTF_ERROR("Opening font @ '%s' failed", buffer);
+			PRINT_TTF_ERROR("Opening font @ '%s' failed", FONT_LOCATION);
 			goto err_open_font;
 		}
 
