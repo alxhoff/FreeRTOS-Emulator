@@ -23,6 +23,7 @@
  */
 #include <limits.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <assert.h>
 
@@ -575,11 +576,34 @@ static void logCriticalError(char *msg)
 	exit(-1);
 }
 
+static long timespecDiffMilli(struct timespec *start, struct timespec *stop)
+{
+    if((stop->tv_nsec - start->tv_nsec) < 0)
+        return (stop->tv_sec - start->tv_sec - 1) * 1000 + (stop->tv_nsec - start->tv_nsec + 1000000000) / 1000000;
+    else 
+        return (stop->tv_sec - start->tv_sec) * 1000 + (stop->tv_nsec - start->tv_nsec + 1000000000) / 1000000;
+}
+
+#define FRAMELIMIT  60
+#define FRAMELIMIT_PERIOD 1000/60
+
 void vDrawUpdateScreen(void)
 {
-	if (!job_list_head.next) {
-		goto done;
-	}
+    static struct timespec last_time = {0}, cur_time = {0};
+
+    if(clock_gettime(CLOCK_MONOTONIC, &cur_time)){
+        PRINT_ERROR("Failed to get monotonic clock");
+        return;
+    }
+
+    if(timespecDiffMilli(&last_time, &cur_time) < FRAMELIMIT_PERIOD)
+        return;
+    else 
+        memcpy(&last_time, &cur_time, sizeof(struct timespec));
+
+
+	if (!job_list_head.next) 
+        return;
 
 	draw_job_t *tmp_job;
 
@@ -592,12 +616,10 @@ void vDrawUpdateScreen(void)
 
 	SDL_RenderPresent(renderer);
 
-done:
 	return;
 
 draw_error:
 	free(tmp_job);
-	goto done;
 }
 
 char *tumGetErrorMessage(void)
