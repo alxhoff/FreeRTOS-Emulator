@@ -125,6 +125,13 @@ char *tumGetErrorMessage(void);
 int vInitDrawing(char *path);
 
 /**
+ * @brief Transfers the drawing ability to the calling thread/taskd
+ *
+ * @return 0 on success
+ */
+int vBindDrawing(void);
+
+/**
  * @brief Exits the TUM Draw backend
  *
  * @return NULL always returns NULL
