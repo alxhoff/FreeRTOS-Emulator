@@ -661,12 +661,12 @@ int vInitDrawing(char *path)
 		context = SDL_GL_CreateContext(window);
 
 		if (SDL_GL_MakeCurrent(window, context) < 0) {
-			PRINT_SDL_ERROR("Claiming current context failed", buffer);
+			PRINT_SDL_ERROR("Claiming current context failed");
 			goto err_make_current;
 		}
 
 		if (SDL_GL_MakeCurrent(window, NULL) < 0) {
-			PRINT_SDL_ERROR("Releasing current context failed", buffer);
+			PRINT_SDL_ERROR("Releasing current context failed");
 			goto err_make_current;
 		}
 
@@ -676,8 +676,8 @@ int vInitDrawing(char *path)
 
 	} else { // Should be called from the Drawing Thread
 
-		if (SDL_GL_MakeCurrent(window, context) < 0) { // Claim GL Context
-			PRINT_SDL_ERROR("Releasing current context failed", buffer);
+		if (SDL_GL_MakeCurrent(window, context) < 0) {
+			PRINT_SDL_ERROR("Releasing current context failed");
 			goto err_make_current;
 		}
 
