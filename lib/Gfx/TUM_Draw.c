@@ -674,11 +674,10 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 
 	return 0;
 
-err_renderer:
-	SDL_DestroyWindow(window);
 err_make_current:
 	SDL_GL_DeleteContext(context);
 err_create_context:
+	SDL_DestroyWindow(window);
 err_window:
 	TTF_CloseFont(font);
 err_open_font:

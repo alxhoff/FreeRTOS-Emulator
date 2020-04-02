@@ -37,7 +37,6 @@ typedef struct mouse {
 	signed short y;
 } mouse_t;
 
-TaskHandle_t eventTask = NULL;
 QueueHandle_t inputQueue = NULL;
 
 mouse_t mouse;
@@ -134,8 +133,6 @@ int vInitEvents(void)
 
     return 0;
 
-err_events_task:
-    vQueueDelete(inputQueue);
 err_queue:
     vSemaphoreDelete(mouse.lock);
 err_init_mouse:

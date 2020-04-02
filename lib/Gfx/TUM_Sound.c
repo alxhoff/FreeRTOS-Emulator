@@ -18,12 +18,6 @@ char *waveFileNames[] = { FOR_EACH_SAMPLE(GEN_FULL_SAMPLE_PATH) };
 
 char *fullWaveFileNames[NUM_WAVEFORMS] = { 0 };
 
-static void logSDLError(char *msg)
-{
-	if (msg)
-		fprintf(stderr, "[ERROR] %s, %s\n", msg, SDL_GetError());
-}
-
 Mix_Chunk *samples[NUM_WAVEFORMS] = { 0 };
 
 void vExitAudio(void)
