@@ -1,3 +1,6 @@
 linters:
-  shellcheck:
+  remarklint:
+    fixer: true
+  spellcheck:
     shell: bash
+
