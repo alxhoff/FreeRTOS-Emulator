@@ -24,25 +24,66 @@ addons:
             - libsdl2-image-dev
             - libsdl2-gfx-dev
             - libsdl2-dev
+    
+matrix:
+  include:
 
-# Build your code e.g. by calling make
-script:
-    - cd docs
-    - doxygen Doxyfile
-    - cd ../build
-    - cmake ..
-    - make
-    - cd ..
+    #
+  # Doxygen
+  #
+  - os: linux
+    env:
+      - TEST="Doxygen"
+    addons:
+      apt:
+        packages:
+          - doxygen
+    script:
+      - cd docs
+      - doxygen Doxyfile
+      - |
+        if [[ -s doxygen_warnings.txt ]]; then
+          echo "You must fix doxygen before submitting a pull request"
+          echo ""
+          cat doxygen_warnings.txt
+          exit -1
+        fi
+      - cd ..
+    
+    # Generate and deploy documentation
+    deploy:
+        provider: pages
+        skip_cleanup: true
+        local_dir: docs/docs/html
+        github_token: $GH_REPO_TOKEN
+        keep_history: true
+        on:
+            branch: master
 
-# Generate and deploy documentation
-deploy:
-    provider: pages
-    skip_cleanup: true
-    local_dir: docs/docs/html
-    github_token: $GH_REPO_TOKEN
-    keep_history: true
-    on:
-        branch: master
+
+  #
+  # Git Check
+  #
+  - os: linux
+    env:
+      - TEST="Git Check"
+    script:
+      - |
+        if [[ -n $(git diff --check HEAD^) ]]; then
+          echo "You must remove whitespace before submitting a pull request"
+          echo ""
+          git diff --check HEAD^
+          exit -1
+        fi
 
 
-
+  #
+  # Standard Build
+  #
+  - os: linux
+    env:
+      - TEST="Build"
+    script:
+      - cd build
+      - cmake ..
+      - make
