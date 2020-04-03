@@ -11,6 +11,9 @@
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/20757/badge.svg"/>
   </a>
+  <a href="https://codecov.io/gh/alxhoff/FreeRTOS-Emulator">
+  <img src="https://codecov.io/gh/alxhoff/FreeRTOS-Emulator/branch/master/graph/badge.svg" />
+</a>
 </p>
 
 An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware.
@@ -53,6 +56,97 @@ For those requiring an IDE run
 cmake -G "Eclipse CDT4 - Unix Makefiles" ./
 ```
 to generate the appropriate project files to allow for the emulator to be imported into Eclipse.
+
+### Additional targets
+
+In [`test.cmake`](test.cmake) a number of extra targets are provided to help with linting.
+
+#### Git --check
+
+``` bash
+make commit
+```
+
+Checks for whitespaces and empty lines.
+
+#### Astyle Formatting
+
+``` bash
+cmake -DENABLE_ASTYLE=ON ..
+make format
+```
+
+Invokes the Astyle formatter.
+
+#### Clang Tidy
+
+``` bash
+cmake -DENABLE_CLANG_TIDY=ON ..
+make tidy
+```
+
+Uses clang tidy to find style violations, interface misuse of bugs found via static analysis.
+
+#### CppCheck
+
+``` bash
+cmake -DENABLE_CPPCHECK=ON ..
+make check
+```
+
+Code analysis with CppCheck, focusing on undefined behaviour bugs.
+
+#### Valgrind (memcheck)
+
+``` bash
+cmake -DENABLE_MEMCHECK=ON ..
+make memcheck
+```
+
+Memory checker.
+
+#### Google Tests/Coverage
+
+Coverage
+
+``` bash
+cmake -DENABLE_COVERAGE=ON ..
+make
+```
+
+Each sanitizer must be run stand alone, thus you cannot run them together.
+
+Address sanitizer
+
+``` bash
+cmake -DENABLE_ASAN=ON ..
+make
+```
+
+Undefined behaviour sanitizer
+
+``` bash
+cmake -DENABLE_USAN=ON ..
+make
+```
+
+Thread sanitizer
+
+``` bash
+cmake -DENABLE_TSAN=ON ..
+make
+```
+
+### All checks
+
+The target `make all_checks`
+
+``` bash
+cmake -DALL_CHECKS=ON ..
+make
+```
+
+will perform all checks
 
 ## Debugging
 

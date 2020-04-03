@@ -50,12 +50,6 @@ typedef enum { UDP, TCP } aIO_socket_e;
  */
 typedef void (*aIO_callback_t)(size_t recv_size, char *buffer, void *args);
 
-/**
- * @brief Closes a async connection
- *
- * @param conn Handle to the connection
- */
-void aIOCloseConn(aIO_handle_t conn);
 
 /**
  * @brief Function that closes all open connections
@@ -98,7 +92,7 @@ int aIOMessageQueuePut(char *mq_name, char *buffer);
  * @return returns 0 on success; on error, -1 is returned.
  */
 int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
-		 char *buffer, size_t buffer_size);
+                 char *buffer, size_t buffer_size);
 /**
  * @brief Open a POSIX message queue
  *
@@ -116,8 +110,8 @@ int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
  * @return Handle to the created connection, or NULL
  */
 aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
-				 long max_msg_size, aIO_callback_t callback,
-				 void *args);
+                                 long max_msg_size, aIO_callback_t callback,
+                                 void *args);
 
 /**
  * @brief Opens a socket enpoint
@@ -131,7 +125,7 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
  * @return Handle to the created connection, or NULL
  */
 aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
-			      aIO_callback_t callback, void *args);
+                              aIO_callback_t callback, void *args);
 
 /**
  * @brief Opens a socket enpoint
@@ -145,6 +139,6 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
  * @return Handle to the created connection, or NULL
  */
 aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
-			      aIO_callback_t callback, void *args);
+                              aIO_callback_t callback, void *args);
 
 #endif

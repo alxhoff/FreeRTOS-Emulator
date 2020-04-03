@@ -5,8 +5,6 @@ cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 set(CMAKE_BUILD_TYPE "Debug")
-# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
-# set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 add_compile_options("-Wall" "-O0")
@@ -25,20 +23,44 @@ include_directories(${SDL2_MIXER_INCLUDE_DIRS})
 find_package(SDL2_ttf REQUIRED)
 include_directories(${SDL2_TTF_INCLUDE_DIRS})
 
-include_directories(${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/include)
-include_directories(${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix)
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/lib/Gfx/include)
-include_directories(${PROJECT_SOURCE_DIR}/lib/AsyncIO/include)
-include_directories(${PROJECT_SOURCE_DIR}/lib/tracer/include)
 
-file(GLOB FREERTOS_SOURCES "lib/FreeRTOS_Kernel/*.c"
-    "lib/FreeRTOS_Kernel/portable/GCC/Posix/*.c"
-    "lib/FreeRTOS_Kernel/portable/MemMang/*.c")
-file(GLOB GFX_SOURCES "lib/Gfx/*.c")
-file(GLOB ASYNC_SOURCES "lib/AsyncIO/*.c")
-file(GLOB SIMULATOR_SOURCES "src/*.c")
-add_executable(FreeRTOS_Emulator ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES} ${ASYNC_SOURCES})
+SET(PROJECT_INCLUDES
+    ${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/include
+    ${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/lib/Gfx/include
+    ${PROJECT_SOURCE_DIR}/lib/AsyncIO/include
+    ${PROJECT_SOURCE_DIR}/lib/tracer/include
+)
+
+include_directories(${PROJECT_INCLUDES})
+
+file(GLOB FREERTOS_SOURCES
+    "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/*.c"
+    "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix/*.c"
+    "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/MemMang/*.c")
+file(GLOB GFX_SOURCES "${PROJECT_SOURCE_DIR}/lib/Gfx/*.c")
+file(GLOB ASYNC_SOURCES "${PROJECT_SOURCE_DIR}/lib/AsyncIO/*.c")
+file(GLOB SIMULATOR_SOURCES "${PROJECT_SOURCE_DIR}/src/*.c")
+
+SET(PROJECT_SOURCES
+    ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES} ${ASYNC_SOURCES}
+)
+
+set(PROJECT_LIBRARIES
+    ${SDL2_LIBRARIES}
+    ${SDL2_GFX_LIBRARIES}
+    ${SDL2_IMAGE_LIBRARIES}
+    ${SDL2_MIXER_LIBRARIES}
+    ${SDL2_TTF_LIBRARIES}
+    m
+    ${CMAKE_THREAD_LIBS_INIT}
+    rt
+)
+
+include(tests.cmake)
+
+add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES})
 
 if(TRACE_FUNCTIONS)
     add_definitions(-DTRACE_FUNCTIONS)
@@ -46,8 +68,16 @@ if(TRACE_FUNCTIONS)
     target_compile_options(FreeRTOS_Emulator PUBLIC ${GCC_COVERAGE_COMPILE_FLAGS})
 endif(TRACE_FUNCTIONS)
 
-target_link_libraries(FreeRTOS_Emulator ${SDL2_LIBRARIES} ${SDL2_GFX_LIBRARIES}
-    ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_TTF_LIBRARIES}
-    m ${CMAKE_THREAD_LIBS_INIT} rt)
+target_link_libraries(${CMAKE_PROJECT_NAME} ${PROJECT_LIBRARIES})
 
+if(DOCS)
+    find_package(Doxygen REQUIRED)
 
+    add_custom_target(
+        docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_SOURCE_DIR}/docs/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+endif()

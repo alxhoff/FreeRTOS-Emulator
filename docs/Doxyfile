@@ -99,7 +99,7 @@ OUTPUT_LANGUAGE        = English
 # Possible values are: None, LTR, RTL and Context.
 # The default value is: None.
 
-OUTPUT_TEXT_DIRECTION  = None
+# OUTPUT_TEXT_DIRECTION  = None
 
 # If the BRIEF_MEMBER_DESC tag is set to YES, doxygen will include brief member
 # descriptions after the members that are listed in the file and class
@@ -205,7 +205,7 @@ ABBREVIATE_BRIEF       = "The $name class" \
 # interpreted by doxygen.
 # The default value is: NO.
 
-JAVADOC_BANNER         = NO
+# JAVADOC_BANNER         = NO
 
 # If the QT_AUTOBRIEF tag is set to YES then doxygen will interpret the first
 # line (until the first dot) of a Qt-style comment as the brief description. If
@@ -303,7 +303,7 @@ TCL_SUBST              =
 # separated into more groups, etc.
 # The default value is: NO.
 
-                          OPTIMIZE_OUTPUT_SLICE  = NO
+                          # OPTIMIZE_OUTPUT_SLICE  = NO
 
 # Doxygen selects the parser to use depending on the extension of the files it
 # parses. With this tag you can assign which parser to use for a given
@@ -342,7 +342,7 @@ TCL_SUBST              =
 # Minimum value: 0, maximum value: 99, default value: 5.
 # This tag requires that the tag MARKDOWN_SUPPORT is set to YES.
 
-                          TOC_INCLUDE_HEADINGS   = 0
+                          # TOC_INCLUDE_HEADINGS   = 0
 
 # When enabled doxygen tries to link words that correspond to documented
 # classes, or namespaces to their corresponding documentation. Such a link can
@@ -479,7 +479,7 @@ TCL_SUBST              =
 # methods of a class will be included in the documentation.
 # The default value is: NO.
 
-                          EXTRACT_PRIV_VIRTUAL   = NO
+                          # EXTRACT_PRIV_VIRTUAL   = NO
 
 # If the EXTRACT_PACKAGE tag is set to YES, all members with package or internal
 # scope will be included in the documentation.
@@ -817,7 +817,7 @@ TCL_SUBST              =
 # messages should be written. If left blank the output is written to standard
 # error (stderr).
 
-                          WARN_LOGFILE           =
+                          WARN_LOGFILE           = doxygen_warnings.txt
 
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
@@ -1229,7 +1229,7 @@ FILTER_SOURCE_FILES    = NO
 # The default value is: YES.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-                          HTML_DYNAMIC_MENUS     = YES
+                          # HTML_DYNAMIC_MENUS     = YES
 
 # If the HTML_DYNAMIC_SECTIONS tag is set to YES then the generated HTML
 # documentation will contain sections that can be hidden and shown after the
@@ -1694,7 +1694,7 @@ FILTER_SOURCE_FILES    = NO
 # The default value is: makeindex.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-        LATEX_MAKEINDEX_CMD    = makeindex
+        # LATEX_MAKEINDEX_CMD    = makeindex
 
 # If the COMPACT_LATEX tag is set to YES, doxygen generates more compact LaTeX
 # documents. This may be useful for small projects and may help to save some
@@ -1836,7 +1836,7 @@ LATEX_TIMESTAMP        = NO
 # LATEX_OUTPUT directory will be used.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-LATEX_EMOJI_DIRECTORY  =
+# LATEX_EMOJI_DIRECTORY  =
 
 #---------------------------------------------------------------------------
 # Configuration options related to the RTF output
@@ -1980,7 +1980,7 @@ XML_PROGRAMLISTING     = YES
 # The default value is: NO.
 # This tag requires that the tag GENERATE_XML is set to YES.
 
-XML_NS_MEMB_FILE_SCOPE = NO
+# XML_NS_MEMB_FILE_SCOPE = NO
 
 #---------------------------------------------------------------------------
 # Configuration options related to the DOCBOOK output
@@ -2426,7 +2426,7 @@ PLANTUML_JAR_PATH      =
 # When using plantuml, the PLANTUML_CFG_FILE tag can be used to specify a
 # configuration file for plantuml.
 
-PLANTUML_CFG_FILE      =
+# PLANTUML_CFG_FILE      =
 
 # When using plantuml, the specified paths are searched for files specified by
 # the !include statement in a plantuml block.

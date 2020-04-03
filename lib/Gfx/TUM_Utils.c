@@ -30,26 +30,26 @@
 
 char *prepend_path(char *path, char *file)
 {
-	char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
-	if (!ret) {
-		fprintf(stderr, "[ERROR] prepend_bin_path malloc failed\n");
+    char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
+    if (!ret) {
+        fprintf(stderr, "[ERROR] prepend_bin_path malloc failed\n");
         return NULL;
-	}
+    }
 
-	strcpy(ret, path);
-	strcat(ret, file);
+    strcpy(ret, path);
+    strcat(ret, file);
 
-	return ret;
+    return ret;
 }
 
 char *getBinFolderPath(char *bin_path)
 {
-	char *dir_name = dirname(bin_path);
+    char *dir_name = dirname(bin_path);
 
-	char *ret = calloc(1, sizeof(char) * (strlen(dir_name) + 1));
-	assert(ret);
+    char *ret = calloc(1, sizeof(char) * (strlen(dir_name) + 1));
+    assert(ret);
 
-	strcpy(ret, dir_name);
+    strcpy(ret, dir_name);
 
-	return ret;
+    return ret;
 }

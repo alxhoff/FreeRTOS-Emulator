@@ -104,8 +104,8 @@
  * @brief Holds a pixel co-ordinate
  */
 typedef struct coord {
-	unsigned short x; /*!< X axis coord */
-	unsigned short y; /*!< Y axis coord */
+    unsigned short x; /*!< X axis coord */
+    unsigned short y; /*!< Y axis coord */
 } coord_t;
 
 /**
@@ -168,7 +168,7 @@ signed char tumDrawClear(unsigned int colour);
  * @return signed char 0 on success
  */
 signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
-			   signed short ry, unsigned int colour);
+                           signed short ry, unsigned int colour);
 
 /**
  * @brief Draws an arc on the screen
@@ -185,8 +185,8 @@ signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
  * @return signed char 0 on success
  */
 signed char tumDrawArc(signed short x, signed short y, signed short radius,
-		       signed short start, signed short end,
-		       unsigned int colour);
+                       signed short start, signed short end,
+                       unsigned int colour);
 
 /**
  * @brief Prints a string to the screen
@@ -201,7 +201,7 @@ signed char tumDrawArc(signed short x, signed short y, signed short radius,
  * @return signed char 0 on success
  */
 signed char tumDrawText(char *str, signed short x, signed short y,
-			unsigned int colour);
+                        unsigned int colour);
 
 /**
  * @brief Finds the width and height of a strings bounding box
@@ -224,7 +224,7 @@ void tumGetTextSize(char *str, int *width, int *height);
  * @return signed char 0 on success
  */
 signed char tumDrawBox(signed short x, signed short y, signed short w,
-		       signed short h, unsigned int colour);
+                       signed short h, unsigned int colour);
 
 /**
  * @brief Draws an unfilled box on the screen
@@ -237,7 +237,7 @@ signed char tumDrawBox(signed short x, signed short y, signed short w,
  * @return signed char 0 on success
  */
 signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
-			     signed short h, unsigned int colour);
+                             signed short h, unsigned int colour);
 
 /**
  * @brief Draws a filled circle on the screen
@@ -249,7 +249,7 @@ signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
  * @return signed char 0 on success
  */
 signed char tumDrawCircle(signed short x, signed short y, signed short radius,
-			  unsigned int colour);
+                          unsigned int colour);
 
 /**
  * @brief Draws a line on the screen
@@ -263,8 +263,8 @@ signed char tumDrawCircle(signed short x, signed short y, signed short radius,
  * @return signed char 0 on success
  */
 signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
-			signed short y2, unsigned char thickness,
-			unsigned int colour);
+                        signed short y2, unsigned char thickness,
+                        unsigned int colour);
 
 /**
  * @brief Draws a polygon on the screen
@@ -319,7 +319,7 @@ void tumGetImageSize(char *filename, int *w, int *h);
  * @return signed char 0 on success
  */
 signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
-			       float scale);
+                               float scale);
 
 /**
  * @brief Draws an arrow on the screen
@@ -334,9 +334,9 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
  * @return signed char 0 on success
  */
 signed char tumDrawArrow(unsigned short x1, unsigned short y1,
-			 unsigned short x2, unsigned short y2,
-			 unsigned short head_length, unsigned char thickness,
-			 unsigned int colour);
+                         unsigned short x2, unsigned short y2,
+                         unsigned short head_length, unsigned char thickness,
+                         unsigned int colour);
 
 /**
  * @}
