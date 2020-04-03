@@ -7,6 +7,10 @@
   <a href="https://github.com/alxhoff/FreeRTOS-Emulator/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-GPLv3-blue.svg" />
   </a>
+  <a href="https://scan.coverity.com/projects/alxhoff-freertos-emulator">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/20757/badge.svg"/>
+  </a>
 </p>
 
 An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware.
