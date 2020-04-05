@@ -174,10 +174,17 @@ TTF_Font *font = NULL;
 
 char *error_message = NULL;
 
+#define SHIFT_BYTE 8
+#define SHIFT_THREE_BYTE 24
+#define FIRST_BYTE 0x000000ff 
+#define SECOND_BYTE 0x0000ff00 
+#define THIRD_BYTE 0x00ff0000 
+#define FOURTH_BYTE 0xff000000 
+
 uint32_t SwapBytes(unsigned int x)
 {
-    return ((x & 0x000000ff) << 24) + ((x & 0x0000ff00) << 8) +
-           ((x & 0x00ff0000) >> 8) + ((x & 0xff000000) >> 24);
+    return ((x & FIRST_BYTE) << SHIFT_THREE_BYTE) + ((x & SECOND_BYTE) << SHIFT_BYTE) +
+           ((x & THIRD_BYTE) >> SHIFT_BYTE) + ((x & FOURTH_BYTE) >> SHIFT_THREE_BYTE);
 }
 
 void setErrorMessage(char *msg)

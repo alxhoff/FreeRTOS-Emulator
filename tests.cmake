@@ -11,6 +11,12 @@ SET(CHECK_FILES
     ${PROJECT_SOURCES}
 )
 
+SET(TIDY_SOURCES
+    ${PROJECT_SOURCE_DIR}/lib/Gfx
+    ${PROJECT_SOURCE_DIR}/lib/AsyncIO
+    ${PROJECT_SOURCE_DIR}/src
+    )
+
 
 # ------------------------------------------------------------------------------
 # All checks
@@ -121,17 +127,19 @@ if(ENABLE_CLANG_TIDY)
         message(FATAL_ERROR "unable to locate run-clang-tidy-4.0.py")
     endif()
 
+    SET(FILTER_REGEX "^((?!Kernel).)*$$")
+
     list(APPEND RUN_CLANG_TIDY_BIN_ARGS
         -clang-tidy-binary ${CLANG_TIDY_BIN}
         -export-fixes=tidy.fixes
         -style=file
-        -header-filter=.*
+        -header-filter="${FILTER_REGEX}"
         -checks=clan*,cert*,misc*,perf*,cppc*,read*,mode*,-cert-err58-cpp,-misc-noexcept-move-constructor
     )
 
     add_custom_target(
         tidy
-        COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS} 
+        COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS} ${TIDY_SOURCES}
         COMMENT "running clang tidy"
     )
 
