@@ -63,7 +63,7 @@ if(ENABLE_ASTYLE)
     )
 
     list(APPEND ASTYLE_ARGS
-        --style=1tbs
+        --style=linux
         --lineend=linux
         --suffix=none
         --pad-oper
@@ -123,13 +123,15 @@ if(ENABLE_CLANG_TIDY)
 
     list(APPEND RUN_CLANG_TIDY_BIN_ARGS
         -clang-tidy-binary ${CLANG_TIDY_BIN}
+        -export-fixes=tidy.fixes
+        -style=file
         -header-filter=.*
         -checks=clan*,cert*,misc*,perf*,cppc*,read*,mode*,-cert-err58-cpp,-misc-noexcept-move-constructor
     )
 
     add_custom_target(
         tidy
-        COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS}
+        COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS} 
         COMMENT "running clang tidy"
     )
 

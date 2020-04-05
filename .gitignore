@@ -1,6 +1,8 @@
 .clangd
 # Trace files
 trace.*
+DartConfiguration.tcl 
+tidy.fixes
 
 # Documentation
 docs/html
