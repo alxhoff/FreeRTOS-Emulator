@@ -41,15 +41,6 @@
 
 #define PRINT_CHECK fprintf(stderr, "[ERRNO: %s] %s:%d -> %s\n", strerror(errno), __FILE__, __LINE__, __func__);
 
-#define CHECK(x)                                                               \
-    do {                                                                   \
-        if (!(x)) {                                                    \
-            PRINT_CHECK                                            \
-            perror(#x);                                            \
-            exit(-1);                                              \
-        }                                                              \
-    } while (0)
-
 void *aIOTCPHandler(void *conn);
 
 typedef enum {
@@ -114,27 +105,31 @@ aIO_t *getLastConnection(void)
 {
     aIO_t *iterator;
 
-    for (iterator = &head; iterator->next; iterator = iterator->next)
+    for (iterator = &head; iterator->next; iterator = iterator->next) {
         ;
+    }
+        
 
     return iterator;
 }
 
 static aIO_t *findConnection(aIO_conn_e type, void *arg)
 {
-    aIO_t *prev = &head, *curr;
+    aIO_t *prev = &head; 
+    aIO_t *curr;
 
     pthread_mutex_lock(&prev->lock);
     while ((curr = prev->next) != NULL) {
         pthread_mutex_lock(&curr->lock);
         switch (type) {
             case SOCKET:
-                if (curr->type == type)
+                if (curr->type == type){
                     if (curr->attr.socket.fd == *(int *)arg) {
                         pthread_mutex_unlock(&prev->lock);
                         pthread_mutex_unlock(&curr->lock);
                         return curr;
                     }
+                }
                 break;
             //TODO
             case MSG_QUEUE:
@@ -157,7 +152,11 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 
 void aIOCloseConn(aIO_handle_t conn)
 {
-    CHECK(conn);
+    if(!conn){
+        fprintf(stderr, "Trying to close a NULL connection\n");
+        PRINT_CHECK;
+        return;
+    }
 
     aIO_t *del = (aIO_t *)conn;
 
@@ -165,7 +164,11 @@ void aIOCloseConn(aIO_handle_t conn)
         case SOCKET:
             printf("Deinit socket %d\n",
                    ntohs(del->attr.socket.addr.sin_port));
-            CHECK(!close(del->attr.socket.fd));
+            if(close(del->attr.socket.fd)){
+                fprintf(stderr, "Failed to close socket\n");
+                PRINT_CHECK;
+                return;
+            }
             free(del->buffer);
             free(del);
             break;
@@ -184,14 +187,16 @@ void aIOCloseConn(aIO_handle_t conn)
 
 void aIODeinit(void)
 {
-    aIO_t *iterator, *del;
+    aIO_t *iterator; 
+    aIO_t *del;
 
-    if (head.next)
+    if (head.next){
         for (iterator = head.next; iterator;) {
             del = iterator;
             iterator = iterator->next;
             aIOCloseConn((aIO_handle_t)del);
         }
+    }
 }
 
 aIO_t *createAsyncIO(aIO_conn_e type, size_t buffer_size,
@@ -199,19 +204,38 @@ aIO_t *createAsyncIO(aIO_conn_e type, size_t buffer_size,
 {
     aIO_t *ret = (aIO_t *)calloc(1, sizeof(aIO_t));
 
-    CHECK(ret);
+    if(!ret){
+        fprintf(stderr, "Failed to create AIO");
+        PRINT_CHECK;
+        goto err_aio;
+    }
 
     ret->buffer_size = buffer_size;
     ret->buffer = (char *)malloc(ret->buffer_size * sizeof(char));
-    CHECK(ret->buffer);
+    if(!ret->buffer){
+        fprintf(stderr, "Failed to allocate AIO buffer");
+        PRINT_CHECK;
+        goto err_buffer;
+    }
 
     ret->type = type;
     ret->callback = callback;
     ret->args = args;
 
-    pthread_mutex_init(&ret->lock, NULL);
+    if(pthread_mutex_init(&ret->lock, NULL)){
+        fprintf(stderr, "Failed to init AIO mutex");
+        PRINT_CHECK;
+        goto err_mutex;
+    }
 
     return ret;
+
+err_mutex:
+    free(ret->buffer);
+err_buffer:
+    free(ret);
+err_aio:
+    return NULL;
 }
 
 static void aIOMQSigHandler(union sigval sv)
@@ -221,12 +245,14 @@ static void aIOMQSigHandler(union sigval sv)
     ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer,
                                     conn->buffer_size, NULL);
 
-    if (bytes_read > 0) {
+    if (bytes_read > 0) 
         (conn->callback)(bytes_read, conn->buffer, conn->args);
-    }
 
     /** reprime MQ notifications */
-    CHECK(!mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev));
+    if(mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev)){
+        fprintf(stderr, "Failed to notify MQ '%s'", conn->attr.mq.name);
+        PRINT_CHECK;
+    }
 }
 
 int aIOMessageQueuePut(char *mq_name, char *buffer)
@@ -400,7 +426,11 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
     int server_fd = info->si_fd;
     aIO_t *conn = findConnection(SOCKET, &server_fd);
 
-    CHECK(conn);
+    if(!conn){
+        fprintf(stderr, "Failed to find connection");
+        PRINT_CHECK;
+        return;
+    }
 
     pthread_mutex_lock(&conn->lock);
 
@@ -431,9 +461,14 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
                 new_client->callback = conn->callback;
                 new_client->args = conn->args;
 
-                CHECK(!pthread_create(&handler_thread, NULL,
-                                      *aIOTCPHandler,
-                                      (void *)new_client));
+                if(pthread_create(&handler_thread, NULL,
+                                      aIOTCPHandler,
+                                      (void *)new_client)){
+                    fprintf(stderr, "Failed to create TCP handler thread");
+                    PRINT_CHECK;
+                    free(new_client);
+                    return;
+                }
             }
         } break;
         default:
@@ -462,7 +497,7 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
     aIO_socket_t *s_udp = &conn->next->attr.socket;
 
     s_udp->addr.sin_family = AF_INET;
-    s_udp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
+    s_udp->addr.sin_addr.s_addr = (s_addr != NULL) ? inet_addr(s_addr) : INADDR_ANY;
     s_udp->addr.sin_port = htons(port);
 
     s_udp->fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -526,7 +561,11 @@ void *aIOTCPHandler(void *conn)
     aIO_tcp_client *client = (aIO_tcp_client *)conn;
     int client_fd = client->client_fd;
     char *buffer = malloc(sizeof(char) * client->buffer_size);
-    CHECK(buffer);
+    if(!buffer){
+        fprintf(stderr, "Failed to handle TCP\n");
+        PRINT_CHECK;
+        return NULL;
+    }
 
     while ((read_size = recv(client_fd, buffer, client->buffer_size, 0)))
         if (client->callback) {

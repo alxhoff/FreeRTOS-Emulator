@@ -90,22 +90,22 @@
  *
  * @{
  */
-#define Red 0xFF0000
-#define Green 0x00FF00
-#define Blue 0x0000FF
-#define Yellow 0xFFFF00
-#define Aqua 0x00FFFF
-#define Fuchsia 0xFF00FF
-#define White 0xFFFFFF
-#define Black 0x000000
+#define Red (unsigned int) 0xFF0000
+#define Green (unsigned int) 0x00FF00
+#define Blue (unsigned int) 0x0000FF
+#define Yellow (unsigned int) 0xFFFF00
+#define Aqua (unsigned int) 0x00FFFF
+#define Fuchsia (unsigned int) 0xFF00FF
+#define White (unsigned int) 0xFFFFFF
+#define Black (unsigned int) 0x000000
 /**@}*/
 
 /**
  * @brief Holds a pixel co-ordinate
  */
 typedef struct coord {
-    unsigned short x; /*!< X axis coord */
-    unsigned short y; /*!< Y axis coord */
+    signed short x; /*!< X axis coord */
+    signed short y; /*!< Y axis coord */
 } coord_t;
 
 /**
@@ -333,9 +333,9 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
  * @param colour RGB colour of the ellipse
  * @return signed char 0 on success
  */
-signed char tumDrawArrow(unsigned short x1, unsigned short y1,
-                         unsigned short x2, unsigned short y2,
-                         unsigned short head_length, unsigned char thickness,
+signed char tumDrawArrow(signed short x1, signed short y1,
+                         signed short x2, signed short y2,
+                         signed short head_length, unsigned char thickness,
                          unsigned int colour);
 
 /**

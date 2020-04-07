@@ -38,6 +38,21 @@
 #include "TUM_Draw.h"
 #include "TUM_Utils.h"
 
+#define ONE_BYTE 8
+#define TWO_BYTES 16
+#define THREE_BYTES 24
+#define MAX_8_BIT 255
+#define ALPHA_SOLID MAX_8_BIT
+#define FIRST_BYTE 0x000000ff 
+#define SECOND_BYTE 0x0000ff00 
+#define THIRD_BYTE 0x00ff0000 
+#define FOURTH_BYTE 0xff000000 
+#define RED_PORTION(COLOUR) (COLOUR & 0xFF0000) >> TWO_BYTES 
+#define GREEN_PORTION(COLOUR) (COLOUR & 0x00FF00) >> ONE_BYTE 
+#define BLUE_PORTION(COLOUR) (COLOUR & 0x0000FF)
+#define ZERO_ALPHA 0
+
+
 typedef enum {
     DRAW_NONE = 0,
     DRAW_CLEAR,
@@ -77,25 +92,25 @@ typedef struct ellipse_data {
 } ellipse_data_t;
 
 typedef struct rect_data {
-    unsigned short x;
-    unsigned short y;
-    unsigned short w;
-    unsigned short h;
+    signed short x;
+    signed short y;
+    signed short w;
+    signed short h;
     unsigned int colour;
 } rect_data_t;
 
 typedef struct circle_data {
-    unsigned short x;
-    unsigned short y;
-    unsigned short radius;
+    signed short x;
+    signed short y;
+    signed short radius;
     unsigned int colour;
 } circle_data_t;
 
 typedef struct line_data {
-    unsigned short x1;
-    unsigned short y1;
-    unsigned short x2;
-    unsigned short y2;
+    signed short x1;
+    signed short y1;
+    signed short x2;
+    signed short y2;
     unsigned char thickness;
     unsigned int colour;
 } line_data_t;
@@ -114,8 +129,8 @@ typedef struct triangle_data {
 typedef struct image_data {
     char *filename;
     SDL_Texture *tex;
-    unsigned short x;
-    unsigned short y;
+    signed short x;
+    signed short y;
 } image_data_t;
 
 typedef struct scaled_image_data {
@@ -125,19 +140,19 @@ typedef struct scaled_image_data {
 
 typedef struct text_data {
     char *str;
-    unsigned short x;
-    unsigned short y;
+    signed short x;
+    signed short y;
     unsigned int colour;
 } text_data_t;
 
 typedef struct arrow_data {
-    unsigned short x1;
-    unsigned short y1;
-    unsigned short x2;
-    unsigned short y2;
-    unsigned short head_length;
+    signed short x1;
+    signed short y1;
+    signed short x2;
+    signed short y2;
+    signed short head_length;
     unsigned char thickness;
-    unsigned short colour;
+    unsigned int colour;
 } arrow_data_t;
 
 union data_u {
@@ -174,17 +189,11 @@ TTF_Font *font = NULL;
 
 char *error_message = NULL;
 
-#define SHIFT_BYTE 8
-#define SHIFT_THREE_BYTE 24
-#define FIRST_BYTE 0x000000ff 
-#define SECOND_BYTE 0x0000ff00 
-#define THIRD_BYTE 0x00ff0000 
-#define FOURTH_BYTE 0xff000000 
 
 uint32_t SwapBytes(unsigned int x)
 {
-    return ((x & FIRST_BYTE) << SHIFT_THREE_BYTE) + ((x & SECOND_BYTE) << SHIFT_BYTE) +
-           ((x & THIRD_BYTE) >> SHIFT_BYTE) + ((x & FOURTH_BYTE) >> SHIFT_THREE_BYTE);
+    return ((x & FIRST_BYTE) << THREE_BYTES) + ((x & SECOND_BYTE) << ONE_BYTE) +
+           ((x & THIRD_BYTE) >> ONE_BYTE) + ((x & FOURTH_BYTE) >> THREE_BYTES);
 }
 
 void setErrorMessage(char *msg)
@@ -242,7 +251,7 @@ static draw_job_t *popDrawJob(void)
 static int vClearDisplay(unsigned int colour)
 {
     SDL_SetRenderDrawColor(renderer, (colour >> 16) & 0xFF,
-                           (colour >> 8) & 0xFF, colour & 0xFF, 255);
+                           (colour >> 8) & 0xFF, colour & 0xFF, ALPHA_SOLID);
     SDL_RenderClear(renderer);
 
     return 0;
@@ -252,7 +261,7 @@ static int vDrawRectangle(signed short x, signed short y, signed short w,
                           signed short h, unsigned int colour)
 {
     rectangleColor(renderer, x + w, y, x, y + h,
-                   SwapBytes((colour << 8) | 0xFF));
+                   SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -260,7 +269,7 @@ static int vDrawRectangle(signed short x, signed short y, signed short w,
 static int vDrawFilledRectangle(signed short x, signed short y, signed short w,
                                 signed short h, unsigned int colour)
 {
-    boxColor(renderer, x + w, y, x, y + h, SwapBytes((colour << 8) | 0xFF));
+    boxColor(renderer, x + w, y, x, y + h, SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -269,7 +278,7 @@ static int vDrawArc(signed short x, signed short y, signed short radius,
                     signed short start, signed short end, unsigned int colour)
 {
     arcColor(renderer, x, y, radius, start, end,
-             SwapBytes((colour << 8) | 0xFF));
+             SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -277,7 +286,7 @@ static int vDrawArc(signed short x, signed short y, signed short radius,
 static int vDrawEllipse(signed short x, signed short y, signed short rx,
                         signed short ry, unsigned int colour)
 {
-    ellipseColor(renderer, x, y, rx, ry, SwapBytes((colour << 8) | 0xFF));
+    ellipseColor(renderer, x, y, rx, ry, SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -286,7 +295,7 @@ static int vDrawCircle(signed short x, signed short y, signed short radius,
                        unsigned int colour)
 {
     filledCircleColor(renderer, x, y, radius,
-                      SwapBytes((colour << 8) | 0xFF));
+                      SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -296,7 +305,7 @@ static int vDrawLine(signed short x1, signed short y1, signed short x2,
                      unsigned int colour)
 {
     thickLineColor(renderer, x1, y1, x2, y2, thickness,
-                   SwapBytes((colour << 8) | 0xFF));
+                   SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -313,7 +322,7 @@ static int vDrawPoly(coord_t *points, unsigned int n, signed short colour)
     }
 
     polygonColor(renderer, x_coords, y_coords, n,
-                 SwapBytes((colour << 8) | 0xFF));
+                 SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     free(x_coords);
     free(y_coords);
@@ -325,7 +334,7 @@ static int vDrawTriangle(coord_t *points, unsigned int colour)
 {
     filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x,
                       points[1].y, points[2].x, points[2].y,
-                      SwapBytes((colour << 8) | 0xFF));
+                      SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -352,8 +361,8 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 }
 
 static void vRenderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
-                               unsigned short x, unsigned short y,
-                               unsigned short w, unsigned short h)
+                               signed short x, signed short y,
+                               signed short w, signed short h)
 {
     SDL_Rect dst;
     dst.w = w;
@@ -371,7 +380,7 @@ void vGetImageSize(char *filename, int *w, int *h)
 }
 
 static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
-                            unsigned short x, unsigned short y, float scale)
+                            signed short x, signed short y, float scale)
 {
     int w, h;
     SDL_QueryTexture(tex, NULL, NULL, &w, &h);
@@ -381,8 +390,8 @@ static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
     return 0;
 }
 
-static int vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
-                      unsigned short y)
+static int vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
+                      signed short y)
 {
     vDrawScaledImage(tex, ren, x, y, 1);
 
@@ -390,7 +399,7 @@ static int vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, unsigned short x,
 }
 
 static void vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren,
-                                  unsigned short x, unsigned short y)
+                                  signed short x, signed short y)
 {
     SDL_Texture *tex = loadImage(filename, ren);
 
@@ -406,14 +415,14 @@ static void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
 }
 
 static void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
-                              unsigned short x, unsigned short y,
+                              signed short x, signed short y,
                               SDL_Rect *clip)
 {
     SDL_Rect dst;
     dst.x = x;
     dst.y = y;
 
-    if (!clip) {
+    if (clip == NULL) {
         dst.w = clip->w;
         dst.h = clip->h;
     }
@@ -424,12 +433,7 @@ static void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
     vDrawRectImage(tex, ren, dst, clip);
 }
 
-#define RED_PORTION(COLOUR) (COLOUR & 0xFF0000) >> 16
-#define GREEN_PORTION(COLOUR) (COLOUR & 0x00FF00) >> 8
-#define BLUE_PORTION(COLOUR) (COLOUR & 0x0000FF)
-#define ZERO_ALPHA 0
-
-static int vDrawText(char *string, unsigned short x, unsigned short y,
+static int vDrawText(char *string, signed short x, signed short y,
                      unsigned int colour)
 {
     SDL_Color color = { RED_PORTION(colour), GREEN_PORTION(colour),
@@ -460,8 +464,8 @@ static void vGetTextSize(char *string, int *width, int *height)
     SDL_FreeSurface(surface);
 }
 
-static int vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
-                      unsigned short y2, unsigned short head_length,
+static int vDrawArrow(signed short x1, signed short y1, signed short x2,
+                      signed short y2, signed short head_length,
                       unsigned char thickness, unsigned int colour)
 {
     // Line vector
@@ -470,29 +474,29 @@ static int vDrawArrow(unsigned short x1, unsigned short y1, unsigned short x2,
 
     // Normalize
     float length = sqrt(dx * dx + dy * dy);
-    float unit_dx = dx / length;
-    float unit_dy = dy / length;
+    signed short unit_dx = (signed short) (dx / length);
+    signed short  unit_dy = (signed short) (dy / length);
 
-    unsigned short head_x1 =
-        round(x2 - unit_dx * head_length - unit_dy * head_length);
-    unsigned short head_y1 =
-        round(y2 - unit_dy * head_length + unit_dx * head_length);
+    signed short head_x1 =
+        roundf(x2 - unit_dx * head_length - unit_dy * head_length);
+    signed short head_y1 =
+        roundf(y2 - unit_dy * head_length + unit_dx * head_length);
 
-    unsigned short head_x2 =
-        round(x2 - unit_dx * head_length + unit_dy * head_length);
-    unsigned short head_y2 =
-        round(y2 - unit_dy * head_length - unit_dx * head_length);
+    signed short head_x2 =
+        roundf(x2 - unit_dx * head_length + unit_dy * head_length);
+    signed short head_y2 =
+        roundf(y2 - unit_dy * head_length - unit_dx * head_length);
 
     if (thickLineColor(renderer, x1, y1, x2, y2, thickness,
-                       SwapBytes((colour << 8) | 0xFF))) {
+                       SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
         return -1;
     }
     if (thickLineColor(renderer, head_x1, head_y1, x2, y2, thickness,
-                       SwapBytes((colour << 8) | 0xFF))) {
+                       SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
         return -1;
     }
     if (thickLineColor(renderer, head_x2, head_y2, x2, y2, thickness,
-                       SwapBytes((colour << 8) | 0xFF))) {
+                       SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
         return -1;
     }
 
@@ -599,15 +603,19 @@ static void logCriticalError(char *msg)
     exit(-1);
 }
 
+#define NS_IN_SECOND 1000000000.0
+#define MS_IN_SECOND 1000.0
+#define NS_IN_MS 1000000.0
+
 static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 {
     if ((stop->tv_nsec - start->tv_nsec) < 0)
-        return (stop->tv_sec - start->tv_sec - 1) * 1000 +
-               (stop->tv_nsec - start->tv_nsec + 1000000000) /
-               1000000.0;
-    else
-        return (stop->tv_sec - start->tv_sec) * 1000 +
-               (stop->tv_nsec - start->tv_nsec) / 1000000.0;
+        return (stop->tv_sec - start->tv_sec - 1) * MS_IN_SECOND +
+               (stop->tv_nsec - start->tv_nsec + NS_IN_SECOND) /
+               NS_IN_MS;
+
+    return (stop->tv_sec - start->tv_sec) * MS_IN_SECOND +
+               (stop->tv_nsec - start->tv_nsec) / NS_IN_MS;
 }
 
 #define FRAMELIMIT 60.0
@@ -622,16 +630,14 @@ void vDrawUpdateScreen(void)
         return;
     }
 
-    if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD) {
+    if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD) 
         return;
-    }
-    else {
-        memcpy(&last_time, &cur_time, sizeof(struct timespec));
-    }
+    
+    memcpy(&last_time, &cur_time, sizeof(struct timespec));
 
-    if (!job_list_head.next) {
+    if (!job_list_head.next) 
         return;
-    }
+    
 
     draw_job_t *tmp_job;
 
@@ -760,7 +766,7 @@ int vBindDrawing(void) // Should be called from the Drawing Thread
         goto err_renderer;
     }
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, MAX_8_BIT, MAX_8_BIT, MAX_8_BIT, ALPHA_SOLID);
 
     SDL_RenderClear(renderer);
 
@@ -995,9 +1001,9 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
     return 0;
 }
 
-signed char tumDrawArrow(unsigned short x1, unsigned short y1,
-                         unsigned short x2, unsigned short y2,
-                         unsigned short head_length, unsigned char thickness,
+signed char tumDrawArrow(signed short x1, signed short y1,
+                         signed short x2, signed short y2,
+                         signed short head_length, unsigned char thickness,
                          unsigned int colour)
 {
     INIT_JOB(job, DRAW_ARROW);
