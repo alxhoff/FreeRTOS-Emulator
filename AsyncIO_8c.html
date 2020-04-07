@@ -136,8 +136,6 @@ Macros</h2></td></tr>
 <tr class="separator:a369266c24eacffb87046522897a570d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d28eb068ca97ef73c3328b05b23c0cd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#a7d28eb068ca97ef73c3328b05b23c0cd">PRINT_CHECK</a>&#160;&#160;&#160;fprintf(stderr, &quot;[ERRNO: %s] %s:%d -&gt; %s\n&quot;, strerror(errno), __FILE__, __LINE__, __func__);</td></tr>
 <tr class="separator:a7d28eb068ca97ef73c3328b05b23c0cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a763ffd798508592c5092ac77daa5a659"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#a763ffd798508592c5092ac77daa5a659">CHECK</a>(x)</td></tr>
-<tr class="separator:a763ffd798508592c5092ac77daa5a659"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -221,22 +219,6 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-</div>
-</div>
-<a class="anchor" id="a763ffd798508592c5092ac77daa5a659"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define CHECK</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">x</td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><span class="keywordflow">do</span> {                                                                   \</div><div class="line">        if (!(x)) {                                                    \</div><div class="line">            PRINT_CHECK                                            \</div><div class="line">            perror(#x);                                            \</div><div class="line">            exit(-1);                                              \</div><div class="line">        }                                                              \</div><div class="line">    } <span class="keywordflow">while</span> (0)</div></div><!-- fragment -->
 </div>
 </div>
 <a class="anchor" id="a7d28eb068ca97ef73c3328b05b23c0cd"></a>
