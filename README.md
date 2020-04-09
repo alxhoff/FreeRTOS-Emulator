@@ -87,6 +87,8 @@ make tidy
 
 Uses clang tidy to find style violations, interface misuse of bugs found via static analysis.
 
+To generate a list of warnings/errors use the build target `tidy_list` and then view the file `tidy.fixes`.
+
 #### CppCheck
 
 ``` bash

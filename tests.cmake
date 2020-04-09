@@ -130,8 +130,6 @@ if(ENABLE_CLANG_TIDY)
 
     list(APPEND RUN_CLANG_TIDY_BIN_ARGS
         -clang-tidy-binary ${CLANG_TIDY_BIN}
-        -export-fixes=tidy.fixes
-        -style=file
         -header-filter="${FILTER_REGEX}"
         -checks=clan*,cert*,misc*,perf*,cppc*,read*,mode*,-cert-err58-cpp,-misc-noexcept-move-constructor
     )
@@ -139,6 +137,12 @@ if(ENABLE_CLANG_TIDY)
     add_custom_target(
         tidy
         COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS} ${TIDY_SOURCES}
+        COMMENT "running clang tidy"
+    )
+
+    add_custom_target(
+        tidy_list
+        COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS} -export-fixes=tidy.fixes -style=file ${TIDY_SOURCES}
         COMMENT "running clang tidy"
     )
 
