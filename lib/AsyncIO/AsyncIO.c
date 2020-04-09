@@ -109,7 +109,6 @@ aIO_t *getLastConnection(void)
         ;
     }
 
-
     return iterator;
 }
 
@@ -245,9 +244,8 @@ static void aIOMQSigHandler(union sigval sv)
     ssize_t bytes_read = mq_receive(conn->attr.mq.fd, conn->buffer,
                                     conn->buffer_size, NULL);
 
-    if (bytes_read > 0) {
+    if (bytes_read > 0)
         (conn->callback)(bytes_read, conn->buffer, conn->args);
-    }
 
     /** reprime MQ notifications */
     if (mq_notify(conn->attr.mq.fd, &conn->attr.mq.ev)) {

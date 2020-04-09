@@ -630,16 +630,13 @@ void vDrawUpdateScreen(void)
         return;
     }
 
-    if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD) {
+    if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD)
         return;
-    }
 
     memcpy(&last_time, &cur_time, sizeof(struct timespec));
 
-    if (!job_list_head.next) {
+    if (!job_list_head.next)
         return;
-    }
-
 
     draw_job_t *tmp_job;
 
