@@ -38,6 +38,11 @@ local.properties
 .loadpath
 .recommenders
 
+remote/ssh/rtos-sim
+remote/ssh/rtos-sim.pub
+
+.vscode
+
 # External tool builders
 .externalToolBuilders/
 
