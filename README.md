@@ -148,6 +148,15 @@ make
 
 will perform all checks
 
+## Running
+
+The binary will be created inside a `bin` folder. The emulator should be run from this folder becuase at the moment the Gfx libraries rely on hardcoded resource paths for things such as fonts. As such to run perform the following.
+
+``` bash
+cd bin
+./FreeRTOS_Emulator
+```
+
 ## Debugging
 
 The emulator uses the signals `SIGUSR1` and `SIG34` and as such GDB needs to be told to ignore the signal.
