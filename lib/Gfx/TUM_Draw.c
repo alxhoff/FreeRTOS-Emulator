@@ -43,12 +43,12 @@
 #define THREE_BYTES 24
 #define MAX_8_BIT 255
 #define ALPHA_SOLID MAX_8_BIT
-#define FIRST_BYTE 0x000000ff 
-#define SECOND_BYTE 0x0000ff00 
-#define THIRD_BYTE 0x00ff0000 
-#define FOURTH_BYTE 0xff000000 
-#define RED_PORTION(COLOUR) (COLOUR & 0xFF0000) >> TWO_BYTES 
-#define GREEN_PORTION(COLOUR) (COLOUR & 0x00FF00) >> ONE_BYTE 
+#define FIRST_BYTE 0x000000ff
+#define SECOND_BYTE 0x0000ff00
+#define THIRD_BYTE 0x00ff0000
+#define FOURTH_BYTE 0xff000000
+#define RED_PORTION(COLOUR) (COLOUR & 0xFF0000) >> TWO_BYTES
+#define GREEN_PORTION(COLOUR) (COLOUR & 0x00FF00) >> ONE_BYTE
 #define BLUE_PORTION(COLOUR) (COLOUR & 0x0000FF)
 #define ZERO_ALPHA 0
 
@@ -474,8 +474,8 @@ static int vDrawArrow(signed short x1, signed short y1, signed short x2,
 
     // Normalize
     float length = sqrt(dx * dx + dy * dy);
-    signed short unit_dx = (signed short) (dx / length);
-    signed short  unit_dy = (signed short) (dy / length);
+    signed short unit_dx = (signed short)(dx / length);
+    signed short  unit_dy = (signed short)(dy / length);
 
     signed short head_x1 =
         roundf(x2 - unit_dx * head_length - unit_dy * head_length);
@@ -615,7 +615,7 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
                NS_IN_MS;
 
     return (stop->tv_sec - start->tv_sec) * MS_IN_SECOND +
-               (stop->tv_nsec - start->tv_nsec) / NS_IN_MS;
+           (stop->tv_nsec - start->tv_nsec) / NS_IN_MS;
 }
 
 #define FRAMELIMIT 60.0
@@ -630,14 +630,16 @@ void vDrawUpdateScreen(void)
         return;
     }
 
-    if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD) 
+    if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD) {
         return;
-    
+    }
+
     memcpy(&last_time, &cur_time, sizeof(struct timespec));
 
-    if (!job_list_head.next) 
+    if (!job_list_head.next) {
         return;
-    
+    }
+
 
     draw_job_t *tmp_job;
 

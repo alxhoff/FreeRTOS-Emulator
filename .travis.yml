@@ -118,19 +118,23 @@ matrix:
       - cmake -DENABLE_CLANG_TIDY=ON ..
       - make
       - make tidy > output.txt
+      - cd ..
       - |
-        if [[ -n $(grep "error: " output.txt) ]]; then
+        if [[ -n $(grep "error: " build/output.txt) ]]; then
             echo "You must pass the clang tidy checks before submitting a pull request"
             echo "cmake -DENABLE_CLANG_TIDY=ON .. & make tidy"
             echo ""
-            grep --color -E '^|error: ' output.txt
-            exit -1;
+            grep --color -E '^|error: ' build/output.txt
+            exit -1
+        elif [[ -n $(grep "warning: " build/output.txt) ]]; then
+            echo "Warnings:"
+            grep --color -E '^|warning: ' build/output.txt
+            echo -e "\033[1;32m\xE2\x9C\x93 passed - with warnings\033[0m $1"
+            exit 0
         else
-            echo -e "\033[1;32m\xE2\x9C\x93 passed:\033[0m $1";
+            echo -e "\033[1;32m\xE2\x9C\x93 passed - no warnings\033[0m $1"
+            exit 0
         fi
-        echo "Warnings:"
-        grep --color -E '^|warning: ' output.txt
-      - cd ..
 
 #TODO https://scan.coverity.com/travis_ci
 #   #
