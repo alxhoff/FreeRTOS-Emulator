@@ -1,0 +1,107 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "${workspaceRoot}/remote"
+    },
+    "problemMatcher": [],
+    "tasks": [
+        {
+            "label": "SSH: Sync Project with VM",
+            "type": "shell",
+            "command": "make sync",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "SSH: Connect to Shell",
+            "type": "shell",
+            "command": "make shell",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "SSH: Compile in VM",
+            "type": "shell",
+            "command": "make compile",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": ["absolute"]
+            }
+        },
+        {
+            "label": "SSH: Run Emulator",
+            "type": "shell",
+            "command": "make run",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "dependsOn": ["SSH: Compile in VM"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "SSH: Debug inside VM using GDB (with TUI)",
+            "type": "shell",
+            "command": "make debug",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "SSH: Start GDB Server",
+            "type": "shell",
+            "command": "make gdbserver",
+            "presentation": {
+                "reveal": "never"
+            },
+            "dependsOn": ["SSH: Compile in VM"]
+        },
+        {
+            "label": "SSH: Kill Running Emulator/Debugging Session",
+            "type": "shell",
+            "command": "make kill",
+            "presentation": {
+                "reveal": "never"
+            }
+        },
+        {
+            "label": "SSH: Rebuild CMake Configuration",
+            "type": "shell",
+            "command": "make cmake",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "SSH: Clean inside VM",
+            "type": "shell",
+            "command": "make clean",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "SSH: Quit Session",
+            "type": "shell",
+            "command": "make quit",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

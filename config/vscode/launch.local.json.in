@@ -1,0 +1,33 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Debug Session",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/FreeRTOS_Emulator",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "preLaunchTask": "Compile Emulator",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Handle User Signal 1 in GDB Session",
+                    "text": "handle SIGUSR1 nostop noignore noprint"
+                },
+                {
+                    "description": "Handle Signal 3&4 in GDB Session",
+                    "text": "handle SIG34 nostop noignore noprint"
+                }
+            ]
+        }
+    ]
+}

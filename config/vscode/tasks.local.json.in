@@ -1,0 +1,71 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "${workspaceRoot}/build"
+    },
+    "problemMatcher": [],
+    "tasks": [
+        {
+            "label": "Compile Emulator",
+            "type": "shell",
+            "command": "make all",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": ["absolute"]
+            }
+        },
+        {
+            "label": "Run Emulator",
+            "type": "shell",
+            "command": "../bin/FreeRTOS_Emulator",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "dependsOn": ["Compile Emulator"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Debug using GDB (with TUI)",
+            "type": "shell",
+            "command": "make debug",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Kill Running Emulator/Debugging Session",
+            "type": "shell",
+            "command": "killall -q -9 FreeRTOS_Emulator || : ; killall -q -9 gdb",
+            "presentation": {
+                "reveal": "never"
+            }
+        },
+        {
+            "label": "Rebuild CMake Configuration",
+            "type": "shell",
+            "command": "cmake -DUSE_IDE=vscode ..",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Clean Project",
+            "type": "shell",
+            "command": "make clean",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

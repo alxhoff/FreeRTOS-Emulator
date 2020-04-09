@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "FreeRTOS Emulator",
+            "intelliSenseMode": "clang-x64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "./lib/FreeRTOS_Kernel/**",
+                "./lib/AsyncIO/**",
+                "./lib/Gfx/**",
+                "./lib/tracer/**"
+            ],
+            "defines": [],
+            "compileCommands": "${workspaceFolder}/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
