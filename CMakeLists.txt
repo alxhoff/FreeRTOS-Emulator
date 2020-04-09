@@ -58,7 +58,7 @@ set(PROJECT_LIBRARIES
     rt
 )
 
-include(tests.cmake)
+include(${CMAKE_MODULE_PATH}/tests.cmake)
 
 add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES})
 
