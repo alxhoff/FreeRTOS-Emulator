@@ -685,16 +685,16 @@ int main(int argc, char *argv[])
     }
 
     /** SOCKETS */
-    /** xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL, */
-    /**         configMAX_PRIORITIES - 1, &UDPDemoTask); */
-    /** xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL, */
-    /**         configMAX_PRIORITIES - 1, &TCPDemoTask); */
+    xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
+                configMAX_PRIORITIES - 1, &UDPDemoTask);
+    xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL,
+                configMAX_PRIORITIES - 1, &TCPDemoTask);
 
     /** POSIX MESSAGE QUEUES */
-    /** xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL, */
-    /**         configMAX_PRIORITIES - 1, &MQDemoTask); */
-    /** xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL, */
-    /**         configMAX_PRIORITIES - 1, &DemoSendTask); */
+    xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
+                configMAX_PRIORITIES - 1, &MQDemoTask);
+    xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL,
+                configMAX_PRIORITIES - 1, &DemoSendTask);
 
     vTaskSuspend(DemoTask1);
     vTaskSuspend(DemoTask2);
@@ -727,12 +727,14 @@ err_init_drawing:
     return EXIT_FAILURE;
 }
 
-void vMainQueueSendPassed(void)
+// cppcheck-suppress unusedFunction
+__attribute__((unused)) void vMainQueueSendPassed(void)
 {
     /* This is just an example implementation of the "queue send" trace hook. */
 }
 
-void vApplicationIdleHook(void)
+// cppcheck-suppress unusedFunction
+__attribute__((unused)) void vApplicationIdleHook(void)
 {
 #ifdef __GCC_POSIX__
     struct timespec xTimeToSleep, xTimeSlept;

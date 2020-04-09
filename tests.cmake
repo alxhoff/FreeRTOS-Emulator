@@ -7,9 +7,8 @@ SET(CHECK_FILES
     ${PROJECT_SOURCE_DIR}/include/*.h
     ${PROJECT_SOURCE_DIR}/lib/Gfx/include/*.h
     ${PROJECT_SOURCE_DIR}/lib/AsyncIO/include/*.h
-    ${PROJECT_SOURCE_DIR}/lib/tracer/include/*.h
-    ${PROJECT_SOURCES}
-)
+    #${PROJECT_SOURCE_DIR}/lib/tracer/include/*.h
+    ${PROJECT_SOURCE_DIR}/src/*.c)
 
 SET(TIDY_SOURCES
     ${PROJECT_SOURCE_DIR}/lib/Gfx
@@ -175,6 +174,8 @@ if(ENABLE_CPPCHECK)
         --verbose
         --error-exitcode=1
         --language=c
+        --xml
+        --inline-suppr
         -DMAIN=main
         -I ${CHECK_FILES}
     )
