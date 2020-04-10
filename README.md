@@ -31,8 +31,14 @@ The simulator uses the SDL2 graphics libraries.
 
 ```bash
 sudo apt-get install libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
-
 ```
+
+Additional requirements for development:
+```bash
+# Depending on your OS version you might have to add the llvm-toolchain-4.0 APT source before
+sudo apt-get install clang-4.0 clang-tidy-4.0
+```
+
 ### Arch
 
 ```bash
