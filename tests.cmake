@@ -16,13 +16,6 @@ SET(TIDY_SOURCES
     ${PROJECT_SOURCE_DIR}/src
     )
 
-SET(TIDY_SOURCES
-    ${PROJECT_SOURCE_DIR}/lib/Gfx
-    ${PROJECT_SOURCE_DIR}/lib/AsyncIO
-    ${PROJECT_SOURCE_DIR}/src
-    )
-
-
 # ------------------------------------------------------------------------------
 # All checks
 # ------------------------------------------------------------------------------
