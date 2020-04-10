@@ -1,6 +1,0 @@
-linters:
-  remarklint:
-    fixer: true
-  spellcheck:
-    shell: bash
-
