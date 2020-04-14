@@ -20,8 +20,9 @@ An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics.
 
 Based on the FreeRTOS (V5.X) simulator developed by William Davy. Updated to use FreeRTOS V9.0.0.
 
-
 Checkout the [Wiki page](../../wiki) for a detailed Documentation!
+
+Doxygen documentation can also be found on the [GitHub Pages](ihttps://alxhoff.github.io/FreeRTOS-Emulator/) page.
 
 ## Dependencies
 
