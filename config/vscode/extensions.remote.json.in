@@ -1,0 +1,10 @@
+{
+	"recommendations": [
+    "formulahendry.terminal",
+		"ms-vscode.cpptools",
+		"p1c2u.docker-compose"
+	],
+	"unwantedRecommendations": [
+		"ms-vscode.cmake-tools"
+	]
+}

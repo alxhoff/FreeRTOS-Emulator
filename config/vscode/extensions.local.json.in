@@ -1,0 +1,9 @@
+{
+	"recommendations": [
+    "formulahendry.terminal",
+		"ms-vscode.cpptools"
+	],
+	"unwantedRecommendations": [
+		"ms-vscode.cmake-tools"
+	]
+}

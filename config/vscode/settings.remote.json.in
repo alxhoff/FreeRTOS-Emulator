@@ -1,0 +1,12 @@
+{
+    "terminal.integrated.env.osx": {
+       "PROJECT_DIR": "${workspaceFolder}"
+    },
+    "terminal.integrated.env.linux": {
+        "PROJECT_DIR": "${workspaceFolder}"
+    },
+    "terminal.integrated.env.windows": {
+        "PROJECT_DIR": "${workspaceFolder}"
+    },
+    "docker-compose.files": ["${workspaceFolder}/docker/docker-freertos-sdl2/docker-compose.yml"]
+}

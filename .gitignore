@@ -17,7 +17,8 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
-Makefile
+/Makefile
+/build/Makefile
 cmake_install.cmake
 install_manifest.txt
 build/compile_commands.json
@@ -36,6 +37,11 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+
+remote/ssh/rtos-sim
+remote/ssh/rtos-sim.pub
+
+.vscode
 
 # External tool builders
 .externalToolBuilders/
