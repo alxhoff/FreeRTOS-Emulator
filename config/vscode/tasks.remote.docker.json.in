@@ -1,0 +1,134 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "${workspaceRoot}/docker"
+    },
+    "problemMatcher": [],
+    "tasks": [
+        {
+            "label": "Docker: Create and Start Container",
+            "type": "shell",
+            "command": "make up",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Start Container",
+            "type": "shell",
+            "command": "make start",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Connect to Shell",
+            "type": "shell",
+            "command": "make shell",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Compile in Container",
+            "type": "shell",
+            "command": "make compile",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": ["absolute"]
+            }
+        },
+        {
+            "label": "Docker: Run Emulator",
+            "type": "shell",
+            "command": "make run",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "dependsOn": ["Docker: Compiile in Container"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Docker: Debug inside Container using GDB",
+            "type": "shell",
+            "command": "make debug",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Start GDB Server",
+            "type": "shell",
+            "command": "make gdbserver",
+            "presentation": {
+                "reveal": "never"
+            },
+            "dependsOn": ["Docker: Compile in Container"]
+        },
+        {
+            "label": "Docker: Kill Running Emulator/Debugging Session",
+            "type": "shell",
+            "command": "make kill",
+            "presentation": {
+                "reveal": "never"
+            }
+        },
+        {
+            "label": "SSH: Rebuild CMake Configuration",
+            "type": "shell",
+            "command": "make cmake",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Clean inside Container",
+            "type": "shell",
+            "command": "make clean",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Stop Container",
+            "type": "shell",
+            "command": "make stop",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Remove Container",
+            "type": "shell",
+            "command": "make down",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Docker: Reload Container",
+            "type": "shell",
+            "command": "make reload",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Debug Session (inside VM)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/FreeRTOS_Emulator",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "preLaunchTask": "SSH: Start GDB Server",
+            "miDebuggerServerAddress": "192.168.57.106:2000",
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "sourceFileMap": {
+                "/tmp/emulator/share/": "${workspaceRoot}"
+            },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for GDB Session",
+                    "text": "-enable-pretty-printing"
+                },
+                {
+                    "description": "Handle User Signal 1 in GDB Session",
+                    "text": "handle SIGUSR1 nostop noignore noprint"
+                }
+                ,
+                {
+                    "description": "Handle Signal 3&4 in GDB Session",
+                    "text": "handle SIG34 nostop noignore noprint"
+                }
+            ],
+            "logging": {
+                "trace": false,
+                "traceResponse": false,
+                "engineLogging": false
+            }
+        }
+    ]
+}
