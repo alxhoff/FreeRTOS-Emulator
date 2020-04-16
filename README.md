@@ -66,7 +66,7 @@ to generate the appropriate project files to allow for the emulator to be import
 
 ### Additional targets
 
-In [`test.cmake`](test.cmake) a number of extra targets are provided to help with linting.
+In [`test.cmake`](cmake/test.cmake) a number of extra targets are provided to help with linting.
 
 #### Git --check
 
