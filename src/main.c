@@ -1,7 +1,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include <SDL2/SDL_scancode.h>
 
@@ -94,8 +93,6 @@ void checkDraw(unsigned char status, const char *msg)
         else {
             fprintf(stderr, "[ERROR] %s\n", tumGetErrorMessage());
         }
-
-        exit(EXIT_FAILURE);
     }
 }
 
@@ -231,7 +228,8 @@ void vDrawCave(void)
     circlePositionX = CAVE_X + xGetMouseX() / 2;
     circlePositionY = CAVE_Y + xGetMouseY() / 2;
 
-    tumDrawCircle(circlePositionX, circlePositionY, 20, Green);
+    checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20, Green),
+              __FUNCTION__);
 }
 
 void vDrawHelpText(void)
@@ -241,18 +239,17 @@ void vDrawHelpText(void)
 
     sprintf(str, "[Q]uit, [C]hange State");
 
-    tumGetTextSize((char *)str, &text_width, NULL);
-
-    checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
-                          DEFAULT_FONT_SIZE * 0.5, Black),
-              __FUNCTION__);
+    if (!tumGetTextSize((char *)str, &text_width, NULL))
+        checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
+                              DEFAULT_FONT_SIZE * 0.5, Black),
+                  __FUNCTION__);
 }
 
 #define FPS_AVERAGE_COUNT 50
 
 void vDrawFPS(void)
 {
-    static unsigned int periods[FPS_AVERAGE_COUNT] = {0};
+    static unsigned int periods[FPS_AVERAGE_COUNT] = { 0 };
     static unsigned int periods_total = 0;
     static unsigned int index = 0;
     static unsigned int average_count = 0;
@@ -264,7 +261,8 @@ void vDrawFPS(void)
     xLastWakeTime = xTaskGetTickCount();
 
     if (prevWakeTime != xLastWakeTime) {
-        periods[index] = configTICK_RATE_HZ / (xLastWakeTime - prevWakeTime);
+        periods[index] =
+            configTICK_RATE_HZ / (xLastWakeTime - prevWakeTime);
         prevWakeTime = xLastWakeTime;
     }
     else {
@@ -291,21 +289,24 @@ void vDrawFPS(void)
 
     sprintf(str, "FPS: %2d", fps);
 
-    tumGetTextSize((char *)str, &text_width, NULL);
-
-    checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
-                          SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5, Blue),
-              __FUNCTION__);
+    if (!tumGetTextSize((char *)str, &text_width, NULL))
+        checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
+                              SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
+                              Blue),
+                  __FUNCTION__);
 }
 
 void vDrawLogo(void)
 {
     static int image_height;
-    tumGetImageSize(LOGO_FILENAME, NULL, &image_height);
-    checkDraw(tumDrawScaledImage(LOGO_FILENAME, 10,
-                                 SCREEN_HEIGHT - 10 - image_height * 0.3,
-                                 0.3),
-              __FUNCTION__);
+    if (!tumGetImageSize(LOGO_FILENAME, NULL, &image_height))
+        checkDraw(tumDrawScaledImage(
+                      LOGO_FILENAME, 10,
+                      SCREEN_HEIGHT - 10 - image_height * 0.3, 0.3),
+                  __FUNCTION__);
+    else {
+        fprintf(stderr, "Failed to get size of image '%s', does it exist?\n", LOGO_FILENAME);
+    }
 }
 
 void vDrawStaticItems(void)
@@ -424,15 +425,14 @@ void vDemoSendTask(void *pvParameters)
         }
 
         if (udp_soc_one)
-            assert(!aIOSocketPut(UDP, NULL, UDP_TEST_PORT_1,
-                                 test_str_1, strlen(test_str_1)));
+            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_1,
+                         test_str_1, strlen(test_str_1));
         if (udp_soc_two)
-            assert(!aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2,
-                                 test_str_2, strlen(test_str_2)));
+            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2,
+                         test_str_2, strlen(test_str_2));
         if (tcp_soc)
-            assert(!aIOSocketPut(TCP, NULL, TCP_TEST_PORT,
-                                 test_str_3, strlen(test_str_3)));
-
+            aIOSocketPut(TCP, NULL, TCP_TEST_PORT,
+                         test_str_3, strlen(test_str_3));
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -640,7 +640,6 @@ int main(int argc, char *argv[])
         PRINT_ERROR("Failed to create buttons lock");
         goto err_buttons_lock;
     }
-    assert(buttons.lock);
 
     DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
     if (!DrawSignal) {
@@ -661,25 +660,26 @@ int main(int argc, char *argv[])
     }
 
     if (xTaskCreate(basicSequentialStateMachine, "StateMachine",
-                    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES - 1,
-                    StateMachine) != pdPASS) {
+                    mainGENERIC_STACK_SIZE * 2, NULL,
+                    configMAX_PRIORITIES - 1, StateMachine) != pdPASS) {
         PRINT_TASK_ERROR("StateMachine");
         goto err_statemachine;
     }
-    if (xTaskCreate(vSwapBuffers, "BufferSwapTask", mainGENERIC_STACK_SIZE * 2,
-                    NULL, configMAX_PRIORITIES, BufferSwap) != pdPASS) {
+    if (xTaskCreate(vSwapBuffers, "BufferSwapTask",
+                    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES,
+                    BufferSwap) != pdPASS) {
         PRINT_TASK_ERROR("BufferSwapTask");
         goto err_bufferswap;
     }
 
     /** Demo Tasks */
-    if (xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2, NULL,
-                    mainGENERIC_PRIORITY, &DemoTask1) != pdPASS) {
+    if (xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2,
+                    NULL, mainGENERIC_PRIORITY, &DemoTask1) != pdPASS) {
         PRINT_TASK_ERROR("DemoTask1");
         goto err_demotask1;
     }
-    if (xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2, NULL,
-                    mainGENERIC_PRIORITY, &DemoTask2) != pdPASS) {
+    if (xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2,
+                    NULL, mainGENERIC_PRIORITY, &DemoTask2) != pdPASS) {
         PRINT_TASK_ERROR("DemoTask2");
         goto err_demotask2;
     }
