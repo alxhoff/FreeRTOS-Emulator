@@ -239,7 +239,7 @@ void vDrawHelpText(void)
     static char str[100] = { 0 };
     static int text_width;
 
-    sprintf(str, "[Q]uit, [C]hang[e] State");
+    sprintf(str, "[Q]uit, [C]hange State");
 
     tumGetTextSize((char *)str, &text_width, NULL);
 
