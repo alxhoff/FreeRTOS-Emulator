@@ -45,6 +45,13 @@ sudo apt-get install clang-4.0 clang-tidy-4.0
 ```bash
 sudo pacman -S sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
 ```
+
+Additional requirements for development:
+``` bash
+sudo pacman -S clang
+```
+
+
 ### Windows/Mac
 ¯\\(°_o)/¯
 
