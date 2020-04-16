@@ -559,7 +559,7 @@ void *aIOTCPHandler(void *conn)
     ssize_t read_size;
     aIO_tcp_client *client = (aIO_tcp_client *)conn;
     int client_fd = client->client_fd;
-    char *buffer = malloc(sizeof(char) * client->buffer_size);
+    char *buffer = calloc(1, sizeof(char) * client->buffer_size);
     if (!buffer) {
         fprintf(stderr, "Failed to handle TCP\n");
         PRINT_CHECK;
