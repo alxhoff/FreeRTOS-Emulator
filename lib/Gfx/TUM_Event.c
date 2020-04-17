@@ -32,9 +32,9 @@
 #include "TUM_Utils.h"
 
 typedef struct mouse {
-    xSemaphoreHandle lock;
-    signed short x;
-    signed short y;
+	xSemaphoreHandle lock;
+	signed short x;
+	signed short y;
 } mouse_t;
 
 QueueHandle_t inputQueue = NULL;
@@ -43,113 +43,102 @@ mouse_t mouse;
 
 static int initMouse(void)
 {
-    mouse.lock = xSemaphoreCreateMutex();
-    if (!mouse.lock) {
-        return -1;
-    }
+	mouse.lock = xSemaphoreCreateMutex();
+	if (!mouse.lock) {
+		return -1;
+	}
 
-    return 0;
+	return 0;
 }
 
 void fetchEvents(void)
 {
-    SDL_Event event = { 0 };
-    static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
-    unsigned char send = 0;
+	SDL_Event event = { 0 };
+	static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
+	unsigned char send = 0;
 
-    while (SDL_PollEvent(&event)) {
-        if ((event.type == SDL_QUIT) ||
-            (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
-            vExitDrawing();
-        }
-        else if (event.type == SDL_KEYDOWN) {
-            buttons[event.key.keysym.scancode] = 1;
-            send = 1;
-        }
-        else if (event.type == SDL_KEYUP) {
-            buttons[event.key.keysym.scancode] = 0;
-            send = 1;
-        }
-        else if (event.type == SDL_MOUSEMOTION) {
-            xSemaphoreTake(mouse.lock, 0);
-            mouse.x = event.motion.x;
-            mouse.y = event.motion.y;
-            xSemaphoreGive(mouse.lock);
-        }
-        else {
-            ;
-        }
-    }
+	while (SDL_PollEvent(&event)) {
+		if ((event.type == SDL_QUIT) ||
+		    (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
+			vExitDrawing();
+		} else if (event.type == SDL_KEYDOWN) {
+			buttons[event.key.keysym.scancode] = 1;
+			send = 1;
+		} else if (event.type == SDL_KEYUP) {
+			buttons[event.key.keysym.scancode] = 0;
+			send = 1;
+		} else if (event.type == SDL_MOUSEMOTION) {
+			xSemaphoreTake(mouse.lock, 0);
+			mouse.x = event.motion.x;
+			mouse.y = event.motion.y;
+			xSemaphoreGive(mouse.lock);
+		}
+	}
 
-    if (send) {
-        xQueueOverwrite(inputQueue, &buttons);
-        send = 0;
-    }
-
+	if (send) {
+		xQueueOverwrite(inputQueue, &buttons);
+		send = 0;
+	}
 }
 
 signed short xGetMouseX(void)
 {
-    signed short ret;
+	signed short ret;
 
-    xSemaphoreTake(mouse.lock, portMAX_DELAY);
-    ret = mouse.x;
-    xSemaphoreGive(mouse.lock);
-    if (ret >= 0 && ret <= SCREEN_WIDTH) {
-        return ret;
-    }
-    else {
-        return 0;
-    }
+	xSemaphoreTake(mouse.lock, portMAX_DELAY);
+	ret = mouse.x;
+	xSemaphoreGive(mouse.lock);
+	if (ret >= 0 && ret <= SCREEN_WIDTH) {
+		return ret;
+	}
+	return 0;
 }
 
 signed short xGetMouseY(void)
 {
-    signed short ret;
+	signed short ret;
 
-    xSemaphoreTake(mouse.lock, portMAX_DELAY);
-    ret = mouse.y;
-    xSemaphoreGive(mouse.lock);
+	xSemaphoreTake(mouse.lock, portMAX_DELAY);
+	ret = mouse.y;
+	xSemaphoreGive(mouse.lock);
 
-    if (ret >= 0 && ret <= SCREEN_HEIGHT) {
-        return ret;
-    }
-    else {
-        return 0;
-    }
+	if (ret >= 0 && ret <= SCREEN_HEIGHT) {
+		return ret;
+	}
+	return 0;
 }
 
 int vInitEvents(void)
 {
-    if (initMouse()) {
-        PRINT_ERROR("Init mouse failed");
-        goto err_init_mouse;
-    }
+	if (initMouse()) {
+		PRINT_ERROR("Init mouse failed");
+		goto err_init_mouse;
+	}
 
-    inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
+	inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
 
-    if (!inputQueue) {
-        PRINT_ERROR("Creating mouse queue failed");
-        goto err_queue;
-    }
+	if (!inputQueue) {
+		PRINT_ERROR("Creating mouse queue failed");
+		goto err_queue;
+	}
 
-    // Ignore SDL events
-    SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
-    SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
-    SDL_EventState(0x303, SDL_IGNORE);
-    SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
-    SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+	// Ignore SDL events
+	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
+	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
+	SDL_EventState(0x303, SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
 
-    return 0;
+	return 0;
 
 err_queue:
-    vSemaphoreDelete(mouse.lock);
+	vSemaphoreDelete(mouse.lock);
 err_init_mouse:
-    return -1;
+	return -1;
 }
 
 void vExitEvents(void)
 {
-    vQueueDelete(inputQueue);
-    vSemaphoreDelete(mouse.lock);
+	vQueueDelete(inputQueue);
+	vSemaphoreDelete(mouse.lock);
 }
