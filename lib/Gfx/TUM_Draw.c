@@ -25,15 +25,12 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <assert.h>
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
 #include <pthread.h>
-#include <assert.h>
 
 #include "TUM_Draw.h"
 #include "TUM_Utils.h"
@@ -220,8 +217,8 @@ static draw_job_t *pushDrawJob(void)
 {
     draw_job_t *iterator;
     draw_job_t *job = calloc(1, sizeof(draw_job_t));
-
-    assert(job);
+    if(!job)
+        return NULL;
 
     for (iterator = &job_list_head; iterator->next;
          iterator = iterator->next)
@@ -345,18 +342,6 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 
     tex = IMG_LoadTexture(ren, filename);
 
-    if (!tex) {
-        if (ren) {
-            SDL_DestroyRenderer(ren);
-        }
-        if (window) {
-            SDL_DestroyWindow(window);
-        }
-        PRINT_SDL_ERROR("Failed to load image");
-        SDL_Quit();
-        exit(0);
-    }
-
     return tex;
 }
 
@@ -372,11 +357,16 @@ static void vRenderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
     SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
-void vGetImageSize(char *filename, int *w, int *h)
+static int vGetImageSize(char *filename, int *w, int *h)
 {
     SDL_Texture *tex = loadImage(filename, renderer);
+    if(!tex){
+        return -1;
+    }
     SDL_QueryTexture(tex, NULL, NULL, w, h);
     SDL_DestroyTexture(tex);
+
+    return 0;
 }
 
 static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
@@ -384,6 +374,9 @@ static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
 {
     int w, h;
     SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+    if(!w || !h)
+        return -1;
+
     vRenderScaledImage(tex, ren, x, y, w * scale, h * scale);
     SDL_DestroyTexture(tex);
 
@@ -393,19 +386,21 @@ static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
 static int vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
                       signed short y)
 {
-    vDrawScaledImage(tex, ren, x, y, 1);
-
-    return 0;
+    return vDrawScaledImage(tex, ren, x, y, 1);
 }
 
-static void vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren,
+static int vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren,
                                   signed short x, signed short y)
 {
     SDL_Texture *tex = loadImage(filename, ren);
+    if(!tex)
+        return -1;
 
     vDrawImage(tex, ren, x, y);
 
     SDL_DestroyTexture(tex);
+
+    return 0;
 }
 
 static void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
@@ -414,7 +409,7 @@ static void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
     SDL_RenderCopy(ren, tex, clip, &dst);
 }
 
-static void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
+static int vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
                               signed short x, signed short y,
                               SDL_Rect *clip)
 {
@@ -428,9 +423,13 @@ static void vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
     }
     else {
         SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
+        if(!dst.x || !dst.y)
+            return -1;
     }
 
     vDrawRectImage(tex, ren, dst, clip);
+
+    return 0;
 }
 
 static int vDrawText(char *string, signed short x, signed short y,
@@ -452,16 +451,31 @@ static int vDrawText(char *string, signed short x, signed short y,
     return 0;
 }
 
-static void vGetTextSize(char *string, int *width, int *height)
+static int vGetTextSize(char *string, int *width, int *height)
 {
     SDL_Color color = { 0 };
     SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
-    assert(surface);
+    if(!surface)
+        goto err_surface;
+
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    assert(texture);
-    SDL_QueryTexture(texture, NULL, NULL, width, height);
+    if(!texture)
+        goto err_texture;
+
+    if(SDL_QueryTexture(texture, NULL, NULL, width, height))
+        goto err_query;
+
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
+
+    return 0;
+
+err_query:
+    SDL_DestroyTexture(texture);
+err_texture:
+    SDL_FreeSurface(surface);
+err_surface:
+    return -1;
 }
 
 static int vDrawArrow(signed short x1, signed short y1, signed short x2,
@@ -510,7 +524,8 @@ static int vHandleDrawJob(draw_job_t *job)
         return -1;
     }
 
-    assert(job->data);
+    if(!job->data)
+        return -1;
 
     switch (job->type) {
         case DRAW_CLEAR:
@@ -591,6 +606,7 @@ static int vHandleDrawJob(draw_job_t *job)
 
 #define INIT_JOB(JOB, TYPE)                                                    \
     draw_job_t *JOB = pushDrawJob();                                       \
+    if(!JOB) return -1; \
     union data_u *data = calloc(1, sizeof(union data_u));                  \
     if (!data)                                                             \
         logCriticalError("job->data alloc");                           \
@@ -621,27 +637,28 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 #define FRAMELIMIT 60.0
 #define FRAMELIMIT_PERIOD 1000 / FRAMELIMIT
 
-void vDrawUpdateScreen(void)
+int vDrawUpdateScreen(void)
 {
     static struct timespec last_time = { 0 }, cur_time = { 0 };
 
     if (clock_gettime(CLOCK_MONOTONIC, &cur_time)) {
         PRINT_ERROR("Failed to get monotonic clock");
-        return;
+        goto err;
     }
 
     if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD)
-        return;
+        goto err;
 
     memcpy(&last_time, &cur_time, sizeof(struct timespec));
 
     if (!job_list_head.next)
-        return;
+        goto err;
 
     draw_job_t *tmp_job;
 
     while ((tmp_job = popDrawJob()) != NULL) {
-        assert(tmp_job->data);
+        if(!tmp_job->data)
+            return -1;
         if (vHandleDrawJob(tmp_job) == -1) {
             goto draw_error;
         }
@@ -650,10 +667,12 @@ void vDrawUpdateScreen(void)
 
     SDL_RenderPresent(renderer);
 
-    return;
+    return 0;
 
 draw_error:
     free(tmp_job);
+err:
+    return -1;
 }
 
 char *tumGetErrorMessage(void)
@@ -797,7 +816,7 @@ void vExitDrawing(void)
     exit(EXIT_SUCCESS);
 }
 
-signed char tumDrawText(char *str, signed short x, signed short y,
+int tumDrawText(char *str, signed short x, signed short y,
                         unsigned int colour)
 {
     if (!strcmp(str, "")) {
@@ -810,7 +829,7 @@ signed char tumDrawText(char *str, signed short x, signed short y,
 
     if (!job->data->text.str) {
         printf("Error allocating buffer in tumDrawText\n");
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     strcpy(job->data->text.str, str);
@@ -821,13 +840,14 @@ signed char tumDrawText(char *str, signed short x, signed short y,
     return 0;
 }
 
-void tumGetTextSize(char *str, int *width, int *height)
+int tumGetTextSize(char *str, int *width, int *height)
 {
-    assert(str);
-    vGetTextSize(str, width, height);
+    if(!str)
+        return -1;
+    return vGetTextSize(str, width, height);
 }
 
-signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
+int tumDrawEllipse(signed short x, signed short y, signed short rx,
                            signed short ry, unsigned int colour)
 {
     INIT_JOB(job, DRAW_ELLIPSE);
@@ -841,7 +861,7 @@ signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
     return 0;
 }
 
-signed char tumDrawArc(signed short x, signed short y, signed short radius,
+int tumDrawArc(signed short x, signed short y, signed short radius,
                        signed short start, signed short end,
                        unsigned int colour)
 {
@@ -857,7 +877,7 @@ signed char tumDrawArc(signed short x, signed short y, signed short radius,
     return 0;
 }
 
-signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
+int tumDrawFilledBox(signed short x, signed short y, signed short w,
                              signed short h, unsigned int colour)
 {
     INIT_JOB(job, DRAW_FILLED_RECT);
@@ -871,7 +891,7 @@ signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
     return 0;
 }
 
-signed char tumDrawBox(signed short x, signed short y, signed short w,
+int tumDrawBox(signed short x, signed short y, signed short w,
                        signed short h, unsigned int colour)
 {
     INIT_JOB(job, DRAW_RECT);
@@ -885,7 +905,7 @@ signed char tumDrawBox(signed short x, signed short y, signed short w,
     return 0;
 }
 
-signed char tumDrawClear(unsigned int colour)
+int tumDrawClear(unsigned int colour)
 {
     /** INIT_JOB(job, DRAW_CLEAR); */
     draw_job_t *job = pushDrawJob();
@@ -901,7 +921,7 @@ signed char tumDrawClear(unsigned int colour)
     return 0;
 }
 
-signed char tumDrawCircle(signed short x, signed short y, signed short radius,
+int tumDrawCircle(signed short x, signed short y, signed short radius,
                           unsigned int colour)
 {
     INIT_JOB(job, DRAW_CIRCLE);
@@ -914,7 +934,7 @@ signed char tumDrawCircle(signed short x, signed short y, signed short radius,
     return 0;
 }
 
-signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
+int tumDrawLine(signed short x1, signed short y1, signed short x2,
                         signed short y2, unsigned char thickness,
                         unsigned int colour)
 {
@@ -930,7 +950,7 @@ signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
     return 0;
 }
 
-signed char tumDrawPoly(coord_t *points, int n, unsigned int colour)
+int tumDrawPoly(coord_t *points, int n, unsigned int colour)
 {
     INIT_JOB(job, DRAW_POLY);
 
@@ -947,7 +967,7 @@ signed char tumDrawPoly(coord_t *points, int n, unsigned int colour)
     return 0;
 }
 
-signed char tumDrawTriangle(coord_t *points, unsigned int colour)
+int tumDrawTriangle(coord_t *points, unsigned int colour)
 {
     INIT_JOB(job, DRAW_TRIANGLE);
 
@@ -963,7 +983,7 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour)
     return 0;
 }
 
-signed char tumDrawImage(char *filename, signed short x, signed short y)
+int tumDrawImage(char *filename, signed short x, signed short y)
 {
     INIT_JOB(job, DRAW_IMAGE);
 
@@ -982,18 +1002,17 @@ signed char tumDrawImage(char *filename, signed short x, signed short y)
     return 0;
 }
 
-void tumGetImageSize(char *filename, int *w, int *h)
+int tumGetImageSize(char *filename, int *w, int *h)
 {
     char full_filename[PATH_MAX + 1];
     realpath(filename, full_filename);
-    vGetImageSize(full_filename, w, h);
+    return vGetImageSize(full_filename, w, h);
 }
 
-signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
+int tumDrawScaledImage(char *filename, signed short x, signed short y,
                                float scale)
 {
     // TODO
-
     INIT_JOB(job, DRAW_SCALED_IMAGE);
 
     char abs_path[PATH_MAX + 1];
@@ -1012,7 +1031,7 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
     return 0;
 }
 
-signed char tumDrawArrow(signed short x1, signed short y1,
+int tumDrawArrow(signed short x1, signed short y1,
                          signed short x2, signed short y2,
                          signed short head_length, unsigned char thickness,
                          unsigned int colour)

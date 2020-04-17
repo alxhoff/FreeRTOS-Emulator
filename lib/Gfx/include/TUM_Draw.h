@@ -145,17 +145,17 @@ void vExitDrawing(void);
  * each function queues a draw job into a queue. Once vDrawUpdateScreen is called,
  * the queued draw jobs are executed by the background SDL thread.
  *
- * @returns NULL always return NULL
+ * @returns 0 on success
  */
-void vDrawUpdateScreen(void);
+int vDrawUpdateScreen(void);
 
 /**
  * @brief Sets the screen to a solid colour
  *
  * @param colour RGB colour to fill the screen with
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawClear(unsigned int colour);
+int tumDrawClear(unsigned int colour);
 
 /**
  * @brief Draws an ellipse on the screen
@@ -165,10 +165,10 @@ signed char tumDrawClear(unsigned int colour);
  * @param rx Horizontal radius in pixels
  * @param ry Vertical radius in pixels
  * @param colour RGB colour of the ellipse
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
-                           signed short ry, unsigned int colour);
+int tumDrawEllipse(signed short x, signed short y, signed short rx,
+                   signed short ry, unsigned int colour);
 
 /**
  * @brief Draws an arc on the screen
@@ -182,11 +182,11 @@ signed char tumDrawEllipse(signed short x, signed short y, signed short rx,
  * @param start Starting radius of the arc, 0 degrees is down
  * @param end Ending radius of the arc, 0 degrees is down
  * @param colour RGB colour of the arc
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawArc(signed short x, signed short y, signed short radius,
-                       signed short start, signed short end,
-                       unsigned int colour);
+int tumDrawArc(signed short x, signed short y, signed short radius,
+               signed short start, signed short end,
+               unsigned int colour);
 
 /**
  * @brief Prints a string to the screen
@@ -198,10 +198,10 @@ signed char tumDrawArc(signed short x, signed short y, signed short radius,
  * @param x X coordinate of the top left point of the text's bounding box
  * @param y Y coordinate of the top left point of the text's bounding box
  * @param colour RGB colour of the text
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawText(char *str, signed short x, signed short y,
-                        unsigned int colour);
+int tumDrawText(char *str, signed short x, signed short y,
+                unsigned int colour);
 
 /**
  * @brief Finds the width and height of a strings bounding box
@@ -209,9 +209,9 @@ signed char tumDrawText(char *str, signed short x, signed short y,
  * @param str String who's bounding box size is required
  * @param width Integer where the width shall be stored
  * @param height Integer where the height shall be stored
- * @return signed char 0 on success
+ * @return 0 on success
  */
-void tumGetTextSize(char *str, int *width, int *height);
+int tumGetTextSize(char *str, int *width, int *height);
 
 /**
  * @brief Draws a filled box on the screen
@@ -221,10 +221,10 @@ void tumGetTextSize(char *str, int *width, int *height);
  * @param w Width of the box
  * @param h Height of the box
  * @param colour RGB colour of the box
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawBox(signed short x, signed short y, signed short w,
-                       signed short h, unsigned int colour);
+int tumDrawBox(signed short x, signed short y, signed short w,
+               signed short h, unsigned int colour);
 
 /**
  * @brief Draws an unfilled box on the screen
@@ -234,10 +234,10 @@ signed char tumDrawBox(signed short x, signed short y, signed short w,
  * @param w Width of the box
  * @param h Height of the box
  * @param colour RGB colour of the filled box
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
-                             signed short h, unsigned int colour);
+int tumDrawFilledBox(signed short x, signed short y, signed short w,
+                     signed short h, unsigned int colour);
 
 /**
  * @brief Draws a filled circle on the screen
@@ -246,10 +246,10 @@ signed char tumDrawFilledBox(signed short x, signed short y, signed short w,
  * @param y Y coordinate of the center of the circle
  * @param radius Radius of the circle in pixels
  * @param colour RGB colour of the ellipse
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawCircle(signed short x, signed short y, signed short radius,
-                          unsigned int colour);
+int tumDrawCircle(signed short x, signed short y, signed short radius,
+                  unsigned int colour);
 
 /**
  * @brief Draws a line on the screen
@@ -260,11 +260,11 @@ signed char tumDrawCircle(signed short x, signed short y, signed short radius,
  * @param y2 x coordinate of the starting point of the line
  * @param thickness The thickness of the line in pixels
  * @param colour RGB colour of the ellipse
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
-                        signed short y2, unsigned char thickness,
-                        unsigned int colour);
+int tumDrawLine(signed short x1, signed short y1, signed short x2,
+                signed short y2, unsigned char thickness,
+                unsigned int colour);
 
 /**
  * @brief Draws a polygon on the screen
@@ -276,18 +276,18 @@ signed char tumDrawLine(signed short x1, signed short y1, signed short x2,
  * @param points Points array specifying each point in the polygon
  * @param n Number of points in the points array
  * @param colour RGB colour of the ellipse
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawPoly(coord_t *points, int n, unsigned int colour);
+int tumDrawPoly(coord_t *points, int n, unsigned int colour);
 
 /**
  * @brief Draws a triangle on the screen
  *
  * @param points Points array giving the three corner points of the triangle
  * @param colour RGB colour of the ellipse
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawTriangle(coord_t *points, unsigned int colour);
+int tumDrawTriangle(coord_t *points, unsigned int colour);
 
 /**
  * @brief Draws an image on the screen
@@ -295,9 +295,9 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour);
  * @param filename Filename of the image to be drawn
  * @param x X coordinate of the top left corner of the image
  * @param y Y coordinate of the top left corner of the image
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawImage(char *filename, signed short x, signed short y);
+int tumDrawImage(char *filename, signed short x, signed short y);
 
 /**
  * @brief Gets the width and height of an image
@@ -305,9 +305,9 @@ signed char tumDrawImage(char *filename, signed short x, signed short y);
  * @param filename Image filename to be tested
  * @param w Integer where the width shall be stored
  * @param h Integer where the height shall be stored
- * @return NULL always returns NULL
+ * @return 0 on sucess
  */
-void tumGetImageSize(char *filename, int *w, int *h);
+int tumGetImageSize(char *filename, int *w, int *h);
 
 /**
  * @brief Draws a scaled image on the screen
@@ -316,10 +316,10 @@ void tumGetImageSize(char *filename, int *w, int *h);
  * @param x X coordinate of the top left corner of the image
  * @param y Y coordinate of the top left corner of the image
  * @param scale The scale factor of the image
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
-                               float scale);
+int tumDrawScaledImage(char *filename, signed short x, signed short y,
+                       float scale);
 
 /**
  * @brief Draws an arrow on the screen
@@ -331,12 +331,12 @@ signed char tumDrawScaledImage(char *filename, signed short x, signed short y,
  * @param head_length Length in pixels of the arrow's head
  * @param thickness Thickness in pixels of the arrow's lines
  * @param colour RGB colour of the ellipse
- * @return signed char 0 on success
+ * @return 0 on success
  */
-signed char tumDrawArrow(signed short x1, signed short y1,
-                         signed short x2, signed short y2,
-                         signed short head_length, unsigned char thickness,
-                         unsigned int colour);
+int tumDrawArrow(signed short x1, signed short y1,
+                 signed short x2, signed short y2,
+                 signed short head_length, unsigned char thickness,
+                 unsigned int colour);
 
 /**
  * @}
