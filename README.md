@@ -16,7 +16,7 @@
 </a>
 </p>
 
-An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware.
+An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware. Used at the Technical University of Munich in the teaching of the "Embedded Systems Programming Lab". Please excuse any references to "students" or "course" if you're not one of my students.
 
 Based on the FreeRTOS (V5.X) simulator developed by William Davy. Updated to use FreeRTOS V9.0.0.
 
