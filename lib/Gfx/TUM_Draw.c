@@ -934,7 +934,13 @@ signed char tumDrawPoly(coord_t *points, int n, unsigned int colour)
 {
     INIT_JOB(job, DRAW_POLY);
 
-    job->data->poly.points = points;
+    coord_t *points_cpy = (coord_t *)malloc(sizeof(coord_t) * n);
+    if(!points_cpy)
+        return -1;
+
+    memcpy(points_cpy, points, sizeof(coord_t) * n);
+
+    job->data->poly.points = points_cpy;
     job->data->poly.n = n;
     job->data->poly.colour = colour;
 
@@ -945,7 +951,13 @@ signed char tumDrawTriangle(coord_t *points, unsigned int colour)
 {
     INIT_JOB(job, DRAW_TRIANGLE);
 
-    job->data->triangle.points = points;
+    coord_t *points_cpy = (coord_t *)malloc(sizeof(coord_t) * 3);
+    if (!points_cpy)
+        return -1;
+
+    memcpy(points_cpy, points, sizeof(coord_t) * 3);
+
+    job->data->triangle.points = points_cpy;
     job->data->triangle.colour = colour;
 
     return 0;
