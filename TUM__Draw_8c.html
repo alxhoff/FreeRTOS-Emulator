@@ -460,8 +460,8 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="structdraw__job.html">draw_job_t</a> *JOB = pushDrawJob();                                       \</div><div class="line">    if(!JOB) return -1; \</div><div class="line">    union <a class="code" href="uniondata__u.html">data_u</a> *data = calloc(1, sizeof(union <a class="code" href="uniondata__u.html">data_u</a>));                  \</div><div class="line">    if (!data)                                                             \</div><div class="line">        logCriticalError(&quot;job-&gt;data alloc&quot;);                           \</div><div class="line">    JOB-&gt;data = data;                                                      \</div><div class="line">    JOB-&gt;type = TYPE;</div><div class="ttc" id="structdraw__job_html"><div class="ttname"><a href="structdraw__job.html">draw_job</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:170</div></div>
-<div class="ttc" id="uniondata__u_html"><div class="ttname"><a href="uniondata__u.html">data_u</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:155</div></div>
+<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="structdraw__job.html">draw_job_t</a> *JOB = pushDrawJob();                                       \</div><div class="line">    if (!JOB)                                                              \</div><div class="line">        return -1;                                                     \</div><div class="line">    union <a class="code" href="uniondata__u.html">data_u</a> *data = calloc(1, <span class="keyword">sizeof</span>(<span class="keyword">union</span> <a class="code" href="uniondata__u.html">data_u</a>));                  \</div><div class="line">    if (data == NULL)                                                      \</div><div class="line">        logCriticalError(<span class="stringliteral">&quot;job-&gt;data alloc&quot;</span>);                           \</div><div class="line">    JOB-&gt;data = data;                                                      \</div><div class="line">    JOB-&gt;type = TYPE;</div><div class="ttc" id="structdraw__job_html"><div class="ttname"><a href="structdraw__job.html">draw_job</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:169</div></div>
+<div class="ttc" id="uniondata__u_html"><div class="ttname"><a href="uniondata__u.html">data_u</a></div><div class="ttdef"><b>Definition:</b> TUM_Draw.c:154</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -548,7 +548,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(<span class="stringliteral">&quot;[SDL Error] %s\n&quot;</span> #msg, (<span class="keywordtype">char</span> *)SDL_GetError(),           \</div><div class="line">                ##__VA_ARGS__)</div><div class="ttc" id="TUM__Utils_8h_html_abd4b982e6561fbe1e6bad710a93475e1"><div class="ttname"><a href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a></div><div class="ttdeci">#define PRINT_ERROR(msg,...)</div><div class="ttdef"><b>Definition:</b> TUM_Utils.h:27</div></div>
+<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(<span class="stringliteral">&quot;[SDL Error] %s\n&quot;</span> #msg, (<span class="keywordtype">char</span> *)SDL_GetError(),           \</div><div class="line">            ##__VA_ARGS__)</div><div class="ttc" id="TUM__Utils_8h_html_abd4b982e6561fbe1e6bad710a93475e1"><div class="ttname"><a href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a></div><div class="ttdeci">#define PRINT_ERROR(msg,...)</div><div class="ttdef"><b>Definition:</b> TUM_Utils.h:27</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -575,7 +575,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(<span class="stringliteral">&quot;[TTF Error] %s\n&quot;</span> #msg, (<span class="keywordtype">char</span> *)TTF_GetError(),           \</div><div class="line">                ##__VA_ARGS__)</div><div class="ttc" id="TUM__Utils_8h_html_abd4b982e6561fbe1e6bad710a93475e1"><div class="ttname"><a href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a></div><div class="ttdeci">#define PRINT_ERROR(msg,...)</div><div class="ttdef"><b>Definition:</b> TUM_Utils.h:27</div></div>
+<b>Value:</b><div class="fragment"><div class="line"><a class="code" href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(<span class="stringliteral">&quot;[TTF Error] %s\n&quot;</span> #msg, (<span class="keywordtype">char</span> *)TTF_GetError(),           \</div><div class="line">            ##__VA_ARGS__)</div><div class="ttc" id="TUM__Utils_8h_html_abd4b982e6561fbe1e6bad710a93475e1"><div class="ttname"><a href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a></div><div class="ttdeci">#define PRINT_ERROR(msg,...)</div><div class="ttdef"><b>Definition:</b> TUM_Utils.h:27</div></div>
 </div><!-- fragment -->
 </div>
 </div>
