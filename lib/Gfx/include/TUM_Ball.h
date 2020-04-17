@@ -62,8 +62,8 @@ typedef void (*callback_t)(void *args);
  * start to move.
  */
 typedef struct ball {
-    unsigned short x; /**< X pixel coord of ball on screen */
-    unsigned short y; /**< Y pixel coord of ball on screen */
+    signed short x; /**< X pixel coord of ball on screen */
+    signed short y; /**< Y pixel coord of ball on screen */
 
     float f_x; /**< Absolute X location of ball */
     float f_y; /**< Absolute Y location of ball */
@@ -76,7 +76,7 @@ typedef struct ball {
 
     unsigned int colour; /**< Hex RGB colour of the ball */
 
-    unsigned short radius; /**< Radius of the ball in pixels */
+    signed short radius; /**< Radius of the ball in pixels */
 
     callback_t callback; /**< Collision callback */
     void *args; /**< Collision callback args */
@@ -107,14 +107,14 @@ typedef struct ball {
  * a specific wall is collided with.
  */
 typedef struct wall {
-    unsigned short x1; /**< Top left corner X coord of wall */
-    unsigned short y1; /**< Top left corner Y coord of wall */
+    signed short x1; /**< Top left corner X coord of wall */
+    signed short y1; /**< Top left corner Y coord of wall */
 
-    unsigned short w; /**< Width of wall (X axis) */
-    unsigned short h; /**< Height of wall (Y axis) */
+    signed short w; /**< Width of wall (X axis) */
+    signed short h; /**< Height of wall (Y axis) */
 
-    unsigned short x2; /**< Bottom right corner X coord of wall */
-    unsigned short y2; /**< Bottom right corner Y coord of wall */
+    signed short x2; /**< Bottom right corner X coord of wall */
+    signed short y2; /**< Bottom right corner Y coord of wall */
 
     float dampening; /**< Value by which a balls speed is changed,
                               eg. 0.2 represents a 20% increase in speed*/
@@ -144,8 +144,8 @@ typedef struct wall {
  * @param args Args passed to callback function
  * @return A pointer to the created ball, program exits if creation failed
  */
-ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
-                   unsigned int colour, unsigned short radius, float max_speed,
+ball_t *createBall(signed short initial_x, signed short initial_y,
+                   unsigned int colour, signed short radius, float max_speed,
                    callback_t callback, void *args);
 
 /**
@@ -162,8 +162,8 @@ ball_t *createBall(unsigned short initial_x, unsigned short initial_y,
  * @param args Args passed to callback function
  * @return A pointer to the created wall, program exits if creation failed
  */
-wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
-                   unsigned short h, float dampening, unsigned int colour,
+wall_t *createWall(signed short x1, signed short y1, signed short w,
+                   signed short h, float dampening, unsigned int colour,
                    callback_t callback, void *args);
 
 /**
@@ -203,8 +203,8 @@ wall_t *createWall(unsigned short x1, unsigned short y1, unsigned short w,
  * to be set. @see wall_flags.
  *
  */
-void setWallProperty(wall_t *wall, unsigned short x, unsigned short y,
-                     unsigned short width, unsigned short height,
+void setWallProperty(wall_t *wall, signed short x, signed short y,
+                     signed short width, signed short height,
                      unsigned char flags);
 
 /**
@@ -275,7 +275,7 @@ void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
  * @param y New Y axis location that is to be set
  * @return NULL Always returns NULL
  */
-void setBallLocation(ball_t *ball, unsigned short x, unsigned short y);
+void setBallLocation(ball_t *ball, signed short x, signed short y);
 
 /**
  * @brief Checks if a ball is currently collided with other objects
@@ -287,8 +287,7 @@ void setBallLocation(ball_t *ball, unsigned short x, unsigned short y);
  * @param args Args passed to callback function
  * @return 1 if a collision is detected
  */
-unsigned char checkBallCollisions(ball_t *ball, callback_t callback,
-                                  void *args);
+signed char checkBallCollisions(ball_t *ball, callback_t callback, void *args);
 
 /**
  * @brief Updates the position of the ball
