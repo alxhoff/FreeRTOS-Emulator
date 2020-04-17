@@ -190,20 +190,23 @@ void vSwapBuffers(void *pvParameters)
     vBindDrawing(); // Setup Rendering handle with correct GL context
 
     while (1) {
-        xSemaphoreTake(ScreenLock, portMAX_DELAY);
-        vDrawUpdateScreen();
-        fetchEvents();
-        xSemaphoreGive(ScreenLock);
-        xSemaphoreGive(DrawSignal);
-        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(frameratePeriod));
+        if (xSemaphoreTake(ScreenLock, portMAX_DELAY) == pdTRUE) {
+            vDrawUpdateScreen();
+            fetchEvents();
+            xSemaphoreGive(ScreenLock);
+            xSemaphoreGive(DrawSignal);
+            vTaskDelayUntil(&xLastWakeTime,
+                            pdMS_TO_TICKS(frameratePeriod));
+        }
     }
 }
 
 void xGetButtonInput(void)
 {
-    xSemaphoreTake(buttons.lock, 0);
-    xQueueReceive(inputQueue, &buttons.buttons, 0);
-    xSemaphoreGive(buttons.lock);
+    if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
+        xQueueReceive(inputQueue, &buttons.buttons, 0);
+        xSemaphoreGive(buttons.lock);
+    }
 }
 
 void vDrawCaveBoundingBox(void)
@@ -305,7 +308,9 @@ void vDrawLogo(void)
                       SCREEN_HEIGHT - 10 - image_height * 0.3, 0.3),
                   __FUNCTION__);
     else {
-        fprintf(stderr, "Failed to get size of image '%s', does it exist?\n", LOGO_FILENAME);
+        fprintf(stderr,
+                "Failed to get size of image '%s', does it exist?\n",
+                LOGO_FILENAME);
     }
 }
 
@@ -349,16 +354,17 @@ void vDrawButtonText(void)
 
 static int vCheckStateInput(void)
 {
-    xSemaphoreTake(buttons.lock, 0);
-    if (buttons.buttons[KEYCODE(C)]) {
-        buttons.buttons[KEYCODE(C)] = 0;
-        xSemaphoreGive(buttons.lock);
-        if (StateQueue) {
-            xQueueSend(StateQueue, &next_state_signal, 0);
-            return -1;
+    if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
+        if (buttons.buttons[KEYCODE(C)]) {
+            buttons.buttons[KEYCODE(C)] = 0;
+            if (StateQueue) {
+                xSemaphoreGive(buttons.lock);
+                xQueueSend(StateQueue, &next_state_signal, 0);
+                return -1;
+            }
         }
+        xSemaphoreGive(buttons.lock);
     }
-    xSemaphoreGive(buttons.lock);
 
     return 0;
 }
@@ -425,14 +431,14 @@ void vDemoSendTask(void *pvParameters)
         }
 
         if (udp_soc_one)
-            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_1,
-                         test_str_1, strlen(test_str_1));
+            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_1, test_str_1,
+                         strlen(test_str_1));
         if (udp_soc_two)
-            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2,
-                         test_str_2, strlen(test_str_2));
+            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2, test_str_2,
+                         strlen(test_str_2));
         if (tcp_soc)
-            aIOSocketPut(TCP, NULL, TCP_TEST_PORT,
-                         test_str_3, strlen(test_str_3));
+            aIOSocketPut(TCP, NULL, TCP_TEST_PORT, test_str_3,
+                         strlen(test_str_3));
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
