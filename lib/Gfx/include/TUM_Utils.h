@@ -24,8 +24,10 @@
 #ifndef __TUM_UTILS_H__
 #define __TUM_UTILS_H__
 
-#define PRINT_ERROR(msg, ...) \
-    fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__); \
+#include <stdlib.h>
+
+#define PRINT_ERROR(msg, ...)                                                  \
+    fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__);                        \
     fprintf(stderr, "    @-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
 
 /**
@@ -59,5 +61,39 @@ char *tumUtilPrependPath(char *path, char *file);
  */
 char *tumUtilGetBinFolderPath(char *bin_path);
 
+// RING BUFFER
+typedef void *rbuf_handle_t;
+
+//Init
+rbuf_handle_t rbuf_init(size_t item_size, size_t item_count);
+rbuf_handle_t rbuf_init_static(size_t item_size, size_t item_count, void *buffer);
+
+//Destroy
+void rbuf_free(rbuf_handle_t rbuf);
+
+//Reset
+void rbuf_reset(rbuf_handle_t rbuf);
+
+int rbuf_put_buffer(rbuf_handle_t rbuf);
+//Add data
+int rbuf_put(rbuf_handle_t rbuf, void *data);
+
+//Add and overwrite
+int rbuf_fput(rbuf_handle_t rbuf, void *data);
+
+void *rbuf_get_buffer(rbuf_handle_t rbuf);
+
+//Get data
+int rbuf_get(rbuf_handle_t rbuf, void *data);
+
+//Check empty or full
+unsigned char rbuf_empty(rbuf_handle_t rbuf);
+unsigned char rbug_full(rbuf_handle_t rbuf);
+
+//Num of elements
+size_t rbuf_size(rbuf_handle_t rbuf);
+
+//Get max capacity
+size_t rbuf_capacity(rbuf_handle_t rbuf);
 
 #endif
