@@ -57,6 +57,8 @@ sudo pacman -S clang
 
 ....install linux?
 
+(Have a look at the [Remote Toolchain](../../wiki/Remote-Toolchain) wiki section)
+
 ## Building
 
 ```bash
