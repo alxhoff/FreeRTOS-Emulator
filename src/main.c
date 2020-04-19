@@ -50,7 +50,7 @@
 #define PADDLE_LENGTH (SCREEN_HEIGHT / 5)
 
 #define PADDLE_INCREMENT_COUNT                                                 \
-        (GAME_FIELD_HEIGHT_INNER - PADDLE_LENGTH) / PADDLE_INCREMENT_SIZE
+    (GAME_FIELD_HEIGHT_INNER - PADDLE_LENGTH) / PADDLE_INCREMENT_SIZE
 #define PADDLE_START_LOCATION_Y ((SCREEN_HEIGHT / 2) - (PADDLE_LENGTH / 2))
 #define PADDLE_EDGE_OFFSET 10
 #define PADDLE_WIDTH 10
@@ -233,15 +233,17 @@ void xGetButtonInput(void)
 void vIncrementPaddleY(unsigned short *paddle)
 {
     if (paddle)
-        if (*paddle != 0)
+        if (*paddle != 0) {
             (*paddle)--;
+        }
 }
 
 void vDecrementPaddleY(unsigned short *paddle)
 {
     if (paddle)
-        if (*paddle != PADDLE_INCREMENT_COUNT)
+        if (*paddle != PADDLE_INCREMENT_COUNT) {
             (*paddle)++;
+        }
 }
 
 unsigned char xCheckPongRightInput(unsigned short *right_paddle_y)
@@ -373,7 +375,7 @@ void vDrawPaddle(wall_t *wall, unsigned short y_increment)
     // Set wall Y
     setWallProperty(wall, 0,
                     y_increment * PADDLE_INCREMENT_SIZE + GAME_FIELD_INNER +
-                            2,
+                    2,
                     0, 0, SET_WALL_Y);
     // Draw wall
     vDrawWall(wall);
@@ -414,7 +416,7 @@ void vRightWallCallback(void *player_data)
     const unsigned char point = 1;
 
     if (RightScoreQueue) {
-            xQueueSend(RightScoreQueue, &point, portMAX_DELAY);
+        xQueueSend(RightScoreQueue, &point, portMAX_DELAY);
     }
 
     vResetPaddle(((player_data_t *)player_data)->paddle);
@@ -431,16 +433,16 @@ void vRightPaddleTask(void *pvParameters)
 
     // Right wall
     wall_t *right_wall =
-            createWall(GAME_FIELD_INNER + GAME_FIELD_WIDTH_INNER,
-                       GAME_FIELD_OUTER, WALL_THICKNESS,
-                       GAME_FIELD_HEIGHT_OUTER, 0.1, White,
-                       &vRightWallCallback, &right_player);
+        createWall(GAME_FIELD_INNER + GAME_FIELD_WIDTH_INNER,
+                   GAME_FIELD_OUTER, WALL_THICKNESS,
+                   GAME_FIELD_HEIGHT_OUTER, 0.1, White,
+                   &vRightWallCallback, &right_player);
     // Right paddle
     right_player.paddle =
-            createWall(SCREEN_WIDTH - PADDLE_EDGE_OFFSET - PADDLE_WIDTH -
-                               GAME_FIELD_INNER,
-                       PADDLE_START_LOCATION_Y, PADDLE_WIDTH, PADDLE_LENGTH,
-                       0.1, White, NULL, NULL);
+        createWall(SCREEN_WIDTH - PADDLE_EDGE_OFFSET - PADDLE_WIDTH -
+                   GAME_FIELD_INNER,
+                   PADDLE_START_LOCATION_Y, PADDLE_WIDTH, PADDLE_LENGTH,
+                   0.1, White, NULL, NULL);
 
     RightScoreQueue = xQueueCreate(10, sizeof(unsigned char));
 
@@ -461,7 +463,7 @@ void vLeftWallCallback(void *player_data)
     const unsigned char point = 1;
 
     if (LeftScoreQueue) {
-            xQueueSend(LeftScoreQueue, &point, portMAX_DELAY);
+        xQueueSend(LeftScoreQueue, &point, portMAX_DELAY);
     }
 
     vResetPaddle(((player_data_t *)player_data)->paddle);
@@ -478,14 +480,14 @@ void vLeftPaddleTask(void *pvParameters)
 
     // Left wall
     wall_t *left_wall =
-            createWall(GAME_FIELD_OUTER, GAME_FIELD_OUTER, WALL_THICKNESS,
-                       GAME_FIELD_HEIGHT_OUTER, 0.1, White,
-                       &vLeftWallCallback, &left_player);
+        createWall(GAME_FIELD_OUTER, GAME_FIELD_OUTER, WALL_THICKNESS,
+                   GAME_FIELD_HEIGHT_OUTER, 0.1, White,
+                   &vLeftWallCallback, &left_player);
     // Left paddle
     left_player.paddle =
-            createWall(GAME_FIELD_INNER + PADDLE_EDGE_OFFSET,
-                       PADDLE_START_LOCATION_Y, PADDLE_WIDTH,
-                       PADDLE_LENGTH, 0.1, White, NULL, NULL);
+        createWall(GAME_FIELD_INNER + PADDLE_EDGE_OFFSET,
+                   PADDLE_START_LOCATION_Y, PADDLE_WIDTH,
+                   PADDLE_LENGTH, 0.1, White, NULL, NULL);
 
     LeftScoreQueue = xQueueCreate(10, sizeof(unsigned char));
 
@@ -533,140 +535,142 @@ void vPongControlTask(void *pvParameters)
                                   0.1, White, NULL, NULL);
     // Bottom wall
     wall_t *bottom_wall = createWall(
-            GAME_FIELD_INNER, GAME_FIELD_INNER + GAME_FIELD_HEIGHT_INNER,
-            GAME_FIELD_WIDTH_INNER, WALL_THICKNESS, 0.1, White, NULL, NULL);
+                              GAME_FIELD_INNER, GAME_FIELD_INNER + GAME_FIELD_HEIGHT_INNER,
+                              GAME_FIELD_WIDTH_INNER, WALL_THICKNESS, 0.1, White, NULL, NULL);
 
     while (1) {
         if (DrawSignal) {
             if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
                 pdTRUE) {
-               xGetButtonInput(); // Update global button data
+                xGetButtonInput(); // Update global button data
 
-               xSemaphoreTake(ScreenLock, portMAX_DELAY);
+                xSemaphoreTake(ScreenLock, portMAX_DELAY);
 
-               xSemaphoreTake(buttons.lock, portMAX_DELAY);
-               if (buttons.buttons[KEYCODE(P)]) {
-                   xSemaphoreGive(buttons.lock);
-                   if (StateQueue) {
-                       vTaskDelay(100); // FIXME: "debounce" P button
-                       xQueueSend(StateQueue,
-                                  &next_state_signal,
-                                  portMAX_DELAY);
-                   }
-               }
+                xSemaphoreTake(buttons.lock, portMAX_DELAY);
+                if (buttons.buttons[KEYCODE(P)]) {
+                    xSemaphoreGive(buttons.lock);
+                    if (StateQueue) {
+                        vTaskDelay(100); // FIXME: "debounce" P button
+                        xQueueSend(StateQueue,
+                                   &next_state_signal,
+                                   portMAX_DELAY);
+                    }
+                }
 
-               if (buttons.buttons[KEYCODE(R)]) {
-                   ball_active = 0;
-                   setBallLocation(my_ball,
-                                   SCREEN_WIDTH / 2,
-                                   SCREEN_HEIGHT / 2);
-                   setBallSpeed(my_ball, 0, 0, 0,
-                                SET_BALL_SPEED_AXES);
-                   left_score = 0;
-                   right_score = 0;
-               }
-               xSemaphoreGive(buttons.lock);
+                if (buttons.buttons[KEYCODE(R)]) {
+                    ball_active = 0;
+                    setBallLocation(my_ball,
+                                    SCREEN_WIDTH / 2,
+                                    SCREEN_HEIGHT / 2);
+                    setBallSpeed(my_ball, 0, 0, 0,
+                                 SET_BALL_SPEED_AXES);
+                    left_score = 0;
+                    right_score = 0;
+                }
+                xSemaphoreGive(buttons.lock);
 
-               // Ball is no longer active
-               if (xSemaphoreTake(BallInactive, 0) == pdTRUE) {
-                   ball_active = 0;
-               }
+                // Ball is no longer active
+                if (xSemaphoreTake(BallInactive, 0) == pdTRUE) {
+                    ball_active = 0;
+                }
 
-               if (!ball_active) {
-                   setBallLocation(my_ball,
-                                   SCREEN_WIDTH / 2,
-                                   SCREEN_HEIGHT / 2);
-                   setBallSpeed(my_ball, 0, 0, 0,
-                                SET_BALL_SPEED_AXES);
+                if (!ball_active) {
+                    setBallLocation(my_ball,
+                                    SCREEN_WIDTH / 2,
+                                    SCREEN_HEIGHT / 2);
+                    setBallSpeed(my_ball, 0, 0, 0,
+                                 SET_BALL_SPEED_AXES);
 
-                   if (xCheckForInput()) {
-                       xQueueReceive(
-                               StartDirectionQueue,
-                               &ball_direction, 0);
-                       ball_active = 1;
-                       switch (ball_direction) {
-                           case START_LEFT:
-                               setBallSpeed(
-                                   my_ball, -250,
-                                   250, 0,
-                                   SET_BALL_SPEED_AXES);
-                               break;
-                           default:
-                           case START_RIGHT:
-                               setBallSpeed(
-                                   my_ball, 250,
-                                   250, 0,
-                                   SET_BALL_SPEED_AXES);
-                               break;
-                       }
-                   }
-               }
+                    if (xCheckForInput()) {
+                        xQueueReceive(
+                            StartDirectionQueue,
+                            &ball_direction, 0);
+                        ball_active = 1;
+                        switch (ball_direction) {
+                            case START_LEFT:
+                                setBallSpeed(
+                                    my_ball, -250,
+                                    250, 0,
+                                    SET_BALL_SPEED_AXES);
+                                break;
+                            default:
+                            case START_RIGHT:
+                                setBallSpeed(
+                                    my_ball, 250,
+                                    250, 0,
+                                    SET_BALL_SPEED_AXES);
+                                break;
+                        }
+                    }
+                }
 
-               if (xTaskNotifyGive(LeftPaddleTask) != pdPASS) {
-                   fprintf(stderr, "[ERROR] Task Notification to LeftPaddleTask failed\n");
-               }
-               if (xTaskNotifyGive(RightPaddleTask) != pdPASS) {
-                   fprintf(stderr, "[ERROR] Task Notification to RightPaddleTask failed\n");
-               }
+                if (xTaskNotifyGive(LeftPaddleTask) != pdPASS) {
+                    fprintf(stderr, "[ERROR] Task Notification to LeftPaddleTask failed\n");
+                }
+                if (xTaskNotifyGive(RightPaddleTask) != pdPASS) {
+                    fprintf(stderr, "[ERROR] Task Notification to RightPaddleTask failed\n");
+                }
 
-               checkDraw(tumDrawClear(Black), __FUNCTION__);
+                checkDraw(tumDrawClear(Black), __FUNCTION__);
 
-               // Draw the walls
-               vDrawWall(top_wall);
-               vDrawWall(bottom_wall);
-               vDrawHelpText();
-               for (i = 0; i < NET_DOTS; i++) {
-                   checkDraw(
-                           tumDrawFilledBox(
-                                   SCREEN_WIDTH / 2 -
-                                           NET_DOT_WIDTH /
-                                                 2,
-                                   GAME_FIELD_INNER +
-                                           round(2.0 * i *
-                                                 NET_DOT_HEIGHT),
-                                   NET_DOT_WIDTH,
-                                   round(NET_DOT_HEIGHT),
-                                           White),
-                           __FUNCTION__);
-               }
+                // Draw the walls
+                vDrawWall(top_wall);
+                vDrawWall(bottom_wall);
+                vDrawHelpText();
+                for (i = 0; i < NET_DOTS; i++) {
+                    checkDraw(
+                        tumDrawFilledBox(
+                            SCREEN_WIDTH / 2 -
+                            NET_DOT_WIDTH /
+                            2,
+                            GAME_FIELD_INNER +
+                            round(2.0 * i *
+                                  NET_DOT_HEIGHT),
+                            NET_DOT_WIDTH,
+                            round(NET_DOT_HEIGHT),
+                            White),
+                        __FUNCTION__);
+                }
 
-               // Check for score updates
-               if (RightScoreQueue) {
-                   while (xQueueReceive(RightScoreQueue,
-                                        &score_flag,
-                                        0) == pdTRUE)
-                       right_score++;
-               }
-               if (LeftScoreQueue) {
-                   while (xQueueReceive(LeftScoreQueue,
-                                        &score_flag,
-                                        0) == pdTRUE)
-                       left_score++;
-               }
+                // Check for score updates
+                if (RightScoreQueue) {
+                    while (xQueueReceive(RightScoreQueue,
+                                         &score_flag,
+                                         0) == pdTRUE) {
+                        right_score++;
+                    }
+                }
+                if (LeftScoreQueue) {
+                    while (xQueueReceive(LeftScoreQueue,
+                                         &score_flag,
+                                         0) == pdTRUE) {
+                        left_score++;
+                    }
+                }
 
-               vDrawScores(left_score, right_score);
+                vDrawScores(left_score, right_score);
 
-               // Check if ball has made a collision
-               checkBallCollisions(my_ball, NULL, NULL);
+                // Check if ball has made a collision
+                checkBallCollisions(my_ball, NULL, NULL);
 
-               // Update the balls position now that possible collisions have
-               // updated its speeds
-               updateBallPosition(
-                       my_ball, xLastWakeTime - prevWakeTime);
+                // Update the balls position now that possible collisions have
+                // updated its speeds
+                updateBallPosition(
+                    my_ball, xLastWakeTime - prevWakeTime);
 
-               // Draw the ball
-               checkDraw(tumDrawCircle(my_ball->x, my_ball->y,
-                                       my_ball->radius,
-                                       my_ball->colour),
-                         __FUNCTION__);
+                // Draw the ball
+                checkDraw(tumDrawCircle(my_ball->x, my_ball->y,
+                                        my_ball->radius,
+                                        my_ball->colour),
+                          __FUNCTION__);
 
-               xSemaphoreGive(ScreenLock);
+                xSemaphoreGive(ScreenLock);
 
-               // Keep track of when task last ran so that you know how many ticks
-               //(in our case miliseconds) have passed so that the balls position
-               // can be updated appropriatley
-               prevWakeTime = xLastWakeTime;
-               vTaskDelayUntil(&xLastWakeTime, updatePeriod);
+                // Keep track of when task last ran so that you know how many ticks
+                //(in our case miliseconds) have passed so that the balls position
+                // can be updated appropriatley
+                prevWakeTime = xLastWakeTime;
+                vTaskDelayUntil(&xLastWakeTime, updatePeriod);
             }
         }
     }
