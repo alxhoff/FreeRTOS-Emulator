@@ -548,6 +548,7 @@ void vPongControlTask(void *pvParameters)
                if (buttons.buttons[KEYCODE(P)]) {
                    xSemaphoreGive(buttons.lock);
                    if (StateQueue) {
+                       vTaskDelay(100); // FIXME: "debounce" P button
                        xQueueSend(StateQueue,
                                   &next_state_signal,
                                   portMAX_DELAY);
@@ -668,6 +669,7 @@ void vPongControlTask(void *pvParameters)
     }
 }
 
+// TODO: Make sure that front and back buffer are filled
 void vPausedStateTask(void *pvParameters)
 {
     const char *paused_text = "PAUSED";
@@ -694,7 +696,6 @@ void vPausedStateTask(void *pvParameters)
         }
     }
 }
-
 
 #define PRINT_TASK_ERROR(task) PRINT_ERROR("Failed to print task ##task");
 
