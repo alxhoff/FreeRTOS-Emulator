@@ -302,11 +302,11 @@ void vDrawHelpText(void)
     static char str[100] = { 0 };
     static int text_width;
 
-    sprintf(str, "TODO");
+    sprintf(str, "[Q]uit [P]ause");
 
     if (!tumGetTextSize((char *)str, &text_width, NULL))
-        checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
-                              DEFAULT_FONT_SIZE * 0.5, Black),
+        checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - DEFAULT_FONT_SIZE * 2.5,
+                              DEFAULT_FONT_SIZE * 2.5, White),
                   __FUNCTION__);
 }
 
@@ -610,6 +610,7 @@ void vPongControlTask(void *pvParameters)
                // Draw the walls
                vDrawWall(top_wall);
                vDrawWall(bottom_wall);
+               vDrawHelpText();
                for (i = 0; i < NET_DOTS; i++) {
                    checkDraw(
                            tumDrawFilledBox(
