@@ -602,9 +602,12 @@ void vPongControlTask(void *pvParameters)
                    }
                }
 
-               // TODO: TEST RETURN
-               xTaskNotifyGive(LeftPaddleTask);
-               xTaskNotifyGive(RightPaddleTask);
+               if (xTaskNotifyGive(LeftPaddleTask) != pdPASS) {
+                   fprintf(stderr, "[ERROR] Task Notification to LeftPaddleTask failed\n");
+               }
+               if (xTaskNotifyGive(RightPaddleTask) != pdPASS) {
+                   fprintf(stderr, "[ERROR] Task Notification to RightPaddleTask failed\n");
+               }
 
                checkDraw(tumDrawClear(Black), __FUNCTION__);
 
