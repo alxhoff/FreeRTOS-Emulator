@@ -90,14 +90,29 @@
  *
  * @{
  */
-#define Red (unsigned int) 0xFF0000
-#define Green (unsigned int) 0x00FF00
-#define Blue (unsigned int) 0x0000FF
-#define Yellow (unsigned int) 0xFFFF00
-#define Aqua (unsigned int) 0x00FFFF
-#define Fuchsia (unsigned int) 0xFF00FF
-#define White (unsigned int) 0xFFFFFF
-#define Black (unsigned int) 0x000000
+#define TUMBlue (unsigned int)(0x0065bd)
+#define Red (unsigned int)(0xFF0000)
+#define Green (unsigned int)(0x00FF00)
+#define Blue (unsigned int)(0x0000FF)
+#define Yellow (unsigned int)(0xFFFF00)
+#define Aqua (unsigned int)(0x00FFFF)
+#define Fuchsia (unsigned int)(0xFF00FF)
+#define White (unsigned int)(0xFFFFFF)
+#define Black (unsigned int)(0x000000)
+#define Gray (unsigned int)(0x808080)
+#define Grey Gray
+#define Magenta Fuchsia
+#define Cyan Aqua
+#define Lime (unsigned int)(0x00FF00)
+#define Maroon (unsigned int)(0x800000)
+#define Navy (unsigned int)(0x000080)
+#define Olive (unsigned int)(0x808000)
+#define Purple (unsigned int)(0x800080)
+#define Silver (unsigned int)(0xC0C0C0)
+#define Teal (unsigned int)(0x008080)
+#define Orange (unsigned int)(0xFFA500)
+#define Pink (unsigned int)(0xFFC0CB)
+#define Skyblue (unsigned int)(0x87CEEB)
 /**@}*/
 
 /**
@@ -185,8 +200,7 @@ int tumDrawEllipse(signed short x, signed short y, signed short rx,
  * @return 0 on success
  */
 int tumDrawArc(signed short x, signed short y, signed short radius,
-               signed short start, signed short end,
-               unsigned int colour);
+               signed short start, signed short end, unsigned int colour);
 
 /**
  * @brief Prints a string to the screen
@@ -200,8 +214,7 @@ int tumDrawArc(signed short x, signed short y, signed short radius,
  * @param colour RGB colour of the text
  * @return 0 on success
  */
-int tumDrawText(char *str, signed short x, signed short y,
-                unsigned int colour);
+int tumDrawText(char *str, signed short x, signed short y, unsigned int colour);
 
 /**
  * @brief Finds the width and height of a strings bounding box
@@ -223,8 +236,8 @@ int tumGetTextSize(char *str, int *width, int *height);
  * @param colour RGB colour of the box
  * @return 0 on success
  */
-int tumDrawBox(signed short x, signed short y, signed short w,
-               signed short h, unsigned int colour);
+int tumDrawBox(signed short x, signed short y, signed short w, signed short h,
+               unsigned int colour);
 
 /**
  * @brief Draws an unfilled box on the screen
@@ -263,8 +276,7 @@ int tumDrawCircle(signed short x, signed short y, signed short radius,
  * @return 0 on success
  */
 int tumDrawLine(signed short x1, signed short y1, signed short x2,
-                signed short y2, unsigned char thickness,
-                unsigned int colour);
+                signed short y2, unsigned char thickness, unsigned int colour);
 
 /**
  * @brief Draws a polygon on the screen
@@ -333,10 +345,9 @@ int tumDrawScaledImage(char *filename, signed short x, signed short y,
  * @param colour RGB colour of the ellipse
  * @return 0 on success
  */
-int tumDrawArrow(signed short x1, signed short y1,
-                 signed short x2, signed short y2,
-                 signed short head_length, unsigned char thickness,
-                 unsigned int colour);
+int tumDrawArrow(signed short x1, signed short y1, signed short x2,
+                 signed short y2, signed short head_length,
+                 unsigned char thickness, unsigned int colour);
 
 /**
  * @}
