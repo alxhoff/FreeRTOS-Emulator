@@ -214,7 +214,7 @@ void vDrawCaveBoundingBox(void)
     checkDraw(tumDrawFilledBox(CAVE_X - CAVE_THICKNESS,
                                CAVE_Y - CAVE_THICKNESS,
                                CAVE_SIZE_X + CAVE_THICKNESS * 2,
-                               CAVE_SIZE_Y + CAVE_THICKNESS * 2, Red),
+                               CAVE_SIZE_Y + CAVE_THICKNESS * 2, TUMBlue),
               __FUNCTION__);
 
     checkDraw(tumDrawFilledBox(CAVE_X, CAVE_Y, CAVE_SIZE_X, CAVE_SIZE_Y,
@@ -231,7 +231,7 @@ void vDrawCave(void)
     circlePositionX = CAVE_X + xGetMouseX() / 2;
     circlePositionY = CAVE_Y + xGetMouseY() / 2;
 
-    checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20, Green),
+    checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20, Silver),
               __FUNCTION__);
 }
 
@@ -295,7 +295,7 @@ void vDrawFPS(void)
     if (!tumGetTextSize((char *)str, &text_width, NULL))
         checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
                               SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
-                              Blue),
+                              Skyblue),
                   __FUNCTION__);
 }
 
