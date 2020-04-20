@@ -51,6 +51,7 @@
 
 #define PADDLE_INCREMENT_COUNT                                                 \
     (GAME_FIELD_HEIGHT_INNER - PADDLE_LENGTH) / PADDLE_INCREMENT_SIZE
+
 #define PADDLE_START_LOCATION_Y ((SCREEN_HEIGHT / 2) - (PADDLE_LENGTH / 2))
 #define PADDLE_EDGE_OFFSET 10
 #define PADDLE_WIDTH 10
@@ -67,6 +68,7 @@ const unsigned char start_right = START_RIGHT;
 
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
+
 
 static TaskHandle_t StateMachine = NULL;
 static TaskHandle_t BufferSwap = NULL;
@@ -236,6 +238,9 @@ void vIncrementPaddleY(unsigned short *paddle)
         if (*paddle != 0) {
             (*paddle)--;
         }
+	if (paddle)
+		if (*paddle != 0)
+			(*paddle)--;
 }
 
 void vDecrementPaddleY(unsigned short *paddle)
@@ -244,6 +249,9 @@ void vDecrementPaddleY(unsigned short *paddle)
         if (*paddle != PADDLE_INCREMENT_COUNT) {
             (*paddle)++;
         }
+	if (paddle)
+		if (*paddle != PADDLE_INCREMENT_COUNT)
+			(*paddle)++;
 }
 
 unsigned char xCheckPongRightInput(unsigned short *right_paddle_y)
