@@ -1,6 +1,7 @@
 var searchData=
 [
   ['tcp',['TCP',['../AsyncIO_8h.html#a72fd4498dc73abcd615ec87c9daedf44aa040cd7feeb588104634cdadf35abf1c',1,'AsyncIO.h']]],
+  ['teal',['Teal',['../group__tum__draw.html#ga5136e790688908e6c1162de6030be09d',1,'TUM_Draw.h']]],
   ['tex',['tex',['../structimage__data.html#a000b48bc39d7fd739bf91489f71bc921',1,'image_data']]],
   ['text',['text',['../uniondata__u.html#a47d385d5cd75c33964c677b2ff361367',1,'data_u']]],
   ['text_5fdata',['text_data',['../structtext__data.html',1,'']]],
@@ -27,6 +28,7 @@ var searchData=
   ['tum_5fsound_2eh',['TUM_Sound.h',['../TUM__Sound_8h.html',1,'']]],
   ['tum_5futils_2ec',['TUM_Utils.c',['../TUM__Utils_8c.html',1,'']]],
   ['tum_5futils_2eh',['TUM_Utils.h',['../TUM__Utils_8h.html',1,'']]],
+  ['tumblue',['TUMBlue',['../group__tum__draw.html#gad80b051b69d244972fcd7af760d030a9',1,'TUM_Draw.h']]],
   ['tumdrawarc',['tumDrawArc',['../group__tum__draw.html#gae0a8d2ba9238596edbc13795b0221344',1,'tumDrawArc(signed short x, signed short y, signed short radius, signed short start, signed short end, unsigned int colour):&#160;TUM_Draw.c'],['../group__tum__draw.html#gae0a8d2ba9238596edbc13795b0221344',1,'tumDrawArc(signed short x, signed short y, signed short radius, signed short start, signed short end, unsigned int colour):&#160;TUM_Draw.c']]],
   ['tumdrawarrow',['tumDrawArrow',['../group__tum__draw.html#ga216ad074bf3dbb18e3ce5610ea615cef',1,'tumDrawArrow(signed short x1, signed short y1, signed short x2, signed short y2, signed short head_length, unsigned char thickness, unsigned int colour):&#160;TUM_Draw.c'],['../group__tum__draw.html#ga216ad074bf3dbb18e3ce5610ea615cef',1,'tumDrawArrow(signed short x1, signed short y1, signed short x2, signed short y2, signed short head_length, unsigned char thickness, unsigned int colour):&#160;TUM_Draw.c']]],
   ['tumdrawbox',['tumDrawBox',['../group__tum__draw.html#gadb522372235b028676bccaa0109ca780',1,'tumDrawBox(signed short x, signed short y, signed short w, signed short h, unsigned int colour):&#160;TUM_Draw.c'],['../group__tum__draw.html#gadb522372235b028676bccaa0109ca780',1,'tumDrawBox(signed short x, signed short y, signed short w, signed short h, unsigned int colour):&#160;TUM_Draw.c']]],

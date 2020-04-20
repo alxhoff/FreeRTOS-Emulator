@@ -1,7 +1,9 @@
 var searchData=
 [
+  ['magenta',['Magenta',['../group__tum__draw.html#ga90a970475f83830549da69776a666834',1,'TUM_Draw.h']]],
   ['maingeneric_5fpriority',['mainGENERIC_PRIORITY',['../TUM__Draw_8h.html#a9ce50b09b0b0c22204f06fa2e5a5d24a',1,'TUM_Draw.h']]],
   ['maingeneric_5fstack_5fsize',['mainGENERIC_STACK_SIZE',['../TUM__Draw_8h.html#a083b07119965879920e4efc05bc82af2',1,'TUM_Draw.h']]],
+  ['maroon',['Maroon',['../group__tum__draw.html#ga25de82841950a141facf93c45182cfa0',1,'TUM_Draw.h']]],
   ['max_5f8_5fbit',['MAX_8_BIT',['../TUM__Draw_8c.html#a55cc42f7f66a750696e9617c4e0de5f3',1,'TUM_Draw.c']]],
   ['max_5fspeed',['max_speed',['../structball.html#a16bf50c1bc289aabb819dc8ddeb7057b',1,'ball']]],
   ['mixing_5fchannels',['MIXING_CHANNELS',['../TUM__Sound_8c.html#a7969944ab26460d04ddb689e09c17f83',1,'TUM_Sound.c']]],

@@ -7,6 +7,8 @@ var searchData=
   ['gen_5ffull_5fsample_5fpath',['GEN_FULL_SAMPLE_PATH',['../TUM__Sound_8c.html#a334e0d62d077e78220b79b44c6bc758e',1,'TUM_Sound.c']]],
   ['getbinfolderpath',['getBinFolderPath',['../TUM__Utils_8h.html#a2cf02f9acce4e7fd78b0795fe22bcfc8',1,'getBinFolderPath(char *bin_path):&#160;TUM_Utils.c'],['../TUM__Utils_8c.html#a2cf02f9acce4e7fd78b0795fe22bcfc8',1,'getBinFolderPath(char *bin_path):&#160;TUM_Utils.c']]],
   ['getlastconnection',['getLastConnection',['../AsyncIO_8c.html#a5f5884a494342c3a4a40748accbd316f',1,'AsyncIO.c']]],
+  ['gray',['Gray',['../group__tum__draw.html#gaab957a0fe1c92d227cced2922967fb97',1,'TUM_Draw.h']]],
   ['green',['Green',['../group__tum__draw.html#gaa429cd977709122166b6e31fa10903d1',1,'TUM_Draw.h']]],
-  ['green_5fportion',['GREEN_PORTION',['../TUM__Draw_8c.html#a7550b457f628d3ff5fc77d123418ad5b',1,'TUM_Draw.c']]]
+  ['green_5fportion',['GREEN_PORTION',['../TUM__Draw_8c.html#a7550b457f628d3ff5fc77d123418ad5b',1,'TUM_Draw.c']]],
+  ['grey',['Grey',['../group__tum__draw.html#ga483c7c7eeb4e05e355f3bdca40bed07e',1,'TUM_Draw.h']]]
 ];
