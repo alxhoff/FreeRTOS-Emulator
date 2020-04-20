@@ -22,8 +22,8 @@ Testing
 cmake_install.cmake
 install_manifest.txt
 build/compile_commands.json
-CMakeDoxyfile.in 
-CMakeDoxygenDefaults.cmake 
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
 CTestTestfile.cmake
 _deps
 
