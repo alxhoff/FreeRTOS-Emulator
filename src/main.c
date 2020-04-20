@@ -238,9 +238,10 @@ void vIncrementPaddleY(unsigned short *paddle)
         if (*paddle != 0) {
             (*paddle)--;
         }
-	if (paddle)
-		if (*paddle != 0)
-			(*paddle)--;
+    if (paddle)
+        if (*paddle != 0) {
+            (*paddle)--;
+        }
 }
 
 void vDecrementPaddleY(unsigned short *paddle)
@@ -249,9 +250,10 @@ void vDecrementPaddleY(unsigned short *paddle)
         if (*paddle != PADDLE_INCREMENT_COUNT) {
             (*paddle)++;
         }
-	if (paddle)
-		if (*paddle != PADDLE_INCREMENT_COUNT)
-			(*paddle)++;
+    if (paddle)
+        if (*paddle != PADDLE_INCREMENT_COUNT) {
+            (*paddle)++;
+        }
 }
 
 unsigned char xCheckPongRightInput(unsigned short *right_paddle_y)
@@ -320,56 +322,56 @@ void vDrawHelpText(void)
                   __FUNCTION__);
 }
 
-#define FPS_AVERAGE_COUNT 50
-
-void vDrawFPS(void)
-{
-    static unsigned int periods[FPS_AVERAGE_COUNT] = { 0 };
-    static unsigned int periods_total = 0;
-    static unsigned int index = 0;
-    static unsigned int average_count = 0;
-    static TickType_t xLastWakeTime = 0, prevWakeTime = 0;
-    static char str[10] = { 0 };
-    static int text_width;
-    int fps = 0;
-
-    xLastWakeTime = xTaskGetTickCount();
-
-    if (prevWakeTime != xLastWakeTime) {
-        periods[index] =
-            configTICK_RATE_HZ / (xLastWakeTime - prevWakeTime);
-        prevWakeTime = xLastWakeTime;
-    }
-    else {
-        periods[index] = 0;
-    }
-
-    periods_total += periods[index];
-
-    if (index == (FPS_AVERAGE_COUNT - 1)) {
-        index = 0;
-    }
-    else {
-        index++;
-    }
-
-    if (average_count < FPS_AVERAGE_COUNT) {
-        average_count++;
-    }
-    else {
-        periods_total -= periods[index];
-    }
-
-    fps = periods_total / average_count;
-
-    sprintf(str, "FPS: %2d", fps);
-
-    if (!tumGetTextSize((char *)str, &text_width, NULL))
-        checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
-                              SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
-                              Blue),
-                  __FUNCTION__);
-}
+/** #define FPS_AVERAGE_COUNT 50 */
+/**  */
+/** void vDrawFPS(void) */
+/** { */
+/**     static unsigned int periods[FPS_AVERAGE_COUNT] = { 0 }; */
+/**     static unsigned int periods_total = 0; */
+/**     static unsigned int index = 0; */
+/**     static unsigned int average_count = 0; */
+/**     static TickType_t xLastWakeTime = 0, prevWakeTime = 0; */
+/**     static char str[10] = { 0 }; */
+/**     static int text_width; */
+/**     int fps = 0; */
+/**  */
+/**     xLastWakeTime = xTaskGetTickCount(); */
+/**  */
+/**     if (prevWakeTime != xLastWakeTime) { */
+/**         periods[index] = */
+/**             configTICK_RATE_HZ / (xLastWakeTime - prevWakeTime); */
+/**         prevWakeTime = xLastWakeTime; */
+/**     } */
+/**     else { */
+/**         periods[index] = 0; */
+/**     } */
+/**  */
+/**     periods_total += periods[index]; */
+/**  */
+/**     if (index == (FPS_AVERAGE_COUNT - 1)) { */
+/**         index = 0; */
+/**     } */
+/**     else { */
+/**         index++; */
+/**     } */
+/**  */
+/**     if (average_count < FPS_AVERAGE_COUNT) { */
+/**         average_count++; */
+/**     } */
+/**     else { */
+/**         periods_total -= periods[index]; */
+/**     } */
+/**  */
+/**     fps = periods_total / average_count; */
+/**  */
+/**     sprintf(str, "FPS: %2d", fps); */
+/**  */
+/**     if (!tumGetTextSize((char *)str, &text_width, NULL)) */
+/**         checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10, */
+/**                               SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5, */
+/**                               Blue), */
+/**                   __FUNCTION__); */
+/** } */
 
 void vDrawWall(wall_t *wall)
 {
@@ -396,13 +398,13 @@ void vDrawScores(unsigned int left, unsigned int right)
 {
     static char buffer[5];
     static int size;
-    sprintf(buffer, "%d", right);
+    sprintf(buffer, "%u", right);
     tumGetTextSize(buffer, &size, NULL);
     checkDraw(tumDrawText(buffer,
                           SCREEN_WIDTH / 2 - size - SCORE_CENTER_OFFSET,
                           SCORE_TOP_OFFSET, White),
               __FUNCTION__);
-    sprintf(buffer, "%d", left);
+    sprintf(buffer, "%u", left);
     checkDraw(tumDrawText(buffer, SCREEN_WIDTH / 2 + SCORE_CENTER_OFFSET,
                           SCORE_TOP_OFFSET, White),
               __FUNCTION__);
