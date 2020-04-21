@@ -78,11 +78,13 @@ signed short xGetMouseY(void);
  */
 void fetchEvents(void);
 
-/*
+extern QueueHandle_t inputQueue;
+/*!<
+ * @brief FreeRTOS queue used to obtain a current copy of the keyboard lookup table
+ *
  * Sends an unsigned char array of length SDL_NUM_SCANCODES. Acts as a lookup
  * table using the SDL scancodes defined in <SDL2/SDL_scancode.h>
  */
-extern QueueHandle_t inputQueue;
 
 /** @} */
 #endif
