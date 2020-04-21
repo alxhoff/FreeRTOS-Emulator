@@ -109,6 +109,7 @@ Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:gaf223cc1048747ffd25a530af9d4ac76b"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#gaf223cc1048747ffd25a530af9d4ac76b">inputQueue</a></td></tr>
+<tr class="memdesc:gaf223cc1048747ffd25a530af9d4ac76b"><td class="mdescLeft">&#160;</td><td class="mdescRight">FreeRTOS queue used to obtain a current copy of the keyboard lookup table.  <a href="#gaf223cc1048747ffd25a530af9d4ac76b">More...</a><br /></td></tr>
 <tr class="separator:gaf223cc1048747ffd25a530af9d4ac76b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -219,6 +220,9 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>FreeRTOS queue used to obtain a current copy of the keyboard lookup table. </p>
+<p>Sends an unsigned char array of length SDL_NUM_SCANCODES. Acts as a lookup table using the SDL scancodes defined in &lt;SDL2/SDL_scancode.h&gt; </p>
 
 </div>
 </div>
