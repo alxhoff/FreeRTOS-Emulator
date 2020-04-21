@@ -75,6 +75,17 @@ to generate the appropriate project files to allow for the emulator to be import
 
 ### Additional targets
 
+#### Documentation
+
+Doxygen documentation, found in the [docs](docs) folder, can be generated from cmake/make by passing the variable `DOCS=on` and making the target `docs`.
+
+``` bash
+cmake -DDOCS=on ..
+make docs
+```
+
+#### Tests
+
 In [`test.cmake`](cmake/test.cmake) a number of extra targets are provided to help with linting.
 
 #### Git --check
