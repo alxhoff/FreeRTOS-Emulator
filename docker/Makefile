@@ -114,10 +114,6 @@ cmake: start
 gdbserver: start kill prepare
 	@$(EXPORT) ; '$(COMPOSE)' -f $(YML) exec -d $(EMULATOR) bash -c "cd /tmp/project/bin && gdbserver localhost:2000 $(EXECUTABLE)"
 
-.PHONY: gdbserver2
-gdbserver2: start kill prepare
-	@$(EXPORT) ; '$(COMPOSE)' -f $(YML) exec $(EMULATOR) bash -c "cd /tmp/project/bin && gdbserver localhost:2000 $(EXECUTABLE)"
-
 .PHONY: kill
 kill: start
 	@$(EXPORT) ; '$(COMPOSE)' -f $(YML) exec $(EMULATOR) bash -c "killall -q -9 $(EXECUTABLE) || : ; killall -q -9 gdb || : ; killall -q -9 gdbserver || :"

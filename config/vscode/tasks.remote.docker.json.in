@@ -86,7 +86,7 @@
             }
         },
         {
-            "label": "SSH: Rebuild CMake Configuration",
+            "label": "Docker: Rebuild CMake Configuration",
             "type": "shell",
             "command": "make cmake",
             "presentation": {
