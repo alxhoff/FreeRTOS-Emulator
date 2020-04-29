@@ -30,6 +30,8 @@ The simulator uses the SDL2 graphics libraries.
 
 ### Debian/Ubuntu
 
+Assuming that you have some basic utilities like `make`, `cmake` and `git` already installed, execute:
+
 ```bash
 sudo apt-get install libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
 ```
