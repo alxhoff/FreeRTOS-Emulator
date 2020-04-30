@@ -199,7 +199,7 @@ void setErrorMessage(char *msg)
 		free(error_message);
 	}
 
-	error_message = malloc(sizeof(char) * (strlen(msg) + 1));
+	error_message = calloc(strlen(msg) + 1, sizeof(char));
 	if (error_message == NULL) {
 		return;
 	}
@@ -589,6 +589,7 @@ static int vHandleDrawJob(draw_job_t *job)
 				       job->data->scaled_image.image.x,
 				       job->data->scaled_image.image.y,
 				       job->data->scaled_image.scale);
+        free(job->data->scaled_image.image.filename);
 		break;
 	case DRAW_ARROW:
 		ret = vDrawArrow(job->data->arrow.x1, job->data->arrow.y1,
@@ -765,6 +766,11 @@ int vBindDrawing(void) // Should be called from the Drawing Thread
 		goto err_make_current;
 	}
 
+    if(renderer){
+        SDL_DestroyRenderer(renderer);
+        renderer = NULL;
+    }
+
 	renderer = SDL_CreateRenderer(window, -1,
 				      SDL_RENDERER_ACCELERATED |
 					      SDL_RENDERER_TARGETTEXTURE |
@@ -815,7 +821,7 @@ int tumDrawText(char *str, signed short x, signed short y, unsigned int colour)
 
 	INIT_JOB(job, DRAW_TEXT);
 
-	job->data->text.str = malloc(sizeof(char) * (strlen(str) + 1));
+	job->data->text.str = (char *)calloc(strlen(str) + 1, sizeof(char));
 
 	if (job->data->text.str == NULL) {
 		printf("Error allocating buffer in tumDrawText\n");
@@ -983,7 +989,7 @@ int tumDrawImage(char *filename, signed short x, signed short y)
 	}
 
 	job->data->image.filename =
-		malloc(sizeof(char) * (strlen(abs_path) + 1));
+		calloc(strlen(abs_path) + 1, sizeof(char));
 	strcpy(job->data->image.filename, abs_path);
 	job->data->image.x = x;
 	job->data->image.y = y;
@@ -1011,7 +1017,7 @@ int tumDrawScaledImage(char *filename, signed short x, signed short y,
 	}
 
 	job->data->scaled_image.image.filename =
-		malloc(sizeof(char) * (strlen(abs_path) + 1));
+		calloc(strlen(abs_path) + 1, sizeof(char));
 	strcpy(job->data->scaled_image.image.filename, abs_path);
 	job->data->scaled_image.image.x = x;
 	job->data->scaled_image.image.y = y;

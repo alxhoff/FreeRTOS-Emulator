@@ -212,7 +212,7 @@ aIO_t *createAsyncIO(aIO_conn_e type, size_t buffer_size,
 	}
 
 	ret->buffer_size = buffer_size;
-	ret->buffer = (char *)malloc(ret->buffer_size * sizeof(char));
+	ret->buffer = (char *)calloc(ret->buffer_size, sizeof(char));
 	if (ret->buffer == NULL) {
 		fprintf(stderr, "Failed to allocate AIO buffer");
 		PRINT_CHECK;
@@ -363,15 +363,14 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 
 	aIO_mq_t *mq = &conn->next->attr.mq;
 
-	size_t str_len = (strlen(name) <= MQ_MAX_NAME_LEN) ? strlen(name) :
-							     MQ_MAX_NAME_LEN;
+	size_t str_len = strlen(name);
 
-	mq->name = (char *)malloc(sizeof(char) * (str_len + 2));
+	mq->name = (char *)calloc(str_len + 2, sizeof(char));
 	if (mq->name == NULL) {
 		fprintf(stderr, "Failed to allocate name for MQ '%s'\n", name);
 		goto error_name;
 	}
-	strncpy(mq->name + 1, name, str_len);
+	strcpy(mq->name + 1, name);
 	mq->name[0] = '/';
 
 	struct mq_attr attr;
@@ -457,7 +456,7 @@ static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 				accept(server_fd, (struct sockaddr *)&client,
 				       &client_size)) > 0) {
 			pthread_t handler_thread;
-			aIO_tcp_client *new_client = (aIO_tcp_client *)malloc(
+			aIO_tcp_client *new_client = (aIO_tcp_client *)calloc(1,
 				sizeof(aIO_tcp_client));
 			new_client->client_fd = client_fd;
 			new_client->buffer_size = conn->buffer_size;
@@ -574,7 +573,7 @@ void *aIOTCPHandler(void *conn)
 	ssize_t read_size;
 	aIO_tcp_client *client = (aIO_tcp_client *)conn;
 	int client_fd = client->client_fd;
-	char *buffer = malloc(sizeof(char) * client->buffer_size);
+	char *buffer = (char *)calloc(client->buffer_size, sizeof(char));
 	if (buffer == NULL) {
 		fprintf(stderr, "Failed to handle TCP\n");
 		PRINT_CHECK;

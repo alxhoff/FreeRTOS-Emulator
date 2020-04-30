@@ -27,7 +27,6 @@
 
 #include <netinet/in.h>
 
-#define MQ_MAX_NAME_LEN 256
 #define MQ_MAXMSG 256
 #define MQ_MSGSIZE 256
 
