@@ -28,11 +28,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #include <pthread.h>
 
 #include "TUM_Draw.h"
+#include "TUM_Font.h"
 #include "TUM_Utils.h"
 
 #define ONE_BYTE 8
@@ -139,6 +139,7 @@ typedef struct text_data {
 	signed short x;
 	signed short y;
 	unsigned int colour;
+	TTF_Font *font;
 } text_data_t;
 
 typedef struct arrow_data {
@@ -181,11 +182,10 @@ const int screen_width = SCREEN_WIDTH;
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 SDL_GLContext context = NULL;
-TTF_Font *font = NULL;
 
 char *error_message = NULL;
 
-uint32_t SwapBytes(unsigned int x)
+static uint32_t SwapBytes(unsigned int x)
 {
 	return ((x & FIRST_BYTE) << THREE_BYTES) +
 	       ((x & SECOND_BYTE) << ONE_BYTE) +
@@ -206,9 +206,6 @@ void setErrorMessage(char *msg)
 	strcpy(error_message, msg);
 }
 
-#define PRINT_TTF_ERROR(msg, ...)                                              \
-	PRINT_ERROR("[TTF Error] %s\n" #msg, (char *)TTF_GetError(),           \
-		    ##__VA_ARGS__)
 #define PRINT_SDL_ERROR(msg, ...)                                              \
 	PRINT_ERROR("[SDL Error] %s\n" #msg, (char *)SDL_GetError(),           \
 		    ##__VA_ARGS__)
@@ -433,11 +430,12 @@ static int vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
 }
 
 static int vDrawText(char *string, signed short x, signed short y,
-		     unsigned int colour)
+		     unsigned int colour, TTF_Font *font)
 {
 	SDL_Color color = { RED_PORTION(colour), GREEN_PORTION(colour),
 			    BLUE_PORTION(colour), ZERO_ALPHA };
 	SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
+	tumFontPutFont(font);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_Rect dst = { 0 };
 	SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
@@ -453,7 +451,9 @@ static int vDrawText(char *string, signed short x, signed short y,
 static int vGetTextSize(char *string, int *width, int *height)
 {
 	SDL_Color color = { 0 };
+	TTF_Font *font = tumFontGetCurFont();
 	SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
+	tumFontPutFont(font);
 	if (surface == NULL)
 		goto err_surface;
 
@@ -542,7 +542,8 @@ static int vHandleDrawJob(draw_job_t *job)
 		break;
 	case DRAW_TEXT:
 		ret = vDrawText(job->data->text.str, job->data->text.x,
-				job->data->text.y, job->data->text.colour);
+				job->data->text.y, job->data->text.colour,
+				job->data->text.font);
 		free(job->data->text.str);
 		break;
 	case DRAW_RECT:
@@ -703,22 +704,13 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 		goto err_sdl;
 	}
 	if (TTF_Init()) {
-		PRINT_TTF_ERROR("TTF_Init failed");
+		PRINT_ERROR("TTF_Init failed");
 		goto err_ttf;
 	}
 
-	char *buffer = prepend_path(path, FONT_LOCATION);
-	if (buffer == NULL) {
-		PRINT_ERROR("Prepending font path failed");
-		goto err_font_loc;
-	}
-
-	font = TTF_OpenFont(buffer, DEFAULT_FONT_SIZE);
-	free(buffer);
-
-	if (font == NULL) {
-		PRINT_TTF_ERROR("Opening font @ '%s' failed", FONT_LOCATION);
-		goto err_open_font;
+	if (tumFontInit(path)) {
+		PRINT_ERROR("TUM Font init failed");
+		goto err_tum_font;
 	}
 
 	window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
@@ -757,9 +749,8 @@ err_make_current:
 err_create_context:
 	SDL_DestroyWindow(window);
 err_window:
-	TTF_CloseFont(font);
-err_open_font:
-err_font_loc:
+	tumFontExit();
+err_tum_font:
 	TTF_Quit();
 err_ttf:
 	SDL_Quit();
@@ -795,7 +786,6 @@ err_renderer:
 	SDL_DestroyWindow(window);
 err_make_current:
 	SDL_GL_DeleteContext(context);
-	TTF_CloseFont(font);
 	TTF_Quit();
 	SDL_Quit();
 	return -1;
@@ -833,6 +823,7 @@ int tumDrawText(char *str, signed short x, signed short y, unsigned int colour)
 	}
 
 	strcpy(job->data->text.str, str);
+	job->data->text.font = tumFontGetCurFont();
 	job->data->text.x = x;
 	job->data->text.y = y;
 	job->data->text.colour = colour;
