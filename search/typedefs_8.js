@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['poly_5fdata_5ft',['poly_data_t',['../TUM__Draw_8c.html#aab57592e0d778e3580bdabb7b91681a1',1,'TUM_Draw.c']]]
+  ['mouse_5ft',['mouse_t',['../TUM__Event_8c.html#ace4469260baa0e1d21359990f4e26438',1,'TUM_Event.c']]]
 ];

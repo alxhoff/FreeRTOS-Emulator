@@ -6,6 +6,7 @@ var searchData=
   ['rect_5fdata_5ft',['rect_data_t',['../TUM__Draw_8c.html#a679a0159e20c71cb9d36cd4f1c83ed9c',1,'TUM_Draw.c']]],
   ['red',['Red',['../group__tum__draw.html#gae8e246fd7335d7e27ab04150cbc418ba',1,'TUM_Draw.h']]],
   ['red_5fportion',['RED_PORTION',['../TUM__Draw_8c.html#a71ac2a682927bbfbf51bb0aedb0b7a56',1,'TUM_Draw.c']]],
+  ['ref_5fcount',['ref_count',['../structtum__font__ref.html#a9112f234433cdf84efc81e625812ee40',1,'tum_font_ref']]],
   ['renderer',['renderer',['../TUM__Draw_8c.html#a966da7a60c4ea3ba301e26ccc5efe452',1,'TUM_Draw.c']]],
   ['rx',['rx',['../structellipse__data.html#af3d02819b772d449c329e8bf1c7501a0',1,'ellipse_data']]],
   ['ry',['ry',['../structellipse__data.html#ad4f5519946732e4d47f521cf61bedd4a',1,'ellipse_data']]]
