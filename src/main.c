@@ -11,6 +11,7 @@
 
 #include "TUM_Ball.h"
 #include "TUM_Draw.h"
+#include "TUM_Font.h"
 #include "TUM_Event.h"
 #include "TUM_Sound.h"
 #include "TUM_Utils.h"
@@ -239,6 +240,9 @@ void vDrawHelpText(void)
 {
     static char str[100] = { 0 };
     static int text_width;
+    ssize_t prev_font_size = tumFontGetCurFontSize();
+
+    tumFontSetSize((ssize_t)30);
 
     sprintf(str, "[Q]uit, [C]hange State");
 
@@ -246,9 +250,12 @@ void vDrawHelpText(void)
         checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
                               DEFAULT_FONT_SIZE * 0.5, Black),
                   __FUNCTION__);
+
+    tumFontSetSize(prev_font_size);
 }
 
 #define FPS_AVERAGE_COUNT 50
+#define FPS_FONT "IBMPlexSans-Bold.ttf"
 
 void vDrawFPS(void)
 {
@@ -260,6 +267,7 @@ void vDrawFPS(void)
     static char str[10] = { 0 };
     static int text_width;
     int fps = 0;
+    font_handle_t cur_font = tumFontGetCurFontHandle();
 
     xLastWakeTime = xTaskGetTickCount();
 
@@ -290,6 +298,8 @@ void vDrawFPS(void)
 
     fps = periods_total / average_count;
 
+    tumFontSelectFontFromName(FPS_FONT);
+
     sprintf(str, "FPS: %2d", fps);
 
     if (!tumGetTextSize((char *)str, &text_width, NULL))
@@ -297,6 +307,9 @@ void vDrawFPS(void)
                               SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
                               Skyblue),
                   __FUNCTION__);
+
+    tumFontSelectFontFromHandle(cur_font);
+    tumFontPutFontHandle(cur_font);
 }
 
 void vDrawLogo(void)
@@ -640,6 +653,9 @@ int main(int argc, char *argv[])
     }
 
     atexit(aIODeinit);
+
+    //Load a second font for fun
+    tumFontLoadFont(FPS_FONT, DEFAULT_FONT_SIZE);
 
     buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
     if (!buttons.lock) {

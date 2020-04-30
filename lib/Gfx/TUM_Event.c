@@ -21,6 +21,7 @@
 @endverbatim
  */
 
+#include <linux/unistd.h>
 #include <assert.h>
 
 #include "TUM_Event.h"
@@ -60,7 +61,7 @@ void fetchEvents(void)
 	while (SDL_PollEvent(&event)) {
 		if ((event.type == SDL_QUIT) ||
 		    (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
-			vExitDrawing();
+            exit(EXIT_SUCCESS);
 		} else if (event.type == SDL_KEYDOWN) {
 			buttons[event.key.keysym.scancode] = 1;
 			send = 1;
