@@ -43,6 +43,21 @@
 #define WINDOW_TITLE "FreeRTOS Emulator"
 
 /**
+ * Defines the default font size used by the SDL TTF library
+ */
+#define DEFAULT_FONT_SIZE 15
+
+/**
+ * Default font to be used by the SDL TTF library
+ */
+#define DEFAULT_FONT "IBMPlexSans-Medium.ttf"
+/**
+ * Location of font TTF files
+ */
+#define FONTS_LOCATION "/../resources/fonts/"
+#define FONT_LOCATION FONTS_LOCATION DEFAULT_FONT
+
+/**
  * Sets the width (in pixels) of the screen
  */
 #define SCREEN_WIDTH 640
