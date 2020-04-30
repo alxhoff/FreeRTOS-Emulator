@@ -11,6 +11,7 @@
 
 #include "TUM_Ball.h"
 #include "TUM_Draw.h"
+#include "TUM_Font.h"
 #include "TUM_Event.h"
 #include "TUM_Sound.h"
 #include "TUM_Utils.h"
@@ -210,12 +211,12 @@ void vSwapBuffers(void *pvParameters)
     xLastWakeTime = xTaskGetTickCount();
     const TickType_t frameratePeriod = 20;
 
-    vBindDrawing(); // Setup Rendering handle with correct GL context
+    tumDrawBindThread(); // Setup Rendering handle with correct GL context
 
     while (1) {
         if (xSemaphoreTake(ScreenLock, portMAX_DELAY) == pdTRUE) {
-            vDrawUpdateScreen();
-            fetchEvents();
+            tumDrawUpdateScreen();
+            tumEventFetchEvents();
             xSemaphoreGive(ScreenLock);
             xSemaphoreGive(DrawSignal);
             vTaskDelayUntil(&xLastWakeTime,
@@ -227,7 +228,7 @@ void vSwapBuffers(void *pvParameters)
 void xGetButtonInput(void)
 {
     if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
-        xQueueReceive(inputQueue, &buttons.buttons, 0);
+        xQueueReceive(buttonInputQueue, &buttons.buttons, 0);
         xSemaphoreGive(buttons.lock);
     }
 }
@@ -306,13 +307,16 @@ unsigned char xCheckForInput(void)
 
 void playBallSound(void *args)
 {
-    vPlaySample(a3);
+    tumSoundPlaySample(a3);
 }
 
 void vDrawHelpText(void)
 {
     static char str[100] = { 0 };
     static int text_width;
+    ssize_t prev_font_size = tumFontGetCurFontSize();
+
+    tumFontSetSize((ssize_t)30);
 
     sprintf(str, "[Q]uit [P]ause");
 
@@ -320,9 +324,12 @@ void vDrawHelpText(void)
         checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - DEFAULT_FONT_SIZE * 2.5,
                               DEFAULT_FONT_SIZE * 2.5, White),
                   __FUNCTION__);
+
+    tumFontSetSize(prev_font_size);
 }
 
 #define FPS_AVERAGE_COUNT 50
+#define FPS_FONT "IBMPlexSans-Bold.ttf"
 
 void vDrawFPS(void)
 {
@@ -334,6 +341,7 @@ void vDrawFPS(void)
     static char str[10] = { 0 };
     static int text_width;
     int fps = 0;
+    font_handle_t cur_font = tumFontGetCurFontHandle();
 
     xLastWakeTime = xTaskGetTickCount();
 
@@ -364,6 +372,8 @@ void vDrawFPS(void)
 
     fps = periods_total / average_count;
 
+    tumFontSelectFontFromName(FPS_FONT);
+
     sprintf(str, "FPS: %2d", fps);
 
     if (!tumGetTextSize((char *)str, &text_width, NULL))
@@ -371,6 +381,9 @@ void vDrawFPS(void)
                               SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
                               Blue),
                   __FUNCTION__);
+
+    tumFontSelectFontFromHandle(cur_font);
+    tumFontPutFontHandle(cur_font);
 }
 
 void vDrawWall(wall_t *wall)
@@ -719,26 +732,29 @@ void vPausedStateTask(void *pvParameters)
 
 int main(int argc, char *argv[])
 {
-    char *bin_folder_path = getBinFolderPath(argv[0]);
+    char *bin_folder_path = tumUtilGetBinFolderPath(argv[0]);
 
     printf("Initializing: ");
 
-    if (vInitDrawing(bin_folder_path)) {
+    if (tumDrawInit(bin_folder_path)) {
         PRINT_ERROR("Failed to intialize drawing");
         goto err_init_drawing;
     }
 
-    if (vInitEvents()) {
+    if (tumEventInit()) {
         PRINT_ERROR("Failed to initialize events");
         goto err_init_events;
     }
 
-    if (vInitAudio(bin_folder_path)) {
+    if (tumSoundInit(bin_folder_path)) {
         PRINT_ERROR("Failed to initialize audio");
         goto err_init_audio;
     }
 
     atexit(aIODeinit);
+
+    //Load a second font for fun
+    tumFontLoadFont(FPS_FONT, DEFAULT_FONT_SIZE);
 
     buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
     if (!buttons.lock) {
@@ -829,11 +845,11 @@ err_screen_lock:
 err_draw_signal:
     vSemaphoreDelete(buttons.lock);
 err_buttons_lock:
-    vExitAudio();
+    tumSoundExit();
 err_init_audio:
-    vExitEvents();
+    tumEventExit();
 err_init_events:
-    vExitDrawing();
+    tumDrawExit();
 err_init_drawing:
     return EXIT_FAILURE;
 }
