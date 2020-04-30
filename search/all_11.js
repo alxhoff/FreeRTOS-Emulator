@@ -29,9 +29,9 @@ var searchData=
   ['seterrormessage',['setErrorMessage',['../TUM__Draw_8c.html#a20669be39049197fc218d5fd078c1e57',1,'TUM_Draw.c']]],
   ['setwallproperty',['setWallProperty',['../group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5',1,'setWallProperty(wall_t *wall, signed short x, signed short y, signed short width, signed short height, unsigned char flags):&#160;TUM_Ball.c'],['../group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5',1,'setWallProperty(wall_t *wall, signed short x, signed short y, signed short width, signed short height, unsigned char flags):&#160;TUM_Ball.c']]],
   ['silver',['Silver',['../group__tum__draw.html#ga83dd455066a997b33ef319b7f6531015',1,'TUM_Draw.h']]],
-  ['size',['size',['../structtum__font.html#ad1d368dde1b68031a99beb96c3fb232b',1,'tum_font']]],
   ['skyblue',['Skyblue',['../group__tum__draw.html#gaf9e623f033bca1e70652a5736750bbd5',1,'TUM_Draw.h']]],
   ['socket',['socket',['../unionaIO__attr.html#a2fd6d3f33d812a6c26d6d566dd5d0d95',1,'aIO_attr::socket()'],['../AsyncIO_8c.html#a2bc4da5f0e73b751aca2489dc0a5fa74a0917971ba80f3b48c7d0cf1b2da024c7',1,'SOCKET():&#160;AsyncIO.c']]],
   ['start',['start',['../structarc__data.html#aa8beafacefe3e0a052e651e9326b6028',1,'arc_data']]],
-  ['str',['str',['../structtext__data.html#aba952928b9fd7a2d605a6c34c94e441d',1,'text_data']]]
+  ['str',['str',['../structtext__data.html#aba952928b9fd7a2d605a6c34c94e441d',1,'text_data']]],
+  ['swapbytes',['SwapBytes',['../TUM__Draw_8c.html#a7e287faafd8f3797d5bfb27623f5fa5d',1,'TUM_Draw.c']]]
 ];

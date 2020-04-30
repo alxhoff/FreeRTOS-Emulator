@@ -5,7 +5,6 @@ var searchData=
   ['scaled_5fimage',['scaled_image',['../uniondata__u.html#ab5403c5b5a80c405effbdd7b8c319f79',1,'data_u']]],
   ['screen_5fheight',['screen_height',['../TUM__Draw_8c.html#a52afc0b1078a0ef9af887430f8e8b84c',1,'TUM_Draw.c']]],
   ['screen_5fwidth',['screen_width',['../TUM__Draw_8c.html#ade92e07203a3ba6835aab188b841658f',1,'TUM_Draw.c']]],
-  ['size',['size',['../structtum__font.html#ad1d368dde1b68031a99beb96c3fb232b',1,'tum_font']]],
   ['socket',['socket',['../unionaIO__attr.html#a2fd6d3f33d812a6c26d6d566dd5d0d95',1,'aIO_attr']]],
   ['start',['start',['../structarc__data.html#aa8beafacefe3e0a052e651e9326b6028',1,'arc_data']]],
   ['str',['str',['../structtext__data.html#aba952928b9fd7a2d605a6c34c94e441d',1,'text_data']]]

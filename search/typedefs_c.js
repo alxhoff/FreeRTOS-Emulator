@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['text_5fdata_5ft',['text_data_t',['../TUM__Draw_8c.html#a9c51c05226571042d35b352f3c8e133d',1,'TUM_Draw.c']]],
-  ['triangle_5fdata_5ft',['triangle_data_t',['../TUM__Draw_8c.html#a0b7690059057da73b0ac9bd89a8a9a93',1,'TUM_Draw.c']]],
-  ['tum_5ffont_5ft',['tum_font_t',['../TUM__Font_8c.html#a5aa3f43e028659dd74bd88750184f3dd',1,'TUM_Font.c']]]
+  ['wall_5ft',['wall_t',['../group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef',1,'TUM_Ball.h']]],
+  ['walls_5ft',['walls_t',['../TUM__Ball_8c.html#a3b29a16fb5e4a23c1963b76779eda710',1,'TUM_Ball.c']]]
 ];
