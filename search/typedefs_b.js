@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['text_5fdata_5ft',['text_data_t',['../TUM__Draw_8c.html#a9c51c05226571042d35b352f3c8e133d',1,'TUM_Draw.c']]],
-  ['triangle_5fdata_5ft',['triangle_data_t',['../TUM__Draw_8c.html#a0b7690059057da73b0ac9bd89a8a9a93',1,'TUM_Draw.c']]]
+  ['scaled_5fimage_5fdata_5ft',['scaled_image_data_t',['../TUM__Draw_8c.html#afa00c3abc81f7dbd5d021ecaf6519138',1,'TUM_Draw.c']]]
 ];
