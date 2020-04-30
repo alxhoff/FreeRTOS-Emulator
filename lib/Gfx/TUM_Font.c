@@ -55,7 +55,7 @@ static struct tum_font *cur_default_font = NULL;
 static char *getFontPath(char *font_name)
 {
 	unsigned font_dir_len = strlen(fonts_dir);
-	unsigned font_len = strnlen(font_name, MAX_FONT_NAME_LENGTH);
+	unsigned font_len = strlen(font_name);
 
 	if ((font_dir_len + strlen(font_name)) > MAX_FONT_NAME_LENGTH)
 		return NULL;
