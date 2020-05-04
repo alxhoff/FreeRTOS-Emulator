@@ -28,12 +28,16 @@
 #include "task.h"
 
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_mouse.h"
 
 #include "TUM_Draw.h"
 #include "TUM_Utils.h"
 
 typedef struct mouse {
 	xSemaphoreHandle lock;
+	signed char left_button;
+	signed char right_button;
+	signed char middle_button;
 	signed short x;
 	signed short y;
 } mouse_t;
@@ -61,17 +65,55 @@ void fetchEvents(void)
 	while (SDL_PollEvent(&event)) {
 		if ((event.type == SDL_QUIT) ||
 		    (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
-            exit(EXIT_SUCCESS);
+			exit(EXIT_SUCCESS);
 		} else if (event.type == SDL_KEYDOWN) {
+			xSemaphoreTake(mouse.lock, 0);
 			buttons[event.key.keysym.scancode] = 1;
+			xSemaphoreGive(mouse.lock);
 			send = 1;
 		} else if (event.type == SDL_KEYUP) {
+			xSemaphoreTake(mouse.lock, 0);
 			buttons[event.key.keysym.scancode] = 0;
+			xSemaphoreGive(mouse.lock);
 			send = 1;
 		} else if (event.type == SDL_MOUSEMOTION) {
 			xSemaphoreTake(mouse.lock, 0);
 			mouse.x = event.motion.x;
 			mouse.y = event.motion.y;
+			xSemaphoreGive(mouse.lock);
+		} else if (event.type == SDL_MOUSEBUTTONDOWN) {
+			xSemaphoreTake(mouse.lock, 0);
+			switch (event.button.button) {
+			case SDL_BUTTON_LEFT:
+				mouse.left_button = 1;
+				break;
+			case SDL_BUTTON_RIGHT:
+				mouse.right_button = 1;
+				break;
+			case SDL_BUTTON_MIDDLE:
+				mouse.middle_button = 1;
+				break;
+			default:
+				break;
+			}
+            send = 1;
+			xSemaphoreGive(mouse.lock);
+		} else if (event.type == SDL_MOUSEBUTTONUP) {
+			xSemaphoreTake(mouse.lock, 0);
+			switch (event.button.button) {
+			case SDL_BUTTON_LEFT:
+				mouse.left_button = 0;
+				break;
+			case SDL_BUTTON_RIGHT:
+				mouse.right_button = 0;
+				break;
+			case SDL_BUTTON_MIDDLE:
+				mouse.middle_button = 0;
+				break;
+			default:
+				break;
+			}
+            send = 1;
 			xSemaphoreGive(mouse.lock);
 		}
 	}
@@ -109,6 +151,39 @@ signed short xGetMouseY(void)
 	return 0;
 }
 
+signed char xGetMouseLeft(void)
+{
+    signed char ret;
+
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.left_button;
+    xSemaphoreGive(mouse.lock);
+
+    return ret;
+}
+
+signed char xGetMouseRight(void)
+{
+    signed char ret;
+
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.right_button;
+    xSemaphoreGive(mouse.lock);
+
+    return ret;
+}
+
+signed char xGetMouseMiddle(void)
+{
+    signed char ret;
+
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.middle_button;
+    xSemaphoreGive(mouse.lock);
+
+    return ret;
+}
+
 int vInitEvents(void)
 {
 	if (initMouse()) {
@@ -127,8 +202,6 @@ int vInitEvents(void)
 	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
 	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
 	SDL_EventState(0x303, SDL_IGNORE);
-	SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
-	SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
 
 	return 0;
 

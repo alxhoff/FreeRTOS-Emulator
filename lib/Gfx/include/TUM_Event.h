@@ -73,6 +73,27 @@ signed short xGetMouseX(void);
 signed short xGetMouseY(void);
 
 /**
+ * @brief Returns a copy of the mouse's left button status
+ *
+ * @return Either 1 for pressed or 0 for not pressed.
+ */
+signed char xGetMouseLeft(void);
+
+/**
+ * @brief Returns a copy of the mouse's right button status
+ *
+ * @return Either 1 for pressed or 0 for not pressed.
+ */
+signed char xGetMouseRight(void);
+
+/**
+ * @brief Returns a copy of the mouse's middle button status
+ *
+ * @return Either 1 for pressed or 0 for not pressed.
+ */
+signed char xGetMouseMiddle(void);
+
+/**
  * @brief Polls all outstanding SDL Events.
  *        Should be called from Draw Loop
  */
