@@ -223,7 +223,7 @@ void vDrawCaveBoundingBox(void)
               __FUNCTION__);
 }
 
-void vDrawCave(void)
+void vDrawCave(unsigned char ball_color_inverted)
 {
     static unsigned short circlePositionX, circlePositionY;
 
@@ -232,8 +232,14 @@ void vDrawCave(void)
     circlePositionX = CAVE_X + xGetMouseX() / 2;
     circlePositionY = CAVE_Y + xGetMouseY() / 2;
 
-    checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20, Silver),
-              __FUNCTION__);
+    if (ball_color_inverted)
+        checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20,
+                                Black),
+                  __FUNCTION__);
+    else
+        checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20,
+                                Silver),
+                  __FUNCTION__);
 }
 
 void vDrawHelpText(void)
@@ -506,7 +512,7 @@ void vDemoTask1(void *pvParameters)
                 // Clear screen
                 checkDraw(tumDrawClear(White), __FUNCTION__);
                 vDrawStaticItems();
-                vDrawCave();
+                vDrawCave(xGetMouseLeft());
                 vDrawButtonText();
 
                 // Draw FPS in lower right corner
