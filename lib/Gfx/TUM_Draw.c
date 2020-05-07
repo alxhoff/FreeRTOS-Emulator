@@ -241,7 +241,7 @@ static draw_job_t *popDrawJob(void)
 	return ret;
 }
 
-static int vClearDisplay(unsigned int colour)
+static int _clearDisplay(unsigned int colour)
 {
 	SDL_SetRenderDrawColor(renderer, (colour >> 16) & 0xFF,
 			       (colour >> 8) & 0xFF, colour & 0xFF,
@@ -251,7 +251,7 @@ static int vClearDisplay(unsigned int colour)
 	return 0;
 }
 
-static int vDrawRectangle(signed short x, signed short y, signed short w,
+static int _drawRectangle(signed short x, signed short y, signed short w,
 			  signed short h, unsigned int colour)
 {
 	rectangleColor(renderer, x + w, y, x, y + h,
@@ -260,7 +260,7 @@ static int vDrawRectangle(signed short x, signed short y, signed short w,
 	return 0;
 }
 
-static int vDrawFilledRectangle(signed short x, signed short y, signed short w,
+static int _drawFilledRectangle(signed short x, signed short y, signed short w,
 				signed short h, unsigned int colour)
 {
 	boxColor(renderer, x + w, y, x, y + h,
@@ -269,7 +269,7 @@ static int vDrawFilledRectangle(signed short x, signed short y, signed short w,
 	return 0;
 }
 
-static int vDrawArc(signed short x, signed short y, signed short radius,
+static int _drawArc(signed short x, signed short y, signed short radius,
 		    signed short start, signed short end, unsigned int colour)
 {
 	arcColor(renderer, x, y, radius, start, end,
@@ -278,7 +278,7 @@ static int vDrawArc(signed short x, signed short y, signed short radius,
 	return 0;
 }
 
-static int vDrawEllipse(signed short x, signed short y, signed short rx,
+static int _drawEllipse(signed short x, signed short y, signed short rx,
 			signed short ry, unsigned int colour)
 {
 	ellipseColor(renderer, x, y, rx, ry,
@@ -287,7 +287,7 @@ static int vDrawEllipse(signed short x, signed short y, signed short rx,
 	return 0;
 }
 
-static int vDrawCircle(signed short x, signed short y, signed short radius,
+static int _drawCircle(signed short x, signed short y, signed short radius,
 		       unsigned int colour)
 {
 	filledCircleColor(renderer, x, y, radius,
@@ -296,7 +296,7 @@ static int vDrawCircle(signed short x, signed short y, signed short radius,
 	return 0;
 }
 
-static int vDrawLine(signed short x1, signed short y1, signed short x2,
+static int _drawLine(signed short x1, signed short y1, signed short x2,
 		     signed short y2, unsigned char thickness,
 		     unsigned int colour)
 {
@@ -306,7 +306,7 @@ static int vDrawLine(signed short x1, signed short y1, signed short x2,
 	return 0;
 }
 
-static int vDrawPoly(coord_t *points, unsigned int n, signed short colour)
+static int _drawPoly(coord_t *points, unsigned int n, signed short colour)
 {
 	signed short *x_coords = calloc(1, sizeof(signed short) * n);
 	signed short *y_coords = calloc(1, sizeof(signed short) * n);
@@ -326,7 +326,7 @@ static int vDrawPoly(coord_t *points, unsigned int n, signed short colour)
 	return 0;
 }
 
-static int vDrawTriangle(coord_t *points, unsigned int colour)
+static int _drawTriangle(coord_t *points, unsigned int colour)
 {
 	filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x,
 			  points[1].y, points[2].x, points[2].y,
@@ -344,7 +344,7 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 	return tex;
 }
 
-static void vRenderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
+static void _renderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
 			       signed short x, signed short y, signed short w,
 			       signed short h)
 {
@@ -356,7 +356,7 @@ static void vRenderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
 	SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
-static int vGetImageSize(char *filename, int *w, int *h)
+static int _getImageSize(char *filename, int *w, int *h)
 {
 	SDL_Texture *tex = loadImage(filename, renderer);
 	if (tex == NULL) {
@@ -368,7 +368,7 @@ static int vGetImageSize(char *filename, int *w, int *h)
 	return 0;
 }
 
-static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
+static int _drawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 			    signed short y, float scale)
 {
 	int w, h;
@@ -376,39 +376,39 @@ static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 	if (!w || !h)
 		return -1;
 
-	vRenderScaledImage(tex, ren, x, y, w * scale, h * scale);
+	_renderScaledImage(tex, ren, x, y, w * scale, h * scale);
 	SDL_DestroyTexture(tex);
 
 	return 0;
 }
 
-static int vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
+static int _drawImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 		      signed short y)
 {
-	return vDrawScaledImage(tex, ren, x, y, 1);
+	return _drawScaledImage(tex, ren, x, y, 1);
 }
 
-static int vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren,
+static int _drawLoadAndDrawImage(char *filename, SDL_Renderer *ren,
 				 signed short x, signed short y)
 {
 	SDL_Texture *tex = loadImage(filename, ren);
 	if (!tex)
 		return -1;
 
-	vDrawImage(tex, ren, x, y);
+	_drawImage(tex, ren, x, y);
 
 	SDL_DestroyTexture(tex);
 
 	return 0;
 }
 
-static void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
+static void _drawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
 			   SDL_Rect *clip)
 {
 	SDL_RenderCopy(ren, tex, clip, &dst);
 }
 
-static int vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
+static int _drawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
 			     signed short x, signed short y, SDL_Rect *clip)
 {
 	SDL_Rect dst;
@@ -424,12 +424,12 @@ static int vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
 			return -1;
 	}
 
-	vDrawRectImage(tex, ren, dst, clip);
+	_drawRectImage(tex, ren, dst, clip);
 
 	return 0;
 }
 
-static int vDrawText(char *string, signed short x, signed short y,
+static int _drawText(char *string, signed short x, signed short y,
 		     unsigned int colour, TTF_Font *font)
 {
 	SDL_Color color = { RED_PORTION(colour), GREEN_PORTION(colour),
@@ -448,7 +448,7 @@ static int vDrawText(char *string, signed short x, signed short y,
 	return 0;
 }
 
-static int vGetTextSize(char *string, int *width, int *height)
+static int _getTextSize(char *string, int *width, int *height)
 {
 	SDL_Color color = { 0 };
 	TTF_Font *font = tumFontGetCurFont();
@@ -477,7 +477,7 @@ err_surface:
 	return -1;
 }
 
-static int vDrawArrow(signed short x1, signed short y1, signed short x2,
+static int _drawArrow(signed short x1, signed short y1, signed short x2,
 		      signed short y2, signed short head_length,
 		      unsigned char thickness, unsigned int colour)
 {
@@ -528,63 +528,63 @@ static int vHandleDrawJob(draw_job_t *job)
 
 	switch (job->type) {
 	case DRAW_CLEAR:
-		ret = vClearDisplay(job->data->clear.colour);
+		ret = _clearDisplay(job->data->clear.colour);
 		break;
 	case DRAW_ARC:
-		ret = vDrawArc(job->data->arc.x, job->data->arc.y,
+		ret = _drawArc(job->data->arc.x, job->data->arc.y,
 			       job->data->arc.radius, job->data->arc.start,
 			       job->data->arc.end, job->data->arc.colour);
 		break;
 	case DRAW_ELLIPSE:
-		ret = vDrawEllipse(job->data->ellipse.x, job->data->ellipse.y,
+		ret = _drawEllipse(job->data->ellipse.x, job->data->ellipse.y,
 				   job->data->ellipse.rx, job->data->ellipse.ry,
 				   job->data->ellipse.colour);
 		break;
 	case DRAW_TEXT:
-		ret = vDrawText(job->data->text.str, job->data->text.x,
+		ret = _drawText(job->data->text.str, job->data->text.x,
 				job->data->text.y, job->data->text.colour,
 				job->data->text.font);
 		free(job->data->text.str);
 		break;
 	case DRAW_RECT:
-		ret = vDrawRectangle(job->data->rect.x, job->data->rect.y,
+		ret = _drawRectangle(job->data->rect.x, job->data->rect.y,
 				     job->data->rect.w, job->data->rect.h,
 				     job->data->rect.colour);
 		break;
 	case DRAW_FILLED_RECT:
-		ret = vDrawFilledRectangle(job->data->rect.x, job->data->rect.y,
+		ret = _drawFilledRectangle(job->data->rect.x, job->data->rect.y,
 					   job->data->rect.w, job->data->rect.h,
 					   job->data->rect.colour);
 		break;
 	case DRAW_CIRCLE:
-		ret = vDrawCircle(job->data->circle.x, job->data->circle.y,
+		ret = _drawCircle(job->data->circle.x, job->data->circle.y,
 				  job->data->circle.radius,
 				  job->data->circle.colour);
 		break;
 	case DRAW_LINE:
-		ret = vDrawLine(job->data->line.x1, job->data->line.y1,
+		ret = _drawLine(job->data->line.x1, job->data->line.y1,
 				job->data->line.x2, job->data->line.y2,
 				job->data->line.thickness,
 				job->data->line.colour);
 		break;
 	case DRAW_POLY:
-		ret = vDrawPoly(job->data->poly.points, job->data->poly.n,
+		ret = _drawPoly(job->data->poly.points, job->data->poly.n,
 				job->data->poly.colour);
 		break;
 	case DRAW_TRIANGLE:
-		ret = vDrawTriangle(job->data->triangle.points,
+		ret = _drawTriangle(job->data->triangle.points,
 				    job->data->triangle.colour);
 		break;
 	case DRAW_IMAGE:
 		job->data->image.tex =
 			loadImage(job->data->image.filename, renderer);
-		ret = vDrawImage(job->data->image.tex, renderer,
+		ret = _drawImage(job->data->image.tex, renderer,
 				 job->data->image.x, job->data->image.y);
 		break;
 	case DRAW_SCALED_IMAGE:
 		job->data->scaled_image.image.tex = loadImage(
 			job->data->scaled_image.image.filename, renderer);
-		ret = vDrawScaledImage(job->data->scaled_image.image.tex,
+		ret = _drawScaledImage(job->data->scaled_image.image.tex,
 				       renderer,
 				       job->data->scaled_image.image.x,
 				       job->data->scaled_image.image.y,
@@ -592,7 +592,7 @@ static int vHandleDrawJob(draw_job_t *job)
         free(job->data->scaled_image.image.filename);
 		break;
 	case DRAW_ARROW:
-		ret = vDrawArrow(job->data->arrow.x1, job->data->arrow.y1,
+		ret = _drawArrow(job->data->arrow.x1, job->data->arrow.y1,
 				 job->data->arrow.x2, job->data->arrow.y2,
 				 job->data->arrow.head_length,
 				 job->data->arrow.thickness,
@@ -639,7 +639,7 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 #define FRAMELIMIT 60.0
 #define FRAMELIMIT_PERIOD 1000 / FRAMELIMIT
 
-int vDrawUpdateScreen(void)
+int tumDrawUpdateScreen(void)
 {
 	static struct timespec last_time = { 0 }, cur_time = { 0 };
 
@@ -682,7 +682,7 @@ char *tumGetErrorMessage(void)
 	return error_message;
 }
 
-int vInitDrawing(char *path) // Should be called from the Thread running main()
+int tumDrawInit(char *path) // Should be called from the Thread running main()
 {
 	/* Relevant for Docker-based toolchain */
 #ifdef DOCKER
@@ -759,7 +759,7 @@ err_sdl:
 	return -1;
 }
 
-int vBindDrawing(void) // Should be called from the Drawing Thread
+int tumDrawBindThread(void) // Should be called from the Drawing Thread
 {
 	if (SDL_GL_MakeCurrent(window, context) < 0) {
 		PRINT_SDL_ERROR("Releasing current context failed");
@@ -797,7 +797,7 @@ err_make_current:
 	return -1;
 }
 
-void vExitDrawing(void)
+void tumDrawExit(void)
 {
 	if (window) {
 		SDL_DestroyWindow(window);
@@ -841,7 +841,7 @@ int tumGetTextSize(char *str, int *width, int *height)
 {
 	if (str == NULL)
 		return -1;
-	return vGetTextSize(str, width, height);
+	return _getTextSize(str, width, height);
 }
 
 int tumDrawEllipse(signed short x, signed short y, signed short rx,
@@ -1001,7 +1001,7 @@ int tumGetImageSize(char *filename, int *w, int *h)
 {
 	char full_filename[PATH_MAX + 1];
 	realpath(filename, full_filename);
-	return vGetImageSize(full_filename, w, h);
+	return _getImageSize(full_filename, w, h);
 }
 
 int tumDrawScaledImage(char *filename, signed short x, signed short y,

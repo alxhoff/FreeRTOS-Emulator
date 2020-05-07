@@ -27,6 +27,23 @@
 
 #include <netinet/in.h>
 
+/**
+ * @defgroup aio_comms Async IO API
+ *
+ * @brief Asynchronous Linux Based Communications API allows for the creation
+ * of asynchronous communications channels that allow for passive IO through
+ * the use of callbacks
+ *
+ * Focusing on sockets (UDP and TCP) and POSIX message queues, this API allows
+ * for the creation of the particular IO stream, registering a callback to the
+ * stream that is automatically called when a communication event is triggered
+ * on the stream. For example a UDP packet is send to the port that is bound
+ * to the socket associated to the IO stream, passing the received packet buffer
+ * to the user-defined callback.
+ *
+ * @{
+ */
+
 #define MQ_MAXMSG 256
 #define MQ_MSGSIZE 256
 
@@ -140,4 +157,5 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
                               aIO_callback_t callback, void *args);
 
+/** @} */
 #endif

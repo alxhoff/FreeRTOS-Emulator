@@ -35,7 +35,7 @@
  * @param file Filename to which the path string should be prepended
  * @return char * to the complete compiled path
  */
-char *prepend_path(char *path, char *file);
+char *tumUtilPrependPath(char *path, char *file);
 
 /**
  * @brief Gets the execution folder of the current program, assumes that program
@@ -44,7 +44,7 @@ char *prepend_path(char *path, char *file);
  * @param bin_path The program's binary's location, usually argv[0]
  * @return char * String of the folder's absolute location
  */
-char *getBinFolderPath(char *bin_path);
+char *tumUtilGetBinFolderPath(char *bin_path);
 
 
 #endif

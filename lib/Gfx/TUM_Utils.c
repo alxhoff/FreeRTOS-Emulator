@@ -28,7 +28,7 @@
 #include <libgen.h>
 #include <assert.h>
 
-char *prepend_path(char *path, char *file)
+char *tumUtilPrependPath(char *path, char *file)
 {
     char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
     if (!ret) {
@@ -42,7 +42,7 @@ char *prepend_path(char *path, char *file)
     return ret;
 }
 
-char *getBinFolderPath(char *bin_path)
+char *tumUtilGetBinFolderPath(char *bin_path)
 {
     char *dir_name = dirname(bin_path);
 

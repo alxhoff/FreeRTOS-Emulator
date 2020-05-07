@@ -34,11 +34,11 @@
  *
  * API to retrieve event's from the backend SDL library. Events are the movement
  * of the mouse and keypresses. Mouse coordinates are exposed through
- * @ref xGetMouseX and @ref xGetMouseY while keypress events are received by
+ * @ref tumEventGetMouseX and @ref tumEventGetMouseY while keypress events are received by
  * retriving the most recent copy of the button status lookup table exposed
- * through the FreeRTOS queue @ref inputQueue.
+ * through the FreeRTOS queue @ref buttonInputQueue.
  *
- * @ref inputQueue holds a single array of unsigned chars of the length
+ * @ref buttonInputQueue holds a single array of unsigned chars of the length
  * SDL_NUM_SCANCODES. The scancodes that are defind in the SDL header
  * SDL_scancode.h are used as the indicies when accessing the stored data in
  * the table.
@@ -51,55 +51,55 @@
  *
  * @return 0 on success
  */
-int vInitEvents(void);
+int tumEventInit(void);
 
 /**
  * @brief Deinitializes the TUM Event backend
  */
-void vExitEvents(void);
+void tumEventExit(void);
 
 /**
  * @brief Returns a copy of the mouse's most recent X coord (in pixels)
  *
  * @return signed short X axis pixel location of the mouse
  */
-signed short xGetMouseX(void);
+signed short tumEventGetMouseX(void);
 
 /**
  * @brief Returns a copy of the mouse's most recent Y coord (in pixels)
  *
  * @return signed short Y axis pixel location of the mouse
  */
-signed short xGetMouseY(void);
+signed short tumEventGetMouseY(void);
 
 /**
  * @brief Returns a copy of the mouse's left button status
  *
  * @return Either 1 for pressed or 0 for not pressed.
  */
-signed char xGetMouseLeft(void);
+signed char tumEventGetMouseLeft(void);
 
 /**
  * @brief Returns a copy of the mouse's right button status
  *
  * @return Either 1 for pressed or 0 for not pressed.
  */
-signed char xGetMouseRight(void);
+signed char tumEventGetMouseRight(void);
 
 /**
  * @brief Returns a copy of the mouse's middle button status
  *
  * @return Either 1 for pressed or 0 for not pressed.
  */
-signed char xGetMouseMiddle(void);
+signed char tumEventGetMouseMiddle(void);
 
 /**
  * @brief Polls all outstanding SDL Events.
  *        Should be called from Draw Loop
  */
-void fetchEvents(void);
+void tumEventFetchEvents(void);
 
-extern QueueHandle_t inputQueue;
+extern QueueHandle_t buttonInputQueue;
 /*!<
  * @brief FreeRTOS queue used to obtain a current copy of the keyboard lookup table
  *
