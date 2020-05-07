@@ -26,6 +26,7 @@
 
 #include "TUM_Event.h"
 #include "task.h"
+#include "semphr.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mouse.h"
@@ -42,7 +43,7 @@ typedef struct mouse {
 	signed short y;
 } mouse_t;
 
-QueueHandle_t inputQueue = NULL;
+QueueHandle_t buttonInputQueue = NULL;
 
 mouse_t mouse;
 
@@ -56,7 +57,7 @@ static int initMouse(void)
 	return 0;
 }
 
-void fetchEvents(void)
+void tumEventFetchEvents(void)
 {
 	SDL_Event event = { 0 };
 	static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
@@ -119,12 +120,12 @@ void fetchEvents(void)
 	}
 
 	if (send) {
-		xQueueOverwrite(inputQueue, &buttons);
+		xQueueOverwrite(buttonInputQueue, &buttons);
 		send = 0;
 	}
 }
 
-signed short xGetMouseX(void)
+signed short tumEventGetMouseX(void)
 {
 	signed short ret;
 
@@ -137,7 +138,7 @@ signed short xGetMouseX(void)
 	return 0;
 }
 
-signed short xGetMouseY(void)
+signed short tumEventGetMouseY(void)
 {
 	signed short ret;
 
@@ -151,7 +152,7 @@ signed short xGetMouseY(void)
 	return 0;
 }
 
-signed char xGetMouseLeft(void)
+signed char tumEventGetMouseLeft(void)
 {
     signed char ret;
 
@@ -162,7 +163,7 @@ signed char xGetMouseLeft(void)
     return ret;
 }
 
-signed char xGetMouseRight(void)
+signed char tumEventGetMouseRight(void)
 {
     signed char ret;
 
@@ -173,7 +174,7 @@ signed char xGetMouseRight(void)
     return ret;
 }
 
-signed char xGetMouseMiddle(void)
+signed char tumEventGetMouseMiddle(void)
 {
     signed char ret;
 
@@ -184,16 +185,16 @@ signed char xGetMouseMiddle(void)
     return ret;
 }
 
-int vInitEvents(void)
+int tumEventInit(void)
 {
 	if (initMouse()) {
 		PRINT_ERROR("Init mouse failed");
 		goto err_init_mouse;
 	}
 
-	inputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
+	buttonInputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
 
-	if (!inputQueue) {
+	if (!buttonInputQueue) {
 		PRINT_ERROR("Creating mouse queue failed");
 		goto err_queue;
 	}
@@ -211,8 +212,8 @@ err_init_mouse:
 	return -1;
 }
 
-void vExitEvents(void)
+void tumEventExit(void)
 {
-	vQueueDelete(inputQueue);
+	vQueueDelete(buttonInputQueue);
 	vSemaphoreDelete(mouse.lock);
 }

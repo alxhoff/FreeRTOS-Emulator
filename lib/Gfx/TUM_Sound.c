@@ -20,7 +20,7 @@ char *fullWaveFileNames[NUM_WAVEFORMS] = { 0 };
 
 Mix_Chunk *samples[NUM_WAVEFORMS] = { 0 };
 
-void vExitAudio(void)
+void tumSoundExit(void)
 {
 #ifndef DOCKER
     unsigned int i;
@@ -31,7 +31,7 @@ void vExitAudio(void)
 #endif /* DOCKER */
 }
 
-int vInitAudio(char *bin_dir_str)
+int tumSoundInit(char *bin_dir_str)
 {
 #ifndef DOCKER
     int ret;
@@ -68,7 +68,7 @@ int vInitAudio(char *bin_dir_str)
         }
     }
 
-    atexit(vExitAudio);
+    atexit(tumSoundExit);
 
     return 0;
 
@@ -91,7 +91,7 @@ err_file_names:
 #endif /* DOCKER */
 }
 
-void vPlaySample(unsigned char index)
+void tumSoundPlaySample(unsigned char index)
 {
 #ifndef DOCKER
     Mix_PlayChannel(-1, samples[index], 0);

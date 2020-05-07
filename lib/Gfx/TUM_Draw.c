@@ -62,9 +62,29 @@ typedef enum {
 	DRAW_POLY,
 	DRAW_TRIANGLE,
 	DRAW_IMAGE,
+	DRAW_LOADED_IMAGE,
 	DRAW_SCALED_IMAGE,
 	DRAW_ARROW,
 } draw_job_type_t;
+
+typedef struct loaded_image {
+	char *filename;
+	FILE *file;
+	SDL_Texture *tex;
+	SDL_RWops *ops;
+	SDL_Surface *surf;
+	int w;
+	int h;
+	float scale;
+	//TODO make this atomic
+	unsigned int ref_count;
+	unsigned char pending_free;
+
+	struct loaded_image *next;
+} loaded_image_t;
+
+pthread_mutex_t loaded_images_lock = PTHREAD_MUTEX_INITIALIZER;
+loaded_image_t loaded_images_list = { 0 };
 
 typedef struct clear_data {
 	unsigned int colour;
@@ -129,6 +149,12 @@ typedef struct image_data {
 	signed short y;
 } image_data_t;
 
+typedef struct loaded_image_data {
+	loaded_image_t *img;
+	signed short x;
+	signed short y;
+} loaded_image_data_t;
+
 typedef struct scaled_image_data {
 	image_data_t image;
 	float scale;
@@ -162,6 +188,7 @@ union data_u {
 	poly_data_t poly;
 	triangle_data_t triangle;
 	image_data_t image;
+	loaded_image_data_t loaded_image;
 	scaled_image_data_t scaled_image;
 	text_data_t text;
 	arrow_data_t arrow;
@@ -241,7 +268,7 @@ static draw_job_t *popDrawJob(void)
 	return ret;
 }
 
-static int vClearDisplay(unsigned int colour)
+static int _clearDisplay(unsigned int colour)
 {
 	SDL_SetRenderDrawColor(renderer, (colour >> 16) & 0xFF,
 			       (colour >> 8) & 0xFF, colour & 0xFF,
@@ -251,7 +278,7 @@ static int vClearDisplay(unsigned int colour)
 	return 0;
 }
 
-static int vDrawRectangle(signed short x, signed short y, signed short w,
+static int _drawRectangle(signed short x, signed short y, signed short w,
 			  signed short h, unsigned int colour)
 {
 	rectangleColor(renderer, x + w, y, x, y + h,
@@ -260,7 +287,7 @@ static int vDrawRectangle(signed short x, signed short y, signed short w,
 	return 0;
 }
 
-static int vDrawFilledRectangle(signed short x, signed short y, signed short w,
+static int _drawFilledRectangle(signed short x, signed short y, signed short w,
 				signed short h, unsigned int colour)
 {
 	boxColor(renderer, x + w, y, x, y + h,
@@ -269,7 +296,7 @@ static int vDrawFilledRectangle(signed short x, signed short y, signed short w,
 	return 0;
 }
 
-static int vDrawArc(signed short x, signed short y, signed short radius,
+static int _drawArc(signed short x, signed short y, signed short radius,
 		    signed short start, signed short end, unsigned int colour)
 {
 	arcColor(renderer, x, y, radius, start, end,
@@ -278,7 +305,7 @@ static int vDrawArc(signed short x, signed short y, signed short radius,
 	return 0;
 }
 
-static int vDrawEllipse(signed short x, signed short y, signed short rx,
+static int _drawEllipse(signed short x, signed short y, signed short rx,
 			signed short ry, unsigned int colour)
 {
 	ellipseColor(renderer, x, y, rx, ry,
@@ -287,7 +314,7 @@ static int vDrawEllipse(signed short x, signed short y, signed short rx,
 	return 0;
 }
 
-static int vDrawCircle(signed short x, signed short y, signed short radius,
+static int _drawCircle(signed short x, signed short y, signed short radius,
 		       unsigned int colour)
 {
 	filledCircleColor(renderer, x, y, radius,
@@ -296,7 +323,7 @@ static int vDrawCircle(signed short x, signed short y, signed short radius,
 	return 0;
 }
 
-static int vDrawLine(signed short x1, signed short y1, signed short x2,
+static int _drawLine(signed short x1, signed short y1, signed short x2,
 		     signed short y2, unsigned char thickness,
 		     unsigned int colour)
 {
@@ -306,7 +333,7 @@ static int vDrawLine(signed short x1, signed short y1, signed short x2,
 	return 0;
 }
 
-static int vDrawPoly(coord_t *points, unsigned int n, signed short colour)
+static int _drawPoly(coord_t *points, unsigned int n, signed short colour)
 {
 	signed short *x_coords = calloc(1, sizeof(signed short) * n);
 	signed short *y_coords = calloc(1, sizeof(signed short) * n);
@@ -326,7 +353,7 @@ static int vDrawPoly(coord_t *points, unsigned int n, signed short colour)
 	return 0;
 }
 
-static int vDrawTriangle(coord_t *points, unsigned int colour)
+static int _drawTriangle(coord_t *points, unsigned int colour)
 {
 	filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x,
 			  points[1].y, points[2].x, points[2].y,
@@ -344,19 +371,18 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 	return tex;
 }
 
-static void vRenderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
-			       signed short x, signed short y, signed short w,
-			       signed short h)
+static int _renderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
+			      signed short x, signed short y, int w, int h)
 {
 	SDL_Rect dst;
 	dst.w = w;
 	dst.h = h;
 	dst.x = x;
 	dst.y = y;
-	SDL_RenderCopy(ren, tex, NULL, &dst);
+	return SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
-static int vGetImageSize(char *filename, int *w, int *h)
+static int _getImageSize(char *filename, int *w, int *h)
 {
 	SDL_Texture *tex = loadImage(filename, renderer);
 	if (tex == NULL) {
@@ -368,7 +394,58 @@ static int vGetImageSize(char *filename, int *w, int *h)
 	return 0;
 }
 
-static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
+static int freeLoadedImage(loaded_image_t **img)
+{
+    int ret = -1;
+
+	pthread_mutex_lock(&loaded_images_lock);
+	loaded_image_t *iterator = &loaded_images_list;
+	loaded_image_t *delete;
+
+	for (; iterator->next; iterator = iterator->next)
+		if (iterator->next == *img)
+			break;
+
+	if (iterator->next == *img) {
+		delete = iterator->next;
+
+		if (!iterator->next->next)
+			iterator->next = NULL;
+		else
+			iterator->next = delete->next;
+
+		SDL_FreeSurface(delete->surf);
+		SDL_RWclose(delete->ops);
+		SDL_DestroyTexture(delete->tex);
+		free(delete->filename);
+		free(delete);
+		*img = (loaded_image_t *)NULL;
+
+        ret = 0;
+	}
+	pthread_mutex_unlock(&loaded_images_lock);
+
+    return ret;
+}
+
+static void vPutLoadedImage(image_handle_t img)
+{
+	loaded_image_t *loaded_img = (loaded_image_t *)img;
+
+	loaded_img->ref_count--;
+
+	if (loaded_img->pending_free && !loaded_img->ref_count)
+		freeLoadedImage((loaded_image_t **)&img);
+}
+
+int xDrawLoadedImage(loaded_image_t *img, SDL_Renderer *ren, signed short x,
+		     signed short y)
+{
+	return _renderScaledImage(img->tex, ren, x, y, img->w * img->scale,
+				  img->h * img->scale);
+}
+
+static int _drawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 			    signed short y, float scale)
 {
 	int w, h;
@@ -376,60 +453,21 @@ static int vDrawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 	if (!w || !h)
 		return -1;
 
-	vRenderScaledImage(tex, ren, x, y, w * scale, h * scale);
-	SDL_DestroyTexture(tex);
-
-	return 0;
-}
-
-static int vDrawImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
-		      signed short y)
-{
-	return vDrawScaledImage(tex, ren, x, y, 1);
-}
-
-static int vDrawLoadAndDrawImage(char *filename, SDL_Renderer *ren,
-				 signed short x, signed short y)
-{
-	SDL_Texture *tex = loadImage(filename, ren);
-	if (!tex)
+	if (_renderScaledImage(tex, ren, x, y, w * scale, h * scale))
 		return -1;
 
-	vDrawImage(tex, ren, x, y);
-
 	SDL_DestroyTexture(tex);
 
 	return 0;
 }
 
-static void vDrawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
-			   SDL_Rect *clip)
+static int _drawImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
+		      signed short y)
 {
-	SDL_RenderCopy(ren, tex, clip, &dst);
+	return _drawScaledImage(tex, ren, x, y, 1);
 }
 
-static int vDrawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
-			     signed short x, signed short y, SDL_Rect *clip)
-{
-	SDL_Rect dst;
-	dst.x = x;
-	dst.y = y;
-
-	if (clip == NULL) {
-		dst.w = clip->w;
-		dst.h = clip->h;
-	} else {
-		SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
-		if (!dst.x || !dst.y)
-			return -1;
-	}
-
-	vDrawRectImage(tex, ren, dst, clip);
-
-	return 0;
-}
-
-static int vDrawText(char *string, signed short x, signed short y,
+static int _drawText(char *string, signed short x, signed short y,
 		     unsigned int colour, TTF_Font *font)
 {
 	SDL_Color color = { RED_PORTION(colour), GREEN_PORTION(colour),
@@ -448,7 +486,7 @@ static int vDrawText(char *string, signed short x, signed short y,
 	return 0;
 }
 
-static int vGetTextSize(char *string, int *width, int *height)
+static int _getTextSize(char *string, int *width, int *height)
 {
 	SDL_Color color = { 0 };
 	TTF_Font *font = tumFontGetCurFont();
@@ -477,7 +515,7 @@ err_surface:
 	return -1;
 }
 
-static int vDrawArrow(signed short x1, signed short y1, signed short x2,
+static int _drawArrow(signed short x1, signed short y1, signed short x2,
 		      signed short y2, signed short head_length,
 		      unsigned char thickness, unsigned int colour)
 {
@@ -528,71 +566,77 @@ static int vHandleDrawJob(draw_job_t *job)
 
 	switch (job->type) {
 	case DRAW_CLEAR:
-		ret = vClearDisplay(job->data->clear.colour);
+		ret = _clearDisplay(job->data->clear.colour);
 		break;
 	case DRAW_ARC:
-		ret = vDrawArc(job->data->arc.x, job->data->arc.y,
+		ret = _drawArc(job->data->arc.x, job->data->arc.y,
 			       job->data->arc.radius, job->data->arc.start,
 			       job->data->arc.end, job->data->arc.colour);
 		break;
 	case DRAW_ELLIPSE:
-		ret = vDrawEllipse(job->data->ellipse.x, job->data->ellipse.y,
+		ret = _drawEllipse(job->data->ellipse.x, job->data->ellipse.y,
 				   job->data->ellipse.rx, job->data->ellipse.ry,
 				   job->data->ellipse.colour);
 		break;
 	case DRAW_TEXT:
-		ret = vDrawText(job->data->text.str, job->data->text.x,
+		ret = _drawText(job->data->text.str, job->data->text.x,
 				job->data->text.y, job->data->text.colour,
 				job->data->text.font);
 		free(job->data->text.str);
 		break;
 	case DRAW_RECT:
-		ret = vDrawRectangle(job->data->rect.x, job->data->rect.y,
+		ret = _drawRectangle(job->data->rect.x, job->data->rect.y,
 				     job->data->rect.w, job->data->rect.h,
 				     job->data->rect.colour);
 		break;
 	case DRAW_FILLED_RECT:
-		ret = vDrawFilledRectangle(job->data->rect.x, job->data->rect.y,
+		ret = _drawFilledRectangle(job->data->rect.x, job->data->rect.y,
 					   job->data->rect.w, job->data->rect.h,
 					   job->data->rect.colour);
 		break;
 	case DRAW_CIRCLE:
-		ret = vDrawCircle(job->data->circle.x, job->data->circle.y,
+		ret = _drawCircle(job->data->circle.x, job->data->circle.y,
 				  job->data->circle.radius,
 				  job->data->circle.colour);
 		break;
 	case DRAW_LINE:
-		ret = vDrawLine(job->data->line.x1, job->data->line.y1,
+		ret = _drawLine(job->data->line.x1, job->data->line.y1,
 				job->data->line.x2, job->data->line.y2,
 				job->data->line.thickness,
 				job->data->line.colour);
 		break;
 	case DRAW_POLY:
-		ret = vDrawPoly(job->data->poly.points, job->data->poly.n,
+		ret = _drawPoly(job->data->poly.points, job->data->poly.n,
 				job->data->poly.colour);
 		break;
 	case DRAW_TRIANGLE:
-		ret = vDrawTriangle(job->data->triangle.points,
+		ret = _drawTriangle(job->data->triangle.points,
 				    job->data->triangle.colour);
 		break;
 	case DRAW_IMAGE:
 		job->data->image.tex =
 			loadImage(job->data->image.filename, renderer);
-		ret = vDrawImage(job->data->image.tex, renderer,
+		ret = _drawImage(job->data->image.tex, renderer,
 				 job->data->image.x, job->data->image.y);
+		break;
+	case DRAW_LOADED_IMAGE:
+		ret = xDrawLoadedImage(job->data->loaded_image.img, renderer,
+				       job->data->loaded_image.x,
+				       job->data->loaded_image.y);
+		vPutLoadedImage(job->data->loaded_image.img);
 		break;
 	case DRAW_SCALED_IMAGE:
 		job->data->scaled_image.image.tex = loadImage(
 			job->data->scaled_image.image.filename, renderer);
-		ret = vDrawScaledImage(job->data->scaled_image.image.tex,
+		ret = _drawScaledImage(job->data->scaled_image.image.tex,
 				       renderer,
 				       job->data->scaled_image.image.x,
 				       job->data->scaled_image.image.y,
 				       job->data->scaled_image.scale);
-        free(job->data->scaled_image.image.filename);
+		free(job->data->scaled_image.image.filename);
 		break;
 	case DRAW_ARROW:
-		ret = vDrawArrow(job->data->arrow.x1, job->data->arrow.y1,
+		ret = _drawArrow(job->data->arrow.x1, job->data->arrow.y1,
 				 job->data->arrow.x2, job->data->arrow.y2,
 				 job->data->arrow.head_length,
 				 job->data->arrow.thickness,
@@ -639,7 +683,7 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 #define FRAMELIMIT 60.0
 #define FRAMELIMIT_PERIOD 1000 / FRAMELIMIT
 
-int vDrawUpdateScreen(void)
+int tumDrawUpdateScreen(void)
 {
 	static struct timespec last_time = { 0 }, cur_time = { 0 };
 
@@ -682,7 +726,7 @@ char *tumGetErrorMessage(void)
 	return error_message;
 }
 
-int vInitDrawing(char *path) // Should be called from the Thread running main()
+int tumDrawInit(char *path) // Should be called from the Thread running main()
 {
 	/* Relevant for Docker-based toolchain */
 #ifdef DOCKER
@@ -699,6 +743,7 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 #error "Unexpected value of HOST_OS!"
 #endif /* HOST_OS */
 #endif /* DOCKER */
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		PRINT_SDL_ERROR("SDL_Init failed");
@@ -741,6 +786,8 @@ int vInitDrawing(char *path) // Should be called from the Thread running main()
 		goto err_make_current;
 	}
 
+	tumDrawBindThread();
+
 	atexit(SDL_Quit);
 
 	return 0;
@@ -759,17 +806,17 @@ err_sdl:
 	return -1;
 }
 
-int vBindDrawing(void) // Should be called from the Drawing Thread
+int tumDrawBindThread(void) // Should be called from the Drawing Thread
 {
 	if (SDL_GL_MakeCurrent(window, context) < 0) {
 		PRINT_SDL_ERROR("Releasing current context failed");
 		goto err_make_current;
 	}
 
-    if(renderer){
-        SDL_DestroyRenderer(renderer);
-        renderer = NULL;
-    }
+	if (renderer) {
+		SDL_DestroyRenderer(renderer);
+		renderer = NULL;
+	}
 
 	renderer = SDL_CreateRenderer(window, -1,
 				      SDL_RENDERER_ACCELERATED |
@@ -786,6 +833,18 @@ int vBindDrawing(void) // Should be called from the Drawing Thread
 
 	SDL_RenderClear(renderer);
 
+	pthread_mutex_lock(&loaded_images_lock);
+	loaded_image_t *iterator = &loaded_images_list;
+
+	for (; iterator; iterator = iterator->next)
+		if (iterator->tex) {
+			SDL_DestroyTexture(iterator->tex);
+			iterator->tex = SDL_CreateTextureFromSurface(
+				renderer, iterator->surf);
+		}
+
+	pthread_mutex_unlock(&loaded_images_lock);
+
 	return 0;
 
 err_renderer:
@@ -797,7 +856,7 @@ err_make_current:
 	return -1;
 }
 
-void vExitDrawing(void)
+void tumDrawExit(void)
 {
 	if (window) {
 		SDL_DestroyWindow(window);
@@ -841,7 +900,7 @@ int tumGetTextSize(char *str, int *width, int *height)
 {
 	if (str == NULL)
 		return -1;
-	return vGetTextSize(str, width, height);
+	return _getTextSize(str, width, height);
 }
 
 int tumDrawEllipse(signed short x, signed short y, signed short rx,
@@ -978,7 +1037,143 @@ int tumDrawTriangle(coord_t *points, unsigned int colour)
 	return 0;
 }
 
-int tumDrawImage(char *filename, signed short x, signed short y)
+image_handle_t tumDrawLoadScaledImage(char *filename, float scale)
+{
+	loaded_image_t *ret = calloc(1, sizeof(loaded_image_t));
+	if (ret == NULL)
+		goto err_alloc;
+
+	ret->filename = strdup(filename);
+	if (ret->filename == NULL)
+		goto err_filename;
+
+	ret->file = fopen(filename, "r");
+	if (ret->file == NULL)
+		goto err_file_open;
+
+	ret->ops = SDL_RWFromFP(ret->file, SDL_TRUE);
+	if (ret->ops == NULL)
+		goto err_ops;
+
+	ret->surf = IMG_Load_RW(ret->ops, 0);
+	if (ret->surf == NULL)
+		goto err_surf;
+
+	ret->tex = SDL_CreateTextureFromSurface(renderer, ret->surf);
+	if (ret->tex == NULL)
+		goto err_tex;
+
+	SDL_QueryTexture(ret->tex, NULL, NULL, &ret->w, &ret->h);
+
+	ret->scale = scale;
+
+	pthread_mutex_lock(&loaded_images_lock);
+
+	loaded_image_t *iterator = &loaded_images_list;
+	for (; iterator->next; iterator = iterator->next)
+		;
+	iterator->next = ret;
+
+	pthread_mutex_unlock(&loaded_images_lock);
+
+	return ret;
+
+err_tex:
+	SDL_FreeSurface(ret->surf);
+err_surf:
+	SDL_RWclose(ret->ops);
+err_ops:
+	fclose(ret->file);
+err_file_open:
+	free(ret->filename);
+err_filename:
+	free(ret);
+err_alloc:
+	return NULL;
+}
+
+image_handle_t tumDrawLoadImage(char *filename)
+{
+	return tumDrawLoadScaledImage(filename, 1);
+}
+
+int tumDrawFreeLoadedImage(image_handle_t *img)
+{
+    int ret = 0;
+	loaded_image_t **loaded_img = (loaded_image_t **)img;
+
+	if (!(*loaded_img)->ref_count)
+		ret = freeLoadedImage(loaded_img);
+	else
+		(*loaded_img)->pending_free = 1;
+
+    return ret;
+}
+
+int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y)
+{
+	if (img == NULL)
+		return -1;
+
+	INIT_JOB(job, DRAW_LOADED_IMAGE);
+
+	((loaded_image_t *)img)->ref_count++;
+	job->data->loaded_image.img = img;
+	job->data->loaded_image.x = x;
+	job->data->loaded_image.y = y;
+
+	return 0;
+}
+
+int tumDrawSetLoadedImageScale(image_handle_t img, float scale)
+{
+	if (img == NULL)
+		return -1;
+
+	((loaded_image_t *)img)->scale = scale;
+
+	return 0;
+}
+
+float tumDrawGetLoadedImageScale(image_handle_t img)
+{
+	if (img == NULL)
+		return -1;
+
+	return ((loaded_image_t *)img)->scale;
+}
+
+int tumDrawGetLoadedImageWidth(image_handle_t img)
+{
+	if (img == NULL)
+		return -1;
+
+	return ((loaded_image_t *)img)->w * ((loaded_image_t *)img)->scale;
+}
+
+int tumDrawGetLoadedImageHeight(image_handle_t img)
+{
+	if (img == NULL)
+		return -1;
+
+	return ((loaded_image_t *)img)->h * ((loaded_image_t *)img)->scale;
+}
+
+int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int* h)
+{
+    if(img == NULL)
+        return -1;
+
+    *w = tumDrawGetLoadedImageWidth(img);
+    *h = tumDrawGetLoadedImageHeight(img);
+
+    if(*w == -1 || *h == -1)
+        return -1;
+
+    return 0;
+}
+
+int __attribute_deprecated__ tumDrawImage(char *filename, signed short x, signed short y)
 {
 	INIT_JOB(job, DRAW_IMAGE);
 
@@ -988,8 +1183,7 @@ int tumDrawImage(char *filename, signed short x, signed short y)
 		return -1;
 	}
 
-	job->data->image.filename =
-		calloc(strlen(abs_path) + 1, sizeof(char));
+	job->data->image.filename = calloc(strlen(abs_path) + 1, sizeof(char));
 	strcpy(job->data->image.filename, abs_path);
 	job->data->image.x = x;
 	job->data->image.y = y;
@@ -997,17 +1191,16 @@ int tumDrawImage(char *filename, signed short x, signed short y)
 	return 0;
 }
 
-int tumGetImageSize(char *filename, int *w, int *h)
+int __attribute_deprecated__ tumGetImageSize(char *filename, int *w, int *h)
 {
 	char full_filename[PATH_MAX + 1];
 	realpath(filename, full_filename);
-	return vGetImageSize(full_filename, w, h);
+	return _getImageSize(full_filename, w, h);
 }
 
-int tumDrawScaledImage(char *filename, signed short x, signed short y,
+int __attribute_deprecated__ tumDrawScaledImage(char *filename, signed short x, signed short y,
 		       float scale)
 {
-	// TODO
 	INIT_JOB(job, DRAW_SCALED_IMAGE);
 
 	char abs_path[PATH_MAX + 1];
