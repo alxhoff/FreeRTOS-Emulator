@@ -62,9 +62,29 @@ typedef enum {
 	DRAW_POLY,
 	DRAW_TRIANGLE,
 	DRAW_IMAGE,
+	DRAW_LOADED_IMAGE,
 	DRAW_SCALED_IMAGE,
 	DRAW_ARROW,
 } draw_job_type_t;
+
+typedef struct loaded_image {
+	char *filename;
+	FILE *file;
+	SDL_Texture *tex;
+	SDL_RWops *ops;
+	SDL_Surface *surf;
+	int w;
+	int h;
+	float scale;
+	//TODO make this atomic
+	unsigned int ref_count;
+	unsigned char pending_free;
+
+	struct loaded_image *next;
+} loaded_image_t;
+
+pthread_mutex_t loaded_images_lock = PTHREAD_MUTEX_INITIALIZER;
+loaded_image_t loaded_images_list = { 0 };
 
 typedef struct clear_data {
 	unsigned int colour;
@@ -129,6 +149,12 @@ typedef struct image_data {
 	signed short y;
 } image_data_t;
 
+typedef struct loaded_image_data {
+	loaded_image_t *img;
+	signed short x;
+	signed short y;
+} loaded_image_data_t;
+
 typedef struct scaled_image_data {
 	image_data_t image;
 	float scale;
@@ -162,6 +188,7 @@ union data_u {
 	poly_data_t poly;
 	triangle_data_t triangle;
 	image_data_t image;
+	loaded_image_data_t loaded_image;
 	scaled_image_data_t scaled_image;
 	text_data_t text;
 	arrow_data_t arrow;
@@ -344,16 +371,15 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 	return tex;
 }
 
-static void _renderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
-			       signed short x, signed short y, signed short w,
-			       signed short h)
+static int _renderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
+			      signed short x, signed short y, int w, int h)
 {
 	SDL_Rect dst;
 	dst.w = w;
 	dst.h = h;
 	dst.x = x;
 	dst.y = y;
-	SDL_RenderCopy(ren, tex, NULL, &dst);
+	return SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
 static int _getImageSize(char *filename, int *w, int *h)
@@ -368,6 +394,57 @@ static int _getImageSize(char *filename, int *w, int *h)
 	return 0;
 }
 
+static int freeLoadedImage(loaded_image_t **img)
+{
+    int ret = -1;
+
+	pthread_mutex_lock(&loaded_images_lock);
+	loaded_image_t *iterator = &loaded_images_list;
+	loaded_image_t *delete;
+
+	for (; iterator->next; iterator = iterator->next)
+		if (iterator->next == *img)
+			break;
+
+	if (iterator->next == *img) {
+		delete = iterator->next;
+
+		if (!iterator->next->next)
+			iterator->next = NULL;
+		else
+			iterator->next = delete->next;
+
+		SDL_FreeSurface(delete->surf);
+		SDL_RWclose(delete->ops);
+		SDL_DestroyTexture(delete->tex);
+		free(delete->filename);
+		free(delete);
+		*img = (loaded_image_t *)NULL;
+
+        ret = 0;
+	}
+	pthread_mutex_unlock(&loaded_images_lock);
+
+    return ret;
+}
+
+static void vPutLoadedImage(image_handle_t img)
+{
+	loaded_image_t *loaded_img = (loaded_image_t *)img;
+
+	loaded_img->ref_count--;
+
+	if (loaded_img->pending_free && !loaded_img->ref_count)
+		freeLoadedImage((loaded_image_t **)&img);
+}
+
+int xDrawLoadedImage(loaded_image_t *img, SDL_Renderer *ren, signed short x,
+		     signed short y)
+{
+	return _renderScaledImage(img->tex, ren, x, y, img->w * img->scale,
+				  img->h * img->scale);
+}
+
 static int _drawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 			    signed short y, float scale)
 {
@@ -376,7 +453,9 @@ static int _drawScaledImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 	if (!w || !h)
 		return -1;
 
-	_renderScaledImage(tex, ren, x, y, w * scale, h * scale);
+	if (_renderScaledImage(tex, ren, x, y, w * scale, h * scale))
+		return -1;
+
 	SDL_DestroyTexture(tex);
 
 	return 0;
@@ -386,47 +465,6 @@ static int _drawImage(SDL_Texture *tex, SDL_Renderer *ren, signed short x,
 		      signed short y)
 {
 	return _drawScaledImage(tex, ren, x, y, 1);
-}
-
-static int _drawLoadAndDrawImage(char *filename, SDL_Renderer *ren,
-				 signed short x, signed short y)
-{
-	SDL_Texture *tex = loadImage(filename, ren);
-	if (!tex)
-		return -1;
-
-	_drawImage(tex, ren, x, y);
-
-	SDL_DestroyTexture(tex);
-
-	return 0;
-}
-
-static void _drawRectImage(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst,
-			   SDL_Rect *clip)
-{
-	SDL_RenderCopy(ren, tex, clip, &dst);
-}
-
-static int _drawClippedImage(SDL_Texture *tex, SDL_Renderer *ren,
-			     signed short x, signed short y, SDL_Rect *clip)
-{
-	SDL_Rect dst;
-	dst.x = x;
-	dst.y = y;
-
-	if (clip == NULL) {
-		dst.w = clip->w;
-		dst.h = clip->h;
-	} else {
-		SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
-		if (!dst.x || !dst.y)
-			return -1;
-	}
-
-	_drawRectImage(tex, ren, dst, clip);
-
-	return 0;
 }
 
 static int _drawText(char *string, signed short x, signed short y,
@@ -581,6 +619,12 @@ static int vHandleDrawJob(draw_job_t *job)
 		ret = _drawImage(job->data->image.tex, renderer,
 				 job->data->image.x, job->data->image.y);
 		break;
+	case DRAW_LOADED_IMAGE:
+		ret = xDrawLoadedImage(job->data->loaded_image.img, renderer,
+				       job->data->loaded_image.x,
+				       job->data->loaded_image.y);
+		vPutLoadedImage(job->data->loaded_image.img);
+		break;
 	case DRAW_SCALED_IMAGE:
 		job->data->scaled_image.image.tex = loadImage(
 			job->data->scaled_image.image.filename, renderer);
@@ -589,7 +633,7 @@ static int vHandleDrawJob(draw_job_t *job)
 				       job->data->scaled_image.image.x,
 				       job->data->scaled_image.image.y,
 				       job->data->scaled_image.scale);
-        free(job->data->scaled_image.image.filename);
+		free(job->data->scaled_image.image.filename);
 		break;
 	case DRAW_ARROW:
 		ret = _drawArrow(job->data->arrow.x1, job->data->arrow.y1,
@@ -699,6 +743,7 @@ int tumDrawInit(char *path) // Should be called from the Thread running main()
 #error "Unexpected value of HOST_OS!"
 #endif /* HOST_OS */
 #endif /* DOCKER */
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		PRINT_SDL_ERROR("SDL_Init failed");
@@ -741,6 +786,8 @@ int tumDrawInit(char *path) // Should be called from the Thread running main()
 		goto err_make_current;
 	}
 
+	tumDrawBindThread();
+
 	atexit(SDL_Quit);
 
 	return 0;
@@ -766,10 +813,10 @@ int tumDrawBindThread(void) // Should be called from the Drawing Thread
 		goto err_make_current;
 	}
 
-    if(renderer){
-        SDL_DestroyRenderer(renderer);
-        renderer = NULL;
-    }
+	if (renderer) {
+		SDL_DestroyRenderer(renderer);
+		renderer = NULL;
+	}
 
 	renderer = SDL_CreateRenderer(window, -1,
 				      SDL_RENDERER_ACCELERATED |
@@ -785,6 +832,18 @@ int tumDrawBindThread(void) // Should be called from the Drawing Thread
 			       ALPHA_SOLID);
 
 	SDL_RenderClear(renderer);
+
+	pthread_mutex_lock(&loaded_images_lock);
+	loaded_image_t *iterator = &loaded_images_list;
+
+	for (; iterator; iterator = iterator->next)
+		if (iterator->tex) {
+			SDL_DestroyTexture(iterator->tex);
+			iterator->tex = SDL_CreateTextureFromSurface(
+				renderer, iterator->surf);
+		}
+
+	pthread_mutex_unlock(&loaded_images_lock);
 
 	return 0;
 
@@ -978,7 +1037,143 @@ int tumDrawTriangle(coord_t *points, unsigned int colour)
 	return 0;
 }
 
-int tumDrawImage(char *filename, signed short x, signed short y)
+image_handle_t tumDrawLoadScaledImage(char *filename, float scale)
+{
+	loaded_image_t *ret = calloc(1, sizeof(loaded_image_t));
+	if (ret == NULL)
+		goto err_alloc;
+
+	ret->filename = strdup(filename);
+	if (ret->filename == NULL)
+		goto err_filename;
+
+	ret->file = fopen(filename, "r");
+	if (ret->file == NULL)
+		goto err_file_open;
+
+	ret->ops = SDL_RWFromFP(ret->file, SDL_TRUE);
+	if (ret->ops == NULL)
+		goto err_ops;
+
+	ret->surf = IMG_Load_RW(ret->ops, 0);
+	if (ret->surf == NULL)
+		goto err_surf;
+
+	ret->tex = SDL_CreateTextureFromSurface(renderer, ret->surf);
+	if (ret->tex == NULL)
+		goto err_tex;
+
+	SDL_QueryTexture(ret->tex, NULL, NULL, &ret->w, &ret->h);
+
+	ret->scale = scale;
+
+	pthread_mutex_lock(&loaded_images_lock);
+
+	loaded_image_t *iterator = &loaded_images_list;
+	for (; iterator->next; iterator = iterator->next)
+		;
+	iterator->next = ret;
+
+	pthread_mutex_unlock(&loaded_images_lock);
+
+	return ret;
+
+err_tex:
+	SDL_FreeSurface(ret->surf);
+err_surf:
+	SDL_RWclose(ret->ops);
+err_ops:
+	fclose(ret->file);
+err_file_open:
+	free(ret->filename);
+err_filename:
+	free(ret);
+err_alloc:
+	return NULL;
+}
+
+image_handle_t tumDrawLoadImage(char *filename)
+{
+	return tumDrawLoadScaledImage(filename, 1);
+}
+
+int tumDrawFreeLoadedImage(image_handle_t *img)
+{
+    int ret = 0;
+	loaded_image_t **loaded_img = (loaded_image_t **)img;
+
+	if (!(*loaded_img)->ref_count)
+		ret = freeLoadedImage(loaded_img);
+	else
+		(*loaded_img)->pending_free = 1;
+
+    return ret;
+}
+
+int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y)
+{
+	if (img == NULL)
+		return -1;
+
+	INIT_JOB(job, DRAW_LOADED_IMAGE);
+
+	((loaded_image_t *)img)->ref_count++;
+	job->data->loaded_image.img = img;
+	job->data->loaded_image.x = x;
+	job->data->loaded_image.y = y;
+
+	return 0;
+}
+
+int tumDrawSetLoadedImageScale(image_handle_t img, float scale)
+{
+	if (img == NULL)
+		return -1;
+
+	((loaded_image_t *)img)->scale = scale;
+
+	return 0;
+}
+
+float tumDrawGetLoadedImageScale(image_handle_t img)
+{
+	if (img == NULL)
+		return -1;
+
+	return ((loaded_image_t *)img)->scale;
+}
+
+int tumDrawGetLoadedImageWidth(image_handle_t img)
+{
+	if (img == NULL)
+		return -1;
+
+	return ((loaded_image_t *)img)->w * ((loaded_image_t *)img)->scale;
+}
+
+int tumDrawGetLoadedImageHeight(image_handle_t img)
+{
+	if (img == NULL)
+		return -1;
+
+	return ((loaded_image_t *)img)->h * ((loaded_image_t *)img)->scale;
+}
+
+int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int* h)
+{
+    if(img == NULL)
+        return -1;
+
+    *w = tumDrawGetLoadedImageWidth(img);
+    *h = tumDrawGetLoadedImageHeight(img);
+
+    if(*w == -1 || *h == -1)
+        return -1;
+
+    return 0;
+}
+
+int __attribute_deprecated__ tumDrawImage(char *filename, signed short x, signed short y)
 {
 	INIT_JOB(job, DRAW_IMAGE);
 
@@ -988,8 +1183,7 @@ int tumDrawImage(char *filename, signed short x, signed short y)
 		return -1;
 	}
 
-	job->data->image.filename =
-		calloc(strlen(abs_path) + 1, sizeof(char));
+	job->data->image.filename = calloc(strlen(abs_path) + 1, sizeof(char));
 	strcpy(job->data->image.filename, abs_path);
 	job->data->image.x = x;
 	job->data->image.y = y;
@@ -997,17 +1191,16 @@ int tumDrawImage(char *filename, signed short x, signed short y)
 	return 0;
 }
 
-int tumGetImageSize(char *filename, int *w, int *h)
+int __attribute_deprecated__ tumGetImageSize(char *filename, int *w, int *h)
 {
 	char full_filename[PATH_MAX + 1];
 	realpath(filename, full_filename);
 	return _getImageSize(full_filename, w, h);
 }
 
-int tumDrawScaledImage(char *filename, signed short x, signed short y,
+int __attribute_deprecated__ tumDrawScaledImage(char *filename, signed short x, signed short y,
 		       float scale)
 {
-	// TODO
 	INIT_JOB(job, DRAW_SCALED_IMAGE);
 
 	char abs_path[PATH_MAX + 1];
