@@ -673,7 +673,7 @@ void vPongControlTask(void *pvParameters)
                                         my_ball->radius,
                                         my_ball->colour),
                           __FUNCTION__);
-		vDrawFPS();
+                vDrawFPS();
 
                 xSemaphoreGive(ScreenLock);
 
