@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fetchevents',['fetchEvents',['../group__tum__event.html#gab2044a019bdb4c1ceae68a634a461694',1,'fetchEvents(void):&#160;TUM_Event.c'],['../group__tum__event.html#gab2044a019bdb4c1ceae68a634a461694',1,'fetchEvents(void):&#160;TUM_Event.c']]]
+  ['getlastconnection',['getLastConnection',['../AsyncIO_8c.html#a5f5884a494342c3a4a40748accbd316f',1,'AsyncIO.c']]]
 ];

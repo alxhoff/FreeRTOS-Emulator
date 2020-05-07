@@ -2,7 +2,6 @@ var searchData=
 [
   ['sample_5ffolder',['SAMPLE_FOLDER',['../TUM__Sound_8c.html#a766c57f1da55327eaca313c2903706f3',1,'TUM_Sound.c']]],
   ['samples',['samples',['../TUM__Sound_8c.html#a3e1ac91b6b19fefc2316b2693ba22c0f',1,'TUM_Sound.c']]],
-  ['samples_5fenum',['samples_enum',['../group__tum__sound.html#ga5ada74e28c67a1fa835b867497df5941',1,'TUM_Sound.h']]],
   ['scale',['scale',['../structscaled__image__data.html#a786dd82a89d51117e89f8da67de3a0e3',1,'scaled_image_data']]],
   ['scaled_5fimage',['scaled_image',['../uniondata__u.html#ab5403c5b5a80c405effbdd7b8c319f79',1,'data_u']]],
   ['scaled_5fimage_5fdata',['scaled_image_data',['../structscaled__image__data.html',1,'']]],

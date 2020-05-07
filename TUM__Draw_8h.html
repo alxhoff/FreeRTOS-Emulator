@@ -99,9 +99,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>A SDL2 based library to implement work queue based drawing of graphical elements. Allows for drawing using SDL2 from multiple threads.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;FreeRTOS.h&quot;</code><br />
-<code>#include &quot;semphr.h&quot;</code><br />
-</div>
+
 <p><a href="TUM__Draw_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
@@ -118,10 +116,6 @@ Macros</h2></td></tr>
 <tr class="separator:a2cd109632a6dcccaa80b43561b1ab700"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6974d08a74da681b3957b2fead2608b8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8h.html#a6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a>&#160;&#160;&#160;480</td></tr>
 <tr class="separator:a6974d08a74da681b3957b2fead2608b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ce50b09b0b0c22204f06fa2e5a5d24a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8h.html#a9ce50b09b0b0c22204f06fa2e5a5d24a">mainGENERIC_PRIORITY</a>&#160;&#160;&#160;(tskIDLE_PRIORITY)</td></tr>
-<tr class="separator:a9ce50b09b0b0c22204f06fa2e5a5d24a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a083b07119965879920e4efc05bc82af2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Draw_8h.html#a083b07119965879920e4efc05bc82af2">mainGENERIC_STACK_SIZE</a>&#160;&#160;&#160;((unsigned short)2560)</td></tr>
-<tr class="separator:a083b07119965879920e4efc05bc82af2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Hex RGB colours</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><p>RRGGBB colours used by TUM Draw backend, colour standard is the same as the common html standard </p>
 </div></td></tr>
@@ -183,18 +177,18 @@ Functions</h2></td></tr>
 <tr class="memitem:ga90b067338a8eb6a344775c3c41e47eb0"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga90b067338a8eb6a344775c3c41e47eb0">tumGetErrorMessage</a> (void)</td></tr>
 <tr class="memdesc:ga90b067338a8eb6a344775c3c41e47eb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a string error message from the TUM Draw back end.  <a href="group__tum__draw.html#ga90b067338a8eb6a344775c3c41e47eb0">More...</a><br /></td></tr>
 <tr class="separator:ga90b067338a8eb6a344775c3c41e47eb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5801d083de4e7f2f1ff624f3dd195d86"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga5801d083de4e7f2f1ff624f3dd195d86">vInitDrawing</a> (char *path)</td></tr>
-<tr class="memdesc:ga5801d083de4e7f2f1ff624f3dd195d86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the TUM Draw backend.  <a href="group__tum__draw.html#ga5801d083de4e7f2f1ff624f3dd195d86">More...</a><br /></td></tr>
-<tr class="separator:ga5801d083de4e7f2f1ff624f3dd195d86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1e230292238f37d3dc8b9c6f27819c7d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga1e230292238f37d3dc8b9c6f27819c7d">vBindDrawing</a> (void)</td></tr>
-<tr class="memdesc:ga1e230292238f37d3dc8b9c6f27819c7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transfers the drawing ability to the calling thread/taskd.  <a href="group__tum__draw.html#ga1e230292238f37d3dc8b9c6f27819c7d">More...</a><br /></td></tr>
-<tr class="separator:ga1e230292238f37d3dc8b9c6f27819c7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga026e6991e35928947fe7475bb56ba6f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga026e6991e35928947fe7475bb56ba6f2">vExitDrawing</a> (void)</td></tr>
-<tr class="memdesc:ga026e6991e35928947fe7475bb56ba6f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exits the TUM Draw backend.  <a href="group__tum__draw.html#ga026e6991e35928947fe7475bb56ba6f2">More...</a><br /></td></tr>
-<tr class="separator:ga026e6991e35928947fe7475bb56ba6f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga7b09f253bfddbd5151e7b062845f2c2d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga7b09f253bfddbd5151e7b062845f2c2d">vDrawUpdateScreen</a> (void)</td></tr>
-<tr class="memdesc:ga7b09f253bfddbd5151e7b062845f2c2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Executes the queued draw jobs.  <a href="group__tum__draw.html#ga7b09f253bfddbd5151e7b062845f2c2d">More...</a><br /></td></tr>
-<tr class="separator:ga7b09f253bfddbd5151e7b062845f2c2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5ca890a61008e26b6e37971574424fb8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga5ca890a61008e26b6e37971574424fb8">tumDrawInit</a> (char *path)</td></tr>
+<tr class="memdesc:ga5ca890a61008e26b6e37971574424fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the TUM Draw backend.  <a href="group__tum__draw.html#ga5ca890a61008e26b6e37971574424fb8">More...</a><br /></td></tr>
+<tr class="separator:ga5ca890a61008e26b6e37971574424fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae187c9cbf8f2721d131012aa423d9517"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gae187c9cbf8f2721d131012aa423d9517">tumDrawBindThread</a> (void)</td></tr>
+<tr class="memdesc:gae187c9cbf8f2721d131012aa423d9517"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transfers the drawing ability to the calling thread/taskd.  <a href="group__tum__draw.html#gae187c9cbf8f2721d131012aa423d9517">More...</a><br /></td></tr>
+<tr class="separator:gae187c9cbf8f2721d131012aa423d9517"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7eb461f2c513ac422de56997ef3b028d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga7eb461f2c513ac422de56997ef3b028d">tumDrawExit</a> (void)</td></tr>
+<tr class="memdesc:ga7eb461f2c513ac422de56997ef3b028d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exits the TUM Draw backend.  <a href="group__tum__draw.html#ga7eb461f2c513ac422de56997ef3b028d">More...</a><br /></td></tr>
+<tr class="separator:ga7eb461f2c513ac422de56997ef3b028d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga94367ba8f9f13162b57e581bd74c9fa1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga94367ba8f9f13162b57e581bd74c9fa1">tumDrawUpdateScreen</a> (void)</td></tr>
+<tr class="memdesc:ga94367ba8f9f13162b57e581bd74c9fa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Executes the queued draw jobs.  <a href="group__tum__draw.html#ga94367ba8f9f13162b57e581bd74c9fa1">More...</a><br /></td></tr>
+<tr class="separator:ga94367ba8f9f13162b57e581bd74c9fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6189c73872aec30eed1eefa1eefadfbc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga6189c73872aec30eed1eefa1eefadfbc">tumDrawClear</a> (unsigned int colour)</td></tr>
 <tr class="memdesc:ga6189c73872aec30eed1eefa1eefadfbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the screen to a solid colour.  <a href="group__tum__draw.html#ga6189c73872aec30eed1eefa1eefadfbc">More...</a><br /></td></tr>
 <tr class="separator:ga6189c73872aec30eed1eefa1eefadfbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -246,32 +240,6 @@ Functions</h2></td></tr>
 <dl class="section author"><dt>Author</dt><dd>Alex Hoffman </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>27 August 2019 </dd></dl>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a class="anchor" id="a9ce50b09b0b0c22204f06fa2e5a5d24a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define mainGENERIC_PRIORITY&#160;&#160;&#160;(tskIDLE_PRIORITY)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Defines a generic priority for tasks to use </p>
-
-</div>
-</div>
-<a class="anchor" id="a083b07119965879920e4efc05bc82af2"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define mainGENERIC_STACK_SIZE&#160;&#160;&#160;((unsigned short)2560)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Defines a generic stack size for tasks to use </p>
-
-</div>
-</div>
 <a class="anchor" id="a6974d08a74da681b3957b2fead2608b8"></a>
 <div class="memitem">
 <div class="memproto">
