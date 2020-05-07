@@ -6,7 +6,7 @@ var searchData=
   ['rect_5fdata_5ft',['rect_data_t',['../TUM__Draw_8c.html#a679a0159e20c71cb9d36cd4f1c83ed9c',1,'TUM_Draw.c']]],
   ['red',['Red',['../group__tum__draw.html#gae8e246fd7335d7e27ab04150cbc418ba',1,'TUM_Draw.h']]],
   ['red_5fportion',['RED_PORTION',['../TUM__Draw_8c.html#a71ac2a682927bbfbf51bb0aedb0b7a56',1,'TUM_Draw.c']]],
-  ['ref_5fcount',['ref_count',['../structtum__font__ref.html#a9112f234433cdf84efc81e625812ee40',1,'tum_font_ref']]],
+  ['ref_5fcount',['ref_count',['../structloaded__image.html#a4eeec8d3a9f0819d7605ae9324005534',1,'loaded_image::ref_count()'],['../structtum__font__ref.html#a9112f234433cdf84efc81e625812ee40',1,'tum_font_ref::ref_count()']]],
   ['renderer',['renderer',['../TUM__Draw_8c.html#a966da7a60c4ea3ba301e26ccc5efe452',1,'TUM_Draw.c']]],
   ['right_5fbutton',['right_button',['../structmouse.html#a1f496d00f5dc6ac0f11e93e4580ab373',1,'mouse']]],
   ['rx',['rx',['../structellipse__data.html#af3d02819b772d449c329e8bf1c7501a0',1,'ellipse_data']]],
