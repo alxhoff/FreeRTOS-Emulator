@@ -78,6 +78,8 @@ static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawSignal = NULL;
 static SemaphoreHandle_t ScreenLock = NULL;
 
+static image_handle_t logo_image = NULL;
+
 typedef struct buttons_buffer {
     unsigned char buttons[SDL_NUM_SCANCODES];
     SemaphoreHandle_t lock;
@@ -321,10 +323,10 @@ void vDrawFPS(void)
 void vDrawLogo(void)
 {
     static int image_height;
-    if (!tumGetImageSize(LOGO_FILENAME, NULL, &image_height))
-        checkDraw(tumDrawScaledImage(
-                      LOGO_FILENAME, 10,
-                      SCREEN_HEIGHT - 10 - image_height * 0.3, 0.3),
+
+    if ((image_height = tumDrawGetLoadedImageHeight(logo_image)) != -1)
+        checkDraw(tumDrawLoadedImage(logo_image, 10,
+                                     SCREEN_HEIGHT - 10 - image_height),
                   __FUNCTION__);
     else {
         fprintf(stderr,
@@ -657,6 +659,8 @@ int main(int argc, char *argv[])
         PRINT_ERROR("Failed to initialize audio");
         goto err_init_audio;
     }
+
+    logo_image = tumDrawLoadImage(LOGO_FILENAME);
 
     atexit(aIODeinit);
 
