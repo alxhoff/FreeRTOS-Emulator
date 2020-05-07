@@ -78,6 +78,8 @@ static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawSignal = NULL;
 static SemaphoreHandle_t ScreenLock = NULL;
 
+static image_handle_t logo_image = NULL;
+
 typedef struct buttons_buffer {
     unsigned char buttons[SDL_NUM_SCANCODES];
     SemaphoreHandle_t lock;
@@ -188,12 +190,12 @@ void vSwapBuffers(void *pvParameters)
     xLastWakeTime = xTaskGetTickCount();
     const TickType_t frameratePeriod = 20;
 
-    vBindDrawing(); // Setup Rendering handle with correct GL context
+    tumDrawBindThread(); // Setup Rendering handle with correct GL context
 
     while (1) {
         if (xSemaphoreTake(ScreenLock, portMAX_DELAY) == pdTRUE) {
-            vDrawUpdateScreen();
-            fetchEvents();
+            tumDrawUpdateScreen();
+            tumEventFetchEvents();
             xSemaphoreGive(ScreenLock);
             xSemaphoreGive(DrawSignal);
             vTaskDelayUntil(&xLastWakeTime,
@@ -205,7 +207,7 @@ void vSwapBuffers(void *pvParameters)
 void xGetButtonInput(void)
 {
     if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
-        xQueueReceive(inputQueue, &buttons.buttons, 0);
+        xQueueReceive(buttonInputQueue, &buttons.buttons, 0);
         xSemaphoreGive(buttons.lock);
     }
 }
@@ -229,8 +231,8 @@ void vDrawCave(unsigned char ball_color_inverted)
 
     vDrawCaveBoundingBox();
 
-    circlePositionX = CAVE_X + xGetMouseX() / 2;
-    circlePositionY = CAVE_Y + xGetMouseY() / 2;
+    circlePositionX = CAVE_X + tumEventGetMouseX() / 2;
+    circlePositionY = CAVE_Y + tumEventGetMouseY() / 2;
 
     if (ball_color_inverted)
         checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20,
@@ -321,10 +323,10 @@ void vDrawFPS(void)
 void vDrawLogo(void)
 {
     static int image_height;
-    if (!tumGetImageSize(LOGO_FILENAME, NULL, &image_height))
-        checkDraw(tumDrawScaledImage(
-                      LOGO_FILENAME, 10,
-                      SCREEN_HEIGHT - 10 - image_height * 0.3, 0.3),
+
+    if ((image_height = tumDrawGetLoadedImageHeight(logo_image)) != -1)
+        checkDraw(tumDrawLoadedImage(logo_image, 10,
+                                     SCREEN_HEIGHT - 10 - image_height),
                   __FUNCTION__);
     else {
         fprintf(stderr,
@@ -343,7 +345,7 @@ void vDrawButtonText(void)
 {
     static char str[100] = { 0 };
 
-    sprintf(str, "Axis 1: %5d | Axis 2: %5d", xGetMouseX(), xGetMouseY());
+    sprintf(str, "Axis 1: %5d | Axis 2: %5d", tumEventGetMouseX(), tumEventGetMouseY());
 
     checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black),
               __FUNCTION__);
@@ -512,7 +514,7 @@ void vDemoTask1(void *pvParameters)
                 // Clear screen
                 checkDraw(tumDrawClear(White), __FUNCTION__);
                 vDrawStaticItems();
-                vDrawCave(xGetMouseLeft());
+                vDrawCave(tumEventGetMouseLeft());
                 vDrawButtonText();
 
                 // Draw FPS in lower right corner
@@ -528,7 +530,7 @@ void vDemoTask1(void *pvParameters)
 
 void playBallSound(void *args)
 {
-    vPlaySample(a3);
+    tumSoundPlaySample(a3);
 }
 
 void vDemoTask2(void *pvParameters)
@@ -639,24 +641,26 @@ void vDemoTask2(void *pvParameters)
 
 int main(int argc, char *argv[])
 {
-    char *bin_folder_path = getBinFolderPath(argv[0]);
+    char *bin_folder_path = tumUtilGetBinFolderPath(argv[0]);
 
     printf("Initializing: ");
 
-    if (vInitDrawing(bin_folder_path)) {
+    if (tumDrawInit(bin_folder_path)) {
         PRINT_ERROR("Failed to intialize drawing");
         goto err_init_drawing;
     }
 
-    if (vInitEvents()) {
+    if (tumEventInit()) {
         PRINT_ERROR("Failed to initialize events");
         goto err_init_events;
     }
 
-    if (vInitAudio(bin_folder_path)) {
+    if (tumSoundInit(bin_folder_path)) {
         PRINT_ERROR("Failed to initialize audio");
         goto err_init_audio;
     }
+
+    logo_image = tumDrawLoadImage(LOGO_FILENAME);
 
     atexit(aIODeinit);
 
@@ -746,11 +750,11 @@ err_screen_lock:
 err_draw_signal:
     vSemaphoreDelete(buttons.lock);
 err_buttons_lock:
-    vExitAudio();
+    tumSoundExit();
 err_init_audio:
-    vExitEvents();
+    tumEventExit();
 err_init_events:
-    vExitDrawing();
+    tumDrawExit();
 err_init_drawing:
     return EXIT_FAILURE;
 }
