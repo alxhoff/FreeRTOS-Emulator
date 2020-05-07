@@ -106,7 +106,7 @@ err_alloc_def_font:
 
 int tumFontInit(char *path)
 {
-	fonts_dir = prepend_path(path, FONTS_DIRECTORY);
+	fonts_dir = tumUtilPrependPath(path, FONTS_DIRECTORY);
 
 	font_list.next = tumFontCreateFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
 	if (font_list.next == NULL)

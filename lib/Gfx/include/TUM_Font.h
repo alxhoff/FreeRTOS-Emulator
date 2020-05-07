@@ -28,6 +28,19 @@
 #include <SDL2/SDL_ttf.h>
 
 /**
+ * @defgroup tum_font TUM Font API
+ *
+ * @brief A simple interface to manage the active font used by TUM Draw
+ *
+ * The TUM Draw API functions on the premise that that is always only a single
+ * font active as the "active font" when using the drawing API. String draw
+ * calls draw strings using the active font and this API allows for the changing,
+ * saving, restoring and scaling of the currently active font.
+ *
+ * @{
+ */
+
+/**
  * Defines the default font size used by the SDL TTF library
  */
 #define DEFAULT_FONT_SIZE 15
@@ -171,4 +184,5 @@ int tumFontSelectFontFromHandle(font_handle_t font_handle);
  */
 int tumFontSetSize(ssize_t font_size);
 
+/** @} */
 #endif // __TUM_FONT_H__
