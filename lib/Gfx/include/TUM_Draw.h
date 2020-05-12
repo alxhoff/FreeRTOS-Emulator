@@ -157,6 +157,13 @@ int tumDrawUpdateScreen(void);
  */
 int tumDrawClear(unsigned int colour);
 
+/*
+ * @brief Copies a screenshot of the current frame to the next frame
+ *
+ * Experimental, performance can not be guarenteed.
+ */
+void tumDrawDuplicateBuffer(void);
+
 /**
  * @brief Draws an ellipse on the screen
  *
