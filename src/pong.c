@@ -267,8 +267,14 @@ void vRightPaddleTask(void *pvParameters)
         // Get input
         xCheckPongRightInput(&right_player.paddle_position);
 
-        vDrawWall(right_wall);
-        vDrawPaddle(right_player.paddle, right_player.paddle_position);
+        taskENTER_CRITICAL();
+        if (xSemaphoreTake(ScreenLock, 0) == pdTRUE) {
+            vDrawWall(right_wall);
+            vDrawPaddle(right_player.paddle,
+                        right_player.paddle_position);
+        }
+        xSemaphoreGive(ScreenLock);
+        taskEXIT_CRITICAL();
     }
 }
 
@@ -311,8 +317,16 @@ void vLeftPaddleTask(void *pvParameters)
         // Get input
         xCheckPongLeftInput(&left_player.paddle_position);
 
-        vDrawWall(left_wall);
-        vDrawPaddle(left_player.paddle, left_player.paddle_position);
+        taskENTER_CRITICAL();
+
+        if (xSemaphoreTake(ScreenLock, 0) == pdTRUE) {
+            vDrawWall(left_wall);
+            vDrawPaddle(left_player.paddle,
+                        left_player.paddle_position);
+        }
+
+        xSemaphoreGive(ScreenLock);
+        taskEXIT_CRITICAL();
     }
 }
 
@@ -411,15 +425,23 @@ void vPongControlTask(void *pvParameters)
                         switch (ball_direction) {
                             case START_LEFT:
                                 setBallSpeed(
-                                    my_ball, -(rand() % 100 + 200),
-                                    rand() % 300 - 150, 0,
+                                    my_ball,
+                                    -(rand() % 100 +
+                                      200),
+                                    rand() % 300 -
+                                    150,
+                                    0,
                                     SET_BALL_SPEED_AXES);
                                 break;
                             default:
                             case START_RIGHT:
                                 setBallSpeed(
-                                    my_ball, rand() % 100 + 200,
-                                    rand() % 300 - 150, 0,
+                                    my_ball,
+                                    rand() % 100 +
+                                    200,
+                                    rand() % 300 -
+                                    150,
+                                    0,
                                     SET_BALL_SPEED_AXES);
                                 break;
                         }
