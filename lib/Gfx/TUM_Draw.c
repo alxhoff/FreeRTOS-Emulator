@@ -396,7 +396,7 @@ static int _getImageSize(char *filename, int *w, int *h)
 
 static int freeLoadedImage(loaded_image_t **img)
 {
-    int ret = -1;
+	int ret = -1;
 
 	pthread_mutex_lock(&loaded_images_lock);
 	loaded_image_t *iterator = &loaded_images_list;
@@ -421,11 +421,11 @@ static int freeLoadedImage(loaded_image_t **img)
 		free(delete);
 		*img = (loaded_image_t *)NULL;
 
-        ret = 0;
+		ret = 0;
 	}
 	pthread_mutex_unlock(&loaded_images_lock);
 
-    return ret;
+	return ret;
 }
 
 static void vPutLoadedImage(image_handle_t img)
@@ -960,6 +960,21 @@ int tumDrawBox(signed short x, signed short y, signed short w, signed short h,
 	return 0;
 }
 
+void tumDrawDuplicateBuffer(void)
+{
+	SDL_Surface *screen_shot =
+		SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32,
+				     0x00ff0000, 0x0000ff00, 0x000000ff,
+				     0xff000000);
+	SDL_RenderReadPixels(renderer, NULL, 0, screen_shot->pixels,
+			     screen_shot->pitch);
+	SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, screen_shot);
+	SDL_RenderClear(renderer);
+	SDL_Rect dest = { .w = SCREEN_WIDTH, .h = SCREEN_HEIGHT };
+	SDL_RenderCopy(renderer, tex, NULL, &dest);
+    SDL_RenderPresent(renderer);
+}
+
 int tumDrawClear(unsigned int colour)
 {
 	/** INIT_JOB(job, DRAW_CLEAR); */
@@ -1099,7 +1114,7 @@ image_handle_t tumDrawLoadImage(char *filename)
 
 int tumDrawFreeLoadedImage(image_handle_t *img)
 {
-    int ret = 0;
+	int ret = 0;
 	loaded_image_t **loaded_img = (loaded_image_t **)img;
 
 	if (!(*loaded_img)->ref_count)
@@ -1107,7 +1122,7 @@ int tumDrawFreeLoadedImage(image_handle_t *img)
 	else
 		(*loaded_img)->pending_free = 1;
 
-    return ret;
+	return ret;
 }
 
 int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y)
@@ -1159,21 +1174,22 @@ int tumDrawGetLoadedImageHeight(image_handle_t img)
 	return ((loaded_image_t *)img)->h * ((loaded_image_t *)img)->scale;
 }
 
-int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int* h)
+int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int *h)
 {
-    if(img == NULL)
-        return -1;
+	if (img == NULL)
+		return -1;
 
-    *w = tumDrawGetLoadedImageWidth(img);
-    *h = tumDrawGetLoadedImageHeight(img);
+	*w = tumDrawGetLoadedImageWidth(img);
+	*h = tumDrawGetLoadedImageHeight(img);
 
-    if(*w == -1 || *h == -1)
-        return -1;
+	if (*w == -1 || *h == -1)
+		return -1;
 
-    return 0;
+	return 0;
 }
 
-int __attribute_deprecated__ tumDrawImage(char *filename, signed short x, signed short y)
+int __attribute_deprecated__ tumDrawImage(char *filename, signed short x,
+					  signed short y)
 {
 	INIT_JOB(job, DRAW_IMAGE);
 
@@ -1198,8 +1214,8 @@ int __attribute_deprecated__ tumGetImageSize(char *filename, int *w, int *h)
 	return _getImageSize(full_filename, w, h);
 }
 
-int __attribute_deprecated__ tumDrawScaledImage(char *filename, signed short x, signed short y,
-		       float scale)
+int __attribute_deprecated__ tumDrawScaledImage(char *filename, signed short x,
+						signed short y, float scale)
 {
 	INIT_JOB(job, DRAW_SCALED_IMAGE);
 
