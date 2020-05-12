@@ -339,33 +339,34 @@ void vPongControlTask(void *pvParameters)
         if (DrawSignal) {
             if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
                 pdTRUE) {
+
                 xGetButtonInput(); // Update global button data
 
-                xSemaphoreTake(ScreenLock, portMAX_DELAY);
-
-                xSemaphoreTake(buttons.lock, portMAX_DELAY);
-                if (buttons.buttons[KEYCODE(P)]) {
-                    xSemaphoreGive(buttons.lock);
-                    if (StateQueue) {
-                        vTaskDelay(
-                            100); // FIXME: "debounce" P button
-                        xQueueSend(StateQueue,
-                                   &next_state_signal,
-                                   portMAX_DELAY);
+                if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
+                    if (buttons.buttons[KEYCODE(P)]) {
+                        xSemaphoreGive(buttons.lock);
+                        if (StateQueue) {
+                            xQueueSendToFront(
+                                StateQueue,
+                                &next_state_signal,
+                                portMAX_DELAY);
+                        }
                     }
+                    else if (buttons.buttons[KEYCODE(R)]) {
+                        xSemaphoreGive(buttons.lock);
+                        ball_active = 0;
+                        setBallLocation(
+                            my_ball,
+                            SCREEN_WIDTH / 2,
+                            SCREEN_HEIGHT / 2);
+                        setBallSpeed(
+                            my_ball, 0, 0, 0,
+                            SET_BALL_SPEED_AXES);
+                        left_score = 0;
+                        right_score = 0;
+                    }
+                    xSemaphoreGive(buttons.lock);
                 }
-
-                if (buttons.buttons[KEYCODE(R)]) {
-                    ball_active = 0;
-                    setBallLocation(my_ball,
-                                    SCREEN_WIDTH / 2,
-                                    SCREEN_HEIGHT / 2);
-                    setBallSpeed(my_ball, 0, 0, 0,
-                                 SET_BALL_SPEED_AXES);
-                    left_score = 0;
-                    right_score = 0;
-                }
-                xSemaphoreGive(buttons.lock);
 
                 // Ball is no longer active
                 if (xSemaphoreTake(BallInactive, 0) == pdTRUE) {
@@ -412,43 +413,6 @@ void vPongControlTask(void *pvParameters)
                             "[ERROR] Task Notification to RightPaddleTask failed\n");
                 }
 
-                tumDrawClear(Black);
-
-                vDrawFPS();
-
-                // Draw the walls
-                vDrawWall(top_wall);
-                vDrawWall(bottom_wall);
-                vDrawHelpText();
-                for (i = 0; i < NET_DOTS; i++) {
-                    tumDrawFilledBox(
-                        SCREEN_WIDTH / 2 -
-                        NET_DOT_WIDTH / 2,
-                        GAME_FIELD_INNER +
-                        round(2.0 * i *
-                              NET_DOT_HEIGHT),
-                        NET_DOT_WIDTH,
-                        round(NET_DOT_HEIGHT), White);
-                }
-
-                // Check for score updates
-                if (RightScoreQueue) {
-                    while (xQueueReceive(RightScoreQueue,
-                                         &score_flag,
-                                         0) == pdTRUE) {
-                        right_score++;
-                    }
-                }
-                if (LeftScoreQueue) {
-                    while (xQueueReceive(LeftScoreQueue,
-                                         &score_flag,
-                                         0) == pdTRUE) {
-                        left_score++;
-                    }
-                }
-
-                vDrawScores(left_score, right_score);
-
                 // Check if ball has made a collision
                 checkBallCollisions(my_ball, NULL, NULL);
 
@@ -457,11 +421,59 @@ void vPongControlTask(void *pvParameters)
                 updateBallPosition(
                     my_ball, xLastWakeTime - prevWakeTime);
 
-                // Draw the ball
-                tumDrawCircle(my_ball->x, my_ball->y,
-                              my_ball->radius, my_ball->colour);
+                taskENTER_CRITICAL();
+
+                if (xSemaphoreTake(ScreenLock, portMAX_DELAY) ==
+                    pdTRUE) {
+                    tumDrawClear(Black);
+
+                    vDrawFPS();
+
+                    // Draw the walls
+                    vDrawWall(top_wall);
+                    vDrawWall(bottom_wall);
+                    vDrawHelpText();
+                    for (i = 0; i < NET_DOTS; i++) {
+                        tumDrawFilledBox(
+                            SCREEN_WIDTH / 2 -
+                            NET_DOT_WIDTH /
+                            2,
+                            GAME_FIELD_INNER +
+                            round(2.0 * i *
+                                  NET_DOT_HEIGHT),
+                            NET_DOT_WIDTH,
+                            round(NET_DOT_HEIGHT),
+                            White);
+                    }
+
+                    // Check for score updates
+                    if (RightScoreQueue) {
+                        while (xQueueReceive(
+                                   RightScoreQueue,
+                                   &score_flag,
+                                   0) == pdTRUE) {
+                            right_score++;
+                        }
+                    }
+                    if (LeftScoreQueue) {
+                        while (xQueueReceive(
+                                   LeftScoreQueue,
+                                   &score_flag,
+                                   0) == pdTRUE) {
+                            left_score++;
+                        }
+                    }
+
+                    vDrawScores(left_score, right_score);
+
+                    // Draw the ball
+                    tumDrawCircle(my_ball->x, my_ball->y,
+                                  my_ball->radius,
+                                  my_ball->colour);
+                }
 
                 xSemaphoreGive(ScreenLock);
+                taskEXIT_CRITICAL();
 
                 // Keep track of when task last ran so that you know how many ticks
                 //(in our case miliseconds) have passed so that the balls position
@@ -474,36 +486,55 @@ void vPongControlTask(void *pvParameters)
 }
 
 static const char *paused_text = "PAUSED";
-
-static void drawPausedText(void)
-{
-    static int text_width;
-    tumGetTextSize((char *)paused_text, &text_width, NULL);
-
-    tumDrawText((char *)paused_text, SCREEN_WIDTH / 2 - text_width / 2,
-                SCREEN_HEIGHT / 2, Red);
-}
+static int paused_text_width;
 
 // TODO: Make sure that front and back buffer are filled
 void vPausedStateTask(void *pvParameters)
 {
+    tumGetTextSize((char *)paused_text, &paused_text_width, NULL);
+
     while (1) {
-        xGetButtonInput(); // Update global button data
+        if (DrawSignal) {
+            if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
+                pdTRUE) {
 
-        tumDrawClear(Black);
+                xGetButtonInput(); // Update global button data
 
-        if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
-            if (buttons.buttons[KEYCODE(P)]) {
-                xSemaphoreGive(buttons.lock);
-                xQueueSend(StateQueue, &next_state_signal,
-                           portMAX_DELAY);
+                if (xSemaphoreTake(buttons.lock, 0) ==
+                    pdTRUE) {
+                    if (buttons.buttons[KEYCODE(P)]) {
+                        xSemaphoreGive(
+                            buttons.lock);
+                        xQueueSendToFront(
+                            StateQueue,
+                            &next_state_signal,
+                            portMAX_DELAY);
+                    }
+                    xSemaphoreGive(buttons.lock);
+                }
+
+                // Don't suspend task until current execution loop has finished
+                // and held resources have been released
+                taskENTER_CRITICAL();
+
+                if (xSemaphoreTake(ScreenLock, 0) == pdTRUE) {
+                    tumDrawClear(Black);
+
+
+                    tumDrawText((char *)paused_text,
+                                SCREEN_WIDTH / 2 -
+                                paused_text_width /
+                                2,
+                                SCREEN_HEIGHT / 2, Red);
+                }
+
+                xSemaphoreGive(ScreenLock);
+
+                taskEXIT_CRITICAL();
+
+                vTaskDelay(10);
             }
-            xSemaphoreGive(buttons.lock);
         }
-
-        drawPausedText();
-
-        vTaskDelay(10);
     }
 }
 
