@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "TUM_Ball.h"
-#include "TUM_Draw.h"
 #include "TUM_Sound.h"
 
 typedef struct walls {
@@ -74,7 +73,7 @@ void setWallProperty(wall_t *wall, signed short x, signed short y,
 
 ball_t *createBall(signed short initial_x, signed short initial_y,
 		   unsigned int colour, signed short radius, float max_speed,
-		   void (*callback)(void *), void *args)
+		   void (*callback)(void *), void *args, image_handle_t sprite)
 {
 	ball_t *ret = calloc(1, sizeof(ball_t));
 
@@ -92,6 +91,7 @@ ball_t *createBall(signed short initial_x, signed short initial_y,
 	ret->radius = radius;
 	ret->callback = callback;
 	ret->args = args;
+    ret->sprite = sprite;
 
 	return ret;
 }

@@ -25,6 +25,8 @@
 #ifndef __TUM_BALL_H__
 #define __TUM_BALL_H__
 
+#include "TUM_Draw.h"
+
 /**
  * @defgroup tum_ball TUM Ball API
  *
@@ -62,6 +64,8 @@ typedef void (*callback_t)(void *args);
  * start to move.
  */
 typedef struct ball {
+    image_handle_t sprite;
+
     signed short x; /**< X pixel coord of ball on screen */
     signed short y; /**< Y pixel coord of ball on screen */
 
@@ -146,7 +150,7 @@ typedef struct wall {
  */
 ball_t *createBall(signed short initial_x, signed short initial_y,
                    unsigned int colour, signed short radius, float max_speed,
-                   callback_t callback, void *args);
+                   callback_t callback, void *args, image_handle_t sprite);
 
 /**
  * @brief Creates a wall object

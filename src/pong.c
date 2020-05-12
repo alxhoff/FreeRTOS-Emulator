@@ -350,8 +350,10 @@ void vPongControlTask(void *pvParameters)
     const TickType_t updatePeriod = 10;
     unsigned char score_flag;
 
+    image_handle_t philipp = tumDrawLoadImage("../resources/philipp.bmp");
+
     ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, White,
-                                 6, 1000, &playBallSound, NULL);
+                                 25, 1000, &playBallSound, NULL, philipp);
 
     unsigned char ball_active = 0;
     unsigned char ball_direction = 0;
@@ -493,9 +495,13 @@ void vPongControlTask(void *pvParameters)
                     vDrawScores(left_score, right_score);
 
                     // Draw the ball
-                    tumDrawCircle(my_ball->x, my_ball->y,
-                                  my_ball->radius,
-                                  my_ball->colour);
+                    if (my_ball->sprite) {
+                        tumDrawLoadedImage(my_ball->sprite, my_ball->x - tumDrawGetLoadedImageWidth(my_ball->sprite) / 2, my_ball->y - tumDrawGetLoadedImageHeight(my_ball->sprite) / 2);
+                    }
+                    else
+                        tumDrawCircle(my_ball->x, my_ball->y,
+                                      my_ball->radius,
+                                      my_ball->colour);
                 }
 
                 xSemaphoreGive(ScreenLock);
