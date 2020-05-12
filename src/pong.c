@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+#include <time.h>
 #include <SDL2/SDL_scancode.h>
 
 #include "TUM_Utils.h"
@@ -145,6 +147,21 @@ unsigned char xCheckForInput(void)
 void playBallSound(void *args)
 {
     tumSoundPlaySample(a3);
+}
+
+#define NET_DOTS 24
+#define NET_DOT_WIDTH 6
+#define NET_DOT_HEIGHT (GAME_FIELD_HEIGHT_INNER / (NET_DOTS * 2.0))
+
+void vDrawNetDots(void)
+{
+    static int i;
+    for (i = 0; i < NET_DOTS; i++) {
+        tumDrawFilledBox(SCREEN_WIDTH / 2 - NET_DOT_WIDTH / 2,
+                         GAME_FIELD_INNER +
+                         round(2.0 * i * NET_DOT_HEIGHT),
+                         NET_DOT_WIDTH, round(NET_DOT_HEIGHT), White);
+    }
 }
 
 void vDrawHelpText(void)
@@ -299,9 +316,17 @@ void vLeftPaddleTask(void *pvParameters)
     }
 }
 
-#define NET_DOTS 24
-#define NET_DOT_WIDTH 6
-#define NET_DOT_HEIGHT (GAME_FIELD_HEIGHT_INNER / (NET_DOTS * 2.0))
+void vWakePaddles(void)
+{
+    if (xTaskNotifyGive(LeftPaddleTask) != pdPASS) {
+        fprintf(stderr,
+                "[ERROR] Task Notification to LeftPaddleTask failed\n");
+    }
+    if (xTaskNotifyGive(RightPaddleTask) != pdPASS) {
+        fprintf(stderr,
+                "[ERROR] Task Notification to RightPaddleTask failed\n");
+    }
+}
 
 void vPongControlTask(void *pvParameters)
 {
@@ -310,7 +335,6 @@ void vPongControlTask(void *pvParameters)
     prevWakeTime = xLastWakeTime;
     const TickType_t updatePeriod = 10;
     unsigned char score_flag;
-    int i;
 
     ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, White,
                                  6, 1000, &playBallSound, NULL);
@@ -339,7 +363,6 @@ void vPongControlTask(void *pvParameters)
         if (DrawSignal) {
             if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
                 pdTRUE) {
-
                 xGetButtonInput(); // Update global button data
 
                 if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
@@ -388,30 +411,22 @@ void vPongControlTask(void *pvParameters)
                         switch (ball_direction) {
                             case START_LEFT:
                                 setBallSpeed(
-                                    my_ball, -250,
-                                    250, 0,
+                                    my_ball, -(rand() % 100 + 200),
+                                    rand() % 300 - 150, 0,
                                     SET_BALL_SPEED_AXES);
                                 break;
                             default:
                             case START_RIGHT:
                                 setBallSpeed(
-                                    my_ball, 250,
-                                    250, 0,
+                                    my_ball, rand() % 100 + 200,
+                                    rand() % 300 - 150, 0,
                                     SET_BALL_SPEED_AXES);
                                 break;
                         }
                     }
                 }
 
-                if (xTaskNotifyGive(LeftPaddleTask) != pdPASS) {
-                    fprintf(stderr,
-                            "[ERROR] Task Notification to LeftPaddleTask failed\n");
-                }
-                if (xTaskNotifyGive(RightPaddleTask) !=
-                    pdPASS) {
-                    fprintf(stderr,
-                            "[ERROR] Task Notification to RightPaddleTask failed\n");
-                }
+                vWakePaddles();
 
                 // Check if ball has made a collision
                 checkBallCollisions(my_ball, NULL, NULL);
@@ -433,18 +448,7 @@ void vPongControlTask(void *pvParameters)
                     vDrawWall(top_wall);
                     vDrawWall(bottom_wall);
                     vDrawHelpText();
-                    for (i = 0; i < NET_DOTS; i++) {
-                        tumDrawFilledBox(
-                            SCREEN_WIDTH / 2 -
-                            NET_DOT_WIDTH /
-                            2,
-                            GAME_FIELD_INNER +
-                            round(2.0 * i *
-                                  NET_DOT_HEIGHT),
-                            NET_DOT_WIDTH,
-                            round(NET_DOT_HEIGHT),
-                            White);
-                    }
+                    vDrawNetDots();
 
                     // Check for score updates
                     if (RightScoreQueue) {
@@ -497,14 +501,11 @@ void vPausedStateTask(void *pvParameters)
         if (DrawSignal) {
             if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
                 pdTRUE) {
-
                 xGetButtonInput(); // Update global button data
 
-                if (xSemaphoreTake(buttons.lock, 0) ==
-                    pdTRUE) {
+                if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
                     if (buttons.buttons[KEYCODE(P)]) {
-                        xSemaphoreGive(
-                            buttons.lock);
+                        xSemaphoreGive(buttons.lock);
                         xQueueSendToFront(
                             StateQueue,
                             &next_state_signal,
@@ -519,7 +520,6 @@ void vPausedStateTask(void *pvParameters)
 
                 if (xSemaphoreTake(ScreenLock, 0) == pdTRUE) {
                     tumDrawClear(Black);
-
 
                     tumDrawText((char *)paused_text,
                                 SCREEN_WIDTH / 2 -
@@ -540,6 +540,9 @@ void vPausedStateTask(void *pvParameters)
 
 int pongInit(void)
 {
+    //Random numbers
+    srand(time(NULL));
+
     buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
     if (!buttons.lock) {
         PRINT_ERROR("Failed to create buttons lock");
