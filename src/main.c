@@ -381,8 +381,9 @@ static int vCheckStateInput(void)
             if (StateQueue) {
                 xSemaphoreGive(buttons.lock);
                 xQueueSend(StateQueue, &next_state_signal, 0);
-                return -1;
+                return 0;
             }
+            return -1;
         }
         xSemaphoreGive(buttons.lock);
     }
@@ -744,7 +745,7 @@ err_bufferswap:
 err_statemachine:
     vQueueDelete(StateQueue);
 err_state_queue:
-    vSemaphoreDelete(StateQueue);
+    vSemaphoreDelete(ScreenLock);
 err_screen_lock:
     vSemaphoreDelete(DrawSignal);
 err_draw_signal:
