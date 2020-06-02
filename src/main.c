@@ -195,7 +195,7 @@ void vSwapBuffers(void *pvParameters)
     while (1) {
         if (xSemaphoreTake(ScreenLock, portMAX_DELAY) == pdTRUE) {
             tumDrawUpdateScreen();
-            tumEventFetchEvents();
+            tumEventFetchEvents(FETCH_EVENT_BLOCK);
             xSemaphoreGive(ScreenLock);
             xSemaphoreGive(DrawSignal);
             vTaskDelayUntil(&xLastWakeTime,
@@ -508,6 +508,7 @@ void vDemoTask1(void *pvParameters)
         if (DrawSignal)
             if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
                 pdTRUE) {
+                tumEventFetchEvents(FETCH_EVENT_BLOCK | FETCH_EVENT_NO_GL_CHECK);
                 xGetButtonInput(); // Update global input
 
                 xSemaphoreTake(ScreenLock, portMAX_DELAY);
