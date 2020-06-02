@@ -141,9 +141,19 @@ void tumDrawExit(void);
 /**
  * @brief Executes the queued draw jobs
  *
- * The tumDraw functions are designed to be callable from any thread, as such
- * each function queues a draw job into a queue. Once tumDrawUpdateScreen is called,
- * the queued draw jobs are executed by the background SDL thread.
+ * The tumDraw primative draw functions are designed to be callable from any
+ * thread, as such each function queues a draw job into a queue. Once
+ * tumDrawUpdateScreen is called, the queued draw jobs are executed by the
+ * background SDL thread.
+ *
+ * While primitive drawing functions, such as tumDrawCircle(), are thread-safe
+ * calls to tumDrawUpdateScreen() must come from the thread that holds the GL
+ * (graphics layer) context. A thread can obtain the GL context by calling
+ * tumDrawBindThread(). Please be wary that tumDrawBindThread() has a large
+ * overhead and should be avoided when possible. Having a centeralized screen
+ * updating thread is a good solution to this problem. Calls to GL context
+ * dependent calls, such as tumDrawUpdateScreen() will fail if the calling
+ * thread does not hold the GL context.
  *
  * @returns 0 on success
  */

@@ -29,6 +29,19 @@
     fprintf(stderr, "    @-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
 
 /**
+ * @brief Checks if the calling thread is the thread that currently holds the
+ * GL context
+ *
+ * @return 0 if the current thread does hold the GL context, -1 otherwise.
+ */
+int tumUtilIsCurGLThread(void);
+
+/**
+ * @brief The calling thread is registered as holding the current GL context
+ */
+void tumUtilSetGLThread(void);
+
+/**
  * @brief Prepends a path string to a filename
  *
  * @param path Path string to be prepended

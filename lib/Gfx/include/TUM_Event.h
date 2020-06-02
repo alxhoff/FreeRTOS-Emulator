@@ -94,18 +94,55 @@ signed char tumEventGetMouseRight(void);
 signed char tumEventGetMouseMiddle(void);
 
 /**
- * @brief Polls all outstanding SDL Events.
- *        Should be called from Draw Loop
+ * @defgroup FETCH_EVENT_FLAGS Event fetching flags
+ *
+ * @{
  */
-void tumEventFetchEvents(void);
 
-extern QueueHandle_t buttonInputQueue;
+/** Event fetching should block until events could be fetched */
+#define FETCH_EVENT_BLOCK 0b1
+
+/** Event fetching should not block and return if events could not be fetched */
+#define FETCH_EVENT_NONBLOCK 0b10
+
+/** Event fetching should not check OpenGL context */
+#define FETCH_EVENT_NO_GL_CHECK 0b100
+
+/** @} */
+
+/**
+ * @brief Polls all outstanding SDL Events. Should be called from Draw Loop that
+ * holds the OpenGL context.
+ *
+ * Events can be retrieved in either a blocking or non-blocking fashion. The flags
+ * FETCH_EVENT_BLOCK and FETCH_EVENT_NONBLOCK specify which action is to be taken.
+ * flag values that are not FETCH_EVENT_BLOCK or FETCH_EVENT_NONBLOCK will
+ * result in nonblocking behaviour.
+ *
+ * Events ideally should only be fetched from threads that holds the GL context,
+ * obtained using tumDrawBindThread(). Binding a thread has a large overhead and should
+ * be avoided. It is unsure if this is absolutly necessary and as such
+ * if you would like to fetch events in a non-context holding thread, pass the
+ * flag FETCH_EVENT_NO_GL_CHECK to skip this check.
+ *
+ * Multiple flags can be used in a 'OR' fashion,
+ *
+ * eg.
+ * @verbatim tumEventFetchEvents(FETCH_EVENT_NONBLOCK | FETCH_EVENT_NO_GL_CHECK)@endverbatim
+ *
+ * @param flags Flags specifying the bahaviour of the function. See @ref FETCH_EVENT_FLAGS
+ * the SDL backend is currently retrieving events.
+ * @return 0 on success.
+ */
+int tumEventFetchEvents(int flags);
+
 /*!<
  * @brief FreeRTOS queue used to obtain a current copy of the keyboard lookup table
  *
  * Sends an unsigned char array of length SDL_NUM_SCANCODES. Acts as a lookup
  * table using the SDL scancodes defined in <SDL2/SDL_scancode.h>
  */
+extern QueueHandle_t buttonInputQueue;
 
 /** @} */
 #endif
