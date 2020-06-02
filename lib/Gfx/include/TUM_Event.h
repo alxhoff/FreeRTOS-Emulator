@@ -116,6 +116,11 @@ signed char tumEventGetMouseMiddle(void);
  * flag values that are not FETCH_EVENT_BLOCK or FETCH_EVENT_NONBLOCK will
  * result in nonblocking behaviour.
  *
+ * Events can only be fetched from threads that holds the GL context, obtained
+ * using tumDrawBindThread(). Binding a thread has a large overhead and should
+ * be avoided. Calls to tumEventFetchEvents() from threads that do not hold the
+ * GL context will fail.
+ *
  * @param block_flag Determines whether the function should block or return if
  * the SDL backend is currently retrieving events.
  * @return 0 on success.

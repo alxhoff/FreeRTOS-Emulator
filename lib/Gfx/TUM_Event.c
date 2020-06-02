@@ -132,6 +132,11 @@ static void SDLFetchEvents(void)
 
 int tumEventFetchEvents(int block_flag)
 {
+    if(tumUtilIsCurGLThread()){
+        PRINT_ERROR("Fetching events from task that does not hold GL context");
+        return -1;
+    }
+
     switch(block_flag){
         case FETCH_EVENT_BLOCK:
             xSemaphoreTake(fetch_lock, portMAX_DELAY);

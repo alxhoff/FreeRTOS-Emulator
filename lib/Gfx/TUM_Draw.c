@@ -685,6 +685,11 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 
 int tumDrawUpdateScreen(void)
 {
+    if(tumUtilIsCurGLThread()){
+        PRINT_ERROR("Updating screen from thread that does not hold GL context");
+        goto err;
+    }
+
 	static struct timespec last_time = { 0 }, cur_time = { 0 };
 
 	if (clock_gettime(CLOCK_MONOTONIC, &cur_time)) {
@@ -844,6 +849,8 @@ int tumDrawBindThread(void) // Should be called from the Drawing Thread
 		}
 
 	pthread_mutex_unlock(&loaded_images_lock);
+
+    tumUtilSetGLThread();
 
 	return 0;
 
