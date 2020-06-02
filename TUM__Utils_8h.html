@@ -107,6 +107,12 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a84cd10630e86c7e1657a57b3d4f7cb71"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#a84cd10630e86c7e1657a57b3d4f7cb71">tumUtilIsCurGLThread</a> (void)</td></tr>
+<tr class="memdesc:a84cd10630e86c7e1657a57b3d4f7cb71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the calling thread is the thread that currently holds the GL context.  <a href="#a84cd10630e86c7e1657a57b3d4f7cb71">More...</a><br /></td></tr>
+<tr class="separator:a84cd10630e86c7e1657a57b3d4f7cb71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0474a2baef480262b88d89fd17d195ee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#a0474a2baef480262b88d89fd17d195ee">tumUtilSetGLThread</a> (void)</td></tr>
+<tr class="memdesc:a0474a2baef480262b88d89fd17d195ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">The calling thread is registered as holding the current GL context.  <a href="#a0474a2baef480262b88d89fd17d195ee">More...</a><br /></td></tr>
+<tr class="separator:a0474a2baef480262b88d89fd17d195ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aafb4b9b303d336c5377bd6f73092208f"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#aafb4b9b303d336c5377bd6f73092208f">tumUtilPrependPath</a> (char *path, char *file)</td></tr>
 <tr class="memdesc:aafb4b9b303d336c5377bd6f73092208f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepends a path string to a filename.  <a href="#aafb4b9b303d336c5377bd6f73092208f">More...</a><br /></td></tr>
 <tr class="separator:aafb4b9b303d336c5377bd6f73092208f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,6 +190,25 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
 </div>
 </div>
+<a class="anchor" id="a84cd10630e86c7e1657a57b3d4f7cb71"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumUtilIsCurGLThread </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks if the calling thread is the thread that currently holds the GL context. </p>
+<dl class="section return"><dt>Returns</dt><dd>0 if the current thread does hold the GL context, -1 otherwise. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="aafb4b9b303d336c5377bd6f73092208f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -217,6 +242,24 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>char * to the complete compiled path </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0474a2baef480262b88d89fd17d195ee"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tumUtilSetGLThread </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The calling thread is registered as holding the current GL context. </p>
 
 </div>
 </div>

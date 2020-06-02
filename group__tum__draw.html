@@ -79,6 +79,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
@@ -94,6 +95,15 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcoord.html">coord</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds a pixel co-ordinate.  <a href="structcoord.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ga3adf7b7b13572f2baf3379a8f2f4220a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga3adf7b7b13572f2baf3379a8f2f4220a">WINDOW_TITLE</a>&#160;&#160;&#160;&quot;FreeRTOS Emulator&quot;</td></tr>
+<tr class="separator:ga3adf7b7b13572f2baf3379a8f2f4220a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2cd109632a6dcccaa80b43561b1ab700"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a>&#160;&#160;&#160;640</td></tr>
+<tr class="separator:ga2cd109632a6dcccaa80b43561b1ab700"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6974d08a74da681b3957b2fead2608b8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a>&#160;&#160;&#160;480</td></tr>
+<tr class="separator:ga6974d08a74da681b3957b2fead2608b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -455,6 +465,32 @@ Hex RGB colours</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ga6974d08a74da681b3957b2fead2608b8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SCREEN_HEIGHT&#160;&#160;&#160;480</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the height (in pixels) of the screen </p>
+
+</div>
+</div>
+<a class="anchor" id="ga2cd109632a6dcccaa80b43561b1ab700"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SCREEN_WIDTH&#160;&#160;&#160;640</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the width (in pixels) of the screen </p>
+
+</div>
+</div>
 <a class="anchor" id="ga83dd455066a997b33ef319b7f6531015"></a>
 <div class="memitem">
 <div class="memproto">
@@ -512,6 +548,19 @@ Hex RGB colours</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga3adf7b7b13572f2baf3379a8f2f4220a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WINDOW_TITLE&#160;&#160;&#160;&quot;FreeRTOS Emulator&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The string that is shown on the window's status bar </p>
 
 </div>
 </div>
@@ -1605,7 +1654,8 @@ Hex RGB colours</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Executes the queued draw jobs. </p>
-<p>The tumDraw functions are designed to be callable from any thread, as such each function queues a draw job into a queue. Once tumDrawUpdateScreen is called, the queued draw jobs are executed by the background SDL thread.</p>
+<p>The tumDraw primative draw functions are designed to be callable from any thread, as such each function queues a draw job into a queue. Once tumDrawUpdateScreen is called, the queued draw jobs are executed by the background SDL thread.</p>
+<p>While primitive drawing functions, such as <a class="el" href="group__tum__draw.html#ga74fd7caeeaa15154021975a845f00bb6" title="Draws a filled circle on the screen. ">tumDrawCircle()</a>, are thread-safe calls to <a class="el" href="group__tum__draw.html#ga94367ba8f9f13162b57e581bd74c9fa1" title="Executes the queued draw jobs. ">tumDrawUpdateScreen()</a> must come from the thread that holds the GL (graphics layer) context. A thread can obtain the GL context by calling <a class="el" href="group__tum__draw.html#gae187c9cbf8f2721d131012aa423d9517" title="Transfers the drawing ability to the calling thread/taskd. ">tumDrawBindThread()</a>. Please be wary that <a class="el" href="group__tum__draw.html#gae187c9cbf8f2721d131012aa423d9517" title="Transfers the drawing ability to the calling thread/taskd. ">tumDrawBindThread()</a> has a large overhead and should be avoided when possible. Having a centeralized screen updating thread is a good solution to this problem. Calls to GL context dependent calls, such as <a class="el" href="group__tum__draw.html#ga94367ba8f9f13162b57e581bd74c9fa1" title="Executes the queued draw jobs. ">tumDrawUpdateScreen()</a> will fail if the calling thread does not hold the GL context.</p>
 <dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
 
 </div>

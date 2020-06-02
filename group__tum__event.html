@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="summary">
+<a href="#groups">Modules</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -88,6 +89,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Keyboard and mouse event retrieval API.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="groups"></a>
+Modules</h2></td></tr>
+<tr class="memitem:group__FETCH__BLOCK__FLAGS"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__FETCH__BLOCK__FLAGS.html">Event fetching blocking flags</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga40f34e34d8926fee1ad9952bc2978027"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga40f34e34d8926fee1ad9952bc2978027">tumEventInit</a> (void)</td></tr>
@@ -111,14 +117,13 @@ Functions</h2></td></tr>
 <tr class="memitem:ga3d2ab3e62159ece1d7d70427b17d4bff"><td class="memItemLeft" align="right" valign="top">signed char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga3d2ab3e62159ece1d7d70427b17d4bff">tumEventGetMouseMiddle</a> (void)</td></tr>
 <tr class="memdesc:ga3d2ab3e62159ece1d7d70427b17d4bff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a copy of the mouse's middle button status.  <a href="#ga3d2ab3e62159ece1d7d70427b17d4bff">More...</a><br /></td></tr>
 <tr class="separator:ga3d2ab3e62159ece1d7d70427b17d4bff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga011f0988b602edebbac0a144b9d4ab9b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga011f0988b602edebbac0a144b9d4ab9b">tumEventFetchEvents</a> (void)</td></tr>
-<tr class="memdesc:ga011f0988b602edebbac0a144b9d4ab9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Polls all outstanding SDL Events. Should be called from Draw Loop.  <a href="#ga011f0988b602edebbac0a144b9d4ab9b">More...</a><br /></td></tr>
-<tr class="separator:ga011f0988b602edebbac0a144b9d4ab9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga16313ea525da83a79f06c61170cfe477"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga16313ea525da83a79f06c61170cfe477">tumEventFetchEvents</a> (int block_flag)</td></tr>
+<tr class="memdesc:ga16313ea525da83a79f06c61170cfe477"><td class="mdescLeft">&#160;</td><td class="mdescRight">Polls all outstanding SDL Events. Should be called from Draw Loop that holds the OpenGL context.  <a href="#ga16313ea525da83a79f06c61170cfe477">More...</a><br /></td></tr>
+<tr class="separator:ga16313ea525da83a79f06c61170cfe477"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:gafa8fb3b3288671b53ec23beadc896e63"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#gafa8fb3b3288671b53ec23beadc896e63">buttonInputQueue</a></td></tr>
-<tr class="memdesc:gafa8fb3b3288671b53ec23beadc896e63"><td class="mdescLeft">&#160;</td><td class="mdescRight">FreeRTOS queue used to obtain a current copy of the keyboard lookup table.  <a href="#gafa8fb3b3288671b53ec23beadc896e63">More...</a><br /></td></tr>
 <tr class="separator:gafa8fb3b3288671b53ec23beadc896e63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -144,21 +149,31 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga011f0988b602edebbac0a144b9d4ab9b"></a>
+<a class="anchor" id="ga16313ea525da83a79f06c61170cfe477"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void tumEventFetchEvents </td>
+          <td class="memname">int tumEventFetchEvents </td>
           <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>block_flag</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Polls all outstanding SDL Events. Should be called from Draw Loop. </p>
+<p>Polls all outstanding SDL Events. Should be called from Draw Loop that holds the OpenGL context. </p>
+<p>Events can be retrieved in either a blocking or non-blocking fashion. The flags FETCH_EVENT_BLOCK and FETCH_EVENT_NONBLOCK specify which action is to be taken. flag values that are not FETCH_EVENT_BLOCK or FETCH_EVENT_NONBLOCK will result in nonblocking behaviour.</p>
+<p>Events can only be fetched from threads that holds the GL context, obtained using <a class="el" href="group__tum__draw.html#gae187c9cbf8f2721d131012aa423d9517" title="Transfers the drawing ability to the calling thread/taskd. ">tumDrawBindThread()</a>. Binding a thread has a large overhead and should be avoided. Calls to <a class="el" href="group__tum__event.html#ga16313ea525da83a79f06c61170cfe477" title="Polls all outstanding SDL Events. Should be called from Draw Loop that holds the OpenGL context...">tumEventFetchEvents()</a> from threads that do not hold the GL context will fail.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">block_flag</td><td>Determines whether the function should block or return if the SDL backend is currently retrieving events. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success. FreeRTOS queue used to obtain a current copy of the keyboard lookup table</dd></dl>
+<p>Sends an unsigned char array of length SDL_NUM_SCANCODES. Acts as a lookup table using the SDL scancodes defined in &lt;SDL2/SDL_scancode.h&gt; </p>
 
 </div>
 </div>
@@ -286,9 +301,6 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>FreeRTOS queue used to obtain a current copy of the keyboard lookup table. </p>
-<p>Sends an unsigned char array of length SDL_NUM_SCANCODES. Acts as a lookup table using the SDL scancodes defined in &lt;SDL2/SDL_scancode.h&gt; </p>
 
 </div>
 </div>
