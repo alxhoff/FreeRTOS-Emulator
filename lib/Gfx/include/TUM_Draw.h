@@ -36,18 +36,6 @@
 
 #ifndef __TUM_DRAW_H__
 #define __TUM_DRAW_H__
-
-#define WINDOW_TITLE "FreeRTOS Emulator"
-
-/**
- * Sets the width (in pixels) of the screen
- */
-#define SCREEN_WIDTH 640
-/**
- * Sets the height (in pixels) of the screen
- */
-#define SCREEN_HEIGHT 480
-
 /**
  * @defgroup tum_draw TUM Drawing API
  *
@@ -60,6 +48,20 @@
  *
  * @{
  */
+
+/**
+ * The string that is shown on the window's status bar
+ */
+#define WINDOW_TITLE "FreeRTOS Emulator"
+
+/**
+ * Sets the width (in pixels) of the screen
+ */
+#define SCREEN_WIDTH 640
+/**
+ * Sets the height (in pixels) of the screen
+ */
+#define SCREEN_HEIGHT 480
 
 /**
  * @name Hex RGB colours
