@@ -94,18 +94,41 @@ signed char tumEventGetMouseRight(void);
 signed char tumEventGetMouseMiddle(void);
 
 /**
- * @brief Polls all outstanding SDL Events.
- *        Should be called from Draw Loop
+ * @defgroup FETCH_BLOCK_FLAGS Event fetching blocking flags
+ *
+ * @{
  */
-void tumEventFetchEvents(void);
 
-extern QueueHandle_t buttonInputQueue;
+/** Event fetching should block until events could be fetched */
+#define FETCH_EVENT_BLOCK 0
+
+/** Event fetching should not block and return if events could not be fetched*/
+#define FETCH_EVENT_NONBLOCK 1
+
+/** @} */
+
+/**
+ * @brief Polls all outstanding SDL Events. Should be called from Draw Loop that
+ * holds the OpenGL context.
+ *
+ * Events can be retrieved in either a blocking or non-blocking fashion. The flags
+ * FETCH_EVENT_BLOCK and FETCH_EVENT_NONBLOCK specify which action is to be taken.
+ * flag values that are not FETCH_EVENT_BLOCK or FETCH_EVENT_NONBLOCK will
+ * result in nonblocking behaviour.
+ *
+ * @param block_flag Determines whether the function should block or return if
+ * the SDL backend is currently retrieving events.
+ * @return 0 on success.
+ */
+int tumEventFetchEvents(int block_flag);
+
 /*!<
  * @brief FreeRTOS queue used to obtain a current copy of the keyboard lookup table
  *
  * Sends an unsigned char array of length SDL_NUM_SCANCODES. Acts as a lookup
  * table using the SDL scancodes defined in <SDL2/SDL_scancode.h>
  */
+extern QueueHandle_t buttonInputQueue;
 
 /** @} */
 #endif

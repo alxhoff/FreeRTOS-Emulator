@@ -47,17 +47,22 @@ QueueHandle_t buttonInputQueue = NULL;
 
 mouse_t mouse;
 
+xSemaphoreHandle fetch_lock;
+
 static int initMouse(void)
 {
 	mouse.lock = xSemaphoreCreateMutex();
-	if (!mouse.lock) {
+	if (!mouse.lock)
 		return -1;
-	}
+
+	fetch_lock = xSemaphoreCreateMutex();
+	if (!fetch_lock)
+		return -1;
 
 	return 0;
 }
 
-void tumEventFetchEvents(void)
+static void SDLFetchEvents(void)
 {
 	SDL_Event event = { 0 };
 	static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
@@ -97,7 +102,7 @@ void tumEventFetchEvents(void)
 			default:
 				break;
 			}
-            send = 1;
+			send = 1;
 			xSemaphoreGive(mouse.lock);
 		} else if (event.type == SDL_MOUSEBUTTONUP) {
 			xSemaphoreTake(mouse.lock, 0);
@@ -114,7 +119,7 @@ void tumEventFetchEvents(void)
 			default:
 				break;
 			}
-            send = 1;
+			send = 1;
 			xSemaphoreGive(mouse.lock);
 		}
 	}
@@ -123,6 +128,26 @@ void tumEventFetchEvents(void)
 		xQueueOverwrite(buttonInputQueue, &buttons);
 		send = 0;
 	}
+}
+
+int tumEventFetchEvents(int block_flag)
+{
+    switch(block_flag){
+        case FETCH_EVENT_BLOCK:
+            xSemaphoreTake(fetch_lock, portMAX_DELAY);
+            SDLFetchEvents();
+            xSemaphoreGive(fetch_lock);
+            return 0;
+        default:
+        case FETCH_EVENT_NONBLOCK:
+            if(xSemaphoreTake(fetch_lock, 0) == pdTRUE){
+                SDLFetchEvents();
+                xSemaphoreGive(fetch_lock);
+                return 0;
+            }
+            return -1;
+    }
+    return -1;
 }
 
 signed short tumEventGetMouseX(void)
@@ -154,35 +179,35 @@ signed short tumEventGetMouseY(void)
 
 signed char tumEventGetMouseLeft(void)
 {
-    signed char ret;
+	signed char ret;
 
-    xSemaphoreTake(mouse.lock, portMAX_DELAY);
-    ret = mouse.left_button;
-    xSemaphoreGive(mouse.lock);
+	xSemaphoreTake(mouse.lock, portMAX_DELAY);
+	ret = mouse.left_button;
+	xSemaphoreGive(mouse.lock);
 
-    return ret;
+	return ret;
 }
 
 signed char tumEventGetMouseRight(void)
 {
-    signed char ret;
+	signed char ret;
 
-    xSemaphoreTake(mouse.lock, portMAX_DELAY);
-    ret = mouse.right_button;
-    xSemaphoreGive(mouse.lock);
+	xSemaphoreTake(mouse.lock, portMAX_DELAY);
+	ret = mouse.right_button;
+	xSemaphoreGive(mouse.lock);
 
-    return ret;
+	return ret;
 }
 
 signed char tumEventGetMouseMiddle(void)
 {
-    signed char ret;
+	signed char ret;
 
-    xSemaphoreTake(mouse.lock, portMAX_DELAY);
-    ret = mouse.middle_button;
-    xSemaphoreGive(mouse.lock);
+	xSemaphoreTake(mouse.lock, portMAX_DELAY);
+	ret = mouse.middle_button;
+	xSemaphoreGive(mouse.lock);
 
-    return ret;
+	return ret;
 }
 
 int tumEventInit(void)
@@ -192,7 +217,8 @@ int tumEventInit(void)
 		goto err_init_mouse;
 	}
 
-	buttonInputQueue = xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
+	buttonInputQueue =
+		xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
 
 	if (!buttonInputQueue) {
 		PRINT_ERROR("Creating mouse queue failed");
