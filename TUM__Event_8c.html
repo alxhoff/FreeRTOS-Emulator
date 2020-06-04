@@ -89,6 +89,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
@@ -114,6 +115,15 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmouse.html">mouse</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a39a67e35e77fa6d908d7f0b4d38a48fc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Event_8c.html#a39a67e35e77fa6d908d7f0b4d38a48fc">FETCH_BLOCK_S</a>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:a39a67e35e77fa6d908d7f0b4d38a48fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a654d24e6d2c5907651723185bd383a04"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Event_8c.html#a654d24e6d2c5907651723185bd383a04">FETCH_NONBLOCK_S</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:a654d24e6d2c5907651723185bd383a04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9761331878b619224bd68134c449051e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Event_8c.html#a9761331878b619224bd68134c449051e">FETCH_NO_GL_CHECK_S</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:a9761331878b619224bd68134c449051e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:ace4469260baa0e1d21359990f4e26438"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structmouse.html">mouse</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Event_8c.html#ace4469260baa0e1d21359990f4e26438">mouse_t</a></td></tr>
@@ -121,7 +131,7 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga16313ea525da83a79f06c61170cfe477"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga16313ea525da83a79f06c61170cfe477">tumEventFetchEvents</a> (int block_flag)</td></tr>
+<tr class="memitem:ga16313ea525da83a79f06c61170cfe477"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga16313ea525da83a79f06c61170cfe477">tumEventFetchEvents</a> (int flags)</td></tr>
 <tr class="memdesc:ga16313ea525da83a79f06c61170cfe477"><td class="mdescLeft">&#160;</td><td class="mdescRight">Polls all outstanding SDL Events. Should be called from Draw Loop that holds the OpenGL context.  <a href="group__tum__event.html#ga16313ea525da83a79f06c61170cfe477">More...</a><br /></td></tr>
 <tr class="separator:ga16313ea525da83a79f06c61170cfe477"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1ee3d3b7c06a732977632f8af80da22a"><td class="memItemLeft" align="right" valign="top">signed short&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga1ee3d3b7c06a732977632f8af80da22a">tumEventGetMouseX</a> (void)</td></tr>
@@ -172,7 +182,44 @@ Variables</h2></td></tr>
     along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
    ----------------------------------------------------------------------
 </pre> </dd></dl>
-</div><h2 class="groupheader">Typedef Documentation</h2>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a class="anchor" id="a39a67e35e77fa6d908d7f0b4d38a48fc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FETCH_BLOCK_S&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9761331878b619224bd68134c449051e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FETCH_NO_GL_CHECK_S&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a654d24e6d2c5907651723185bd383a04"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FETCH_NONBLOCK_S&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Typedef Documentation</h2>
 <a class="anchor" id="ace4469260baa0e1d21359990f4e26438"></a>
 <div class="memitem">
 <div class="memproto">

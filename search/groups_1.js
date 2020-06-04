@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['event_20fetching_20blocking_20flags',['Event fetching blocking flags',['../group__FETCH__BLOCK__FLAGS.html',1,'']]]
+  ['event_20fetching_20flags',['Event fetching flags',['../group__FETCH__EVENT__FLAGS.html',1,'']]]
 ];
