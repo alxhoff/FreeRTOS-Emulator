@@ -78,7 +78,7 @@ static SemaphoreHandle_t HandleUDP = NULL;
 
 aIO_handle_t udp_soc_receive = NULL, udp_soc_transmit = NULL;
 
-typedef enum {NONE=0, INC=1, DEC=-1} opponent_cmd_t;
+typedef enum {NONE = 0, INC = 1, DEC = -1} opponent_cmd_t;
 
 void UDPHandler(size_t read_size, char *buffer, void *args)
 {
@@ -86,19 +86,22 @@ void UDPHandler(size_t read_size, char *buffer, void *args)
 
     //printf("UDP Recv in handler: %s\n", buffer);
     if (xSemaphoreTake(HandleUDP, 0) == pdTRUE) {
-        if (strcmp(buffer,"INC") == 0) {
+        if (strcmp(buffer, "INC") == 0) {
             next_key = INC;
-        } else if (strcmp(buffer,"DEC") == 0) {
+        }
+        else if (strcmp(buffer, "DEC") == 0) {
             next_key = DEC;
-        } else if (strcmp(buffer,"NONE") == 0) {
+        }
+        else if (strcmp(buffer, "NONE") == 0) {
             next_key = NONE;
         }
-        
-	if (NextKeyQueue) {
+
+        if (NextKeyQueue) {
             xQueueSend(NextKeyQueue, (void *) &next_key, 0);
         }
         xSemaphoreGive(HandleUDP);
-    } else {
+    }
+    else {
         fprintf(stderr,
                 "[ERROR] Overlapping UDPHandler call\n");
     }
@@ -116,7 +119,7 @@ void vUDPControlTask(void *pvParameters)
 
 
     udp_soc_receive = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
-                                   UDPHandler, NULL);
+                                       UDPHandler, NULL);
 
     printf("UDP socket opened on port %d\n", port);
 
@@ -125,11 +128,12 @@ void vUDPControlTask(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(15));
         while (xQueueReceive(BallYQueue, &ball_y, 0) == pdTRUE) {}
         while (xQueueReceive(PaddleYQueue, &paddle_y, 0) == pdTRUE) {}
-        signed int diff = ball_y-paddle_y;
+        signed int diff = ball_y - paddle_y;
         if (diff > 0) {
-            sprintf(buf,"+%d",diff);
-        } else {
-            sprintf(buf,"-%d",-diff);
+            sprintf(buf, "+%d", diff);
+        }
+        else {
+            sprintf(buf, "-%d", -diff);
         }
         aIOSocketPut(UDP, NULL, UDP_TRANSMIT_PORT, buf,
                      strlen(buf));
@@ -216,7 +220,8 @@ unsigned char xCheckPongUDPInput(unsigned short *paddle_y)
 
     if (current_key == INC) {
         vDecrementPaddleY(paddle_y);
-    } else if (current_key == DEC) {
+    }
+    else if (current_key == DEC) {
         vIncrementPaddleY(paddle_y);
     }
     return 0;
@@ -276,7 +281,12 @@ void vDrawOpponentText(void)
 
     tumFontSetSize((ssize_t)20);
 
-    sprintf(str, "Computer Mode");
+    if (enabled) {
+        sprintf(str, "Computer Mode [SPACE]");
+    }
+    else {
+        sprintf(str, "2 Player Mode [SPACE]");
+    }
 
     if (!tumGetTextSize((char *)str, &text_width, NULL))
         tumDrawText(str,
@@ -368,15 +378,16 @@ void vRightPaddleTask(void *pvParameters)
     while (1) {
 
         // Get input
-	if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY)) { // COMPUTER
+        if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY)) { // COMPUTER
             xCheckPongUDPInput(&right_player.paddle_position);
             unsigned long paddle_y = right_player.paddle_position *
-		    PADDLE_INCREMENT_SIZE + PADDLE_LENGTH/2 +
-		    WALL_OFFSET + WALL_THICKNESS;
+                                     PADDLE_INCREMENT_SIZE + PADDLE_LENGTH / 2 +
+                                     WALL_OFFSET + WALL_THICKNESS;
             xQueueSend(PaddleYQueue, (void *) &paddle_y, 0);
-	} else { // PLAYER
+        }
+        else {   // PLAYER
             xCheckPongRightInput(&right_player.paddle_position);
-	}
+        }
 
         taskENTER_CRITICAL();
         if (xSemaphoreTake(ScreenLock, 0) == pdTRUE) {
@@ -425,16 +436,17 @@ void vLeftPaddleTask(void *pvParameters)
     while (1) {
 
         // Get input
-	if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY)) { // COMPUTER
+        if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY)) { // COMPUTER
             xCheckPongUDPInput(&left_player.paddle_position);
             unsigned long paddle_y = left_player.paddle_position *
-		    PADDLE_INCREMENT_SIZE + PADDLE_LENGTH/2 +
-		    WALL_OFFSET + WALL_THICKNESS;
+                                     PADDLE_INCREMENT_SIZE + PADDLE_LENGTH / 2 +
+                                     WALL_OFFSET + WALL_THICKNESS;
             xQueueSend(PaddleYQueue, (void *) &paddle_y, 0);
 
-	} else { // PLAYER
+        }
+        else {   // PLAYER
             xCheckPongLeftInput(&left_player.paddle_position);
-	}
+        }
 
         taskENTER_CRITICAL();
 
@@ -531,14 +543,16 @@ void vPongControlTask(void *pvParameters)
                     }
                     else if (buttons.buttons[KEYCODE(SPACE)]) {
                         xSemaphoreGive(buttons.lock);
-			opponent_mode = (opponent_mode + 1) % 2;
-			if (opponent_mode) {
+                        opponent_mode = (opponent_mode + 1) % 2;
+                        if (opponent_mode) {
                             vTaskResume(UDPControlTask);
-			} else {
+                        }
+                        else {
                             vTaskSuspend(UDPControlTask);
-			}
-			vTaskDelay(200);
-                    } else {
+                        }
+                        vTaskDelay(200);
+                    }
+                    else {
                         xSemaphoreGive(buttons.lock);
                     }
                 }
@@ -567,7 +581,7 @@ void vPongControlTask(void *pvParameters)
                                     -(rand() % 100 +
                                       200),
                                     ((rand() % 2) * 2 - 1) *
-				    (100 + (rand() % 200)),
+                                    (100 + (rand() % 200)),
                                     0,
                                     SET_BALL_SPEED_AXES);
                                 break;
@@ -578,7 +592,7 @@ void vPongControlTask(void *pvParameters)
                                     rand() % 100 +
                                     200,
                                     ((rand() % 2) * 2 - 1) *
-				    (100 + (rand() % 200)),
+                                    (100 + (rand() % 200)),
                                     0,
                                     SET_BALL_SPEED_AXES);
                                 break;
@@ -596,7 +610,7 @@ void vPongControlTask(void *pvParameters)
                 updateBallPosition(
                     my_ball, xLastWakeTime - prevWakeTime);
 
-		unsigned long ball_y = my_ball->y;
+                unsigned long ball_y = my_ball->y;
                 xQueueSend(BallYQueue, (void *) &ball_y, 0);
 
                 taskENTER_CRITICAL();
@@ -756,7 +770,7 @@ int pongInit(void)
     }
     if (xTaskCreate(vUDPControlTask, "UDPControlTask",
                     mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY,
-		    &UDPControlTask) != pdPASS) {
+                    &UDPControlTask) != pdPASS) {
         PRINT_TASK_ERROR("UDPControlTask");
         goto err_udpcontrol;
     }
