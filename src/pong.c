@@ -403,8 +403,9 @@ void vPongControlTask(void *pvParameters)
                             SET_BALL_SPEED_AXES);
                         left_score = 0;
                         right_score = 0;
+                    } else {
+                        xSemaphoreGive(buttons.lock);
                     }
-                    xSemaphoreGive(buttons.lock);
                 }
 
                 // Ball is no longer active
