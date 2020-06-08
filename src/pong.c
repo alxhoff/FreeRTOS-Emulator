@@ -10,6 +10,8 @@
 #include "TUM_Ball.h"
 #include "TUM_Draw.h"
 
+#include "AsyncIO.h"
+
 #include "pong.h" // Must be before FreeRTOS includes
 #include "main.h"
 #include "queue.h"
@@ -40,6 +42,11 @@
 /** HELPER MACRO TO RESOLVE SDL KEYCODES */
 #define KEYCODE(CHAR) SDL_SCANCODE_##CHAR
 
+/** AsyncIO related */
+#define UDP_BUFFER_SIZE 1024
+#define UDP_RECEIVE_PORT 1234
+#define UDP_TRANSMIT_PORT 1235
+
 const unsigned char start_left = START_LEFT;
 const unsigned char start_right = START_RIGHT;
 
@@ -54,6 +61,7 @@ TaskHandle_t LeftPaddleTask = NULL;
 TaskHandle_t RightPaddleTask = NULL;
 TaskHandle_t PongControlTask = NULL;
 TaskHandle_t PausedStateTask = NULL;
+TaskHandle_t UDPControlTask = NULL;
 
 SemaphoreHandle_t ScreenLock = NULL;
 SemaphoreHandle_t DrawSignal = NULL;
@@ -61,8 +69,72 @@ SemaphoreHandle_t DrawSignal = NULL;
 static QueueHandle_t LeftScoreQueue = NULL;
 static QueueHandle_t RightScoreQueue = NULL;
 static QueueHandle_t StartDirectionQueue = NULL;
+static QueueHandle_t NextKeyQueue = NULL;
+static QueueHandle_t BallYQueue = NULL;
+static QueueHandle_t PaddleYQueue = NULL;
 
 static SemaphoreHandle_t BallInactive = NULL;
+static SemaphoreHandle_t HandleUDP = NULL;
+
+aIO_handle_t udp_soc_receive = NULL, udp_soc_transmit = NULL;
+
+typedef enum {NONE=0, INC=1, DEC=-1} opponent_cmd_t;
+
+void UDPHandler(size_t read_size, char *buffer, void *args)
+{
+    opponent_cmd_t next_key;
+
+    //printf("UDP Recv in handler: %s\n", buffer);
+    if (xSemaphoreTake(HandleUDP, 0) == pdTRUE) {
+        if (strcmp(buffer,"INC") == 0) {
+            next_key = INC;
+        } else if (strcmp(buffer,"DEC") == 0) {
+            next_key = DEC;
+        } else if (strcmp(buffer,"NONE") == 0) {
+            next_key = NONE;
+        }
+        
+	if (NextKeyQueue) {
+            xQueueSend(NextKeyQueue, (void *) &next_key, 0);
+        }
+        xSemaphoreGive(HandleUDP);
+    } else {
+        fprintf(stderr,
+                "[ERROR] Overlapping UDPHandler call\n");
+    }
+}
+
+void vUDPControlTask(void *pvParameters)
+{
+    static char *cmd_pause = "PAUSE";
+    static char *cmd_resume = "RESUME";
+    static char buf[50];
+    char *addr = NULL; // Loopback
+    in_port_t port = UDP_RECEIVE_PORT;
+    unsigned int ball_y = 0;
+    unsigned int paddle_y = 0;
+
+
+    udp_soc_receive = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
+                                   UDPHandler, NULL);
+
+    printf("UDP socket opened on port %d\n", port);
+
+    // TODO: implement pause and difficulties
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(15));
+        while (xQueueReceive(BallYQueue, &ball_y, 0) == pdTRUE) {}
+        while (xQueueReceive(PaddleYQueue, &paddle_y, 0) == pdTRUE) {}
+        signed int diff = ball_y-paddle_y;
+        if (diff > 0) {
+            sprintf(buf,"+%d",diff);
+        } else {
+            sprintf(buf,"-%d",-diff);
+        }
+        aIOSocketPut(UDP, NULL, UDP_TRANSMIT_PORT, buf,
+                     strlen(buf));
+    }
+}
 
 void xGetButtonInput(void)
 {
@@ -136,6 +208,20 @@ unsigned char xCheckPongLeftInput(unsigned short *left_paddle_y)
     return 0;
 }
 
+unsigned char xCheckPongUDPInput(unsigned short *paddle_y)
+{
+    static opponent_cmd_t current_key;
+
+    xQueueReceive(NextKeyQueue, &current_key, 0);
+
+    if (current_key == INC) {
+        vDecrementPaddleY(paddle_y);
+    } else if (current_key == DEC) {
+        vIncrementPaddleY(paddle_y);
+    }
+    return 0;
+}
+
 unsigned char xCheckForInput(void)
 {
     if (xCheckPongLeftInput(NULL) || xCheckPongRightInput(NULL)) {
@@ -177,6 +263,24 @@ void vDrawHelpText(void)
     if (!tumGetTextSize((char *)str, &text_width, NULL))
         tumDrawText(str,
                     SCREEN_WIDTH - text_width - DEFAULT_FONT_SIZE * 2.5,
+                    DEFAULT_FONT_SIZE * 2.5, White);
+
+    tumFontSetSize(prev_font_size);
+}
+
+void vDrawOpponentText(void)
+{
+    static char str[100] = { 0 };
+    static int text_width;
+    ssize_t prev_font_size = tumFontGetCurFontSize();
+
+    tumFontSetSize((ssize_t)20);
+
+    sprintf(str, "Computer Mode");
+
+    if (!tumGetTextSize((char *)str, &text_width, NULL))
+        tumDrawText(str,
+                    DEFAULT_FONT_SIZE * 2.5,
                     DEFAULT_FONT_SIZE * 2.5, White);
 
     tumFontSetSize(prev_font_size);
@@ -262,10 +366,17 @@ void vRightPaddleTask(void *pvParameters)
     RightScoreQueue = xQueueCreate(10, sizeof(unsigned char));
 
     while (1) {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         // Get input
-        xCheckPongRightInput(&right_player.paddle_position);
+	if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY)) { // COMPUTER
+            xCheckPongUDPInput(&right_player.paddle_position);
+            unsigned long paddle_y = right_player.paddle_position *
+		    PADDLE_INCREMENT_SIZE + PADDLE_LENGTH/2 +
+		    WALL_OFFSET + WALL_THICKNESS;
+            xQueueSend(PaddleYQueue, (void *) &paddle_y, 0);
+	} else { // PLAYER
+            xCheckPongRightInput(&right_player.paddle_position);
+	}
 
         taskENTER_CRITICAL();
         if (xSemaphoreTake(ScreenLock, 0) == pdTRUE) {
@@ -312,10 +423,18 @@ void vLeftPaddleTask(void *pvParameters)
     LeftScoreQueue = xQueueCreate(10, sizeof(unsigned char));
 
     while (1) {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         // Get input
-        xCheckPongLeftInput(&left_player.paddle_position);
+	if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY)) { // COMPUTER
+            xCheckPongUDPInput(&left_player.paddle_position);
+            unsigned long paddle_y = left_player.paddle_position *
+		    PADDLE_INCREMENT_SIZE + PADDLE_LENGTH/2 +
+		    WALL_OFFSET + WALL_THICKNESS;
+            xQueueSend(PaddleYQueue, (void *) &paddle_y, 0);
+
+	} else { // PLAYER
+            xCheckPongLeftInput(&left_player.paddle_position);
+	}
 
         taskENTER_CRITICAL();
 
@@ -330,13 +449,13 @@ void vLeftPaddleTask(void *pvParameters)
     }
 }
 
-void vWakePaddles(void)
+void vWakePaddles(char opponent_mode)
 {
-    if (xTaskNotifyGive(LeftPaddleTask) != pdPASS) {
+    if (xTaskNotify(LeftPaddleTask, opponent_mode, eSetValueWithOverwrite) != pdPASS) {
         fprintf(stderr,
                 "[ERROR] Task Notification to LeftPaddleTask failed\n");
     }
-    if (xTaskNotifyGive(RightPaddleTask) != pdPASS) {
+    if (xTaskNotify(RightPaddleTask, 0x0, eSetValueWithOverwrite) != pdPASS) {
         fprintf(stderr,
                 "[ERROR] Task Notification to RightPaddleTask failed\n");
     }
@@ -361,8 +480,14 @@ void vPongControlTask(void *pvParameters)
     unsigned int left_score = 0;
     unsigned int right_score = 0;
 
+    char opponent_mode = 0; // 0: player 1: computer
+
     BallInactive = xSemaphoreCreateBinary();
+    HandleUDP = xSemaphoreCreateMutex();
     StartDirectionQueue = xQueueCreate(1, sizeof(unsigned char));
+    NextKeyQueue = xQueueCreate(1, sizeof(opponent_cmd_t));
+    BallYQueue = xQueueCreate(5, sizeof(unsigned long));
+    PaddleYQueue = xQueueCreate(5, sizeof(unsigned long));
 
     setBallSpeed(my_ball, 250, 250, 0, SET_BALL_SPEED_AXES);
 
@@ -403,6 +528,16 @@ void vPongControlTask(void *pvParameters)
                             SET_BALL_SPEED_AXES);
                         left_score = 0;
                         right_score = 0;
+                    }
+                    else if (buttons.buttons[KEYCODE(SPACE)]) {
+                        xSemaphoreGive(buttons.lock);
+			opponent_mode = (opponent_mode + 1) % 2;
+			if (opponent_mode) {
+                            vTaskResume(UDPControlTask);
+			} else {
+                            vTaskSuspend(UDPControlTask);
+			}
+			vTaskDelay(200);
                     } else {
                         xSemaphoreGive(buttons.lock);
                     }
@@ -451,7 +586,7 @@ void vPongControlTask(void *pvParameters)
                     }
                 }
 
-                vWakePaddles();
+                vWakePaddles(opponent_mode);
 
                 // Check if ball has made a collision
                 checkBallCollisions(my_ball, NULL, NULL);
@@ -460,6 +595,9 @@ void vPongControlTask(void *pvParameters)
                 // updated its speeds
                 updateBallPosition(
                     my_ball, xLastWakeTime - prevWakeTime);
+
+		unsigned long ball_y = my_ball->y;
+                xQueueSend(BallYQueue, (void *) &ball_y, 0);
 
                 taskENTER_CRITICAL();
 
@@ -473,6 +611,9 @@ void vPongControlTask(void *pvParameters)
                     vDrawWall(top_wall);
                     vDrawWall(bottom_wall);
                     vDrawHelpText();
+		    if (opponent_mode) {
+                        vDrawOpponentText();
+		    }
                     vDrawNetDots();
 
                     // Check for score updates
@@ -613,14 +754,23 @@ int pongInit(void)
         PRINT_TASK_ERROR("PongControlTask");
         goto err_pongcontrol;
     }
+    if (xTaskCreate(vUDPControlTask, "UDPControlTask",
+                    mainGENERIC_STACK_SIZE, NULL, mainGENERIC_PRIORITY,
+		    &UDPControlTask) != pdPASS) {
+        PRINT_TASK_ERROR("UDPControlTask");
+        goto err_udpcontrol;
+    }
 
     vTaskSuspend(LeftPaddleTask);
     vTaskSuspend(RightPaddleTask);
     vTaskSuspend(PongControlTask);
     vTaskSuspend(PausedStateTask);
+    vTaskSuspend(UDPControlTask);
 
     return 0;
 
+err_udpcontrol:
+    vTaskDelete(PongControlTask);
 err_pongcontrol:
     vTaskDelete(PausedStateTask);
 err_pausedstate:

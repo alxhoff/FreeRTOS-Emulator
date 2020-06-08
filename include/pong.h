@@ -12,6 +12,7 @@ extern TaskHandle_t LeftPaddleTask;
 extern TaskHandle_t RightPaddleTask;
 extern TaskHandle_t PongControlTask;
 extern TaskHandle_t PausedStateTask;
+extern TaskHandle_t UDPControlTask;
 
 int pongInit(void);
 
