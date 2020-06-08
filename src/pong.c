@@ -170,9 +170,9 @@ void vDrawHelpText(void)
     static int text_width;
     ssize_t prev_font_size = tumFontGetCurFontSize();
 
-    tumFontSetSize((ssize_t)30);
+    tumFontSetSize((ssize_t)20);
 
-    sprintf(str, "[Q]uit [P]ause");
+    sprintf(str, "[Q]uit [P]ause [R]estart");
 
     if (!tumGetTextSize((char *)str, &text_width, NULL))
         tumDrawText(str,
