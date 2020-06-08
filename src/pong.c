@@ -430,8 +430,8 @@ void vPongControlTask(void *pvParameters)
                                     my_ball,
                                     -(rand() % 100 +
                                       200),
-                                    rand() % 300 -
-                                    150,
+                                    ((rand() % 2) * 2 - 1) *
+				    (100 + (rand() % 200)),
                                     0,
                                     SET_BALL_SPEED_AXES);
                                 break;
@@ -441,8 +441,8 @@ void vPongControlTask(void *pvParameters)
                                     my_ball,
                                     rand() % 100 +
                                     200,
-                                    rand() % 300 -
-                                    150,
+                                    ((rand() % 2) * 2 - 1) *
+				    (100 + (rand() % 200)),
                                     0,
                                     SET_BALL_SPEED_AXES);
                                 break;
