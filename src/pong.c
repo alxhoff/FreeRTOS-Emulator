@@ -273,7 +273,7 @@ void vDrawHelpText(void)
     tumFontSetSize(prev_font_size);
 }
 
-void vDrawOpponentText(void)
+void vDrawOpponentText(char enabled)
 {
     static char str[100] = { 0 };
     static int text_width;
@@ -625,9 +625,7 @@ void vPongControlTask(void *pvParameters)
                     vDrawWall(top_wall);
                     vDrawWall(bottom_wall);
                     vDrawHelpText();
-		    if (opponent_mode) {
-                        vDrawOpponentText();
-		    }
+                    vDrawOpponentText(opponent_mode);
                     vDrawNetDots();
 
                     // Check for score updates
