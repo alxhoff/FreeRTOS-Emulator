@@ -20,6 +20,8 @@ char *fullWaveFileNames[NUM_WAVEFORMS] = { 0 };
 
 Mix_Chunk *samples[NUM_WAVEFORMS] = { 0 };
 
+static char TUMSound_online = 0;
+
 void tumSoundExit(void)
 {
 #ifndef DOCKER
@@ -68,6 +70,8 @@ int tumSoundInit(char *bin_dir_str)
         }
     }
 
+    TUMSound_online = 1;
+
     atexit(tumSoundExit);
 
     return 0;
@@ -94,6 +98,7 @@ err_file_names:
 void tumSoundPlaySample(unsigned char index)
 {
 #ifndef DOCKER
-    Mix_PlayChannel(-1, samples[index], 0);
+    if(TUMSound_online)
+        Mix_PlayChannel(-1, samples[index], 0);
 #endif /* DOCKER */
 }
