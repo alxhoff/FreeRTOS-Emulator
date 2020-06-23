@@ -2,6 +2,8 @@
 
 You will find pre-compiled executables to game opponents in this directory.
 
+Detailed documentation can be found here: https://github.com/alxhoff/FreeRTOS-Emulator/wiki/Opponents
+
 ## Manual
 
 General Usage:
