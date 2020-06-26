@@ -96,6 +96,30 @@ void tumSoundExit(void);
  */
 void tumSoundPlaySample(unsigned char index);
 
+/**
+ * @brief Loads a .wav sample from disk
+ *
+ * The filepath must specify the location of the wavefile either relative to the
+ * executing binary or the absolute path. To ensure executing on other systems with
+ * different file system structures a relative path is recommended.
+ *
+ * @param filepath The location of the waveform on disk to be loaded
+ * @return 0 on success
+ */
+int tumSoundLoadUserSample(const char *filepath);
+
+/**
+ * @brief Plays a loaded waveform
+
+ * Once loaded the wavefile can be played by providing either the entire filepath
+ * or the basename. Eg. A file with the path '../resources/my_sample.wav' could be
+ * played by either passing '../resources/my_sample.wav' or simply 'my_sample.wav'.
+ *
+ * @param filename The name of the waveform to be played
+ * @return 0 on success
+ */
+int tumSoundPlayUserSample(const char *filename);
+
 /** @}*/
 
 #endif
