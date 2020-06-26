@@ -345,7 +345,8 @@ void vDrawButtonText(void)
 {
     static char str[100] = { 0 };
 
-    sprintf(str, "Axis 1: %5d | Axis 2: %5d", tumEventGetMouseX(), tumEventGetMouseY());
+    sprintf(str, "Axis 1: %5d | Axis 2: %5d", tumEventGetMouseX(),
+            tumEventGetMouseY());
 
     checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black),
               __FUNCTION__);
@@ -504,11 +505,28 @@ void vTCPDemoTask(void *pvParameters)
 
 void vDemoTask1(void *pvParameters)
 {
+    image_handle_t ball_spritesheet =
+        tumDrawLoadImage("../resources/ball_spritesheet.png");
+    animation_handle_t ball_animation =
+        tumDrawAnimationCreate(ball_spritesheet, 25, 1);
+    tumDrawAnimationAddSequence(ball_animation, "FORWARDS", 0, 0,
+                                SPRITE_SEQUENCE_HORIZONTAL_POS, 24);
+    tumDrawAnimationAddSequence(ball_animation, "REVERSE", 0, 23,
+                                SPRITE_SEQUENCE_HORIZONTAL_NEG, 24);
+    sequence_handle_t forward_sequence =
+        tumDrawAnimationSequenceInstantiate(ball_animation, "FORWARDS",
+                                            40);
+    sequence_handle_t reverse_sequence =
+        tumDrawAnimationSequenceInstantiate(ball_animation, "REVERSE",
+                                            40);
+    TickType_t xLastFrameTime = xTaskGetTickCount();
+
     while (1) {
         if (DrawSignal)
             if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
                 pdTRUE) {
-                tumEventFetchEvents(FETCH_EVENT_BLOCK | FETCH_EVENT_NO_GL_CHECK);
+                tumEventFetchEvents(FETCH_EVENT_BLOCK |
+                                    FETCH_EVENT_NO_GL_CHECK);
                 xGetButtonInput(); // Update global input
 
                 xSemaphoreTake(ScreenLock, portMAX_DELAY);
@@ -518,6 +536,15 @@ void vDemoTask1(void *pvParameters)
                 vDrawStaticItems();
                 vDrawCave(tumEventGetMouseLeft());
                 vDrawButtonText();
+                tumDrawAnimationDrawFrame(forward_sequence,
+                                          xTaskGetTickCount() -
+                                          xLastFrameTime,
+                                          SCREEN_WIDTH - 50, SCREEN_HEIGHT - 60);
+                tumDrawAnimationDrawFrame(reverse_sequence,
+                                          xTaskGetTickCount() -
+                                          xLastFrameTime,
+                                          SCREEN_WIDTH - 50 - 40, SCREEN_HEIGHT - 60);
+                xLastFrameTime = xTaskGetTickCount();
 
                 // Draw FPS in lower right corner
                 vDrawFPS();
