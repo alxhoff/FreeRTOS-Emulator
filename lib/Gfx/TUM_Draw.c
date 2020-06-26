@@ -63,6 +63,7 @@ typedef enum {
 	DRAW_TRIANGLE,
 	DRAW_IMAGE,
 	DRAW_LOADED_IMAGE,
+	DRAW_LOADED_IMAGE_CROP,
 	DRAW_SCALED_IMAGE,
 	DRAW_ARROW,
 } draw_job_type_t;
@@ -83,8 +84,46 @@ typedef struct loaded_image {
 	struct loaded_image *next;
 } loaded_image_t;
 
-pthread_mutex_t loaded_images_lock = PTHREAD_MUTEX_INITIALIZER;
-loaded_image_t loaded_images_list = { 0 };
+typedef struct loaded_image_crop {
+	loaded_image_t *image;
+	int x;
+	int y;
+	int c_x;
+	int c_y;
+	int c_w;
+	int c_h;
+} loaded_image_crop_t;
+
+typedef struct spritesheet_sequence {
+	char *name;
+	unsigned start_row;
+	unsigned start_col;
+	enum sprite_sequence_direction direction;
+	unsigned frames;
+	struct spritesheet_sequence *next;
+} spritesheet_sequence_t;
+
+typedef struct spritesheet {
+	loaded_image_t *image;
+	unsigned sprite_width;
+	unsigned sprite_height;
+	unsigned sprite_cols;
+	unsigned sprite_rows;
+} spritesheet_t;
+
+typedef struct animated_image {
+	spritesheet_t *spritesheet;
+	spritesheet_sequence_t *sequences;
+} animated_image_t;
+
+typedef struct animated_sequence_instance {
+	unsigned frame_period_ms;
+	unsigned current_frame;
+	unsigned prev_frame_timestamp;
+	unsigned cur_frame_timestamp;
+	animated_image_t *image;
+	spritesheet_sequence_t *sequence;
+} animated_sequence_instance_t;
 
 typedef struct clear_data {
 	unsigned int colour;
@@ -189,6 +228,7 @@ union data_u {
 	triangle_data_t triangle;
 	image_data_t image;
 	loaded_image_data_t loaded_image;
+	loaded_image_crop_t loaded_image_crop;
 	scaled_image_data_t scaled_image;
 	text_data_t text;
 	arrow_data_t arrow;
@@ -202,6 +242,9 @@ typedef struct draw_job {
 } draw_job_t;
 
 draw_job_t job_list_head = { 0 };
+
+pthread_mutex_t loaded_images_lock = PTHREAD_MUTEX_INITIALIZER;
+loaded_image_t loaded_images_list = { 0 };
 
 const int screen_height = SCREEN_HEIGHT;
 const int screen_width = SCREEN_WIDTH;
@@ -371,6 +414,22 @@ static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 	return tex;
 }
 
+static int _renderCroppedImage(SDL_Texture *tex, SDL_Renderer *ren,
+			       signed short x, signed short y, signed short c_x,
+			       signed short c_y, int w, int h)
+{
+	SDL_Rect src, dst;
+	src.x = c_x;
+	src.y = c_y;
+	src.w = w;
+	src.h = h;
+	dst.x = x;
+	dst.y = y;
+	dst.w = w;
+	dst.h = h;
+	return SDL_RenderCopy(ren, tex, &src, &dst);
+}
+
 static int _renderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
 			      signed short x, signed short y, int w, int h)
 {
@@ -392,6 +451,162 @@ static int _getImageSize(char *filename, int *w, int *h)
 	SDL_DestroyTexture(tex);
 
 	return 0;
+}
+
+animation_handle_t tumDrawAnimationCreate(image_handle_t spritesheet,
+					  unsigned sprite_cols,
+					  unsigned sprite_rows)
+{
+	if (spritesheet == NULL) {
+		PRINT_ERROR("Creating animation requires a valid spritesheet");
+		goto err;
+	}
+
+	if (sprite_cols == 0) {
+		PRINT_ERROR("Spritesheet cols are not valid");
+		goto err;
+	}
+
+	if (sprite_rows == 0) {
+		PRINT_ERROR("Spritesheet rows are not valid");
+		goto err;
+	}
+
+	animated_image_t *ret = calloc(1, sizeof(animated_image_t));
+
+	if (ret == NULL) {
+		PRINT_ERROR("Allocating animation failed");
+		goto err;
+	}
+
+	ret->spritesheet = calloc(1, sizeof(spritesheet_t));
+
+	if (ret->spritesheet == NULL) {
+		PRINT_ERROR("Could not allocate spritesheet");
+		goto err_spritesheet;
+	}
+
+	ret->spritesheet->image = spritesheet;
+	ret->spritesheet->sprite_cols = sprite_cols;
+	ret->spritesheet->sprite_rows = sprite_rows;
+	ret->spritesheet->sprite_width =
+		ret->spritesheet->image->w / sprite_cols;
+	ret->spritesheet->sprite_height =
+		ret->spritesheet->image->h / sprite_rows;
+
+	return (void *)ret;
+
+err_spritesheet:
+	free(ret);
+err:
+	return NULL;
+}
+
+int tumDrawAnimationAddSequence(
+	animation_handle_t animation, char *name, unsigned start_row,
+	unsigned start_col,
+	enum sprite_sequence_direction sprite_step_direction, unsigned frames)
+{
+	if (animation == NULL) {
+		PRINT_ERROR("Animation handle is not valid");
+		goto err;
+	}
+
+	if (name == NULL) {
+		PRINT_ERROR("Sequence requires a valid name");
+		goto err;
+	}
+
+	animated_image_t *anim = (animated_image_t *)animation;
+
+	spritesheet_sequence_t *seq = calloc(1, sizeof(spritesheet_sequence_t));
+	if (seq == NULL) {
+		PRINT_ERROR("Could not allocate animation sequence");
+		goto err;
+	}
+
+	seq->name = strdup(name);
+	if (seq->name == NULL) {
+		PRINT_ERROR("Could not allocate sequence name");
+		goto err_name;
+	}
+
+	seq->start_row = start_row;
+	seq->start_col = start_col;
+	seq->direction = sprite_step_direction;
+	seq->frames = frames;
+
+	if (anim->sequences == NULL)
+		anim->sequences = seq;
+	else {
+		spritesheet_sequence_t *iterator = anim->sequences;
+
+		for (; iterator->next; iterator = iterator->next)
+			;
+		iterator->next = seq;
+	}
+
+	return 0;
+
+err_name:
+	free(seq);
+err:
+	return -1;
+}
+
+sequence_handle_t
+tumDrawAnimationSequenceInstantiate(animation_handle_t animation,
+				    char *sequence_name,
+				    unsigned frame_period_ms)
+{
+	if (animation == NULL) {
+		PRINT_ERROR(
+			"Animation provided for sequence instantiation was invalid");
+		goto err;
+	}
+
+	if (sequence_name == NULL) {
+		PRINT_ERROR("Sequence name is invalid");
+		goto err;
+	}
+
+	if (frame_period_ms == 0) {
+		PRINT_ERROR("Sequence frame period cannot be zero");
+		goto err;
+	}
+
+	animated_sequence_instance_t *ret =
+		calloc(1, sizeof(animated_sequence_instance_t));
+	if (ret == NULL) {
+		PRINT_ERROR("Could not create sequence '%s' instance",
+			    sequence_name);
+		goto err;
+	}
+
+	ret->image = (animated_image_t *)animation;
+
+	spritesheet_sequence_t *iterator;
+
+	for (iterator = ret->image->sequences; iterator;
+	     iterator = iterator->next)
+		if (!strcmp(iterator->name, sequence_name)) {
+			ret->sequence = iterator;
+			break;
+		}
+
+	if (ret->sequence == NULL) {
+		PRINT_ERROR("Could not find sequence '%s'", sequence_name);
+		goto err_sequence;
+	}
+
+	ret->frame_period_ms = frame_period_ms;
+
+	return ret;
+
+err_sequence:
+	free(ret);
+err:
+	return NULL;
 }
 
 static int freeLoadedImage(loaded_image_t **img)
@@ -436,6 +651,14 @@ static void vPutLoadedImage(image_handle_t img)
 
 	if (loaded_img->pending_free && !loaded_img->ref_count)
 		freeLoadedImage((loaded_image_t **)&img);
+}
+
+int xDrawLoadedImageCropped(loaded_image_t *img, SDL_Renderer *ren,
+			    signed short x, signed short y, signed short c_x,
+			    signed short c_y, signed short c_w,
+			    signed short c_h)
+{
+	return _renderCroppedImage(img->tex, ren, x, y, c_x, c_y, c_w, c_h);
 }
 
 int xDrawLoadedImage(loaded_image_t *img, SDL_Renderer *ren, signed short x,
@@ -625,6 +848,17 @@ static int vHandleDrawJob(draw_job_t *job)
 				       job->data->loaded_image.y);
 		vPutLoadedImage(job->data->loaded_image.img);
 		break;
+	case DRAW_LOADED_IMAGE_CROP:
+		ret = xDrawLoadedImageCropped(
+			job->data->loaded_image_crop.image, renderer,
+			job->data->loaded_image_crop.x,
+			job->data->loaded_image_crop.y,
+			job->data->loaded_image_crop.c_x,
+			job->data->loaded_image_crop.c_y,
+			job->data->loaded_image_crop.c_w,
+			job->data->loaded_image_crop.c_h);
+		vPutLoadedImage(job->data->loaded_image_crop.image);
+		break;
 	case DRAW_SCALED_IMAGE:
 		job->data->scaled_image.image.tex = loadImage(
 			job->data->scaled_image.image.filename, renderer);
@@ -685,10 +919,11 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 
 int tumDrawUpdateScreen(void)
 {
-    if(tumUtilIsCurGLThread()){
-        PRINT_ERROR("Updating screen from thread that does not hold GL context");
-        goto err;
-    }
+	if (tumUtilIsCurGLThread()) {
+		PRINT_ERROR(
+			"Updating screen from thread that does not hold GL context");
+		goto err;
+	}
 
 	static struct timespec last_time = { 0 }, cur_time = { 0 };
 
@@ -850,7 +1085,7 @@ int tumDrawBindThread(void) // Should be called from the Drawing Thread
 
 	pthread_mutex_unlock(&loaded_images_lock);
 
-    tumUtilSetGLThread();
+	tumUtilSetGLThread();
 
 	return 0;
 
@@ -979,7 +1214,7 @@ void tumDrawDuplicateBuffer(void)
 	SDL_RenderClear(renderer);
 	SDL_Rect dest = { .w = SCREEN_WIDTH, .h = SCREEN_HEIGHT };
 	SDL_RenderCopy(renderer, tex, NULL, &dest);
-    SDL_RenderPresent(renderer);
+	SDL_RenderPresent(renderer);
 }
 
 int tumDrawClear(unsigned int colour)
@@ -1062,28 +1297,40 @@ int tumDrawTriangle(coord_t *points, unsigned int colour)
 image_handle_t tumDrawLoadScaledImage(char *filename, float scale)
 {
 	loaded_image_t *ret = calloc(1, sizeof(loaded_image_t));
-	if (ret == NULL)
+	if (ret == NULL) {
+		PRINT_ERROR("Failed to allocate loaded image");
 		goto err_alloc;
+	}
 
 	ret->filename = strdup(filename);
-	if (ret->filename == NULL)
+	if (ret->filename == NULL) {
+		PRINT_ERROR("Failed to duplicate filename");
 		goto err_filename;
+	}
 
-	ret->file = fopen(filename, "r");
-	if (ret->file == NULL)
+	ret->file = fopen(filename, "rb");
+	if (ret->file == NULL) {
+		PRINT_ERROR("Failed to open file '%s'", filename);
 		goto err_file_open;
+	}
 
 	ret->ops = SDL_RWFromFP(ret->file, SDL_TRUE);
-	if (ret->ops == NULL)
+	if (ret->ops == NULL) {
+		PRINT_SDL_ERROR("Failed open from FP");
 		goto err_ops;
+	}
 
 	ret->surf = IMG_Load_RW(ret->ops, 0);
-	if (ret->surf == NULL)
+	if (ret->surf == NULL) {
+		PRINT_SDL_ERROR("Failed to load image");
 		goto err_surf;
+	}
 
 	ret->tex = SDL_CreateTextureFromSurface(renderer, ret->surf);
-	if (ret->tex == NULL)
+	if (ret->tex == NULL) {
+		PRINT_SDL_ERROR("Failed to create texture from surface");
 		goto err_tex;
+	}
 
 	SDL_QueryTexture(ret->tex, NULL, NULL, &ret->w, &ret->h);
 
@@ -1257,4 +1504,89 @@ int tumDrawArrow(signed short x1, signed short y1, signed short x2,
 	job->data->arrow.colour = colour;
 
 	return 0;
+}
+
+int tumDrawAnimationDrawFrame(sequence_handle_t sequence, unsigned ms_timestep,
+			      int x, int y)
+{
+	if (sequence == NULL) {
+		PRINT_ERROR("Trying to draw invalid sequence");
+		goto err;
+	}
+
+	if (ms_timestep < 0) {
+		PRINT_ERROR(
+			"Animation timestep must be greater or equal to zero");
+		goto err;
+	}
+
+	animated_sequence_instance_t *anim =
+		(animated_sequence_instance_t *)sequence;
+
+	anim->cur_frame_timestamp += ms_timestep;
+
+	if (anim->cur_frame_timestamp >
+	    (anim->prev_frame_timestamp + anim->frame_period_ms)) {
+		anim->current_frame += ((anim->cur_frame_timestamp -
+					 anim->prev_frame_timestamp) /
+					anim->frame_period_ms);
+		anim->current_frame %= anim->sequence->frames;
+		anim->prev_frame_timestamp += (((anim->cur_frame_timestamp -
+						 anim->prev_frame_timestamp) /
+						anim->frame_period_ms) *
+					       anim->frame_period_ms);
+	}
+
+	INIT_JOB(job, DRAW_LOADED_IMAGE_CROP);
+
+	anim->image->spritesheet->image->ref_count++;
+	job->data->loaded_image_crop.image = anim->image->spritesheet->image;
+	job->data->loaded_image_crop.x = x;
+	job->data->loaded_image_crop.y = y;
+	job->data->loaded_image_crop.c_w =
+		anim->image->spritesheet->sprite_width;
+	job->data->loaded_image_crop.c_h =
+		anim->image->spritesheet->sprite_height;
+
+	switch (anim->sequence->direction) {
+	case SPRITE_SEQUENCE_HORIZONTAL_POS:
+		job->data->loaded_image_crop.c_x =
+			(anim->current_frame + anim->sequence->start_col) *
+			anim->image->spritesheet->sprite_width;
+		job->data->loaded_image_crop.c_y =
+			anim->sequence->start_row *
+			anim->image->spritesheet->sprite_height;
+		break;
+	case SPRITE_SEQUENCE_HORIZONTAL_NEG:
+		job->data->loaded_image_crop.c_x =
+			(anim->sequence->start_col - anim->current_frame) *
+			anim->image->spritesheet->sprite_width;
+		job->data->loaded_image_crop.c_y =
+			anim->sequence->start_row *
+			anim->image->spritesheet->sprite_height;
+		break;
+	case SPRITE_SEQUENCY_VERTICAL_POS:
+		job->data->loaded_image_crop.c_x =
+			anim->sequence->start_col *
+			anim->image->spritesheet->sprite_height;
+		job->data->loaded_image_crop.c_y =
+			(anim->current_frame + anim->sequence->start_row) *
+			anim->image->spritesheet->sprite_width;
+		break;
+	case SPRITE_SEQUENCY_VERTICAL_NEG:
+		job->data->loaded_image_crop.c_x =
+			anim->sequence->start_col *
+			anim->image->spritesheet->sprite_height;
+		job->data->loaded_image_crop.c_y =
+			(anim->sequence->start_row - anim->current_frame) *
+			anim->image->spritesheet->sprite_width;
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+
+err:
+	return -1;
 }
