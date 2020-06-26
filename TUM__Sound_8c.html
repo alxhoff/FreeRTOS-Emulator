@@ -88,7 +88,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -96,10 +98,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;string.h&gt;</code><br />
+<code>#include &lt;libgen.h&gt;</code><br />
 <code>#include &lt;SDL2/SDL_mixer.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Sound_8h_source.html">TUM_Sound.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Utils_8h_source.html">TUM_Utils.h</a>&quot;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structloaded__sample.html">loaded_sample</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:a766c57f1da55327eaca313c2903706f3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Sound_8c.html#a766c57f1da55327eaca313c2903706f3">SAMPLE_FOLDER</a>&#160;&#160;&#160;&quot;/../resources/waveforms/&quot;</td></tr>
@@ -113,6 +121,11 @@ Macros</h2></td></tr>
 <tr class="memitem:a334e0d62d077e78220b79b44c6bc758e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Sound_8c.html#a334e0d62d077e78220b79b44c6bc758e">GEN_FULL_SAMPLE_PATH</a>(SAMPLE)&#160;&#160;&#160;<a class="el" href="TUM__Sound_8c.html#a766c57f1da55327eaca313c2903706f3">SAMPLE_FOLDER</a> #SAMPLE &quot;.wav&quot;,</td></tr>
 <tr class="separator:a334e0d62d077e78220b79b44c6bc758e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a4704a30ce01da669e5253d55b40afb3a"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structloaded__sample.html">loaded_sample</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Sound_8c.html#a4704a30ce01da669e5253d55b40afb3a">loaded_sample_t</a></td></tr>
+<tr class="separator:a4704a30ce01da669e5253d55b40afb3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:gadd5a3aed426ecd82e60a580b1a05b055"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__sound.html#gadd5a3aed426ecd82e60a580b1a05b055">tumSoundExit</a> (void)</td></tr>
@@ -124,15 +137,19 @@ Functions</h2></td></tr>
 <tr class="memitem:ga80d4c4a4f95d1a91f5f6008b26d53dc2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__sound.html#ga80d4c4a4f95d1a91f5f6008b26d53dc2">tumSoundPlaySample</a> (unsigned char index)</td></tr>
 <tr class="memdesc:ga80d4c4a4f95d1a91f5f6008b26d53dc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plays a wav sample.  <a href="group__tum__sound.html#ga80d4c4a4f95d1a91f5f6008b26d53dc2">More...</a><br /></td></tr>
 <tr class="separator:ga80d4c4a4f95d1a91f5f6008b26d53dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad6c44a951b4f1e0263b91b808e136e79"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__sound.html#gad6c44a951b4f1e0263b91b808e136e79">tumSoundLoadUserSample</a> (const char *filepath)</td></tr>
+<tr class="memdesc:gad6c44a951b4f1e0263b91b808e136e79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads a .wav sample from disk.  <a href="group__tum__sound.html#gad6c44a951b4f1e0263b91b808e136e79">More...</a><br /></td></tr>
+<tr class="separator:gad6c44a951b4f1e0263b91b808e136e79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1097a7cd8e319002a9460b40d8def830"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__sound.html#ga1097a7cd8e319002a9460b40d8def830">tumSoundPlayUserSample</a> (const char *filename)</td></tr>
+<tr class="memdesc:ga1097a7cd8e319002a9460b40d8def830"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plays a loaded waveform.  <a href="group__tum__sound.html#ga1097a7cd8e319002a9460b40d8def830">More...</a><br /></td></tr>
+<tr class="separator:ga1097a7cd8e319002a9460b40d8def830"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a26a082673d2caff7b4f24669d5ac9c04"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Sound_8c.html#a26a082673d2caff7b4f24669d5ac9c04">waveFileNames</a> [] = { <a class="el" href="group__tum__sound.html#ga9587246eddb1e135285b1f54a29b46c7">FOR_EACH_SAMPLE</a>(<a class="el" href="TUM__Sound_8c.html#a334e0d62d077e78220b79b44c6bc758e">GEN_FULL_SAMPLE_PATH</a>) }</td></tr>
-<tr class="separator:a26a082673d2caff7b4f24669d5ac9c04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66b745d4db045c018199149441a1b773"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Sound_8c.html#a66b745d4db045c018199149441a1b773">fullWaveFileNames</a> [20] = { 0 }</td></tr>
-<tr class="separator:a66b745d4db045c018199149441a1b773"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e1ac91b6b19fefc2316b2693ba22c0f"><td class="memItemLeft" align="right" valign="top">Mix_Chunk *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Sound_8c.html#a3e1ac91b6b19fefc2316b2693ba22c0f">samples</a> [20] = { 0 }</td></tr>
 <tr class="separator:a3e1ac91b6b19fefc2316b2693ba22c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84b27cc9f74543d76f2de24493a190ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="TUM__Sound_8c.html#a4704a30ce01da669e5253d55b40afb3a">loaded_sample_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Sound_8c.html#a84b27cc9f74543d76f2de24493a190ae">user_samples</a> = { .name = &quot;HEAD&quot; }</td></tr>
+<tr class="separator:a84b27cc9f74543d76f2de24493a190ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a8fc745a0f6e356f4b79cb0ab059c40f0"></a>
@@ -199,19 +216,20 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a class="anchor" id="a66b745d4db045c018199149441a1b773"></a>
+<h2 class="groupheader">Typedef Documentation</h2>
+<a class="anchor" id="a4704a30ce01da669e5253d55b40afb3a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">char* fullWaveFileNames[20] = { 0 }</td>
+          <td class="memname">typedef struct <a class="el" href="structloaded__sample.html">loaded_sample</a>  <a class="el" href="TUM__Sound_8c.html#a4704a30ce01da669e5253d55b40afb3a">loaded_sample_t</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
+<h2 class="groupheader">Variable Documentation</h2>
 <a class="anchor" id="a3e1ac91b6b19fefc2316b2693ba22c0f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -224,12 +242,12 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a26a082673d2caff7b4f24669d5ac9c04"></a>
+<a class="anchor" id="a84b27cc9f74543d76f2de24493a190ae"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">char* waveFileNames[] = { <a class="el" href="group__tum__sound.html#ga9587246eddb1e135285b1f54a29b46c7">FOR_EACH_SAMPLE</a>(<a class="el" href="TUM__Sound_8c.html#a334e0d62d077e78220b79b44c6bc758e">GEN_FULL_SAMPLE_PATH</a>) }</td>
+          <td class="memname"><a class="el" href="TUM__Sound_8c.html#a4704a30ce01da669e5253d55b40afb3a">loaded_sample_t</a> user_samples = { .name = &quot;HEAD&quot; }</td>
         </tr>
       </table>
 </div><div class="memdoc">

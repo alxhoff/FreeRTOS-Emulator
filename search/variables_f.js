@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['sample',['sample',['../structloaded__sample.html#ae2ebf608ef59a3e3435c43036fb59831',1,'loaded_sample']]],
   ['samples',['samples',['../TUM__Sound_8c.html#a3e1ac91b6b19fefc2316b2693ba22c0f',1,'TUM_Sound.c']]],
   ['scale',['scale',['../structloaded__image.html#a2cb4ad4ad421b3d3466cacc4b7317332',1,'loaded_image::scale()'],['../structscaled__image__data.html#a786dd82a89d51117e89f8da67de3a0e3',1,'scaled_image_data::scale()']]],
   ['scaled_5fimage',['scaled_image',['../uniondata__u.html#ab5403c5b5a80c405effbdd7b8c319f79',1,'data_u']]],

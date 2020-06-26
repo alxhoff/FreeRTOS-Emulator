@@ -12,5 +12,7 @@ var searchData=
   ['loaded_5fimage_5ft',['loaded_image_t',['../TUM__Draw_8c.html#aaae6a139900622d1219e34e90ad93386',1,'TUM_Draw.c']]],
   ['loaded_5fimages_5flist',['loaded_images_list',['../TUM__Draw_8c.html#a23cbef2c75bd4f5730a8f94f07c6170b',1,'TUM_Draw.c']]],
   ['loaded_5fimages_5flock',['loaded_images_lock',['../TUM__Draw_8c.html#ae54bad5fbf78a4f75c63ab3ae2cb7a2a',1,'TUM_Draw.c']]],
+  ['loaded_5fsample',['loaded_sample',['../structloaded__sample.html',1,'']]],
+  ['loaded_5fsample_5ft',['loaded_sample_t',['../TUM__Sound_8c.html#a4704a30ce01da669e5253d55b40afb3a',1,'TUM_Sound.c']]],
   ['lock',['lock',['../structmouse.html#a85da2113c0a382fadacc5ebc7d6a6154',1,'mouse::lock()'],['../structaIO.html#a45d264a4ff7179568d6cd8b1940b4dcc',1,'aIO::lock()']]]
 ];

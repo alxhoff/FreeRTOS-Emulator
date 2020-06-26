@@ -139,6 +139,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga80d4c4a4f95d1a91f5f6008b26d53dc2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__sound.html#ga80d4c4a4f95d1a91f5f6008b26d53dc2">tumSoundPlaySample</a> (unsigned char index)</td></tr>
 <tr class="memdesc:ga80d4c4a4f95d1a91f5f6008b26d53dc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plays a wav sample.  <a href="#ga80d4c4a4f95d1a91f5f6008b26d53dc2">More...</a><br /></td></tr>
 <tr class="separator:ga80d4c4a4f95d1a91f5f6008b26d53dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad6c44a951b4f1e0263b91b808e136e79"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__sound.html#gad6c44a951b4f1e0263b91b808e136e79">tumSoundLoadUserSample</a> (const char *filepath)</td></tr>
+<tr class="memdesc:gad6c44a951b4f1e0263b91b808e136e79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads a .wav sample from disk.  <a href="#gad6c44a951b4f1e0263b91b808e136e79">More...</a><br /></td></tr>
+<tr class="separator:gad6c44a951b4f1e0263b91b808e136e79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1097a7cd8e319002a9460b40d8def830"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__sound.html#ga1097a7cd8e319002a9460b40d8def830">tumSoundPlayUserSample</a> (const char *filename)</td></tr>
+<tr class="memdesc:ga1097a7cd8e319002a9460b40d8def830"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plays a loaded waveform.  <a href="#ga1097a7cd8e319002a9460b40d8def830">More...</a><br /></td></tr>
+<tr class="separator:ga1097a7cd8e319002a9460b40d8def830"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>An API wrapper around the SDL Mixer library to play a set of predefined pong waveforms. </p>
@@ -319,6 +325,32 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="gad6c44a951b4f1e0263b91b808e136e79"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumSoundLoadUserSample </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>filepath</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Loads a .wav sample from disk. </p>
+<p>The filepath must specify the location of the wavefile either relative to the executing binary or the absolute path. To ensure executing on other systems with different file system structures a relative path is recommended.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filepath</td><td>The location of the waveform on disk to be loaded </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ga80d4c4a4f95d1a91f5f6008b26d53dc2"></a>
 <div class="memitem">
 <div class="memproto">
@@ -341,6 +373,32 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>NULL always returns NULL </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga1097a7cd8e319002a9460b40d8def830"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumSoundPlayUserSample </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>filename</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Plays a loaded waveform. </p>
+<p>Once loaded the wavefile can be played by providing either the entire filepath or the basename. Eg. A file with the path '../resources/my_sample.wav' could be played by either passing '../resources/my_sample.wav' or simply 'my_sample.wav'.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filename</td><td>The name of the waveform to be played </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
 
 </div>
 </div>
