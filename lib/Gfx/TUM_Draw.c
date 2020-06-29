@@ -243,6 +243,16 @@ typedef struct draw_job {
 
 draw_job_t job_list_head = { 0 };
 
+struct global_offsets {
+	int x;
+	int y;
+	pthread_mutex_t lock;
+};
+
+struct global_offsets global_offset = {
+	.lock = PTHREAD_MUTEX_INITIALIZER,
+};
+
 pthread_mutex_t loaded_images_lock = PTHREAD_MUTEX_INITIALIZER;
 loaded_image_t loaded_images_list = { 0 };
 
@@ -376,15 +386,16 @@ static int _drawLine(signed short x1, signed short y1, signed short x2,
 	return 0;
 }
 
-static int _drawPoly(coord_t *points, unsigned int n, signed short colour)
+static int _drawPoly(coord_t *points, unsigned int n, int x_offset,
+		     int y_offset, signed short colour)
 {
 	signed short *x_coords = calloc(1, sizeof(signed short) * n);
 	signed short *y_coords = calloc(1, sizeof(signed short) * n);
 	unsigned int i;
 
 	for (i = 0; i < n; i++) {
-		x_coords[i] = points[i].x;
-		y_coords[i] = points[i].y;
+		x_coords[i] = points[i].x + x_offset;
+		y_coords[i] = points[i].y + y_offset;
 	}
 
 	polygonColor(renderer, x_coords, y_coords, n,
@@ -396,10 +407,13 @@ static int _drawPoly(coord_t *points, unsigned int n, signed short colour)
 	return 0;
 }
 
-static int _drawTriangle(coord_t *points, unsigned int colour)
+static int _drawTriangle(coord_t *points, int x_offset, int y_offset,
+			 unsigned int colour)
 {
-	filledTrigonColor(renderer, points[0].x, points[0].y, points[1].x,
-			  points[1].y, points[2].x, points[2].y,
+	filledTrigonColor(renderer, points[0].x + x_offset,
+			  points[0].y + y_offset, points[1].x + x_offset,
+			  points[1].y + y_offset, points[2].x + x_offset,
+			  points[2].y + y_offset,
 			  SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
 	return 0;
@@ -780,6 +794,15 @@ static int _drawArrow(signed short x1, signed short y1, signed short x2,
 static int vHandleDrawJob(draw_job_t *job)
 {
 	int ret = 0;
+	static int x_offset = 0;
+	static int y_offset = 0;
+	;
+	if (!pthread_mutex_unlock(&global_offset.lock)) {
+		x_offset = global_offset.x;
+		y_offset = global_offset.y;
+	} else
+		return -1;
+
 	if (job == NULL) {
 		return -1;
 	}
@@ -792,67 +815,76 @@ static int vHandleDrawJob(draw_job_t *job)
 		ret = _clearDisplay(job->data->clear.colour);
 		break;
 	case DRAW_ARC:
-		ret = _drawArc(job->data->arc.x, job->data->arc.y,
+		ret = _drawArc(job->data->arc.x + x_offset,
+			       job->data->arc.y + y_offset,
 			       job->data->arc.radius, job->data->arc.start,
 			       job->data->arc.end, job->data->arc.colour);
 		break;
 	case DRAW_ELLIPSE:
-		ret = _drawEllipse(job->data->ellipse.x, job->data->ellipse.y,
-				   job->data->ellipse.rx, job->data->ellipse.ry,
+		ret = _drawEllipse(job->data->ellipse.x + x_offset,
+				   job->data->ellipse.y, job->data->ellipse.rx,
+				   job->data->ellipse.ry,
 				   job->data->ellipse.colour);
 		break;
 	case DRAW_TEXT:
-		ret = _drawText(job->data->text.str, job->data->text.x,
-				job->data->text.y, job->data->text.colour,
-				job->data->text.font);
+		ret = _drawText(job->data->text.str,
+				job->data->text.x + x_offset,
+				job->data->text.y + y_offset,
+				job->data->text.colour, job->data->text.font);
 		free(job->data->text.str);
 		break;
 	case DRAW_RECT:
-		ret = _drawRectangle(job->data->rect.x, job->data->rect.y,
+		ret = _drawRectangle(job->data->rect.x + x_offset,
+				     job->data->rect.y + y_offset,
 				     job->data->rect.w, job->data->rect.h,
 				     job->data->rect.colour);
 		break;
 	case DRAW_FILLED_RECT:
-		ret = _drawFilledRectangle(job->data->rect.x, job->data->rect.y,
+		ret = _drawFilledRectangle(job->data->rect.x + x_offset,
+					   job->data->rect.y + y_offset,
 					   job->data->rect.w, job->data->rect.h,
 					   job->data->rect.colour);
 		break;
 	case DRAW_CIRCLE:
-		ret = _drawCircle(job->data->circle.x, job->data->circle.y,
+		ret = _drawCircle(job->data->circle.x + x_offset,
+				  job->data->circle.y + y_offset,
 				  job->data->circle.radius,
 				  job->data->circle.colour);
 		break;
 	case DRAW_LINE:
-		ret = _drawLine(job->data->line.x1, job->data->line.y1,
-				job->data->line.x2, job->data->line.y2,
+		ret = _drawLine(job->data->line.x1 + x_offset,
+				job->data->line.y1 + y_offset,
+				job->data->line.x2 + x_offset,
+				job->data->line.y2 + y_offset,
 				job->data->line.thickness,
 				job->data->line.colour);
 		break;
 	case DRAW_POLY:
 		ret = _drawPoly(job->data->poly.points, job->data->poly.n,
-				job->data->poly.colour);
+				x_offset, y_offset, job->data->poly.colour);
 		break;
 	case DRAW_TRIANGLE:
-		ret = _drawTriangle(job->data->triangle.points,
-				    job->data->triangle.colour);
+		ret = _drawTriangle(job->data->triangle.points, x_offset,
+				    y_offset, job->data->triangle.colour);
 		break;
 	case DRAW_IMAGE:
 		job->data->image.tex =
 			loadImage(job->data->image.filename, renderer);
 		ret = _drawImage(job->data->image.tex, renderer,
-				 job->data->image.x, job->data->image.y);
+				 job->data->image.x + x_offset,
+				 job->data->image.y + y_offset);
 		break;
 	case DRAW_LOADED_IMAGE:
 		ret = xDrawLoadedImage(job->data->loaded_image.img, renderer,
-				       job->data->loaded_image.x,
-				       job->data->loaded_image.y);
+				       job->data->loaded_image.x + x_offset,
+				       job->data->loaded_image.y + y_offset);
 		vPutLoadedImage(job->data->loaded_image.img);
 		break;
 	case DRAW_LOADED_IMAGE_CROP:
 		ret = xDrawLoadedImageCropped(
 			job->data->loaded_image_crop.image, renderer,
-			job->data->loaded_image_crop.x,
-			job->data->loaded_image_crop.y,
+			job->data->loaded_image_crop.x + x_offset,
+			job->data->loaded_image_crop.y + y_offset,
 			job->data->loaded_image_crop.c_x,
 			job->data->loaded_image_crop.c_y,
 			job->data->loaded_image_crop.c_w,
@@ -862,16 +894,18 @@ static int vHandleDrawJob(draw_job_t *job)
 	case DRAW_SCALED_IMAGE:
 		job->data->scaled_image.image.tex = loadImage(
 			job->data->scaled_image.image.filename, renderer);
-		ret = _drawScaledImage(job->data->scaled_image.image.tex,
-				       renderer,
-				       job->data->scaled_image.image.x,
-				       job->data->scaled_image.image.y,
-				       job->data->scaled_image.scale);
+		ret = _drawScaledImage(
+			job->data->scaled_image.image.tex, renderer,
+			job->data->scaled_image.image.x + x_offset,
+			job->data->scaled_image.image.y + y_offset,
+			job->data->scaled_image.scale);
 		free(job->data->scaled_image.image.filename);
 		break;
 	case DRAW_ARROW:
-		ret = _drawArrow(job->data->arrow.x1, job->data->arrow.y1,
-				 job->data->arrow.x2, job->data->arrow.y2,
+		ret = _drawArrow(job->data->arrow.x1 + x_offset,
+				 job->data->arrow.y1 + y_offset,
+				 job->data->arrow.x2 + x_offset,
+				 job->data->arrow.y2 + y_offset,
 				 job->data->arrow.head_length,
 				 job->data->arrow.thickness,
 				 job->data->arrow.colour);
@@ -1589,4 +1623,60 @@ int tumDrawAnimationDrawFrame(sequence_handle_t sequence, unsigned ms_timestep,
 
 err:
 	return -1;
+}
+
+int tumDrawSetGlobalXOffset(int offset)
+{
+	int ret;
+
+	if (!(ret = pthread_mutex_lock(&global_offset.lock))) {
+		global_offset.x = offset;
+		pthread_mutex_unlock(&global_offset.lock);
+	} else {
+		PRINT_ERROR("Could not set global X offset");
+    }
+
+	return ret;
+}
+
+int tumDrawSetGlobalYOffset(int offset)
+{
+	int ret;
+
+	if (!(ret = pthread_mutex_lock(&global_offset.lock))) {
+		global_offset.y = offset;
+		pthread_mutex_unlock(&global_offset.lock);
+	} else {
+		PRINT_ERROR("Could not set global Y offset");
+	}
+
+	return ret;
+}
+
+int tumDrawGetGlobalXOffset(int *offset)
+{
+	int ret;
+
+	if (!(ret = pthread_mutex_lock(&global_offset.lock))) {
+		*offset = global_offset.x;
+		pthread_mutex_unlock(&global_offset.lock);
+	} else {
+		PRINT_ERROR("Could not get global X offset");
+	}
+
+	return ret;
+}
+
+int tumDrawGetGlobalYOffset(int *offset)
+{
+	int ret;
+
+	if (!(ret = pthread_mutex_lock(&global_offset.lock))) {
+		*offset = global_offset.y;
+		pthread_mutex_unlock(&global_offset.lock);
+	} else {
+		PRINT_ERROR("Could not get global Y offset");
+	}
+
+	return ret;
 }
