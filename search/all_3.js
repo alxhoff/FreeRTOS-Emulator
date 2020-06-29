@@ -3,6 +3,10 @@ var searchData=
   ['c3',['c3',['../group__tum__sound.html#gga3cda429fb5d3f9751422102b0554d642ab87c3953ab96ba7487045546241111ad',1,'TUM_Sound.h']]],
   ['c4',['c4',['../group__tum__sound.html#gga3cda429fb5d3f9751422102b0554d642aa6abcdb20561a244bb384f79a3097c20',1,'TUM_Sound.h']]],
   ['c5',['c5',['../group__tum__sound.html#gga3cda429fb5d3f9751422102b0554d642a148ef96aaebf6ae31fde878c8336306e',1,'TUM_Sound.h']]],
+  ['c_5fh',['c_h',['../structloaded__image__crop.html#a21de2d7a3f08294b385e225fe806cf19',1,'loaded_image_crop']]],
+  ['c_5fw',['c_w',['../structloaded__image__crop.html#a58ea995bcb1c19a1cbc6a3fb5dff504a',1,'loaded_image_crop']]],
+  ['c_5fx',['c_x',['../structloaded__image__crop.html#acb1bb53106d47e4b0643722dcb055425',1,'loaded_image_crop']]],
+  ['c_5fy',['c_y',['../structloaded__image__crop.html#ae403c0aa742b5391395a646b57b8de46',1,'loaded_image_crop']]],
   ['callback',['callback',['../structball.html#ae6f717a7fc17e8bec85e1e92d27e5930',1,'ball::callback()'],['../structwall.html#aced7f08cffc757d11e50d683d0364d34',1,'wall::callback()'],['../structaIO.html#a157d638c73c774f16f039a1552fbe8bd',1,'aIO::callback()'],['../structaIO__tcp__client.html#a55dd1c0f0acd55b85c544a0987562282',1,'aIO_tcp_client::callback()']]],
   ['callback_5ft',['callback_t',['../group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149',1,'TUM_Ball.h']]],
   ['changeballdirection',['changeBallDirection',['../TUM__Ball_8c.html#af7a631fd44fd2a751ab5eb88c70dbd0c',1,'TUM_Ball.c']]],
@@ -30,5 +34,7 @@ var searchData=
   ['createasyncio',['createAsyncIO',['../AsyncIO_8c.html#ad43f3711c9e563c48f75fe3d5f509a74',1,'AsyncIO.c']]],
   ['createball',['createBall',['../group__tum__ball.html#ga139002349c1da00ad81815585158c5bb',1,'createBall(signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, callback_t callback, void *args):&#160;TUM_Ball.h'],['../TUM__Ball_8c.html#a1f815a1cd9bfa7125ede23fa9e11026e',1,'createBall(signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, void(*callback)(void *), void *args):&#160;TUM_Ball.c']]],
   ['createwall',['createWall',['../group__tum__ball.html#gaef22e6e8b27740e4c34e607a961344f1',1,'createWall(signed short x1, signed short y1, signed short w, signed short h, float dampening, unsigned int colour, callback_t callback, void *args):&#160;TUM_Ball.h'],['../TUM__Ball_8c.html#a21d4afb8010e2c4ae1d3514aaf4e4e4d',1,'createWall(signed short x1, signed short y1, signed short w, signed short h, float dampening, unsigned int colour, void(*callback)(void *), void *args):&#160;TUM_Ball.c']]],
+  ['cur_5fframe_5ftimestamp',['cur_frame_timestamp',['../structanimated__sequence__instance.html#a41b25da9aafdce4ceb96c5cffc2bf184',1,'animated_sequence_instance']]],
+  ['current_5fframe',['current_frame',['../structanimated__sequence__instance.html#a8204d750b0faff8c7649361f8536f4f5',1,'animated_sequence_instance']]],
   ['cyan',['Cyan',['../group__tum__draw.html#ga82a8a689788551a1b4e4552e5ddeae40',1,'TUM_Draw.h']]]
 ];

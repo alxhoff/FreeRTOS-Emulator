@@ -12,6 +12,7 @@ var searchData=
   ['draw_5fimage',['DRAW_IMAGE',['../TUM__Draw_8c.html#a71ea38ead0a4a6cd56bc4d741f9093bea7c48c13b775fa7da27f3a44c4e3084e8',1,'TUM_Draw.c']]],
   ['draw_5fline',['DRAW_LINE',['../TUM__Draw_8c.html#a71ea38ead0a4a6cd56bc4d741f9093bea5954399bca0721034821960b20a18dce',1,'TUM_Draw.c']]],
   ['draw_5floaded_5fimage',['DRAW_LOADED_IMAGE',['../TUM__Draw_8c.html#a71ea38ead0a4a6cd56bc4d741f9093bea3600b6eb45a1fb7e171c1199981d3009',1,'TUM_Draw.c']]],
+  ['draw_5floaded_5fimage_5fcrop',['DRAW_LOADED_IMAGE_CROP',['../TUM__Draw_8c.html#a71ea38ead0a4a6cd56bc4d741f9093bead017513fa71784704a9152f6d3b61472',1,'TUM_Draw.c']]],
   ['draw_5fnone',['DRAW_NONE',['../TUM__Draw_8c.html#a71ea38ead0a4a6cd56bc4d741f9093bea5054727857c091ce5b33674fe144b23a',1,'TUM_Draw.c']]],
   ['draw_5fpoly',['DRAW_POLY',['../TUM__Draw_8c.html#a71ea38ead0a4a6cd56bc4d741f9093beac6f5b97519dbd51aa64e98324a12cad1',1,'TUM_Draw.c']]],
   ['draw_5frect',['DRAW_RECT',['../TUM__Draw_8c.html#a71ea38ead0a4a6cd56bc4d741f9093bea82681b7c763a7b340f6bf6296f8cf9bf',1,'TUM_Draw.c']]],

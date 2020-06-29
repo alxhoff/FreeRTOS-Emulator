@@ -6,6 +6,8 @@ var searchData=
   ['aio_5fserial_5ft',['aIO_serial_t',['../structaIO__serial__t.html',1,'']]],
   ['aio_5fsocket_5ft',['aIO_socket_t',['../structaIO__socket__t.html',1,'']]],
   ['aio_5ftcp_5fclient',['aIO_tcp_client',['../structaIO__tcp__client.html',1,'']]],
+  ['animated_5fimage',['animated_image',['../structanimated__image.html',1,'']]],
+  ['animated_5fsequence_5finstance',['animated_sequence_instance',['../structanimated__sequence__instance.html',1,'']]],
   ['arc_5fdata',['arc_data',['../structarc__data.html',1,'']]],
   ['arrow_5fdata',['arrow_data',['../structarrow__data.html',1,'']]]
 ];

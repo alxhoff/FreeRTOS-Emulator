@@ -81,6 +81,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">TUM Drawing API</div>  </div>
@@ -113,6 +114,22 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gac6a2817cea43f79996e1373bbe8e1795"><td class="memItemLeft" align="right" valign="top">typedef void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a></td></tr>
 <tr class="memdesc:gac6a2817cea43f79996e1373bbe8e1795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle used to reference loaded images, an invalid image will have a NULL handle.  <a href="#gac6a2817cea43f79996e1373bbe8e1795">More...</a><br /></td></tr>
 <tr class="separator:gac6a2817cea43f79996e1373bbe8e1795"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaef066681601a056ed3315ce3d9b8d2ba"><td class="memItemLeft" align="right" valign="top">typedef void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a></td></tr>
+<tr class="memdesc:gaef066681601a056ed3315ce3d9b8d2ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle used to reference a loaded animation spritesheet, an invalid spritesheet will have a NULL handle.  <a href="#gaef066681601a056ed3315ce3d9b8d2ba">More...</a><br /></td></tr>
+<tr class="separator:gaef066681601a056ed3315ce3d9b8d2ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1dafa9c3d2798f0f1ba06c637793b459"><td class="memItemLeft" align="right" valign="top">typedef void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga1dafa9c3d2798f0f1ba06c637793b459">sequence_handle_t</a></td></tr>
+<tr class="memdesc:ga1dafa9c3d2798f0f1ba06c637793b459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an instance of an animation;.  <a href="#ga1dafa9c3d2798f0f1ba06c637793b459">More...</a><br /></td></tr>
+<tr class="separator:ga1dafa9c3d2798f0f1ba06c637793b459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:gaa566421805e9bd4491919b25e56fc8ce"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gaa566421805e9bd4491919b25e56fc8ce">sprite_sequence_direction</a> { <a class="el" href="group__tum__draw.html#ggaa566421805e9bd4491919b25e56fc8cead88a2201ae9e09e7c59c0a90abe640b4">SPRITE_SEQUENCE_HORIZONTAL_POS</a>, 
+<a class="el" href="group__tum__draw.html#ggaa566421805e9bd4491919b25e56fc8cea674423e4f942071c85e21f43bdae16bb">SPRITE_SEQUENCE_HORIZONTAL_NEG</a>, 
+<a class="el" href="group__tum__draw.html#ggaa566421805e9bd4491919b25e56fc8ceab8609da67216e4ce66bdec330d0d0187">SPRITE_SEQUENCY_VERTICAL_POS</a>, 
+<a class="el" href="group__tum__draw.html#ggaa566421805e9bd4491919b25e56fc8cea3b27b7ca7c0b747e91148ddc8b3ffec0">SPRITE_SEQUENCY_VERTICAL_NEG</a>
+ }<tr class="memdesc:gaa566421805e9bd4491919b25e56fc8ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the direction that the animation appears on the spritesheet.  <a href="group__tum__draw.html#gaa566421805e9bd4491919b25e56fc8ce">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:gaa566421805e9bd4491919b25e56fc8ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -205,6 +222,30 @@ Functions</h2></td></tr>
 <tr class="memitem:ga216ad074bf3dbb18e3ce5610ea615cef"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga216ad074bf3dbb18e3ce5610ea615cef">tumDrawArrow</a> (signed short x1, signed short y1, signed short x2, signed short y2, signed short head_length, unsigned char thickness, unsigned int colour)</td></tr>
 <tr class="memdesc:ga216ad074bf3dbb18e3ce5610ea615cef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws an arrow on the screen.  <a href="#ga216ad074bf3dbb18e3ce5610ea615cef">More...</a><br /></td></tr>
 <tr class="separator:ga216ad074bf3dbb18e3ce5610ea615cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5ac21e5c600b747bcbc508765d0d3ee8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga5ac21e5c600b747bcbc508765d0d3ee8">tumDrawAnimationCreate</a> (<a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a> <a class="el" href="structspritesheet.html">spritesheet</a>, unsigned sprite_cols, unsigned sprite_rows)</td></tr>
+<tr class="memdesc:ga5ac21e5c600b747bcbc508765d0d3ee8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an animation object with an attached spritesheet that must be loaded prior as an image.  <a href="#ga5ac21e5c600b747bcbc508765d0d3ee8">More...</a><br /></td></tr>
+<tr class="separator:ga5ac21e5c600b747bcbc508765d0d3ee8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gade3c5a085a13de1b0de1514238411a09"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gade3c5a085a13de1b0de1514238411a09">tumDrawAnimationAddSequence</a> (<a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a> animation, char *name, unsigned start_row, unsigned start_col, enum <a class="el" href="group__tum__draw.html#gaa566421805e9bd4491919b25e56fc8ce">sprite_sequence_direction</a> sprite_step_direction, unsigned frames)</td></tr>
+<tr class="memdesc:gade3c5a085a13de1b0de1514238411a09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an animation sequence to a previously created animation.  <a href="#gade3c5a085a13de1b0de1514238411a09">More...</a><br /></td></tr>
+<tr class="separator:gade3c5a085a13de1b0de1514238411a09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaa26617e3a959867cb3b56f7e638a226"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__draw.html#ga1dafa9c3d2798f0f1ba06c637793b459">sequence_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gaaa26617e3a959867cb3b56f7e638a226">tumDrawAnimationSequenceInstantiate</a> (<a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a> animation, char *sequence_name, unsigned frame_period_ms)</td></tr>
+<tr class="memdesc:gaaa26617e3a959867cb3b56f7e638a226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an instance of an animation from a loaded animation object and a sequence name of a sequence previously added to the animation object.  <a href="#gaaa26617e3a959867cb3b56f7e638a226">More...</a><br /></td></tr>
+<tr class="separator:gaaa26617e3a959867cb3b56f7e638a226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7dc890d64bc577819517266cea1c4053"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga7dc890d64bc577819517266cea1c4053">tumDrawAnimationDrawFrame</a> (<a class="el" href="group__tum__draw.html#ga1dafa9c3d2798f0f1ba06c637793b459">sequence_handle_t</a> sequence, unsigned ms_timestep, int x, int y)</td></tr>
+<tr class="memdesc:ga7dc890d64bc577819517266cea1c4053"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws the target intantiated animation sequence at a given location.  <a href="#ga7dc890d64bc577819517266cea1c4053">More...</a><br /></td></tr>
+<tr class="separator:ga7dc890d64bc577819517266cea1c4053"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabc7d69dabe224b8cc63f4c4bece86d94"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gabc7d69dabe224b8cc63f4c4bece86d94">tumDrawSetGlobalXOffset</a> (int offset)</td></tr>
+<tr class="memdesc:gabc7d69dabe224b8cc63f4c4bece86d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the global draw position offset's X axis value.  <a href="#gabc7d69dabe224b8cc63f4c4bece86d94">More...</a><br /></td></tr>
+<tr class="separator:gabc7d69dabe224b8cc63f4c4bece86d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab81bb7bef637e3fe7d332ef1a9d735ae"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gab81bb7bef637e3fe7d332ef1a9d735ae">tumDrawSetGlobalYOffset</a> (int offset)</td></tr>
+<tr class="memdesc:gab81bb7bef637e3fe7d332ef1a9d735ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the global draw position offset's Y axis value.  <a href="#gab81bb7bef637e3fe7d332ef1a9d735ae">More...</a><br /></td></tr>
+<tr class="separator:gab81bb7bef637e3fe7d332ef1a9d735ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaebde2d1abbac8f181176926d9e4f3477"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gaebde2d1abbac8f181176926d9e4f3477">tumDrawGetGlobalXOffset</a> (int *offset)</td></tr>
+<tr class="memdesc:gaebde2d1abbac8f181176926d9e4f3477"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a copy of the current global X axis drawing offset.  <a href="#gaebde2d1abbac8f181176926d9e4f3477">More...</a><br /></td></tr>
+<tr class="separator:gaebde2d1abbac8f181176926d9e4f3477"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacfd292d44743f3d4e0a231141f9352cc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gacfd292d44743f3d4e0a231141f9352cc">tumDrawGetGlobalYOffset</a> (int *offset)</td></tr>
+<tr class="memdesc:gacfd292d44743f3d4e0a231141f9352cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a copy of the current global X axis drawing offset.  <a href="#gacfd292d44743f3d4e0a231141f9352cc">More...</a><br /></td></tr>
+<tr class="separator:gacfd292d44743f3d4e0a231141f9352cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 Hex RGB colours</h2></td></tr>
@@ -577,6 +618,21 @@ Hex RGB colours</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Typedef Documentation</h2>
+<a class="anchor" id="gaef066681601a056ed3315ce3d9b8d2ba"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void* <a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle used to reference a loaded animation spritesheet, an invalid spritesheet will have a NULL handle. </p>
+<p>Sprite sheets are loaded as images and contain many individua sprites that are cycled to make animations. Thus a sequence of frames must be defined using <a class="el" href="group__tum__draw.html#gade3c5a085a13de1b0de1514238411a09" title="Adds an animation sequence to a previously created animation. ">tumDrawAnimationAddSequence()</a> and this must be added to an animation that has been created by passing in a loaded sprite sheet. </p>
+
+</div>
+</div>
 <a class="anchor" id="ga2bcce550b9be85b6a730793f8d61b024"></a>
 <div class="memitem">
 <div class="memproto">
@@ -605,7 +661,249 @@ Hex RGB colours</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ga1dafa9c3d2798f0f1ba06c637793b459"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void* <a class="el" href="group__tum__draw.html#ga1dafa9c3d2798f0f1ba06c637793b459">sequence_handle_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns an instance of an animation;. </p>
+<p>After an animation has been created and a sequence added, an instance of the sequence must be created. This allows for the same animation sequence to be run within the same frame. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a class="anchor" id="gaa566421805e9bd4491919b25e56fc8ce"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__tum__draw.html#gaa566421805e9bd4491919b25e56fc8ce">sprite_sequence_direction</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Defines the direction that the animation appears on the spritesheet. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="ggaa566421805e9bd4491919b25e56fc8cead88a2201ae9e09e7c59c0a90abe640b4"></a>SPRITE_SEQUENCE_HORIZONTAL_POS&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="ggaa566421805e9bd4491919b25e56fc8cea674423e4f942071c85e21f43bdae16bb"></a>SPRITE_SEQUENCE_HORIZONTAL_NEG&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="ggaa566421805e9bd4491919b25e56fc8ceab8609da67216e4ce66bdec330d0d0187"></a>SPRITE_SEQUENCY_VERTICAL_POS&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="ggaa566421805e9bd4491919b25e56fc8cea3b27b7ca7c0b747e91148ddc8b3ffec0"></a>SPRITE_SEQUENCY_VERTICAL_NEG&#160;</td><td class="fielddoc">
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="gade3c5a085a13de1b0de1514238411a09"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumDrawAnimationAddSequence </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a>&#160;</td>
+          <td class="paramname"><em>animation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>start_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>start_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">enum <a class="el" href="group__tum__draw.html#gaa566421805e9bd4491919b25e56fc8ce">sprite_sequence_direction</a>&#160;</td>
+          <td class="paramname"><em>sprite_step_direction</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>frames</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds an animation sequence to a previously created animation. </p>
+<p>An animation is the combination of a sprite sheet and one of more sequences. Sequences detail how the spritesheet should be parsed, in accordance to time, to create a desired animation. Thus after creating an animation (with an appropriate spritesheet) one or more sequences must be added to the animation in order for the animation to be able to render actual animations.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation</td><td>Handle to the prviously created animation object </td></tr>
+    <tr><td class="paramname">name</td><td>Ascii name to be given to the sequence. Used to reference the sequence </td></tr>
+    <tr><td class="paramname">start_row</td><td>The row at which the start sprite can be found (0 indexed) </td></tr>
+    <tr><td class="paramname">start_col</td><td>The col at which the start sprite can be found (0 indexed) </td></tr>
+    <tr><td class="paramname">sprite_step_direction</td><td>Defines the direction with which the sprite frames can be found on the spritesheet </td></tr>
+    <tr><td class="paramname">frames</td><td>The number of sprite frames that make up the animation </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga5ac21e5c600b747bcbc508765d0d3ee8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a> tumDrawAnimationCreate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a>&#160;</td>
+          <td class="paramname"><em>spritesheet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>sprite_cols</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>sprite_rows</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates an animation object with an attached spritesheet that must be loaded prior as an image. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">spritesheet</td><td>The loaded image that contains the spritesheet </td></tr>
+    <tr><td class="paramname">sprite_cols</td><td>The number of colums in the sprite sheet </td></tr>
+    <tr><td class="paramname">sprite_rows</td><td>The number of rows in the sprite sheet </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A handle to the created animation object </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga7dc890d64bc577819517266cea1c4053"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumDrawAnimationDrawFrame </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__tum__draw.html#ga1dafa9c3d2798f0f1ba06c637793b459">sequence_handle_t</a>&#160;</td>
+          <td class="paramname"><em>sequence</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>ms_timestep</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>y</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Draws the target intantiated animation sequence at a given location. </p>
+<p>Animation sequences update which frame to show based upon how much time has passed since they were last rendered. This is tracked incrementally and as such each call to this function should pass in the number of milliseconds that has transpired since the last call to <a class="el" href="group__tum__draw.html#ga7dc890d64bc577819517266cea1c4053" title="Draws the target intantiated animation sequence at a given location. ">tumDrawAnimationDrawFrame()</a> so that the sprite frame can be selected appropriately.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sequence</td><td>Sequence instance that is to be rendered </td></tr>
+    <tr><td class="paramname">ms_timestep</td><td>The number of milliseconds that have transpired since the last call to this function for the given animation sequence </td></tr>
+    <tr><td class="paramname">x</td><td>The X axis location, in pixels, refernced from the top left of the sprite frame </td></tr>
+    <tr><td class="paramname">y</td><td>The Y axis location, in pixels, refernced from the top left of the sprite frame </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gaaa26617e3a959867cb3b56f7e638a226"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__tum__draw.html#ga1dafa9c3d2798f0f1ba06c637793b459">sequence_handle_t</a> tumDrawAnimationSequenceInstantiate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__tum__draw.html#gaef066681601a056ed3315ce3d9b8d2ba">animation_handle_t</a>&#160;</td>
+          <td class="paramname"><em>animation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>sequence_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>frame_period_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates an instance of an animation from a loaded animation object and a sequence name of a sequence previously added to the animation object. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation</td><td>The animation object countaining the target spritesheet and animation sequence </td></tr>
+    <tr><td class="paramname">sequence_name</td><td>Ascii string name of the sequence to be instantiated </td></tr>
+    <tr><td class="paramname">frame_period_ms</td><td>The number of milliseconds that should transpire between sprite frames </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A handle to the instantiated animation sequence, NULL otherwise </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="gae0a8d2ba9238596edbc13795b0221344"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1068,6 +1366,56 @@ Hex RGB colours</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="gaebde2d1abbac8f181176926d9e4f3477"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumDrawGetGlobalXOffset </td>
+          <td>(</td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>offset</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Retrieves a copy of the current global X axis drawing offset. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">offset</td><td>Refernce to the int where the value should be stored </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gacfd292d44743f3d4e0a231141f9352cc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumDrawGetGlobalYOffset </td>
+          <td>(</td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>offset</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Retrieves a copy of the current global X axis drawing offset. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">offset</td><td>Refernce to the int where the value should be stored </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ga6f2e6d85cec1cecec0c57e66f716ebf3"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1509,6 +1857,56 @@ Hex RGB colours</h2></td></tr>
     <tr><td class="paramname">x</td><td>X coordinate of the top left corner of the image </td></tr>
     <tr><td class="paramname">y</td><td>Y coordinate of the top left corner of the image </td></tr>
     <tr><td class="paramname">scale</td><td>The scale factor of the image </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gabc7d69dabe224b8cc63f4c4bece86d94"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumDrawSetGlobalXOffset </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>offset</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the global draw position offset's X axis value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">offset</td><td>Value in pixels that all drawing should be offset on the X axis </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gab81bb7bef637e3fe7d332ef1a9d735ae"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumDrawSetGlobalYOffset </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>offset</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the global draw position offset's Y axis value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">offset</td><td>Value in pixels that all drawing should be offset on the X axis </td></tr>
   </table>
   </dd>
 </dl>

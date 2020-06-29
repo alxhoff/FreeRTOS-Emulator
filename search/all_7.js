@@ -6,6 +6,8 @@ var searchData=
   ['gen_5fenum',['GEN_ENUM',['../group__tum__sound.html#gacdf14d671128f7c74746b8c392b9e2ab',1,'TUM_Sound.h']]],
   ['gen_5ffull_5fsample_5fpath',['GEN_FULL_SAMPLE_PATH',['../TUM__Sound_8c.html#a334e0d62d077e78220b79b44c6bc758e',1,'TUM_Sound.c']]],
   ['getlastconnection',['getLastConnection',['../AsyncIO_8c.html#a5f5884a494342c3a4a40748accbd316f',1,'AsyncIO.c']]],
+  ['global_5foffset',['global_offset',['../TUM__Draw_8c.html#a58f0506944eef621e66f36fe6a7f2e33',1,'TUM_Draw.c']]],
+  ['global_5foffsets',['global_offsets',['../structglobal__offsets.html',1,'']]],
   ['gray',['Gray',['../group__tum__draw.html#gaab957a0fe1c92d227cced2922967fb97',1,'TUM_Draw.h']]],
   ['green',['Green',['../group__tum__draw.html#gaa429cd977709122166b6e31fa10903d1',1,'TUM_Draw.h']]],
   ['green_5fportion',['GREEN_PORTION',['../TUM__Draw_8c.html#a7550b457f628d3ff5fc77d123418ad5b',1,'TUM_Draw.c']]],
