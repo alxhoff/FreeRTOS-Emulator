@@ -937,6 +937,7 @@ static void logCriticalError(char *msg)
 #define MS_IN_SECOND 1000.0
 #define NS_IN_MS 1000000.0
 
+#if (configFPS_LIMIT == 1)
 static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 {
 	if ((stop->tv_nsec - start->tv_nsec) < 0)
@@ -948,8 +949,13 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 	       (stop->tv_nsec - start->tv_nsec) / NS_IN_MS;
 }
 
-#define FRAMELIMIT 60.0
-#define FRAMELIMIT_PERIOD 1000 / FRAMELIMIT
+#ifdef configFPS_LIMIT_RATE
+#define FRAMELIMIT configFPS_LIMIT_RATE
+#else
+#define FRAMELIMIT 50
+#endif //configFPS_LIMIT_RATE
+#define FRAMELIMIT_PERIOD 1000.0 / FRAMELIMIT
+#endif //configFPS_LIMIT
 
 int tumDrawUpdateScreen(void)
 {
@@ -959,6 +965,7 @@ int tumDrawUpdateScreen(void)
 		goto err;
 	}
 
+#if (configFPS_LIMIT == 1)
 	static struct timespec last_time = { 0 }, cur_time = { 0 };
 
 	if (clock_gettime(CLOCK_MONOTONIC, &cur_time)) {
@@ -970,6 +977,7 @@ int tumDrawUpdateScreen(void)
 		goto err;
 
 	memcpy(&last_time, &cur_time, sizeof(struct timespec));
+#endif //configFPS_LIMIT
 
 	if (job_list_head.next == NULL)
 		goto err;
@@ -1634,7 +1642,7 @@ int tumDrawSetGlobalXOffset(int offset)
 		pthread_mutex_unlock(&global_offset.lock);
 	} else {
 		PRINT_ERROR("Could not set global X offset");
-    }
+	}
 
 	return ret;
 }
