@@ -540,5 +540,37 @@ sequence_handle_t tumDrawAnimationSequenceInstantiate(animation_handle_t animati
 int tumDrawAnimationDrawFrame(sequence_handle_t sequence, unsigned ms_timestep,
                               int x, int y);
 
+/**
+ * @brief Sets the global draw position offset's X axis value
+ *
+ * @param offset Value in pixels that all drawing should be offset on the X axis
+ * @return 0 on success
+ */
+int tumDrawSetGlobalXOffset(int offset);
+
+/**
+ * @brief Sets the global draw position offset's Y axis value
+ *
+ * @param offset Value in pixels that all drawing should be offset on the X axis
+ * @return 0 on success
+ */
+int tumDrawSetGlobalYOffset(int offset);
+
+/**
+ * @brief Retrieves a copy of the current global X axis drawing offset
+ *
+ * @param offset Refernce to the int where the value should be stored
+ * @return 0 on success
+ */
+int tumDrawGetGlobalXOffset(int *offset);
+
+/**
+ * @brief Retrieves a copy of the current global X axis drawing offset
+ *
+ * @param offset Refernce to the int where the value should be stored
+ * @return 0 on success
+ */
+int tumDrawGetGlobalYOffset(int *offset);
+
 /** @} */
 #endif
