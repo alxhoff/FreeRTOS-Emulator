@@ -18,12 +18,11 @@ var searchData=
   ['first_5fbyte',['FIRST_BYTE',['../TUM__Draw_8c.html#a73d6572224ad0ac84a8587615cef947c',1,'TUM_Draw.c']]],
   ['font',['font',['../structtext__data.html#ae78b748afb764d68835996c9e297b3b9',1,'text_data::font()'],['../structtum__font__ref.html#a5b5e9776176ef51c4d43e4f53f248529',1,'tum_font_ref::font()'],['../structtum__font.html#aa9193f6420e84694cf0a5fc42c89b2b4',1,'tum_font::font()']]],
   ['font_5fhandle_5ft',['font_handle_t',['../group__tum__font.html#gab0bfbac2477f4beb07dab591ec5975d3',1,'TUM_Font.h']]],
+  ['fonts_5fdir',['FONTS_DIR',['../group__tum__font.html#ga36c3fec3e9086ef0cf1d639423032f68',1,'TUM_Font.h']]],
   ['fonts_5fdirectory',['FONTS_DIRECTORY',['../group__tum__font.html#ga83f4331f4fcbedde047e24ec379a5e70',1,'TUM_Font.h']]],
   ['for_5feach_5fsample',['FOR_EACH_SAMPLE',['../group__tum__sound.html#ga9587246eddb1e135285b1f54a29b46c7',1,'TUM_Sound.h']]],
   ['fourth_5fbyte',['FOURTH_BYTE',['../TUM__Draw_8c.html#a96d6e8ee6deb64cbad512a02b7ce844c',1,'TUM_Draw.c']]],
   ['frame_5fperiod_5fms',['frame_period_ms',['../structanimated__sequence__instance.html#aba54d308c1a647b05f37da979750aefb',1,'animated_sequence_instance']]],
-  ['framelimit',['FRAMELIMIT',['../TUM__Draw_8c.html#a626982d1a22f6a6266238f1d4eb6411d',1,'TUM_Draw.c']]],
-  ['framelimit_5fperiod',['FRAMELIMIT_PERIOD',['../TUM__Draw_8c.html#aeef849eb53d39cc37e502ec6be795e5c',1,'TUM_Draw.c']]],
   ['frames',['frames',['../structspritesheet__sequence.html#ab333a923c411f14bbef145cb6ae0f831',1,'spritesheet_sequence']]],
   ['fuchsia',['Fuchsia',['../group__tum__draw.html#ga44a688b3adc6060bb681f4aa8249bee3',1,'TUM_Draw.h']]],
   ['freertos_20simulator_20graphical_20library',['FreeRTOS Simulator Graphical Library',['../index.html',1,'']]]
