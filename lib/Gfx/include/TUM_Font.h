@@ -27,6 +27,8 @@
 
 #include <SDL2/SDL_ttf.h>
 
+#include "EmulatorConfig.h"
+
 /**
  * @defgroup tum_font TUM Font API
  *
@@ -43,19 +45,29 @@
 /**
  * Defines the default font size used by the SDL TTF library
  */
+#ifndef DEFAULT_FONT_SIZE
 #define DEFAULT_FONT_SIZE 15
+#endif //DEFAULT_FONT_SIZE
 
 /**
  * Default font to be used by the SDL TTF library
  */
+#ifndef DEFAULT_FONT
 #define DEFAULT_FONT "IBMPlexSans-Medium.ttf"
+#endif //DEFAULT_FONT
 
 /**
  * Location of font TTF files
  */
 #ifndef FONTS_DIRECTORY
+#ifdef RESOURCES_DIRECTORY
+#define FONTS_DIRECTORY "/" RESOURCES_DIRECTORY "/fonts/"
+#else
 #define FONTS_DIRECTORY "/../resources/fonts/"
+#endif //RESOURCES_DIRECTORY
 #endif // FONTS_DIRECTORY
+
+#define FONTS_DIR "/" FONTS_DIRECTORY "/"
 
 /**
  * Maximum length of allowed font file names, helps to prevent memory overflows
