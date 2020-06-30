@@ -24,8 +24,10 @@
 #ifndef __TUM_UTILS_H__
 #define __TUM_UTILS_H__
 
-#define PRINT_ERROR(msg, ...) \
-    fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__); \
+#include <stdio.h>
+
+#define PRINT_ERROR(msg, ...)                                                  \
+    fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__);                        \
     fprintf(stderr, "    @-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
 
 /**
@@ -59,5 +61,26 @@ char *tumUtilPrependPath(char *path, char *file);
  */
 char *tumUtilGetBinFolderPath(char *bin_path);
 
+/**
+ * @brief Searches for a file in the RESOURCES_DIRECTORY and returns
+ * a FILE * if found
+ *
+ * @param resource_name Name of the file to be found
+ * @param mode The reading mode to be used when opening the file, eg. "rw"
+ * @return FILE reference if found, otherwise NULL
+ */
+FILE *tumUtilFindResource(char *resource_name, const char *mode);
+
+/**
+ * @brief Similar to tumUtilFindResource() only returning the file's path instead
+ * of the opened FILE's reference.
+ *
+ * The found filename is stored in a statically allocated buffer and can be
+ * overwritten by subsequent calls to the functions
+ *
+ * @param resource_name Name of the file to be found
+ * @return Reference to the statically allocated filename, else NULL
+ */
+char *tumUtilFindResourcePath(char *resource_name);
 
 #endif
