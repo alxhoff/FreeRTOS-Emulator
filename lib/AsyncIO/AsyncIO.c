@@ -189,11 +189,10 @@ void aIOCloseConn(aIO_handle_t conn)
 void aIODeinit(void)
 {
     aIO_t *iterator;
-    aIO_t *del;
 
     if (head.next) {
         for (iterator = head.next; iterator;) {
-            del = iterator;
+            aIO_t *del = iterator;
             iterator = iterator->next;
             aIOCloseConn((aIO_handle_t)del);
         }

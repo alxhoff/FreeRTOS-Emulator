@@ -423,9 +423,7 @@ static int _drawTriangle(coord_t *points, int x_offset, int y_offset,
 
 static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 {
-    SDL_Texture *tex = NULL;
-
-    tex = IMG_LoadTexture(ren, filename);
+    SDL_Texture *tex = IMG_LoadTexture(ren, filename);
 
     return tex;
 }
@@ -1584,12 +1582,6 @@ int tumDrawAnimationDrawFrame(sequence_handle_t sequence, unsigned ms_timestep,
 {
     if (sequence == NULL) {
         PRINT_ERROR("Trying to draw invalid sequence");
-        goto err;
-    }
-
-    if (ms_timestep < 0) {
-        PRINT_ERROR(
-            "Animation timestep must be greater or equal to zero");
         goto err;
     }
 

@@ -127,7 +127,6 @@ void tumFontDeleteFont(struct tum_font *font)
     free(font->path);
     TTF_CloseFont(font->font.font);
     free(font);
-    font = NULL;
 }
 
 void tumFontExit(void)

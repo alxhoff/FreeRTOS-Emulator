@@ -171,7 +171,7 @@ if(ENABLE_CPPCHECK)
     )
 
     list(APPEND CPPCHECK_ARGS
-        --enable=warning,style,performance,portability,unusedFunction
+        --enable=warning,style,performance,portability
         --std=c99
         --verbose
         --error-exitcode=1
