@@ -442,14 +442,14 @@ void MQHanderTwo(size_t read_size, char *buffer, void *args)
 
 void vDemoSendTask(void *pvParameters)
 {
-    // Get persistent TCP connection, keep trying for 1000 milliseconds 
+    // Get persistent TCP connection, keep trying for 1000 milliseconds
     aIO_handle_t TCP_client = aIOGetTCPClientConn(NULL, TCP_TEST_PORT + 1, TCP_BUFFER_SIZE, 1000);
     assert(TCP_client);
 
-	static char *test_str_1 = "UDP test 1";
-	static char *test_str_2 = "UDP test 2";
-	static char *test_str_3 = "TCP test";
-	static char *test_str_4 = "TCP test 2";
+    static char *test_str_1 = "UDP test 1";
+    static char *test_str_2 = "UDP test 2";
+    static char *test_str_3 = "TCP test";
+    static char *test_str_4 = "TCP test 2";
 
     while (1) {
         printf("*****TICK******\n");
@@ -468,10 +468,11 @@ void vDemoSendTask(void *pvParameters)
                          strlen(test_str_2));
         if (tcp_soc)
             assert(!aIOSocketPut(TCP, NULL, TCP_TEST_PORT,
-                         test_str_3, strlen(test_str_3)));
-        
-        if(tcp_soc_2)
+                                 test_str_3, strlen(test_str_3)));
+
+        if (tcp_soc_2) {
             assert(!aIOPutTCPClient(TCP_client, test_str_4, strlen(test_str_4)));
+        }
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -501,15 +502,15 @@ void vTCPDemoTask(void *pvParameters)
     char *addr = NULL; // Loopback
     in_port_t port = TCP_TEST_PORT;
 
-	tcp_soc =
-		aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
-	printf("TCP socket opened on port %d\n", port);
-	printf("Demo TCP socket can be tested using\n");
-	printf("*** netcat -vv localhost %d ***\n", port);
-	
+    tcp_soc =
+        aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
+    printf("TCP socket opened on port %d\n", port);
+    printf("Demo TCP socket can be tested using\n");
+    printf("*** netcat -vv localhost %d ***\n", port);
+
     tcp_soc_2 =
-		aIOOpenTCPSocket(addr, port + 1, TCP_BUFFER_SIZE, TCPHandler, NULL);
-	printf("Second TCP socket opened on port %d\n", port);
+        aIOOpenTCPSocket(addr, port + 1, TCP_BUFFER_SIZE, TCPHandler, NULL);
+    printf("Second TCP socket opened on port %d\n", port);
 
     while (1) {
         vTaskDelay(10);
@@ -758,17 +759,17 @@ int main(int argc, char *argv[])
         goto err_demotask2;
     }
 
-	/** SOCKETS */
+    /** SOCKETS */
     xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
-            configMAX_PRIORITIES - 1, &UDPDemoTask);
+                configMAX_PRIORITIES - 1, &UDPDemoTask);
     xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL,
-            configMAX_PRIORITIES - 1, &TCPDemoTask);
+                configMAX_PRIORITIES - 1, &TCPDemoTask);
 
-	/** POSIX MESSAGE QUEUES */
+    /** POSIX MESSAGE QUEUES */
     xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
-            configMAX_PRIORITIES - 1, &MQDemoTask);
+                configMAX_PRIORITIES - 1, &MQDemoTask);
     xTaskCreate(vDemoSendTask, "SendTask", mainGENERIC_STACK_SIZE * 2, NULL,
-            configMAX_PRIORITIES - 1, &DemoSendTask);
+                configMAX_PRIORITIES - 1, &DemoSendTask);
 
     vTaskSuspend(DemoTask1);
     vTaskSuspend(DemoTask2);

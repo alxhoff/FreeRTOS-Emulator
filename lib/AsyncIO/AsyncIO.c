@@ -96,13 +96,13 @@ typedef struct {
     int client_fd;
     size_t buffer_size;
 
-	void (*callback)(size_t, char *, void *);
-	void *args;
+    void (*callback)(size_t, char *, void *);
+    void *args;
 } aIO_tcp_incoming;
 
 typedef struct {
     int socket_fd;
-    char* s_addr;
+    char *s_addr;
     in_port_t port;
     size_t buffer_size;
     char *buffer;
@@ -162,38 +162,38 @@ static aIO_t *findConnection(aIO_conn_e type, void *arg)
 
 void aIOCloseConn(aIO_handle_t conn)
 {
-	if(conn == NULL){
+    if (conn == NULL) {
         PRINT_CHECK("Trying to close an invalid connection");
         return;
     }
 
-	aIO_t *del = (aIO_t *)conn;
+    aIO_t *del = (aIO_t *)conn;
 
-	switch (del->type) {
-	case SOCKET:
-		printf("Deinit socket %d\n",
-		       ntohs(del->attr.socket.addr.sin_port));
-		if(close(del->attr.socket.fd) < 0){
-            PRINT_CHECK("Could not close socket on port %d", ntohs(del->attr.socket.addr.sin_port));
-        }
-		free(del->buffer);
-		free(del);
-		break;
-	case MSG_QUEUE:
-		printf("Deinit MQ %s\n", del->attr.mq.name);
-		if(mq_close(del->attr.mq.fd) <  0){
-            PRINT_CHECK("Could not close MQ: '%s'", del->attr.mq.name ? del->attr.mq.name : "NULL");
-        }
-		if(mq_unlink(del->attr.mq.name) < 0){
-            PRINT_CHECK("Could not unlink MQ: '%s'", del->attr.mq.name ? del->attr.mq.name : "NULL");
-        }
-		free(del->attr.mq.name);
-		free(del->buffer);
-		free(del);
-		break;
-	default:
-		break;
-	}
+    switch (del->type) {
+        case SOCKET:
+            printf("Deinit socket %d\n",
+                   ntohs(del->attr.socket.addr.sin_port));
+            if (close(del->attr.socket.fd) < 0) {
+                PRINT_CHECK("Could not close socket on port %d", ntohs(del->attr.socket.addr.sin_port));
+            }
+            free(del->buffer);
+            free(del);
+            break;
+        case MSG_QUEUE:
+            printf("Deinit MQ %s\n", del->attr.mq.name);
+            if (mq_close(del->attr.mq.fd) <  0) {
+                PRINT_CHECK("Could not close MQ: '%s'", del->attr.mq.name ? del->attr.mq.name : "NULL");
+            }
+            if (mq_unlink(del->attr.mq.name) < 0) {
+                PRINT_CHECK("Could not unlink MQ: '%s'", del->attr.mq.name ? del->attr.mq.name : "NULL");
+            }
+            free(del->attr.mq.name);
+            free(del->buffer);
+            free(del);
+            break;
+        default:
+            break;
+    }
 
     return;
 }
@@ -300,42 +300,43 @@ error_send:
 int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
                  char *buffer, size_t buffer_size)
 {
-	int fd;
-	struct sockaddr_in server = { .sin_addr.s_addr =
-					      s_addr ? inet_addr(s_addr) : 0,
-				      .sin_family = AF_INET,
-				      .sin_port = htons(port) };
+    int fd;
+    struct sockaddr_in server = { .sin_addr.s_addr =
+            s_addr ? inet_addr(s_addr) : 0,
+            .sin_family = AF_INET,
+             .sin_port = htons(port)
+    };
 
-	switch (protocol) {
-	case TCP:
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
-            PRINT_CHECK("Failed to create TCP socket %s:%d", s_addr, port);
-			goto error_create_socket;
-        }
-		break;
-	case UDP:
-		if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
-	        PRINT_CHECK("Failed to create UDP socket %s:%d", s_addr, port);
-			goto error_create_socket;
-        }
-		break;
-	default:
-		return -1;
-	}
+    switch (protocol) {
+        case TCP:
+            if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+                PRINT_CHECK("Failed to create TCP socket %s:%d", s_addr, port);
+                goto error_create_socket;
+            }
+            break;
+        case UDP:
+            if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+                PRINT_CHECK("Failed to create UDP socket %s:%d", s_addr, port);
+                goto error_create_socket;
+            }
+            break;
+        default:
+            return -1;
+    }
 
-	if (connect(fd, (struct sockaddr *)&server, sizeof(server)) < 0){
-        if(errno == EINTR || errno == EALREADY){
+    if (connect(fd, (struct sockaddr *)&server, sizeof(server)) < 0) {
+        if (errno == EINTR || errno == EALREADY) {
             printf("Connection to port %" PRIu16 " interrupted, port is busy\n", (uint16_t) port);
             return 0;
         }
 
-	    PRINT_CHECK("Connecting to %s:%d failed\n", (s_addr) ? s_addr : "localhost" , port);
-		goto error_connect;
+        PRINT_CHECK("Connecting to %s:%d failed\n", (s_addr) ? s_addr : "localhost", port);
+        goto error_connect;
     }
 
-	if (send(fd, buffer, buffer_size, 0) < 0){
-	    PRINT_CHECK("Sending to %s:%d failed\n", s_addr, port);
-		goto error_send;
+    if (send(fd, buffer, buffer_size, 0) < 0) {
+        PRINT_CHECK("Sending to %s:%d failed\n", s_addr, port);
+        goto error_send;
     }
 
     close(fd);
@@ -346,7 +347,7 @@ error_send:
 error_connect:
     close(fd);
 error_create_socket:
-	return -1;
+    return -1;
 }
 
 aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
@@ -356,8 +357,8 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
 {
     aIO_t *conn = getLastConnection();
 
-	conn->next = createAsyncIO(MSG_QUEUE, max_msg_size, callback, args);
-	if(!conn->next){
+    conn->next = createAsyncIO(MSG_QUEUE, max_msg_size, callback, args);
+    if (!conn->next) {
         PRINT_CHECK("Failed to allocate MQ IO for MQ '%s'\n", name);
         goto error_IO;
     }
@@ -388,9 +389,9 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
     /**     to structure containing MQ information */
     sv.sival_ptr = conn->next;
 
-	/** Create MQ */
-	if(-1 == (mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK,
-				      0644, &attr))){
+    /** Create MQ */
+    if (-1 == (mq->fd = mq_open(mq->name, O_CREAT | O_RDONLY | O_NONBLOCK,
+                                0644, &attr))) {
         PRINT_CHECK("Couldn't open MQ '%s'\n", mq->name);
         goto error_open;
     }
@@ -403,7 +404,7 @@ aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
     mq->ev.sigev_notify_function = aIOMQSigHandler;
     mq->ev.sigev_notify_attributes = NULL;
 
-	if(mq_notify(mq->fd, &mq->ev)){
+    if (mq_notify(mq->fd, &mq->ev)) {
         PRINT_CHECK("Failed to notify MQ '%s'\n", mq->name);
         goto error_notify;
     }
@@ -427,68 +428,68 @@ error_IO:
 
 static void aIOSocketSigHandler(int signal, siginfo_t *info, void *context)
 {
-	ssize_t read_size;
-	static int client_fd;
+    ssize_t read_size;
+    static int client_fd;
     static aIO_tcp_incoming *new_client;
-	int server_fd = info->si_fd;
-	aIO_t *conn = findConnection(SOCKET, &server_fd);
+    int server_fd = info->si_fd;
+    aIO_t *conn = findConnection(SOCKET, &server_fd);
 
-    if(!conn){
+    if (!conn) {
         PRINT_CHECK("Could not retrieve connection for socket fd: %d", server_fd);
         return;
     }
 
-	pthread_mutex_lock(&conn->lock);
+    pthread_mutex_lock(&conn->lock);
 
-	switch (conn->attr.socket.type) {
-	case UDP:
-		while ((read_size = recv(server_fd, conn->buffer,
-					 conn->buffer_size, 0)) > 0) {
-			conn->buffer[read_size <= conn->buffer_size ?
-					     read_size :
-					     conn->buffer_size] = '\0';
-			if (conn->callback)
-				(conn->callback)(read_size, conn->buffer,
-						 conn->args);
-		}
-		break;
-	case TCP: {
-		struct sockaddr_in client;
-		socklen_t client_size = sizeof(struct sockaddr_in);
-		while ((client_fd =
-				accept(server_fd, (struct sockaddr *)&client,
-				       &client_size)) > 0) {
-
-			pthread_t handler_thread;
-			new_client = (aIO_tcp_incoming *)malloc(
-				sizeof(aIO_tcp_incoming));
-            if(!new_client){
-                PRINT_CHECK("Could not allocate TCP sighandler new client");
-                goto err_new_client;
+    switch (conn->attr.socket.type) {
+        case UDP:
+            while ((read_size = recv(server_fd, conn->buffer,
+                                     conn->buffer_size, 0)) > 0) {
+                conn->buffer[read_size <= conn->buffer_size ?
+                                       read_size :
+                                       conn->buffer_size] = '\0';
+                if (conn->callback)
+                    (conn->callback)(read_size, conn->buffer,
+                                     conn->args);
             }
+            break;
+        case TCP: {
+            struct sockaddr_in client;
+            socklen_t client_size = sizeof(struct sockaddr_in);
+            while ((client_fd =
+                        accept(server_fd, (struct sockaddr *)&client,
+                               &client_size)) > 0) {
 
-			new_client->client_fd = client_fd;
-			new_client->buffer_size = conn->buffer_size;
-			new_client->callback = conn->callback;
-			new_client->args = conn->args;
+                pthread_t handler_thread;
+                new_client = (aIO_tcp_incoming *)malloc(
+                                 sizeof(aIO_tcp_incoming));
+                if (!new_client) {
+                    PRINT_CHECK("Could not allocate TCP sighandler new client");
+                    goto err_new_client;
+                }
 
-			if(pthread_create(&handler_thread, NULL,
-					      *aIOTCPHandler,
-					      (void *)new_client)){
-                PRINT_CHECK("Failed to create TCP sighandler thread");
-                goto err_thread;
+                new_client->client_fd = client_fd;
+                new_client->buffer_size = conn->buffer_size;
+                new_client->callback = conn->callback;
+                new_client->args = conn->args;
+
+                if (pthread_create(&handler_thread, NULL,
+                                   *aIOTCPHandler,
+                                   (void *)new_client)) {
+                    PRINT_CHECK("Failed to create TCP sighandler thread");
+                    goto err_thread;
+                }
             }
-		}
-	} break;
-	default:
-		break;
-	}
+        } break;
+        default:
+            break;
+    }
 
-	pthread_mutex_unlock(&conn->lock);
+    pthread_mutex_unlock(&conn->lock);
 
     return;
 err_thread:
-	pthread_mutex_unlock(&conn->lock);
+    pthread_mutex_unlock(&conn->lock);
     free(new_client);
 err_new_client:
     close(client_fd);
@@ -519,42 +520,42 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
         (s_addr != NULL) ? inet_addr(s_addr) : INADDR_ANY;
     s_udp->addr.sin_port = htons(port);
 
-	s_udp->fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if(s_udp->fd < 0){
+    s_udp->fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s_udp->fd < 0) {
         PRINT_CHECK("Failed to open UDP socket on port %" PRIu16 "\n", (uint16_t) port);
         goto error_socket;
     }
 
-	printf("Opened socket on port %" PRIu16 " with FD: %d\n", port, s_udp->fd);
+    printf("Opened socket on port %" PRIu16 " with FD: %d\n", port, s_udp->fd);
 
-	struct sigaction act = { 0 };
-	int fs;
+    struct sigaction act = { 0 };
+    int fs;
 
-	act.sa_flags = SA_SIGINFO | SA_RESTART;
-	act.sa_sigaction = aIOSocketSigHandler;
-	sigfillset(&act.sa_mask);
-	sigdelset(&act.sa_mask, SIGIO);
-	if (sigaction(SIGIO, &act, NULL) < 0){
+    act.sa_flags = SA_SIGINFO | SA_RESTART;
+    act.sa_sigaction = aIOSocketSigHandler;
+    sigfillset(&act.sa_mask);
+    sigdelset(&act.sa_mask, SIGIO);
+    if (sigaction(SIGIO, &act, NULL) < 0) {
         PRINT_CHECK("Setting sigaction for UDP socket on port %" PRIu16 " failed\n", (uint16_t) port);
         goto error_fcntl;
     }
 
-	if(!(fs = fcntl(s_udp->fd, F_GETFL))){
+    if (!(fs = fcntl(s_udp->fd, F_GETFL))) {
         PRINT_CHECK("Failed getting fd status\n");
         goto error_fcntl;
     }
-	fs |= O_ASYNC | O_NONBLOCK;
-	if(-1 == fcntl(s_udp->fd, F_SETFL, fs)){
+    fs |= O_ASYNC | O_NONBLOCK;
+    if (-1 == fcntl(s_udp->fd, F_SETFL, fs)) {
         PRINT_CHECK("Failed to set fd status\n");
         goto error_fcntl;
     }
-	fcntl(s_udp->fd, F_SETSIG, SIGIO);
-	if(-1 == fcntl(s_udp->fd, F_SETOWN, getpid())){
+    fcntl(s_udp->fd, F_SETSIG, SIGIO);
+    if (-1 == fcntl(s_udp->fd, F_SETOWN, getpid())) {
         PRINT_CHECK("Failed to set thread owner\n");
         goto error_fcntl;
     }
 
-	if(bind(s_udp->fd, (struct sockaddr *)&s_udp->addr, sizeof(s_udp->addr)) < 0){
+    if (bind(s_udp->fd, (struct sockaddr *)&s_udp->addr, sizeof(s_udp->addr)) < 0) {
         PRINT_CHECK("Failed to bind UDP socket %" PRIu16 "\n", (uint16_t) port);
         goto error_fcntl;
     }
@@ -575,11 +576,11 @@ error_IO:
 
 void *aIOTCPHandler(void *conn)
 {
-	ssize_t read_size;
-	aIO_tcp_incoming *client = (aIO_tcp_incoming *)conn;
-	int client_fd = client->client_fd;
-	char *buffer = malloc(sizeof(char) * client->buffer_size);
-	if(!buffer){
+    ssize_t read_size;
+    aIO_tcp_incoming *client = (aIO_tcp_incoming *)conn;
+    int client_fd = client->client_fd;
+    char *buffer = malloc(sizeof(char) * client->buffer_size);
+    if (!buffer) {
         PRINT_CHECK("Failed to allocate TCP handler buffer");
         goto err_alloc_buffer;
     }
@@ -589,12 +590,12 @@ void *aIOTCPHandler(void *conn)
             (client->callback)(read_size, buffer, client->args);
         }
 
-	close(client_fd);
-	free(buffer);
-	free((aIO_tcp_incoming *)conn);
+    close(client_fd);
+    free(buffer);
+    free((aIO_tcp_incoming *)conn);
 
 err_alloc_buffer:
-	return NULL;
+    return NULL;
 
 }
 
@@ -602,7 +603,7 @@ int aIOPutTCPClient(aIO_handle_t client, char *data, ssize_t data_len)
 {
     aIO_tcp_client *cl = (aIO_tcp_client *)client;
 
-    if(send(cl->socket_fd, data, data_len, 0) < 0){
+    if (send(cl->socket_fd, data, data_len, 0) < 0) {
         PRINT_CHECK("Failed to send to TCP socket '%s:%" PRIu16 "'", cl->s_addr, (uint16_t) cl->port);
         return -1;
     }
@@ -612,20 +613,24 @@ int aIOPutTCPClient(aIO_handle_t client, char *data, ssize_t data_len)
 
 static int compareTimespec(struct timespec *a, struct timespec *b)
 {
-    if(a->tv_sec == b->tv_sec)
+    if (a->tv_sec == b->tv_sec) {
         return b->tv_nsec / 1000 - a->tv_nsec / 1000;
-    else 
+    }
+    else {
         return (b->tv_sec - a->tv_sec) * 1000 + (b->tv_nsec / 1000 - a->tv_nsec / 1000);
+    }
 }
 
 static void addToTimespec(unsigned int ms, struct timespec *ts)
 {
     unsigned int ns = ms * 1000;
-    if (((ts->tv_nsec + ns) % 999999999) < ts->tv_nsec){
+    if (((ts->tv_nsec + ns) % 999999999) < ts->tv_nsec) {
         ts->tv_sec++;
         ts->tv_nsec += ns % 999999999;
-    }else 
+    }
+    else {
         ts->tv_nsec += ns;
+    }
 }
 
 #define DEFAULT_TCP_CLIENT_DELAY 10
@@ -635,25 +640,26 @@ aIO_handle_t aIOGetTCPClientConn(char *s_addr, in_port_t port, ssize_t buffer_le
     struct sockaddr_in server;
 
     aIO_tcp_client *client = malloc(sizeof(aIO_tcp_client));
-    if(!client){
+    if (!client) {
         PRINT_CHECK("Failed to allocate TCP client '%s:%" PRIu16 "'", s_addr, (uint16_t) port);
         goto err_alloc;
     }
 
-    if(s_addr){
+    if (s_addr) {
         client->s_addr = strdup(s_addr);
-        if(!client->s_addr){
+        if (!client->s_addr) {
             PRINT_CHECK("Failed to allocate TCP client '%s:%" PRIu16 "' addr", s_addr, (uint16_t) port);
             goto err_addr;
         }
     }
-    else 
+    else {
         client->s_addr = NULL;
+    }
 
     client->port = port;
 
     client->buffer = calloc(buffer_len + 1, sizeof(char));
-    if(!client->buffer){
+    if (!client->buffer) {
         PRINT_CHECK("Failed to allocate TCP client '%s:%" PRIu16 "' buffer", s_addr, (uint16_t) port);
         goto err_buffer;
     }
@@ -662,43 +668,44 @@ aIO_handle_t aIOGetTCPClientConn(char *s_addr, in_port_t port, ssize_t buffer_le
 
     client->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if(client->socket_fd < 0){
+    if (client->socket_fd < 0) {
         PRINT_CHECK("Failed to create socket for TCP client '%s:%" PRIu16 "'", s_addr, (uint16_t) port);
-        goto err_socket; 
+        goto err_socket;
     }
 
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
     server.sin_port = htons(port);
 
-    if(connect(client->socket_fd, (struct sockaddr*) &server, sizeof(server)) < 0){
-        if(ms_retry){
+    if (connect(client->socket_fd, (struct sockaddr *) &server, sizeof(server)) < 0) {
+        if (ms_retry) {
 
             struct timespec start_time;
 
-            if(clock_gettime(CLOCK_MONOTONIC, &start_time)){
+            if (clock_gettime(CLOCK_MONOTONIC, &start_time)) {
                 PRINT_CHECK("Failed to get CLOCK_MONOTONIC");
                 goto err_connect;
             }
             struct timespec finish_time = {
-                .tv_sec = start_time.tv_sec + ms_retry/1000,
+                .tv_sec = start_time.tv_sec + ms_retry / 1000,
                 .tv_nsec = start_time.tv_nsec + 1000 * (ms_retry % 1000)
             };
 
             //Check we have no exceeded nanosecond limit
-            if(finish_time.tv_nsec / 1){
-               finish_time.tv_sec++;
-               finish_time.tv_nsec %= 999999999;
+            if (finish_time.tv_nsec / 1) {
+                finish_time.tv_sec++;
+                finish_time.tv_nsec %= 999999999;
             }
 
             // The number of milliseconds until start time reaches finish time
-            while(compareTimespec(&start_time, &finish_time) > 0){
+            while (compareTimespec(&start_time, &finish_time) > 0) {
                 // Bring start time forward in time
                 addToTimespec(1000 * DEFAULT_TCP_CLIENT_DELAY, &start_time);
-                nanosleep(&delay_ts, NULL); 
+                nanosleep(&delay_ts, NULL);
 
-                if(connect(client->socket_fd, (struct sockaddr *) &server, sizeof(server)) < 0)
+                if (connect(client->socket_fd, (struct sockaddr *) &server, sizeof(server)) < 0) {
                     goto connected;
+                }
             }
         }
         PRINT_CHECK("Failed to connect to server @ '%s:%" PRIu16 "'", s_addr, (uint16_t) port);
@@ -711,7 +718,7 @@ connected:
 
 err_connect:
     close(client->socket_fd);
-err_socket: 
+err_socket:
     free(client->buffer);
 err_buffer:
     free(client->s_addr);
@@ -727,8 +734,8 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 {
     aIO_t *conn = getLastConnection();
 
-	conn->next = createAsyncIO(SOCKET, buffer_size, callback, args);
-	if(! conn->next){
+    conn->next = createAsyncIO(SOCKET, buffer_size, callback, args);
+    if (! conn->next) {
         PRINT_CHECK("Failed to allocate TCP IO on port %" PRIu16 "\n", (uint16_t) port);
         goto error_IO;
     }
@@ -739,20 +746,20 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 
     aIO_socket_t *s_tcp = &conn->next->attr.socket;
 
-	s_tcp->addr.sin_family = AF_INET;
-	s_tcp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
-	s_tcp->addr.sin_port = htons(port);
-	s_tcp->fd = socket(AF_INET, SOCK_STREAM, 0);
-	if(s_tcp->fd < 0){
-       PRINT_CHECK("Failed to open TCP socket on port %" PRIu16 "\n", (uint16_t) port);
-       goto error_socket;
+    s_tcp->addr.sin_family = AF_INET;
+    s_tcp->addr.sin_addr.s_addr = s_addr ? inet_addr(s_addr) : INADDR_ANY;
+    s_tcp->addr.sin_port = htons(port);
+    s_tcp->fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (s_tcp->fd < 0) {
+        PRINT_CHECK("Failed to open TCP socket on port %" PRIu16 "\n", (uint16_t) port);
+        goto error_socket;
     }
 
     /** Sprinkle a little reuseability on our shiny socket */
     const int optVal = 1;
     const socklen_t optLen = sizeof(optVal);
 
-    if (setsockopt(s_tcp->fd, SOL_SOCKET, SO_REUSEADDR, (void*) &optVal, optLen)){
+    if (setsockopt(s_tcp->fd, SOL_SOCKET, SO_REUSEADDR, (void *) &optVal, optLen)) {
         PRINT_CHECK("Failed to set socket options on port %" PRIu16 "\n", (uint16_t) port);
         goto error_socket;
     }
@@ -762,37 +769,37 @@ aIO_handle_t aIOOpenTCPSocket(char *s_addr, in_port_t port, size_t buffer_size,
     struct sigaction act = { 0 };
     int fs;
 
-	act.sa_flags = SA_SIGINFO | SA_RESTART;
-	act.sa_sigaction = aIOSocketSigHandler;
-	sigfillset(&act.sa_mask);
-	sigdelset(&act.sa_mask, SIGIO);
-	if(sigaction(SIGIO, &act, NULL) < 0){
+    act.sa_flags = SA_SIGINFO | SA_RESTART;
+    act.sa_sigaction = aIOSocketSigHandler;
+    sigfillset(&act.sa_mask);
+    sigdelset(&act.sa_mask, SIGIO);
+    if (sigaction(SIGIO, &act, NULL) < 0) {
         PRINT_CHECK("Setting sigaction for TCP socket on port %" PRIu16 " failed\n", (uint16_t) port);
         goto error_fcntl;
     }
 
-	if(!(fs = fcntl(s_tcp->fd, F_GETFL))){
+    if (!(fs = fcntl(s_tcp->fd, F_GETFL))) {
         PRINT_CHECK("Failed getting fd status\n");
         goto error_fcntl;
     }
-	fs |= O_ASYNC | O_NONBLOCK;
-	if(-1 == fcntl(s_tcp->fd, F_SETFL, fs)){
+    fs |= O_ASYNC | O_NONBLOCK;
+    if (-1 == fcntl(s_tcp->fd, F_SETFL, fs)) {
         PRINT_CHECK("Failed to set fd status\n");
         goto error_fcntl;
     }
-	fcntl(s_tcp->fd, F_SETSIG, SIGIO);
-	if(-1 == fcntl(s_tcp->fd, F_SETOWN, getpid())){
-       PRINT_CHECK("Failed to set thread owner\n");
-       goto error_fcntl;
+    fcntl(s_tcp->fd, F_SETSIG, SIGIO);
+    if (-1 == fcntl(s_tcp->fd, F_SETOWN, getpid())) {
+        PRINT_CHECK("Failed to set thread owner\n");
+        goto error_fcntl;
     }
 
-	if (bind(s_tcp->fd, (struct sockaddr *)&s_tcp->addr,
-		  sizeof(s_tcp->addr)) < 0){
+    if (bind(s_tcp->fd, (struct sockaddr *)&s_tcp->addr,
+             sizeof(s_tcp->addr)) < 0) {
         PRINT_CHECK("Failed to bind TCP socket %" PRIu16 "\n", (uint16_t) port);
         goto error_fcntl;
     }
 
-	if(listen(s_tcp->fd, 1) < 0){
+    if (listen(s_tcp->fd, 1) < 0) {
         PRINT_CHECK("Failed to listen on TCP port %" PRIu16 "\n", (uint16_t) port);
         goto error_fcntl;
     }
