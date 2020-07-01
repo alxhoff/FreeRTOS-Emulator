@@ -56,6 +56,8 @@ static void vfprints(FILE *__restrict __stream, const char *__format,
 		     va_list args)
 {
     struct error_print_msg *tmp_msg;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
 	if ((__stream == NULL) || (__format == NULL))
 		return;
 
@@ -80,9 +82,11 @@ static void vfprints(FILE *__restrict __stream, const char *__format,
 	tmp_msg->stream = __stream;
 	vsnprintf((char *)tmp_msg->msg, SAFE_PRINT_MAX_MSG_LEN, __format, args);
 
-	xQueueSend(safePrintQueue, tmp_msg, 0);
+	xQueueSendFromISR(safePrintQueue, tmp_msg, &xHigherPriorityTaskWoken);
 
 	rbuf_put_buffer(input_rbuf);
+
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
 void fprints(FILE *__restrict __stream, const char *__format, ...)
