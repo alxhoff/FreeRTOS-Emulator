@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <SDL2/SDL_scancode.h>
 
@@ -61,6 +62,7 @@ aIO_handle_t mq_two = NULL;
 aIO_handle_t udp_soc_one = NULL;
 aIO_handle_t udp_soc_two = NULL;
 aIO_handle_t tcp_soc = NULL;
+aIO_handle_t tcp_soc_2 = NULL;
 
 const unsigned char next_state_signal = NEXT_TASK;
 const unsigned char prev_state_signal = PREV_TASK;
@@ -440,9 +442,14 @@ void MQHanderTwo(size_t read_size, char *buffer, void *args)
 
 void vDemoSendTask(void *pvParameters)
 {
+    // Get persistent TCP connection, keep trying for 1000 milliseconds
+    aIO_handle_t TCP_client = aIOGetTCPClientConn(NULL, TCP_TEST_PORT + 1, TCP_BUFFER_SIZE, 1000);
+    assert(TCP_client);
+
     static char *test_str_1 = "UDP test 1";
     static char *test_str_2 = "UDP test 2";
     static char *test_str_3 = "TCP test";
+    static char *test_str_4 = "TCP test 2";
 
     while (1) {
         printf("*****TICK******\n");
@@ -460,8 +467,12 @@ void vDemoSendTask(void *pvParameters)
             aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2, test_str_2,
                          strlen(test_str_2));
         if (tcp_soc)
-            aIOSocketPut(TCP, NULL, TCP_TEST_PORT, test_str_3,
-                         strlen(test_str_3));
+            assert(!aIOSocketPut(TCP, NULL, TCP_TEST_PORT,
+                                 test_str_3, strlen(test_str_3)));
+
+        if (tcp_soc_2) {
+            assert(!aIOPutTCPClient(TCP_client, test_str_4, strlen(test_str_4)));
+        }
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -493,10 +504,13 @@ void vTCPDemoTask(void *pvParameters)
 
     tcp_soc =
         aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
-
     printf("TCP socket opened on port %d\n", port);
     printf("Demo TCP socket can be tested using\n");
     printf("*** netcat -vv localhost %d ***\n", port);
+
+    tcp_soc_2 =
+        aIOOpenTCPSocket(addr, port + 1, TCP_BUFFER_SIZE, TCPHandler, NULL);
+    printf("Second TCP socket opened on port %d\n", port);
 
     while (1) {
         vTaskDelay(10);

@@ -109,6 +109,9 @@ int aIOMessageQueuePut(char *mq_name, char *buffer);
  */
 int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
                  char *buffer, size_t buffer_size);
+
+int aIOPutTCPClient(aIO_handle_t client, char *data, ssize_t data_len);
+aIO_handle_t aIOGetTCPClientConn(char *s_addr, in_port_t port, ssize_t buffer_len, uint32_t ms_retry);
 /**
  * @brief Open a POSIX message queue
  *
