@@ -38,44 +38,44 @@ static pid_t cur_GL_thread = 0;
 
 int tumUtilIsCurGLThread(void)
 {
-	int ret = 0;
+    int ret = 0;
 
-	pthread_mutex_lock(&GL_thread_lock);
-	ret = (cur_GL_thread == syscall(SYS_gettid)) ? 0 : -1;
-	pthread_mutex_unlock(&GL_thread_lock);
+    pthread_mutex_lock(&GL_thread_lock);
+    ret = (cur_GL_thread == syscall(SYS_gettid)) ? 0 : -1;
+    pthread_mutex_unlock(&GL_thread_lock);
 
-	return ret;
+    return ret;
 }
 
 void tumUtilSetGLThread(void)
 {
-	pthread_mutex_lock(&GL_thread_lock);
-	cur_GL_thread = syscall(SYS_gettid);
-	pthread_mutex_unlock(&GL_thread_lock);
+    pthread_mutex_lock(&GL_thread_lock);
+    cur_GL_thread = syscall(SYS_gettid);
+    pthread_mutex_unlock(&GL_thread_lock);
 }
 
 char *tumUtilPrependPath(char *path, char *file)
 {
-	char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
-	if (!ret) {
-		fprintf(stderr, "[ERROR] prepend_bin_path malloc failed\n");
-		return NULL;
-	}
+    char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
+    if (!ret) {
+        fprintf(stderr, "[ERROR] prepend_bin_path malloc failed\n");
+        return NULL;
+    }
 
-	strcpy(ret, path);
-	strcat(ret, file);
+    strcpy(ret, path);
+    strcat(ret, file);
 
-	return ret;
+    return ret;
 }
 
 char *tumUtilGetBinFolderPath(char *bin_path)
 {
-	char *dir_name = dirname(bin_path);
+    char *dir_name = dirname(bin_path);
 
-	char *ret = calloc(1, sizeof(char) * (strlen(dir_name) + 1));
-	assert(ret);
+    char *ret = calloc(1, sizeof(char) * (strlen(dir_name) + 1));
+    assert(ret);
 
-	strcpy(ret, dir_name);
+    strcpy(ret, dir_name);
 
-	return ret;
+    return ret;
 }

@@ -35,12 +35,12 @@
 #include "TUM_Utils.h"
 
 typedef struct mouse {
-	xSemaphoreHandle lock;
-	signed char left_button;
-	signed char right_button;
-	signed char middle_button;
-	signed short x;
-	signed short y;
+    xSemaphoreHandle lock;
+    signed char left_button;
+    signed char right_button;
+    signed char middle_button;
+    signed short x;
+    signed short y;
 } mouse_t;
 
 QueueHandle_t buttonInputQueue = NULL;
@@ -51,83 +51,90 @@ xSemaphoreHandle fetch_lock;
 
 static int initMouse(void)
 {
-	mouse.lock = xSemaphoreCreateMutex();
-	if (!mouse.lock)
-		return -1;
+    mouse.lock = xSemaphoreCreateMutex();
+    if (!mouse.lock) {
+        return -1;
+    }
 
-	fetch_lock = xSemaphoreCreateMutex();
-	if (!fetch_lock)
-		return -1;
+    fetch_lock = xSemaphoreCreateMutex();
+    if (!fetch_lock) {
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 static void SDLFetchEvents(void)
 {
-	SDL_Event event = { 0 };
-	static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
-	unsigned char send = 0;
+    SDL_Event event = { 0 };
+    static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
+    unsigned char send = 0;
 
-	while (SDL_PollEvent(&event)) {
-		if ((event.type == SDL_QUIT) ||
-		    (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
-			exit(EXIT_SUCCESS);
-		} else if (event.type == SDL_KEYDOWN) {
-			xSemaphoreTake(mouse.lock, 0);
-			buttons[event.key.keysym.scancode] = 1;
-			xSemaphoreGive(mouse.lock);
-			send = 1;
-		} else if (event.type == SDL_KEYUP) {
-			xSemaphoreTake(mouse.lock, 0);
-			buttons[event.key.keysym.scancode] = 0;
-			xSemaphoreGive(mouse.lock);
-			send = 1;
-		} else if (event.type == SDL_MOUSEMOTION) {
-			xSemaphoreTake(mouse.lock, 0);
-			mouse.x = event.motion.x;
-			mouse.y = event.motion.y;
-			xSemaphoreGive(mouse.lock);
-		} else if (event.type == SDL_MOUSEBUTTONDOWN) {
-			xSemaphoreTake(mouse.lock, 0);
-			switch (event.button.button) {
-			case SDL_BUTTON_LEFT:
-				mouse.left_button = 1;
-				break;
-			case SDL_BUTTON_RIGHT:
-				mouse.right_button = 1;
-				break;
-			case SDL_BUTTON_MIDDLE:
-				mouse.middle_button = 1;
-				break;
-			default:
-				break;
-			}
-			send = 1;
-			xSemaphoreGive(mouse.lock);
-		} else if (event.type == SDL_MOUSEBUTTONUP) {
-			xSemaphoreTake(mouse.lock, 0);
-			switch (event.button.button) {
-			case SDL_BUTTON_LEFT:
-				mouse.left_button = 0;
-				break;
-			case SDL_BUTTON_RIGHT:
-				mouse.right_button = 0;
-				break;
-			case SDL_BUTTON_MIDDLE:
-				mouse.middle_button = 0;
-				break;
-			default:
-				break;
-			}
-			send = 1;
-			xSemaphoreGive(mouse.lock);
-		}
-	}
+    while (SDL_PollEvent(&event)) {
+        if ((event.type == SDL_QUIT) ||
+            (event.key.keysym.scancode == SDL_SCANCODE_Q)) {
+            exit(EXIT_SUCCESS);
+        }
+        else if (event.type == SDL_KEYDOWN) {
+            xSemaphoreTake(mouse.lock, 0);
+            buttons[event.key.keysym.scancode] = 1;
+            xSemaphoreGive(mouse.lock);
+            send = 1;
+        }
+        else if (event.type == SDL_KEYUP) {
+            xSemaphoreTake(mouse.lock, 0);
+            buttons[event.key.keysym.scancode] = 0;
+            xSemaphoreGive(mouse.lock);
+            send = 1;
+        }
+        else if (event.type == SDL_MOUSEMOTION) {
+            xSemaphoreTake(mouse.lock, 0);
+            mouse.x = event.motion.x;
+            mouse.y = event.motion.y;
+            xSemaphoreGive(mouse.lock);
+        }
+        else if (event.type == SDL_MOUSEBUTTONDOWN) {
+            xSemaphoreTake(mouse.lock, 0);
+            switch (event.button.button) {
+                case SDL_BUTTON_LEFT:
+                    mouse.left_button = 1;
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    mouse.right_button = 1;
+                    break;
+                case SDL_BUTTON_MIDDLE:
+                    mouse.middle_button = 1;
+                    break;
+                default:
+                    break;
+            }
+            send = 1;
+            xSemaphoreGive(mouse.lock);
+        }
+        else if (event.type == SDL_MOUSEBUTTONUP) {
+            xSemaphoreTake(mouse.lock, 0);
+            switch (event.button.button) {
+                case SDL_BUTTON_LEFT:
+                    mouse.left_button = 0;
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    mouse.right_button = 0;
+                    break;
+                case SDL_BUTTON_MIDDLE:
+                    mouse.middle_button = 0;
+                    break;
+                default:
+                    break;
+            }
+            send = 1;
+            xSemaphoreGive(mouse.lock);
+        }
+    }
 
-	if (send) {
-		xQueueOverwrite(buttonInputQueue, &buttons);
-		send = 0;
-	}
+    if (send) {
+        xQueueOverwrite(buttonInputQueue, &buttons);
+        send = 0;
+    }
 }
 
 #define FETCH_BLOCK_S 0
@@ -136,118 +143,119 @@ static void SDLFetchEvents(void)
 
 int tumEventFetchEvents(int flags)
 {
-	if (!((flags >> FETCH_NO_GL_CHECK_S) & 0x1))
-		if (tumUtilIsCurGLThread()) {
-			PRINT_ERROR(
-				"Fetching events from task that does not hold GL context");
-			return -1;
-		}
+    if (!((flags >> FETCH_NO_GL_CHECK_S) & 0x1))
+        if (tumUtilIsCurGLThread()) {
+            PRINT_ERROR(
+                "Fetching events from task that does not hold GL context");
+            return -1;
+        }
 
-	if ((flags >> FETCH_BLOCK_S) & 0x01) {
-		xSemaphoreTake(fetch_lock, portMAX_DELAY);
-		SDLFetchEvents();
-		xSemaphoreGive(fetch_lock);
-		return 0;
-	} else {
-		if (xSemaphoreTake(fetch_lock, 0) == pdTRUE) {
-			SDLFetchEvents();
-			xSemaphoreGive(fetch_lock);
-			return 0;
-		}
-	}
-	return -1;
+    if ((flags >> FETCH_BLOCK_S) & 0x01) {
+        xSemaphoreTake(fetch_lock, portMAX_DELAY);
+        SDLFetchEvents();
+        xSemaphoreGive(fetch_lock);
+        return 0;
+    }
+    else {
+        if (xSemaphoreTake(fetch_lock, 0) == pdTRUE) {
+            SDLFetchEvents();
+            xSemaphoreGive(fetch_lock);
+            return 0;
+        }
+    }
+    return -1;
 }
 
 signed short tumEventGetMouseX(void)
 {
-	signed short ret;
+    signed short ret;
 
-	xSemaphoreTake(mouse.lock, portMAX_DELAY);
-	ret = mouse.x;
-	xSemaphoreGive(mouse.lock);
-	if (ret >= 0 && ret <= SCREEN_WIDTH) {
-		return ret;
-	}
-	return 0;
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.x;
+    xSemaphoreGive(mouse.lock);
+    if (ret >= 0 && ret <= SCREEN_WIDTH) {
+        return ret;
+    }
+    return 0;
 }
 
 signed short tumEventGetMouseY(void)
 {
-	signed short ret;
+    signed short ret;
 
-	xSemaphoreTake(mouse.lock, portMAX_DELAY);
-	ret = mouse.y;
-	xSemaphoreGive(mouse.lock);
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.y;
+    xSemaphoreGive(mouse.lock);
 
-	if (ret >= 0 && ret <= SCREEN_HEIGHT) {
-		return ret;
-	}
-	return 0;
+    if (ret >= 0 && ret <= SCREEN_HEIGHT) {
+        return ret;
+    }
+    return 0;
 }
 
 signed char tumEventGetMouseLeft(void)
 {
-	signed char ret;
+    signed char ret;
 
-	xSemaphoreTake(mouse.lock, portMAX_DELAY);
-	ret = mouse.left_button;
-	xSemaphoreGive(mouse.lock);
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.left_button;
+    xSemaphoreGive(mouse.lock);
 
-	return ret;
+    return ret;
 }
 
 signed char tumEventGetMouseRight(void)
 {
-	signed char ret;
+    signed char ret;
 
-	xSemaphoreTake(mouse.lock, portMAX_DELAY);
-	ret = mouse.right_button;
-	xSemaphoreGive(mouse.lock);
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.right_button;
+    xSemaphoreGive(mouse.lock);
 
-	return ret;
+    return ret;
 }
 
 signed char tumEventGetMouseMiddle(void)
 {
-	signed char ret;
+    signed char ret;
 
-	xSemaphoreTake(mouse.lock, portMAX_DELAY);
-	ret = mouse.middle_button;
-	xSemaphoreGive(mouse.lock);
+    xSemaphoreTake(mouse.lock, portMAX_DELAY);
+    ret = mouse.middle_button;
+    xSemaphoreGive(mouse.lock);
 
-	return ret;
+    return ret;
 }
 
 int tumEventInit(void)
 {
-	if (initMouse()) {
-		PRINT_ERROR("Init mouse failed");
-		goto err_init_mouse;
-	}
+    if (initMouse()) {
+        PRINT_ERROR("Init mouse failed");
+        goto err_init_mouse;
+    }
 
-	buttonInputQueue =
-		xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
+    buttonInputQueue =
+        xQueueCreate(1, sizeof(unsigned char) * SDL_NUM_SCANCODES);
 
-	if (!buttonInputQueue) {
-		PRINT_ERROR("Creating mouse queue failed");
-		goto err_queue;
-	}
+    if (!buttonInputQueue) {
+        PRINT_ERROR("Creating mouse queue failed");
+        goto err_queue;
+    }
 
-	// Ignore SDL events
-	SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
-	SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
-	SDL_EventState(0x303, SDL_IGNORE);
+    // Ignore SDL events
+    SDL_EventState(SDL_WINDOWEVENT, SDL_IGNORE);
+    SDL_EventState(SDL_TEXTINPUT, SDL_IGNORE);
+    SDL_EventState(0x303, SDL_IGNORE);
 
-	return 0;
+    return 0;
 
 err_queue:
-	vSemaphoreDelete(mouse.lock);
+    vSemaphoreDelete(mouse.lock);
 err_init_mouse:
-	return -1;
+    return -1;
 }
 
 void tumEventExit(void)
 {
-	vQueueDelete(buttonInputQueue);
-	vSemaphoreDelete(mouse.lock);
+    vQueueDelete(buttonInputQueue);
+    vSemaphoreDelete(mouse.lock);
 }
