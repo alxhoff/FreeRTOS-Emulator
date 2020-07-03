@@ -423,7 +423,7 @@ static int _drawTriangle(coord_t *points, int x_offset, int y_offset,
 
 static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 {
-    SDL_Texture *tex = IMG_LoadTexture(ren, filename);
+    SDL_Texture *tex =  IMG_LoadTexture(ren, tumUtilFindResourcePath(filename));
 
     return tex;
 }
@@ -1370,7 +1370,7 @@ image_handle_t tumDrawLoadScaledImage(char *filename, float scale)
         goto err_filename;
     }
 
-    ret->file = fopen(filename, "rb");
+    ret->file = tumUtilFindResource(filename, "rb");
     if (ret->file == NULL) {
         PRINT_ERROR("Failed to open file '%s'", filename);
         goto err_file_open;

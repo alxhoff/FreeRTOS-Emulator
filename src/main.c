@@ -42,7 +42,7 @@
 #define CAVE_X CAVE_SIZE_X / 2
 #define CAVE_Y CAVE_SIZE_Y / 2
 #define CAVE_THICKNESS 25
-#define LOGO_FILENAME "../resources/freertos.jpg"
+#define LOGO_FILENAME "freertos.jpg"
 #define UDP_BUFFER_SIZE 2000
 #define UDP_TEST_PORT_1 1234
 #define UDP_TEST_PORT_2 4321
@@ -507,7 +507,7 @@ void vTCPDemoTask(void *pvParameters)
 void vDemoTask1(void *pvParameters)
 {
     image_handle_t ball_spritesheet =
-        tumDrawLoadImage("../resources/ball_spritesheet.png");
+        tumDrawLoadImage("../resources/images/ball_spritesheet.png");
     animation_handle_t ball_animation =
         tumDrawAnimationCreate(ball_spritesheet, 25, 1);
     tumDrawAnimationAddSequence(ball_animation, "FORWARDS", 0, 0,

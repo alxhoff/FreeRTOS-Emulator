@@ -348,8 +348,12 @@ int tumDrawTriangle(coord_t *points, unsigned int colour);
  * @brief Loads an image file from disk, loaded image file can be closed using
  * tumDrawFreeLoadedImage()
  *
- * @param filename The location of the image file to be loaded relative to the
- * executing binary
+ * Resources are searched for inside the RESOURCES_DIRECTORY, specified in
+ * EmulatorConfig.h, otherwise realtive or absolute filepaths can be give.
+ * Relative paths are relative to the executed binary's location on the
+ * file system
+ *
+ * @param filename Name of the image file to be loaded
  * @return Returns a image_handle_t handle to the image
  */
 image_handle_t tumDrawLoadImage(char *filename);
@@ -359,8 +363,9 @@ image_handle_t tumDrawLoadImage(char *filename);
  * be closed using tumDrawFreeLoadedImage(). Note that scaled images have large
  * overheads compared to manually scaled images (changing image file's dimensions)
  *
- * @param filename The location of the image file to be loaded relative to the
- * executing binary
+ * See tumDrawLoadImage() for information on filenames.
+ *
+ * @param filename Name of the image file to be loaded
  * @param scale Scaling factor with which the image should be drawn
  * @return Returns a image_handle_t handle to the image
  */
