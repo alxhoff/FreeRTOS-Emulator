@@ -103,12 +103,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;sys/types.h&gt;</code><br />
 <code>#include &lt;pthread.h&gt;</code><br />
 <code>#include &lt;regex.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 <code>#include &lt;libgen.h&gt;</code><br />
 <code>#include &lt;assert.h&gt;</code><br />
-<code>#include &lt;stdatomic.h&gt;</code><br />
+<code>#include &lt;dirent.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Utils_8h_source.html">TUM_Utils.h</a>&quot;</code><br />
+<code>#include &quot;EmulatorConfig.h&quot;</code><br />
+<code>#include &lt;stdatomic.h&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -121,6 +124,8 @@ Macros</h2></td></tr>
 <tr class="separator:a369266c24eacffb87046522897a570d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae0e9a8585a9a2feac2b0652b5bf895a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#aae0e9a8585a9a2feac2b0652b5bf895a">CAST_RBUF</a>(rbuf)&#160;&#160;&#160;((struct <a class="el" href="structring__buf.html">ring_buf</a> *)rbuf)</td></tr>
 <tr class="separator:aae0e9a8585a9a2feac2b0652b5bf895a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46cba92ac4f87966b3a557c19558effc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a46cba92ac4f87966b3a557c19558effc">INCLUDE_DIR_NAMES</a>&#160;&#160;&#160;0b1</td></tr>
+<tr class="separator:a46cba92ac4f87966b3a557c19558effc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -136,31 +141,50 @@ Functions</h2></td></tr>
 <tr class="memitem:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a8c8f0d3ac05dc5e1a6b1bc313c4bef6c">tumUtilGetBinFolderPath</a> (char *bin_path)</td></tr>
 <tr class="memdesc:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the execution folder of the current program, assumes that program is executing from a folder "bin".  <a href="#a8c8f0d3ac05dc5e1a6b1bc313c4bef6c">More...</a><br /></td></tr>
 <tr class="separator:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dc490a356032ca8f49459ddadd6ab96"><td class="memItemLeft" align="right" valign="top">FILE *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a1dc490a356032ca8f49459ddadd6ab96">tumUtilFindResource</a> (char *resource_name, const char *mode)</td></tr>
+<tr class="memdesc:a1dc490a356032ca8f49459ddadd6ab96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a file in the RESOURCES_DIRECTORY and returns a FILE * if found.  <a href="#a1dc490a356032ca8f49459ddadd6ab96">More...</a><br /></td></tr>
+<tr class="separator:a1dc490a356032ca8f49459ddadd6ab96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f7168cc6db6c032f28cf1cbb320b6c4"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a2f7168cc6db6c032f28cf1cbb320b6c4">tumUtilFindResourcePath</a> (char *resource_name)</td></tr>
+<tr class="memdesc:a2f7168cc6db6c032f28cf1cbb320b6c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Similar to <a class="el" href="TUM__Utils_8h.html#a1dc490a356032ca8f49459ddadd6ab96" title="Searches for a file in the RESOURCES_DIRECTORY and returns a FILE * if found. ">tumUtilFindResource()</a> only returning the file's path instead of the opened FILE's reference.  <a href="#a2f7168cc6db6c032f28cf1cbb320b6c4">More...</a><br /></td></tr>
+<tr class="separator:a2f7168cc6db6c032f28cf1cbb320b6c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b597e034f0044e934460131056a5b84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a0b597e034f0044e934460131056a5b84">rbuf_init</a> (size_t item_size, size_t item_count)</td></tr>
+<tr class="memdesc:a0b597e034f0044e934460131056a5b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialized a ring buffer object with a certain number of objects of a given size.  <a href="#a0b597e034f0044e934460131056a5b84">More...</a><br /></td></tr>
 <tr class="separator:a0b597e034f0044e934460131056a5b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae32ff6ff91ece63e62d47e919c93bd41"><td class="memItemLeft" align="right" valign="top"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#ae32ff6ff91ece63e62d47e919c93bd41">rbuf_init_static</a> (size_t item_size, size_t item_count, void *buffer)</td></tr>
+<tr class="memdesc:ae32ff6ff91ece63e62d47e919c93bd41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialized a ring buffer object with a certain number of objects of a given size into a statically allocated buffer.  <a href="#ae32ff6ff91ece63e62d47e919c93bd41">More...</a><br /></td></tr>
 <tr class="separator:ae32ff6ff91ece63e62d47e919c93bd41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acebf932727cd4e0772156bce2d353cb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#acebf932727cd4e0772156bce2d353cb0">rbuf_free</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:acebf932727cd4e0772156bce2d353cb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees a ring buffer.  <a href="#acebf932727cd4e0772156bce2d353cb0">More...</a><br /></td></tr>
 <tr class="separator:acebf932727cd4e0772156bce2d353cb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f795f229b72f57723d878646563bf68"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a2f795f229b72f57723d878646563bf68">rbuf_reset</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:a2f795f229b72f57723d878646563bf68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the ring buffer to it's initial state.  <a href="#a2f795f229b72f57723d878646563bf68">More...</a><br /></td></tr>
 <tr class="separator:a2f795f229b72f57723d878646563bf68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ea6c14930369cb60019305321156104"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a9ea6c14930369cb60019305321156104">rbuf_put_buffer</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:a9ea6c14930369cb60019305321156104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used when a reference to the next buffer item is already filled, incrementing the next buffer item should an item need to be retrieved.  <a href="#a9ea6c14930369cb60019305321156104">More...</a><br /></td></tr>
 <tr class="separator:a9ea6c14930369cb60019305321156104"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad71980f39b5fb66813fc4cee73d9e9ed"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#ad71980f39b5fb66813fc4cee73d9e9ed">rbuf_put</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf, void *data)</td></tr>
+<tr class="memdesc:ad71980f39b5fb66813fc4cee73d9e9ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills the next available buffer slot, if a slot is free.  <a href="#ad71980f39b5fb66813fc4cee73d9e9ed">More...</a><br /></td></tr>
 <tr class="separator:ad71980f39b5fb66813fc4cee73d9e9ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adfdfd35c08a7ff9c98174b5293b10887"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#adfdfd35c08a7ff9c98174b5293b10887">rbuf_fput</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf, void *data)</td></tr>
+<tr class="memdesc:adfdfd35c08a7ff9c98174b5293b10887"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills the next available buffer, overwriting data if the ring buffer is full.  <a href="#adfdfd35c08a7ff9c98174b5293b10887">More...</a><br /></td></tr>
 <tr class="separator:adfdfd35c08a7ff9c98174b5293b10887"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a315c648d1d7ca3c91e2f1e5c92646a25"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a315c648d1d7ca3c91e2f1e5c92646a25">rbuf_get_buffer</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:a315c648d1d7ca3c91e2f1e5c92646a25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a reference to the data of the next ring buffer entry.  <a href="#a315c648d1d7ca3c91e2f1e5c92646a25">More...</a><br /></td></tr>
 <tr class="separator:a315c648d1d7ca3c91e2f1e5c92646a25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08241cffa0d67225c44213227c839bff"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a08241cffa0d67225c44213227c839bff">rbuf_get</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf, void *data)</td></tr>
+<tr class="memdesc:a08241cffa0d67225c44213227c839bff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a copy of the next buffer item's data.  <a href="#a08241cffa0d67225c44213227c839bff">More...</a><br /></td></tr>
 <tr class="separator:a08241cffa0d67225c44213227c839bff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2fa0b65a08d607cd99a32484f5d8f903"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a2fa0b65a08d607cd99a32484f5d8f903">rbuf_empty</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:a2fa0b65a08d607cd99a32484f5d8f903"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the buffer is empty or not.  <a href="#a2fa0b65a08d607cd99a32484f5d8f903">More...</a><br /></td></tr>
 <tr class="separator:a2fa0b65a08d607cd99a32484f5d8f903"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace2ac7758b936510c2fa1d6cadfc1a0c"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#ace2ac7758b936510c2fa1d6cadfc1a0c">rbug_full</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:ace2ac7758b936510c2fa1d6cadfc1a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the buffer is full.  <a href="#ace2ac7758b936510c2fa1d6cadfc1a0c">More...</a><br /></td></tr>
 <tr class="separator:ace2ac7758b936510c2fa1d6cadfc1a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2770ce8e49127014a56605fb8cfaebbe"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a2770ce8e49127014a56605fb8cfaebbe">rbuf_size</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:a2770ce8e49127014a56605fb8cfaebbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of elements currently stored in the ring buffer.  <a href="#a2770ce8e49127014a56605fb8cfaebbe">More...</a><br /></td></tr>
 <tr class="separator:a2770ce8e49127014a56605fb8cfaebbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aadf55cfa5e7f6c01853d4cc4bda2b808"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#aadf55cfa5e7f6c01853d4cc4bda2b808">rbuf_capacity</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="memdesc:aadf55cfa5e7f6c01853d4cc4bda2b808"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the maximum number of elements that the ring buffer can store.  <a href="#aadf55cfa5e7f6c01853d4cc4bda2b808">More...</a><br /></td></tr>
 <tr class="separator:aadf55cfa5e7f6c01853d4cc4bda2b808"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -209,6 +233,18 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a46cba92ac4f87966b3a557c19558effc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INCLUDE_DIR_NAMES&#160;&#160;&#160;0b1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="aadf55cfa5e7f6c01853d4cc4bda2b808"></a>
 <div class="memitem">
@@ -223,6 +259,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns the maximum number of elements that the ring buffer can store. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The maximum number of elements that the ring buffer can store </dd></dl>
 
 </div>
 </div>
@@ -239,6 +284,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Checks if the buffer is empty or not. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if the buffer is empty, 0 otherwise </dd></dl>
 
 </div>
 </div>
@@ -266,6 +320,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Fills the next available buffer, overwriting data if the ring buffer is full. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+    <tr><td class="paramname">data</td><td>Reference to the data to be copied into the buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="acebf932727cd4e0772156bce2d353cb0"></a>
@@ -281,6 +345,14 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Frees a ring buffer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -308,6 +380,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns a copy of the next buffer item's data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+    <tr><td class="paramname">data</td><td>A reference to the allocated memory region into which the data should be copied </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a315c648d1d7ca3c91e2f1e5c92646a25"></a>
@@ -323,6 +405,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Returns a reference to the data of the next ring buffer entry. </p>
+<p>Because only a reference is returned the contents of the buffer entry cannot be guarenteed</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A reference to the next item in the buffer's data </dd></dl>
 
 </div>
 </div>
@@ -349,6 +441,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Initialized a ring buffer object with a certain number of objects of a given size. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">item_size</td><td>The size, in bytes, of each ring buffer item </td></tr>
+    <tr><td class="paramname">item_count</td><td>The maximum number of items to be stored in the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A handle to the created ring buffer, else NULL </dd></dl>
 
 </div>
 </div>
@@ -382,6 +484,17 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Initialized a ring buffer object with a certain number of objects of a given size into a statically allocated buffer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">item_size</td><td>The size, in bytes, of each ring buffer item </td></tr>
+    <tr><td class="paramname">item_count</td><td>The maximum number of items to be stored in the ring buffer </td></tr>
+    <tr><td class="paramname">buffer</td><td>Reference to the statically allocated memory region that is to be used for storing the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A handle to the created ring buffer, else NULL </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="ad71980f39b5fb66813fc4cee73d9e9ed"></a>
@@ -408,6 +521,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Fills the next available buffer slot, if a slot is free. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+    <tr><td class="paramname">data</td><td>Reference to the data to be copied into the buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a9ea6c14930369cb60019305321156104"></a>
@@ -423,6 +546,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Used when a reference to the next buffer item is already filled, incrementing the next buffer item should an item need to be retrieved. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
 
 </div>
 </div>
@@ -440,6 +572,14 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Resets the ring buffer to it's initial state. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a class="anchor" id="a2770ce8e49127014a56605fb8cfaebbe"></a>
@@ -456,6 +596,15 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Returns the number of elements currently stored in the ring buffer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of elements stored in the ring buffer </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="ace2ac7758b936510c2fa1d6cadfc1a0c"></a>
@@ -471,6 +620,77 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Checks if the buffer is full. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rbuf</td><td>Handle to the ring buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if the buffer is full, 0 otherwise </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1dc490a356032ca8f49459ddadd6ab96"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">FILE* tumUtilFindResource </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>resource_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>mode</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Searches for a file in the RESOURCES_DIRECTORY and returns a FILE * if found. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">resource_name</td><td>Name of the file to be found </td></tr>
+    <tr><td class="paramname">mode</td><td>The reading mode to be used when opening the file, eg. "rw" </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>FILE reference if found, otherwise NULL </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2f7168cc6db6c032f28cf1cbb320b6c4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* tumUtilFindResourcePath </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>resource_name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Similar to <a class="el" href="TUM__Utils_8h.html#a1dc490a356032ca8f49459ddadd6ab96" title="Searches for a file in the RESOURCES_DIRECTORY and returns a FILE * if found. ">tumUtilFindResource()</a> only returning the file's path instead of the opened FILE's reference. </p>
+<p>The found filename is stored in a statically allocated buffer and can be overwritten by subsequent calls to the functions</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">resource_name</td><td>Name of the file to be found </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Reference to the statically allocated filename, else NULL </dd></dl>
 
 </div>
 </div>

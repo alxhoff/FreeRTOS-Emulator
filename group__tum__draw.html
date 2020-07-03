@@ -1724,9 +1724,10 @@ Hex RGB colours</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Loads an image file from disk, loaded image file can be closed using <a class="el" href="group__tum__draw.html#ga690a3608f39eb7d5a62005838ff9fde0" title="Closes a loaded image and frees all memory used by the image structure. ">tumDrawFreeLoadedImage()</a> </p>
+<p>Resources are searched for inside the RESOURCES_DIRECTORY, specified in EmulatorConfig.h, otherwise realtive or absolute filepaths can be give. Relative paths are relative to the executed binary's location on the file system</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">filename</td><td>The location of the image file to be loaded relative to the executing binary </td></tr>
+    <tr><td class="paramname">filename</td><td>Name of the image file to be loaded </td></tr>
   </table>
   </dd>
 </dl>
@@ -1759,9 +1760,10 @@ Hex RGB colours</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Loads an image from disk and scales the image, loaded image file can be closed using <a class="el" href="group__tum__draw.html#ga690a3608f39eb7d5a62005838ff9fde0" title="Closes a loaded image and frees all memory used by the image structure. ">tumDrawFreeLoadedImage()</a>. Note that scaled images have large overheads compared to manually scaled images (changing image file's dimensions) </p>
+<p>See <a class="el" href="group__tum__draw.html#ga9038d5ef5dd12c777f24f81653cdd1ff" title="Loads an image file from disk, loaded image file can be closed using tumDrawFreeLoadedImage() ...">tumDrawLoadImage()</a> for information on filenames.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">filename</td><td>The location of the image file to be loaded relative to the executing binary </td></tr>
+    <tr><td class="paramname">filename</td><td>Name of the image file to be loaded </td></tr>
     <tr><td class="paramname">scale</td><td>Scaling factor with which the image should be drawn </td></tr>
   </table>
   </dd>
