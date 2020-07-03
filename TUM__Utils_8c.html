@@ -88,6 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
@@ -103,15 +104,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;pthread.h&gt;</code><br />
 <code>#include &lt;regex.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
-<code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 <code>#include &lt;libgen.h&gt;</code><br />
 <code>#include &lt;assert.h&gt;</code><br />
+<code>#include &lt;stdatomic.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="TUM__Utils_8h_source.html">TUM_Utils.h</a>&quot;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structring__buf.html">ring_buf</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:a369266c24eacffb87046522897a570d5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a369266c24eacffb87046522897a570d5">_GNU_SOURCE</a></td></tr>
 <tr class="separator:a369266c24eacffb87046522897a570d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae0e9a8585a9a2feac2b0652b5bf895a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#aae0e9a8585a9a2feac2b0652b5bf895a">CAST_RBUF</a>(rbuf)&#160;&#160;&#160;((struct <a class="el" href="structring__buf.html">ring_buf</a> *)rbuf)</td></tr>
+<tr class="separator:aae0e9a8585a9a2feac2b0652b5bf895a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -127,6 +136,32 @@ Functions</h2></td></tr>
 <tr class="memitem:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a8c8f0d3ac05dc5e1a6b1bc313c4bef6c">tumUtilGetBinFolderPath</a> (char *bin_path)</td></tr>
 <tr class="memdesc:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the execution folder of the current program, assumes that program is executing from a folder "bin".  <a href="#a8c8f0d3ac05dc5e1a6b1bc313c4bef6c">More...</a><br /></td></tr>
 <tr class="separator:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b597e034f0044e934460131056a5b84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a0b597e034f0044e934460131056a5b84">rbuf_init</a> (size_t item_size, size_t item_count)</td></tr>
+<tr class="separator:a0b597e034f0044e934460131056a5b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae32ff6ff91ece63e62d47e919c93bd41"><td class="memItemLeft" align="right" valign="top"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#ae32ff6ff91ece63e62d47e919c93bd41">rbuf_init_static</a> (size_t item_size, size_t item_count, void *buffer)</td></tr>
+<tr class="separator:ae32ff6ff91ece63e62d47e919c93bd41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acebf932727cd4e0772156bce2d353cb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#acebf932727cd4e0772156bce2d353cb0">rbuf_free</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:acebf932727cd4e0772156bce2d353cb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f795f229b72f57723d878646563bf68"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a2f795f229b72f57723d878646563bf68">rbuf_reset</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:a2f795f229b72f57723d878646563bf68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ea6c14930369cb60019305321156104"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a9ea6c14930369cb60019305321156104">rbuf_put_buffer</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:a9ea6c14930369cb60019305321156104"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad71980f39b5fb66813fc4cee73d9e9ed"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#ad71980f39b5fb66813fc4cee73d9e9ed">rbuf_put</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf, void *data)</td></tr>
+<tr class="separator:ad71980f39b5fb66813fc4cee73d9e9ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfdfd35c08a7ff9c98174b5293b10887"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#adfdfd35c08a7ff9c98174b5293b10887">rbuf_fput</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf, void *data)</td></tr>
+<tr class="separator:adfdfd35c08a7ff9c98174b5293b10887"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a315c648d1d7ca3c91e2f1e5c92646a25"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a315c648d1d7ca3c91e2f1e5c92646a25">rbuf_get_buffer</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:a315c648d1d7ca3c91e2f1e5c92646a25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08241cffa0d67225c44213227c839bff"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a08241cffa0d67225c44213227c839bff">rbuf_get</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf, void *data)</td></tr>
+<tr class="separator:a08241cffa0d67225c44213227c839bff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fa0b65a08d607cd99a32484f5d8f903"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a2fa0b65a08d607cd99a32484f5d8f903">rbuf_empty</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:a2fa0b65a08d607cd99a32484f5d8f903"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace2ac7758b936510c2fa1d6cadfc1a0c"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#ace2ac7758b936510c2fa1d6cadfc1a0c">rbug_full</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:ace2ac7758b936510c2fa1d6cadfc1a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2770ce8e49127014a56605fb8cfaebbe"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#a2770ce8e49127014a56605fb8cfaebbe">rbuf_size</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:a2770ce8e49127014a56605fb8cfaebbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadf55cfa5e7f6c01853d4cc4bda2b808"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8c.html#aadf55cfa5e7f6c01853d4cc4bda2b808">rbuf_capacity</a> (<a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf)</td></tr>
+<tr class="separator:aadf55cfa5e7f6c01853d4cc4bda2b808"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Utilities required by other TUM_XXX files. </p>
@@ -158,7 +193,287 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aae0e9a8585a9a2feac2b0652b5bf895a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CAST_RBUF</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">rbuf</td><td>)</td>
+          <td>&#160;&#160;&#160;((struct <a class="el" href="structring__buf.html">ring_buf</a> *)rbuf)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="aadf55cfa5e7f6c01853d4cc4bda2b808"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t rbuf_capacity </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2fa0b65a08d607cd99a32484f5d8f903"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned char rbuf_empty </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="adfdfd35c08a7ff9c98174b5293b10887"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int rbuf_fput </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="acebf932727cd4e0772156bce2d353cb0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rbuf_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a08241cffa0d67225c44213227c839bff"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int rbuf_get </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a315c648d1d7ca3c91e2f1e5c92646a25"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void* rbuf_get_buffer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0b597e034f0044e934460131056a5b84"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf_init </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>item_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>item_count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae32ff6ff91ece63e62d47e919c93bd41"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a> rbuf_init_static </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>item_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>item_count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad71980f39b5fb66813fc4cee73d9e9ed"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int rbuf_put </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9ea6c14930369cb60019305321156104"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int rbuf_put_buffer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2f795f229b72f57723d878646563bf68"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rbuf_reset </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2770ce8e49127014a56605fb8cfaebbe"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t rbuf_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ace2ac7758b936510c2fa1d6cadfc1a0c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned char rbug_full </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a>&#160;</td>
+          <td class="paramname"><em>rbuf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"></a>
 <div class="memitem">
 <div class="memproto">

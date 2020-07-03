@@ -12,5 +12,6 @@ var searchData=
   ['print_5ferror',['PRINT_ERROR',['../TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1',1,'TUM_Utils.h']]],
   ['print_5fsdl_5ferror',['PRINT_SDL_ERROR',['../TUM__Draw_8c.html#aefbf8c180059dc3399747d2674286df5',1,'TUM_Draw.c']]],
   ['print_5fttf_5ferror',['PRINT_TTF_ERROR',['../TUM__Font_8c.html#add3786a670c7834d3fcbe9ab9452f3aa',1,'TUM_Font.c']]],
+  ['prints',['prints',['../TUM__Print_8h.html#a6bb5d704b4d2f0e1c967e7e1b2bffda4',1,'prints(const char *__format,...):&#160;TUM_Print.c'],['../TUM__Print_8c.html#a6bb5d704b4d2f0e1c967e7e1b2bffda4',1,'prints(const char *__format,...):&#160;TUM_Print.c']]],
   ['purple',['Purple',['../group__tum__draw.html#ga5168ce33eb581e85fbfa454e89012bfb',1,'TUM_Draw.h']]]
 ];

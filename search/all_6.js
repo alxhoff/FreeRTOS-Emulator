@@ -22,8 +22,10 @@ var searchData=
   ['fonts_5fdirectory',['FONTS_DIRECTORY',['../group__tum__font.html#ga83f4331f4fcbedde047e24ec379a5e70',1,'TUM_Font.h']]],
   ['for_5feach_5fsample',['FOR_EACH_SAMPLE',['../group__tum__sound.html#ga9587246eddb1e135285b1f54a29b46c7',1,'TUM_Sound.h']]],
   ['fourth_5fbyte',['FOURTH_BYTE',['../TUM__Draw_8c.html#a96d6e8ee6deb64cbad512a02b7ce844c',1,'TUM_Draw.c']]],
+  ['fprints',['fprints',['../TUM__Print_8h.html#a7fbd8ab113e5ff59be957365d08acbad',1,'fprints(FILE *__restrict __stream, const char *__format,...):&#160;TUM_Print.c'],['../TUM__Print_8c.html#a7fbd8ab113e5ff59be957365d08acbad',1,'fprints(FILE *__restrict __stream, const char *__format,...):&#160;TUM_Print.c']]],
   ['frame_5fperiod_5fms',['frame_period_ms',['../structanimated__sequence__instance.html#aba54d308c1a647b05f37da979750aefb',1,'animated_sequence_instance']]],
   ['frames',['frames',['../structspritesheet__sequence.html#ab333a923c411f14bbef145cb6ae0f831',1,'spritesheet_sequence']]],
   ['fuchsia',['Fuchsia',['../group__tum__draw.html#ga44a688b3adc6060bb681f4aa8249bee3',1,'TUM_Draw.h']]],
+  ['full',['full',['../structring__buf.html#a78021846db52ea40b8bf9db1e6752518',1,'ring_buf']]],
   ['freertos_20simulator_20graphical_20library',['FreeRTOS Simulator Graphical Library',['../index.html',1,'']]]
 ];

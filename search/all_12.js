@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['tail',['tail',['../structring__buf.html#afcefe01570a8c8aa81e7a87ba4dde14a',1,'ring_buf']]],
   ['tcp',['TCP',['../group__aio__comms.html#gga72fd4498dc73abcd615ec87c9daedf44aa040cd7feeb588104634cdadf35abf1c',1,'AsyncIO.h']]],
   ['teal',['Teal',['../group__tum__draw.html#ga5136e790688908e6c1162de6030be09d',1,'TUM_Draw.h']]],
   ['tex',['tex',['../structloaded__image.html#ad442dc004f368b6a9b0e67b1577c5369',1,'loaded_image::tex()'],['../structimage__data.html#a000b48bc39d7fd739bf91489f71bc921',1,'image_data::tex()']]],
@@ -28,6 +29,9 @@ var searchData=
   ['tum_5ffont_2eh',['TUM_Font.h',['../TUM__Font_8h.html',1,'']]],
   ['tum_5ffont_5fref',['tum_font_ref',['../structtum__font__ref.html',1,'']]],
   ['tum_5ffont_5ft',['tum_font_t',['../TUM__Font_8c.html#a5aa3f43e028659dd74bd88750184f3dd',1,'TUM_Font.c']]],
+  ['tum_20printing',['TUM Printing',['../group__tum__print.html',1,'']]],
+  ['tum_5fprint_2ec',['TUM_Print.c',['../TUM__Print_8c.html',1,'']]],
+  ['tum_5fprint_2eh',['TUM_Print.h',['../TUM__Print_8h.html',1,'']]],
   ['tum_20sound_20api',['TUM Sound API',['../group__tum__sound.html',1,'']]],
   ['tum_5fsound_2ec',['TUM_Sound.c',['../TUM__Sound_8c.html',1,'']]],
   ['tum_5fsound_2eh',['TUM_Sound.h',['../TUM__Sound_8h.html',1,'']]],

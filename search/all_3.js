@@ -9,6 +9,7 @@ var searchData=
   ['c_5fy',['c_y',['../structloaded__image__crop.html#ae403c0aa742b5391395a646b57b8de46',1,'loaded_image_crop']]],
   ['callback',['callback',['../structball.html#ae6f717a7fc17e8bec85e1e92d27e5930',1,'ball::callback()'],['../structwall.html#aced7f08cffc757d11e50d683d0364d34',1,'wall::callback()'],['../structaIO.html#a157d638c73c774f16f039a1552fbe8bd',1,'aIO::callback()'],['../structaIO__tcp__client.html#a55dd1c0f0acd55b85c544a0987562282',1,'aIO_tcp_client::callback()']]],
   ['callback_5ft',['callback_t',['../group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149',1,'TUM_Ball.h']]],
+  ['cast_5frbuf',['CAST_RBUF',['../TUM__Utils_8c.html#aae0e9a8585a9a2feac2b0652b5bf895a',1,'TUM_Utils.c']]],
   ['changeballdirection',['changeBallDirection',['../TUM__Ball_8c.html#af7a631fd44fd2a751ab5eb88c70dbd0c',1,'TUM_Ball.c']]],
   ['checkballcollisions',['checkBallCollisions',['../group__tum__ball.html#gacc32195b596cfb433e5cee542eca327b',1,'checkBallCollisions(ball_t *ball, callback_t callback, void *args):&#160;TUM_Ball.h'],['../TUM__Ball_8c.html#ad4487d46adfca88d6b207c9bbc83a79a',1,'checkBallCollisions(ball_t *ball, void(*callback)(void *), void *args):&#160;TUM_Ball.c']]],
   ['checkballcollisionswithballs',['checkBallCollisionsWithBalls',['../TUM__Ball_8c.html#a61ce1c771c764142de40d129c0d5b963',1,'TUM_Ball.c']]],

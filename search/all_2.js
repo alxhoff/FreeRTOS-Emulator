@@ -15,7 +15,7 @@ var searchData=
   ['black',['Black',['../group__tum__draw.html#ga68eb1f80b4df2818e5a0774106748141',1,'TUM_Draw.h']]],
   ['blue',['Blue',['../group__tum__draw.html#ga6208a194d702872fdbe1d3c7d7a7c879',1,'TUM_Draw.h']]],
   ['blue_5fportion',['BLUE_PORTION',['../TUM__Draw_8c.html#afa380c49af810175c6e643cf63b8a4e3',1,'TUM_Draw.c']]],
-  ['buffer',['buffer',['../structaIO.html#abce059504679bcf986ab57b88e365cab',1,'aIO']]],
+  ['buffer',['buffer',['../structring__buf.html#a85d1b877b430fbcdb59f53ebc666e894',1,'ring_buf::buffer()'],['../structaIO.html#abce059504679bcf986ab57b88e365cab',1,'aIO::buffer()']]],
   ['buffer_5fsize',['buffer_size',['../structaIO.html#a5ae7c363f7eee38062ea36587bf30c91',1,'aIO::buffer_size()'],['../structaIO__tcp__client.html#a049cfc11b8cb4cd5b5fe8678d5803a3b',1,'aIO_tcp_client::buffer_size()']]],
   ['buttoninputqueue',['buttonInputQueue',['../group__tum__event.html#gafa8fb3b3288671b53ec23beadc896e63',1,'buttonInputQueue():&#160;TUM_Event.c'],['../group__tum__event.html#gafa8fb3b3288671b53ec23beadc896e63',1,'buttonInputQueue():&#160;TUM_Event.c']]]
 ];

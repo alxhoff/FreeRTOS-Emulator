@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['tail',['tail',['../structring__buf.html#afcefe01570a8c8aa81e7a87ba4dde14a',1,'ring_buf']]],
   ['tex',['tex',['../structloaded__image.html#ad442dc004f368b6a9b0e67b1577c5369',1,'loaded_image::tex()'],['../structimage__data.html#a000b48bc39d7fd739bf91489f71bc921',1,'image_data::tex()']]],
   ['text',['text',['../uniondata__u.html#a47d385d5cd75c33964c677b2ff361367',1,'data_u']]],
   ['thickness',['thickness',['../structline__data.html#a45c31ec6a7d551900a568bbf0b8f8bd8',1,'line_data::thickness()'],['../structarrow__data.html#a7a738a710ac58f4441b589c1ea2aa462',1,'arrow_data::thickness()']]],

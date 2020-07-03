@@ -1,5 +1,14 @@
 var searchData=
 [
+  ['safe_5fprint_5finput_5fbuffer_5fcount',['SAFE_PRINT_INPUT_BUFFER_COUNT',['../TUM__Print_8h.html#ae37672a6c3e39edc00aa6ba1b305729d',1,'TUM_Print.h']]],
+  ['safe_5fprint_5fmax_5fmsg_5flen',['SAFE_PRINT_MAX_MSG_LEN',['../TUM__Print_8h.html#a586efe3302edfb1a95fa50700b11b308',1,'TUM_Print.h']]],
+  ['safe_5fprint_5fpriority',['SAFE_PRINT_PRIORITY',['../TUM__Print_8h.html#af937bff8dd1515599bdb2215ec7d1643',1,'TUM_Print.h']]],
+  ['safe_5fprint_5fqueue_5flen',['SAFE_PRINT_QUEUE_LEN',['../TUM__Print_8h.html#ae003cfc0be84eaa3b2d1c07a252b6c0d',1,'TUM_Print.h']]],
+  ['safe_5fprint_5fstack_5fsize',['SAFE_PRINT_STACK_SIZE',['../TUM__Print_8h.html#a769ab7316864becc73475210bf0fdbec',1,'TUM_Print.h']]],
+  ['safeprintexit',['safePrintExit',['../TUM__Print_8h.html#ae117e7b2d8c509fd383c365d17c20bb5',1,'safePrintExit(void):&#160;TUM_Print.c'],['../TUM__Print_8c.html#ae117e7b2d8c509fd383c365d17c20bb5',1,'safePrintExit(void):&#160;TUM_Print.c']]],
+  ['safeprintinit',['safePrintInit',['../TUM__Print_8h.html#ab275f35ca73fe055aca83b004feaa50c',1,'safePrintInit(void):&#160;TUM_Print.c'],['../TUM__Print_8c.html#ab275f35ca73fe055aca83b004feaa50c',1,'safePrintInit(void):&#160;TUM_Print.c']]],
+  ['safeprintqueue',['safePrintQueue',['../TUM__Print_8c.html#a1626e65d2b96e2bcdf5145953b7065b6',1,'TUM_Print.c']]],
+  ['safeprinttaskhandle',['safePrintTaskHandle',['../TUM__Print_8c.html#a37b0cac6f4010810d821f8e670a614fc',1,'TUM_Print.c']]],
   ['sample',['sample',['../structloaded__sample.html#ae2ebf608ef59a3e3435c43036fb59831',1,'loaded_sample']]],
   ['sample_5ffolder',['SAMPLE_FOLDER',['../TUM__Sound_8c.html#a766c57f1da55327eaca313c2903706f3',1,'TUM_Sound.c']]],
   ['samples',['samples',['../TUM__Sound_8c.html#a3e1ac91b6b19fefc2316b2693ba22c0f',1,'TUM_Sound.c']]],
@@ -8,7 +17,7 @@ var searchData=
   ['scaled_5fimage_5fdata',['scaled_image_data',['../structscaled__image__data.html',1,'']]],
   ['scaled_5fimage_5fdata_5ft',['scaled_image_data_t',['../TUM__Draw_8c.html#afa00c3abc81f7dbd5d021ecaf6519138',1,'TUM_Draw.c']]],
   ['screen_5fheight',['SCREEN_HEIGHT',['../group__tum__draw.html#ga6974d08a74da681b3957b2fead2608b8',1,'SCREEN_HEIGHT():&#160;TUM_Draw.h'],['../TUM__Draw_8c.html#a52afc0b1078a0ef9af887430f8e8b84c',1,'screen_height():&#160;TUM_Draw.c']]],
-  ['screen_5fwidth',['SCREEN_WIDTH',['../group__tum__draw.html#ga2cd109632a6dcccaa80b43561b1ab700',1,'SCREEN_WIDTH():&#160;TUM_Draw.h'],['../TUM__Draw_8c.html#ade92e07203a3ba6835aab188b841658f',1,'screen_width():&#160;TUM_Draw.c']]],
+  ['screen_5fwidth',['screen_width',['../TUM__Draw_8c.html#ade92e07203a3ba6835aab188b841658f',1,'screen_width():&#160;TUM_Draw.c'],['../group__tum__draw.html#ga2cd109632a6dcccaa80b43561b1ab700',1,'SCREEN_WIDTH():&#160;TUM_Draw.h']]],
   ['second_5fbyte',['SECOND_BYTE',['../TUM__Draw_8c.html#a2de376607410fbedbe84a31062adeb18',1,'TUM_Draw.c']]],
   ['sequence',['sequence',['../structanimated__sequence__instance.html#aeedf391e9d08b07a0946625a64045be1',1,'animated_sequence_instance']]],
   ['sequence_5fhandle_5ft',['sequence_handle_t',['../group__tum__draw.html#ga1dafa9c3d2798f0f1ba06c637793b459',1,'TUM_Draw.h']]],
@@ -32,7 +41,7 @@ var searchData=
   ['seterrormessage',['setErrorMessage',['../TUM__Draw_8c.html#a20669be39049197fc218d5fd078c1e57',1,'TUM_Draw.c']]],
   ['setwallproperty',['setWallProperty',['../group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5',1,'setWallProperty(wall_t *wall, signed short x, signed short y, signed short width, signed short height, unsigned char flags):&#160;TUM_Ball.c'],['../group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5',1,'setWallProperty(wall_t *wall, signed short x, signed short y, signed short width, signed short height, unsigned char flags):&#160;TUM_Ball.c']]],
   ['silver',['Silver',['../group__tum__draw.html#ga83dd455066a997b33ef319b7f6531015',1,'TUM_Draw.h']]],
-  ['size',['size',['../structtum__font.html#ad1d368dde1b68031a99beb96c3fb232b',1,'tum_font']]],
+  ['size',['size',['../structtum__font.html#ad1d368dde1b68031a99beb96c3fb232b',1,'tum_font::size()'],['../structring__buf.html#ad4a72c23a2840d635224df92fee216af',1,'ring_buf::size()']]],
   ['skyblue',['Skyblue',['../group__tum__draw.html#gaf9e623f033bca1e70652a5736750bbd5',1,'TUM_Draw.h']]],
   ['socket',['socket',['../unionaIO__attr.html#a2fd6d3f33d812a6c26d6d566dd5d0d95',1,'aIO_attr::socket()'],['../AsyncIO_8c.html#a2bc4da5f0e73b751aca2489dc0a5fa74a0917971ba80f3b48c7d0cf1b2da024c7',1,'SOCKET():&#160;AsyncIO.c']]],
   ['sprite_5fcols',['sprite_cols',['../structspritesheet.html#a072061bb77d1130f28c9c89ba42c499a',1,'spritesheet']]],
@@ -52,5 +61,6 @@ var searchData=
   ['start_5fcol',['start_col',['../structspritesheet__sequence.html#ad959b32173e4044a81b5472621517a8c',1,'spritesheet_sequence']]],
   ['start_5frow',['start_row',['../structspritesheet__sequence.html#ab65d358993d53bae8a7f8d9a6af08e43',1,'spritesheet_sequence']]],
   ['str',['str',['../structtext__data.html#aba952928b9fd7a2d605a6c34c94e441d',1,'text_data']]],
+  ['stream',['stream',['../structerror__print__msg.html#adf1b3277fb1eb1bbd0ae82bdbf4813f3',1,'error_print_msg']]],
   ['surf',['surf',['../structloaded__image.html#a76bd669d88ad59d42fba05e692098592',1,'loaded_image']]]
 ];
