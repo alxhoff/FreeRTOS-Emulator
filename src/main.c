@@ -15,6 +15,7 @@
 #include "TUM_Event.h"
 #include "TUM_Sound.h"
 #include "TUM_Utils.h"
+#include "TUM_Print.h"
 
 #include "AsyncIO.h"
 
@@ -54,8 +55,8 @@
 #include "tracer.h"
 #endif
 
-static char *mq_one_name = "FreeRTOS_MQ_one_22";
-static char *mq_two_name = "FreeRTOS_MQ_two_22";
+static char *mq_one_name = "FreeRTOS_MQ_one_1";
+static char *mq_two_name = "FreeRTOS_MQ_two_1";
 aIO_handle_t mq_one = NULL;
 aIO_handle_t mq_two = NULL;
 aIO_handle_t udp_soc_one = NULL;
@@ -91,10 +92,10 @@ void checkDraw(unsigned char status, const char *msg)
 {
     if (status) {
         if (msg)
-            fprintf(stderr, "[ERROR] %s, %s\n", msg,
+            fprints(stderr, "[ERROR] %s, %s\n", msg,
                     tumGetErrorMessage());
         else {
-            fprintf(stderr, "[ERROR] %s\n", tumGetErrorMessage());
+            fprints(stderr, "[ERROR] %s\n", tumGetErrorMessage());
         }
     }
 }
@@ -329,7 +330,7 @@ void vDrawLogo(void)
                                      SCREEN_HEIGHT - 10 - image_height),
                   __FUNCTION__);
     else {
-        fprintf(stderr,
+        fprints(stderr,
                 "Failed to get size of image '%s', does it exist?\n",
                 LOGO_FILENAME);
     }
@@ -394,12 +395,12 @@ static int vCheckStateInput(void)
 
 void UDPHandlerOne(size_t read_size, char *buffer, void *args)
 {
-    printf("UDP Recv in first handler: %s\n", buffer);
+    prints("UDP Recv in first handler: %s\n", buffer);
 }
 
 void UDPHandlerTwo(size_t read_size, char *buffer, void *args)
 {
-    printf("UDP Recv in second handler: %s\n", buffer);
+    prints("UDP Recv in second handler: %s\n", buffer);
 }
 
 void vUDPDemoTask(void *pvParameters)
@@ -410,18 +411,18 @@ void vUDPDemoTask(void *pvParameters)
     udp_soc_one = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
                                    UDPHandlerOne, NULL);
 
-    printf("UDP socket opened on port %d\n", port);
-    printf("Demo UDP Socket can be tested using\n");
-    printf("*** netcat -vv localhost %d -u ***\n", port);
+    prints("UDP socket opened on port %d\n", port);
+    prints("Demo UDP Socket can be tested using\n");
+    prints("*** netcat -vv localhost %d -u ***\n", port);
 
     port = UDP_TEST_PORT_2;
 
     udp_soc_two = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
                                    UDPHandlerTwo, NULL);
 
-    printf("UDP socket opened on port %d\n", port);
-    printf("Demo UDP Socket can be tested using\n");
-    printf("*** netcat -vv localhost %d -u ***\n", port);
+    prints("UDP socket opened on port %d\n", port);
+    prints("Demo UDP Socket can be tested using\n");
+    prints("*** netcat -vv localhost %d -u ***\n", port);
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -430,12 +431,12 @@ void vUDPDemoTask(void *pvParameters)
 
 void MQHandlerOne(size_t read_size, char *buffer, void *args)
 {
-    printf("MQ Recv in first handler: %s\n", buffer);
+    prints("MQ Recv in first handler: %s\n", buffer);
 }
 
 void MQHanderTwo(size_t read_size, char *buffer, void *args)
 {
-    printf("MQ Recv in second handler: %s\n", buffer);
+    prints("MQ Recv in second handler: %s\n", buffer);
 }
 
 void vDemoSendTask(void *pvParameters)
@@ -445,7 +446,7 @@ void vDemoSendTask(void *pvParameters)
     static char *test_str_3 = "TCP test";
 
     while (1) {
-        printf("*****TICK******\n");
+        prints("*****TICK******\n");
         if (mq_one) {
             aIOMessageQueuePut(mq_one_name, "Hello MQ one");
         }
@@ -483,7 +484,7 @@ void vMQDemoTask(void *pvParameters)
 
 void TCPHandler(size_t read_size, char *buffer, void *args)
 {
-    printf("TCP Recv: %s\n", buffer);
+    prints("TCP Recv: %s\n", buffer);
 }
 
 void vTCPDemoTask(void *pvParameters)
@@ -494,9 +495,9 @@ void vTCPDemoTask(void *pvParameters)
     tcp_soc =
         aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
 
-    printf("TCP socket opened on port %d\n", port);
-    printf("Demo TCP socket can be tested using\n");
-    printf("*** netcat -vv localhost %d ***\n", port);
+    prints("TCP socket opened on port %d\n", port);
+    prints("Demo TCP socket can be tested using\n");
+    prints("*** netcat -vv localhost %d ***\n", port);
 
     while (1) {
         vTaskDelay(10);
@@ -592,7 +593,7 @@ void vDemoTask2(void *pvParameters)
                    0.2, Blue, NULL, NULL);
     unsigned char collisions = 0;
 
-    printf("Task 1 init'd\n");
+    prints("Task 1 init'd\n");
 
     while (1) {
         if (DrawSignal)
@@ -636,7 +637,7 @@ void vDemoTask2(void *pvParameters)
                 collisions = checkBallCollisions(my_ball, NULL,
                                                  NULL);
                 if (collisions) {
-                    printf("Collision\n");
+                    prints("Collision\n");
                 }
 
                 // Update the balls position now that possible collisions have
@@ -672,21 +673,41 @@ int main(int argc, char *argv[])
 {
     char *bin_folder_path = tumUtilGetBinFolderPath(argv[0]);
 
-    printf("Initializing: ");
+    prints("Initializing: ");
+
+    //  Note PRINT_ERROR is not thread safe and is only used before the
+    //  scheduler is started. There are thread safe print functions in
+    //  TUM_Print.h, `prints` and `fprints` that work exactly the same as
+    //  `printf` and `fprintf`. So you can read the documentation on these
+    //  functions to understand the functionality.
 
     if (tumDrawInit(bin_folder_path)) {
         PRINT_ERROR("Failed to intialize drawing");
         goto err_init_drawing;
+    }
+    else {
+        prints("drawing");
     }
 
     if (tumEventInit()) {
         PRINT_ERROR("Failed to initialize events");
         goto err_init_events;
     }
+    else {
+        prints(", events");
+    }
 
     if (tumSoundInit(bin_folder_path)) {
         PRINT_ERROR("Failed to initialize audio");
         goto err_init_audio;
+    }
+    else {
+        prints(", and audio\n");
+    }
+
+    if (safePrintInit()) {
+        PRINT_ERROR("Failed to init safe print");
+        goto err_init_safe_print;
     }
 
     logo_image = tumDrawLoadImage(LOGO_FILENAME);
@@ -785,6 +806,8 @@ err_init_audio:
 err_init_events:
     tumDrawExit();
 err_init_drawing:
+    safePrintExit();
+err_init_safe_print:
     return EXIT_FAILURE;
 }
 

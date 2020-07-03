@@ -172,6 +172,7 @@ if(ENABLE_CPPCHECK)
 
     list(APPEND CPPCHECK_ARGS
         --enable=warning,style,performance,portability
+        --suppress=arithOperationsOnVoidPointer
         --std=c99
         --verbose
         --error-exitcode=1
