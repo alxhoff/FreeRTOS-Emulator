@@ -15,6 +15,7 @@
 #include "TUM_Event.h"
 #include "TUM_Sound.h"
 #include "TUM_Utils.h"
+#include "TUM_FreeRTOS_Utils.h"
 #include "TUM_Print.h"
 
 #include "AsyncIO.h"
@@ -780,6 +781,8 @@ int main(int argc, char *argv[])
 
     vTaskSuspend(DemoTask1);
     vTaskSuspend(DemoTask2);
+
+    tumFUtilPrintTaskStateList();
 
     vTaskStartScheduler();
 

@@ -13,7 +13,7 @@ void tumFUtilPrintTaskStateList(void)
         return;
     }
 
-    char *print_buf = (char *)pvPortMalloc((int)num_tasks * 40);
+    char *print_buf = (char *)pvPortMalloc((int)num_tasks * 50);
     if (print_buf == NULL) {
         return;
     }
