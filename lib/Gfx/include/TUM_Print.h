@@ -31,6 +31,8 @@
 /**
  * @defgroup tum_print TUM Printing
  *
+ * @brief Thread safe printing API
+ *
  * Provides replacements for `printf` and `fprintf` with the two functions
  * `prints` and `fprints`, standing for "print safe".
  *
@@ -40,6 +42,8 @@
  *
  * The functions also allow writing to any IO stream, `prints` is simply a call
  * to `fprints` where the IO stream is fixed to `stdout`,
+ *
+ * @{
  */
 
 /**
@@ -47,6 +51,8 @@
  *
  * Allows for the configuration of each print messages length and the number
  * of print messages that FreeRTOS can buffer
+ *
+ * @{
  */
 #ifndef SAFE_PRINT_QUEUE_LEN
 #define SAFE_PRINT_QUEUE_LEN 20
@@ -65,6 +71,7 @@
 #endif // SAFE_PRINT_INPUT_BUFFER_COUNT
 //Uncomment to embed print debug ID's into messages
 // #define SAFE_PRINT_DEBUG
+/** @} */
 
 /**
  * @brief Prints a formatted string to the specifed IO stream
@@ -92,5 +99,7 @@ int safePrintInit(void);
  * @brief Exits the printing module
  */
 void safePrintExit(void);
+
+/** @} */
 
 #endif // __TUM_PRINT_H__

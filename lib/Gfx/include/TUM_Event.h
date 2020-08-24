@@ -94,12 +94,18 @@ signed char tumEventGetMouseRight(void);
 signed char tumEventGetMouseMiddle(void);
 
 /**
- * @defgroup FETCH_EVENT_FLAGS Event fetching flags
+ * @name Event fetching flags
+ *
+ * @brief Flags for tumEventFetchEvents()
+ *
+ * Fetching of SDL events can be done in a block, nonblocking as well as GL
+ * context checking fashion. See tumEventFetchEvents() for more details.
  *
  * @{
  */
 
-/** Event fetching should block until events could be fetched */
+/**
+ * Event fetching should block until events could be fetched */
 #define FETCH_EVENT_BLOCK 0b1
 
 /** Event fetching should not block and return if events could not be fetched */
@@ -130,8 +136,8 @@ signed char tumEventGetMouseMiddle(void);
  * eg.
  * @verbatim tumEventFetchEvents(FETCH_EVENT_NONBLOCK | FETCH_EVENT_NO_GL_CHECK)@endverbatim
  *
- * @param flags Flags specifying the bahaviour of the function. See @ref FETCH_EVENT_FLAGS
- * the SDL backend is currently retrieving events.
+ * @param flags Flags specifying the bahaviour of the function. See FETCH_EVENT_BLOCK,
+ * FETCH_EVENT_NONBLOCK and FETCH_EVENT_NO_GL_CHECK
  * @return 0 on success.
  */
 int tumEventFetchEvents(int flags);

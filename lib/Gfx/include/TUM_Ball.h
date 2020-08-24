@@ -28,6 +28,8 @@
 /**
  * @defgroup tum_ball TUM Ball API
  *
+ * @brief Demo "game engine" code for basic game objects
+ *
  * Functions to generate ball and wall object that interact each other in a
  * 2D environment
  *
