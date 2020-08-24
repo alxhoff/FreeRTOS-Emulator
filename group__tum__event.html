@@ -78,7 +78,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="summary">
-<a href="#groups">Modules</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -89,11 +88,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Keyboard and mouse event retrieval API.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="groups"></a>
-Modules</h2></td></tr>
-<tr class="memitem:group__FETCH__EVENT__FLAGS"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__FETCH__EVENT__FLAGS.html">Event fetching flags</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga40f34e34d8926fee1ad9952bc2978027"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#ga40f34e34d8926fee1ad9952bc2978027">tumEventInit</a> (void)</td></tr>
@@ -125,11 +119,63 @@ Functions</h2></td></tr>
 Variables</h2></td></tr>
 <tr class="memitem:gafa8fb3b3288671b53ec23beadc896e63"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#gafa8fb3b3288671b53ec23beadc896e63">buttonInputQueue</a></td></tr>
 <tr class="separator:gafa8fb3b3288671b53ec23beadc896e63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
+Event fetching flags</h2></td></tr>
+<tr><td class="ititle" colspan="2"><p><a class="anchor" id="amgrp979bdab1b4f7f589656ef2e36f70b8a6"></a>Flags for <a class="el" href="group__tum__event.html#ga3f20c9186883c06db4744ddb3378e8ad" title="Polls all outstanding SDL Events. Should be called from Draw Loop that holds the OpenGL context...">tumEventFetchEvents()</a></p>
+<p>Fetching of SDL events can be done in a block, nonblocking as well as GL context checking fashion. See <a class="el" href="group__tum__event.html#ga3f20c9186883c06db4744ddb3378e8ad" title="Polls all outstanding SDL Events. Should be called from Draw Loop that holds the OpenGL context...">tumEventFetchEvents()</a> for more details. </p>
+</td></tr>
+<tr class="memitem:gaa683caa35b2123362ccc200172361c42"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#gaa683caa35b2123362ccc200172361c42">FETCH_EVENT_BLOCK</a>&#160;&#160;&#160;0b1</td></tr>
+<tr class="separator:gaa683caa35b2123362ccc200172361c42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac7adb0e20caec8490c3747d8f6a04142"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#gac7adb0e20caec8490c3747d8f6a04142">FETCH_EVENT_NONBLOCK</a>&#160;&#160;&#160;0b10</td></tr>
+<tr class="separator:gac7adb0e20caec8490c3747d8f6a04142"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadc569098ce6fcf5b9933f1d95ce0833b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__event.html#gadc569098ce6fcf5b9933f1d95ce0833b">FETCH_EVENT_NO_GL_CHECK</a>&#160;&#160;&#160;0b100</td></tr>
+<tr class="separator:gadc569098ce6fcf5b9933f1d95ce0833b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Keyboard and mouse event retrieval API. </p>
 <p>API to retrieve event's from the backend SDL library. Events are the movement of the mouse and keypresses. Mouse coordinates are exposed through <a class="el" href="group__tum__event.html#ga1ee3d3b7c06a732977632f8af80da22a">tumEventGetMouseX</a> and <a class="el" href="group__tum__event.html#ga2458a025c6de66e1191cb33ac05c610b">tumEventGetMouseY</a> while keypress events are received by retriving the most recent copy of the button status lookup table exposed through the FreeRTOS queue <a class="el" href="group__tum__event.html#gafa8fb3b3288671b53ec23beadc896e63">buttonInputQueue</a>.</p>
 <p><a class="el" href="group__tum__event.html#gafa8fb3b3288671b53ec23beadc896e63">buttonInputQueue</a> holds a single array of unsigned chars of the length SDL_NUM_SCANCODES. The scancodes that are defind in the SDL header SDL_scancode.h are used as the indicies when accessing the stored data in the table. </p>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a class="anchor" id="gaa683caa35b2123362ccc200172361c42"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FETCH_EVENT_BLOCK&#160;&#160;&#160;0b1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Event fetching should block until events could be fetched </p>
+
+</div>
+</div>
+<a class="anchor" id="gadc569098ce6fcf5b9933f1d95ce0833b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FETCH_EVENT_NO_GL_CHECK&#160;&#160;&#160;0b100</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Event fetching should not check OpenGL context </p>
+
+</div>
+</div>
+<a class="anchor" id="gac7adb0e20caec8490c3747d8f6a04142"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FETCH_EVENT_NONBLOCK&#160;&#160;&#160;0b10</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Event fetching should not block and return if events could not be fetched </p>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="ga74f32187f019d6df4754d1ec552c3890"></a>
 <div class="memitem">
@@ -169,7 +215,7 @@ Variables</h2></td></tr>
 <p>Multiple flags can be used in a 'OR' fashion,</p>
 <p>eg. </p><pre class="fragment">tumEventFetchEvents(FETCH_EVENT_NONBLOCK | FETCH_EVENT_NO_GL_CHECK)</pre><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">flags</td><td>Flags specifying the bahaviour of the function. See <a class="el" href="group__FETCH__EVENT__FLAGS.html">Event fetching flags</a> the SDL backend is currently retrieving events. </td></tr>
+    <tr><td class="paramname">flags</td><td>Flags specifying the bahaviour of the function. See FETCH_EVENT_BLOCK, FETCH_EVENT_NONBLOCK and FETCH_EVENT_NO_GL_CHECK </td></tr>
   </table>
   </dd>
 </dl>

@@ -94,6 +94,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">TUM_FreeRTOS_Utils.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Small verbose utilities for showing FreeRTOS functionality.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;string.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &quot;FreeRTOS.h&quot;</code><br />
@@ -108,12 +111,31 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:adf6cf08ca6e4a0596d47cfb998728e82"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__FreeRTOS__Utils_8c.html#adf6cf08ca6e4a0596d47cfb998728e82">tumFUtilPrintTaskStateList</a> (void)</td></tr>
-<tr class="separator:adf6cf08ca6e4a0596d47cfb998728e82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e9883b234470f7bda010cbdc741189e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__FreeRTOS__Utils_8c.html#a9e9883b234470f7bda010cbdc741189e">tumFUtilPrintTaskUtils</a> (void)</td></tr>
-<tr class="separator:a9e9883b234470f7bda010cbdc741189e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadf6cf08ca6e4a0596d47cfb998728e82"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__freertos__utils.html#gadf6cf08ca6e4a0596d47cfb998728e82">tumFUtilPrintTaskStateList</a> (void)</td></tr>
+<tr class="memdesc:gadf6cf08ca6e4a0596d47cfb998728e82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a list of the current tasks executing on the system and their states.  <a href="group__tum__freertos__utils.html#gadf6cf08ca6e4a0596d47cfb998728e82">More...</a><br /></td></tr>
+<tr class="separator:gadf6cf08ca6e4a0596d47cfb998728e82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9e9883b234470f7bda010cbdc741189e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__freertos__utils.html#ga9e9883b234470f7bda010cbdc741189e">tumFUtilPrintTaskUtils</a> (void)</td></tr>
+<tr class="memdesc:ga9e9883b234470f7bda010cbdc741189e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a list of the current tasks executing on the system and their utilizations.  <a href="group__tum__freertos__utils.html#ga9e9883b234470f7bda010cbdc741189e">More...</a><br /></td></tr>
+<tr class="separator:ga9e9883b234470f7bda010cbdc741189e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Small verbose utilities for showing FreeRTOS functionality. </p>
+<dl class="section author"><dt>Author</dt><dd>Alex Hoffman </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>24 August 2020 <pre class="fragment">----------------------------------------------------------------------
+Copyright (C) Alexander Hoffman, 2020
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+----------------------------------------------------------------------
+</pre> </dd></dl>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a7a88c5cf2419193265bde1614b291a5e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -135,40 +157,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="adf6cf08ca6e4a0596d47cfb998728e82"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void tumFUtilPrintTaskStateList </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a9e9883b234470f7bda010cbdc741189e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void tumFUtilPrintTaskUtils </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>ulTotalRunTime /= 100UL; </p>
 
 </div>
 </div>
