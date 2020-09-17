@@ -279,6 +279,13 @@ void vDrawFPS(void)
     int fps = 0;
     font_handle_t cur_font = tumFontGetCurFontHandle();
 
+    if (average_count < FPS_AVERAGE_COUNT) {
+        average_count++;
+    }
+    else {
+        periods_total -= periods[index];
+    }
+
     xLastWakeTime = xTaskGetTickCount();
 
     if (prevWakeTime != xLastWakeTime) {
@@ -297,13 +304,6 @@ void vDrawFPS(void)
     }
     else {
         index++;
-    }
-
-    if (average_count < FPS_AVERAGE_COUNT) {
-        average_count++;
-    }
-    else {
-        periods_total -= periods[index];
     }
 
     fps = periods_total / average_count;
