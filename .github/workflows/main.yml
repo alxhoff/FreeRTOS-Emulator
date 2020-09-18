@@ -1,0 +1,218 @@
+name: Build FreeRTOS-Emulator
+
+on:
+  pull_request:
+    branches:
+      - master
+      - pong
+      - ci
+  push:
+    branches:
+      - master
+      - pong
+      - ci
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: Standard Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
+      - name: Build with CMake
+        run: cd build && make
+  doxygen:
+    name: Doxygen Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Generate Doxygen Documentation
+        uses: mattnotmitt/doxygen-action@v1
+        with:
+          working-directory: docs
+      - name: Print warnings
+        run: |
+          if [[ -s "doxygen_warnings.txt" ]]; then
+            echo "You must fix doxygen before submitting a pull request"
+            echo "Build doxygen: 'cmake -DDOCS=ON .. & make docs'"
+            echo ""
+            cat doxygen_warnings.txt
+            exit -1
+          fi
+      - name: Deploy Documentation
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'master' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/docs/html
+  git_check:
+    name: Run Git Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Check and Print Warning
+        run: |
+          if [[ -n $(git diff --check HEAD^) ]]; then
+            echo "You must remove whitespace before submitting a pull request"
+            echo ""
+            git diff --check HEAD^
+            exit -1
+          fi
+  astyle_format:
+    name: Run AStyle Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_ASTYLE=ON ..
+      - name: Build with CMake
+        run: cd build && make
+      - name: Run Checks
+        run: cd build && make format
+      - name: Print Warnings
+        run: |
+          if [[ -n $(git diff) ]]; then
+            echo "You must run make format before submitting a pull request"
+            echo ""
+            git diff
+            exit -1
+          fi
+  clang_tidy:
+    name: Run Clang Tidy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Latest Clang
+        run: sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+      - name: Install CLang Dependencies
+        run: sudo apt-get install -y clang-4.0 clang-tidy-4.0
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_CLANG_TIDY=ON ..
+      - name: Build with CMake
+        run: cd  build && make
+      - name: Run Checks
+        run: cd build && make tidy > output.txt
+      - name: Print Warnings
+        run: |
+          if [[ -n $(grep "error: " build/output.txt) ]]; then
+            echo "You must pass the clang tidy checks before submitting a pull request"
+            echo "cmake -DENABLE_CLANG_TIDY=ON .. & make tidy"
+            echo ""
+            grep --color -E '^|error: ' build/output.txt
+            exit -1
+          elif [[ -n $(grep "warning: " build/output.txt) ]]; then
+            echo "Warnings:"
+            grep --color -E '^|warning: ' build/output.txt
+            echo -e "\033[1;32m\xE2\x9C\x93 passed - with warnings\033[0m $1"
+            exit 0
+          else
+            echo -e "\033[1;32m\xE2\x9C\x93 passed - no warnings\033[0m $1"
+            exit 0
+          fi
+  cppcheck:
+    name: Run CPPCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_CPPCHECK=ON ..
+      - name: Build with CMake
+        run: cd build && make
+      - name: Run Checks
+        run: cd build && make check
+  google_asan:
+    name: Run Google Address Sanitizer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_ASAN=ON ..
+      - name: Build with CMake
+        run: cd build && make
+      - name: Install xvfb
+        run: sudo apt-get install xvfb -y
+      - name: Run Address Sanitizer on Executable (with fake DISPLAY and dummy AUDIODEV)
+        run: cd build && AUDIODEV=null xvfb-run --auto-servernum  ./../bin/FreeRTOS_Emulator & sleep 20
+      - name: Kill Program
+        run: killall FreeRTOS_Emulator || echo "Nothing running..."
+      - name: Check for Errors
+        run: echo "TODO"
+  google_usan:
+    name: Run Google Undefined Sanitizer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_USAN=ON ..
+      - name: Build with CMake
+        run: cd build && make
+      - name: Install xvfb
+        run: sudo apt-get install xvfb -y
+      - name: Run Undefined Sanitizer on Executable (with fake DISPLAY and dummy AUDIODEV)
+        run: cd build && AUDIODEV=null xvfb-run --auto-servernum ./../bin/FreeRTOS_Emulator & sleep 20
+      - name: Kill Program
+        run: killall FreeRTOS_Emulator || echo "Not running..."
+      - name: Check for Errors
+        run: echo "TODO"
+  google_tsan:
+    name: Run Google Thread Sanitizer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_TSAN=ON ..
+      - name: Build with CMake
+        run: cd build && make
+      - name: Install xvfb
+        run: sudo apt-get install xvfb -y
+      - name: Run Thread Sanitizer on Executable (with fake DISPLAY and dummy AUDIODEV)
+        run: cd build && AUDIODEV=null xvfb-run --auto-servernum ./../bin/FreeRTOS_Emulator & sleep 20
+      - name: Kill Program
+        run: killall FreeRTOS_Emulator || echo "Not running..."
+      - name: Check for Errors
+        run: echo "TODO"
+  codecov:
+    name: Run Codecov
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SDL2 Dependencies
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure CMake
+        run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_COVERAGE=ON ..
+      - name: Build with CMake
+        run: cd build && make
+      - name: Setup Test
+        run: cd build && make test & sleep 20
+      - name: Publish to Codecov
+        #run: bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v1
