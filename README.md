@@ -4,6 +4,9 @@
   <a href="https://travis-ci.com/alxhoff/FreeRTOS-Emulator">
   <img src="https://travis-ci.com/alxhoff/FreeRTOS-Emulator.svg?branch=master">
   </a>
+  <a href="https://github.com/alxhoff/FreeRTOS-Emulator/workflows/Build%20FreeRTOS-Emulator">
+  <img src="https://github.com/alxhoff/FreeRTOS-Emulator/workflows/Build%20FreeRTOS-Emulator/badge.svg">
+  </a>
   <a href="https://github.com/alxhoff/FreeRTOS-Emulator/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-GPLv3-blue.svg" />
   </a>
