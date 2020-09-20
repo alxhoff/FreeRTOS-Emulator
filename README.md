@@ -4,7 +4,7 @@
   <a href="https://travis-ci.com/alxhoff/FreeRTOS-Emulator">
   <img src="https://travis-ci.com/alxhoff/FreeRTOS-Emulator.svg?branch=master">
   </a>
-  <a href="https://github.com/alxhoff/FreeRTOS-Emulator/workflows/Build%20FreeRTOS-Emulator">
+  <a href="https://github.com/alxhoff/FreeRTOS-Emulator/actions">
   <img src="https://github.com/alxhoff/FreeRTOS-Emulator/workflows/Build%20FreeRTOS-Emulator/badge.svg">
   </a>
   <a href="https://github.com/alxhoff/FreeRTOS-Emulator/blob/master/LICENSE">
