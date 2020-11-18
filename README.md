@@ -59,7 +59,7 @@ sudo pacman -S clang
 
 ....install linux?
 
-(Have a look at the [Remote Toolchain](../../wiki/Remote-Toolchain) wiki section)
+(See [Wiki](../../wiki/Home))
 
 ## Building
 
@@ -74,6 +74,14 @@ For those requiring an IDE run
 cmake -G "Eclipse CDT4 - Unix Makefiles" ./
 ```
 to generate the appropriate project files to allow for the emulator to be imported into Eclipse.
+
+We also includes templates for Configuring VSCode automatically. Run the following in the `build` directory to install them:
+
+```bash
+cmake -DUSE_IDE=vscode ..
+```
+
+Further Information: [Development-Environment](../../wiki/Development-Environment)
 
 ### Additional targets
 
