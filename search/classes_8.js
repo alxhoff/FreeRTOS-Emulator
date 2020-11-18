@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mouse_511',['mouse',['../structmouse.html',1,'']]]
+  ['mouse',['mouse',['../structmouse.html',1,'']]]
 ];
