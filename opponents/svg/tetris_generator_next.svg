@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="683px" preserveAspectRatio="none" style="width:479px;height:683px;" version="1.1" viewBox="0 0 479 683" width="479px" zoomAndPan="magnify"><defs><filter height="300%" id="f187bmqmz2jkdb" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="177" x="188.5" y="29.4023">"Query next Shapes"</text><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="172" x2="172" y1="75.6875" y2="640.3086"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="425" x2="425" y1="75.6875" y2="640.3086"/><rect fill="#FEFECE" filter="url(#f187bmqmz2jkdb)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="76" x="132" y="40.1992"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="62" x="139" y="60.7344">Emulator</text><rect fill="#FEFECE" filter="url(#f187bmqmz2jkdb)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="76" x="132" y="639.3086"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="62" x="139" y="659.8438">Emulator</text><rect fill="#FEFECE" filter="url(#f187bmqmz2jkdb)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="83" x="382" y="40.1992"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="69" x="389" y="60.7344">Generator</text><rect fill="#FEFECE" filter="url(#f187bmqmz2jkdb)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="83" x="382" y="639.3086"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="69" x="389" y="659.8438">Generator</text><polygon fill="#A80036" points="413.5,104.6875,423.5,108.6875,413.5,112.6875,417.5,108.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="108.6875" y2="108.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="278.75" y="102.5039">NEXT</text><polygon fill="#A80036" points="183,116.6875,173,120.6875,183,124.6875,179,120.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="120.6875" y2="120.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="60" x="268.75" y="134.5039">NEXT=L</text><polygon fill="#A80036" points="413.5,166.6875,423.5,170.6875,413.5,174.6875,417.5,170.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="170.6875" y2="170.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="278.75" y="164.5039">NEXT</text><polygon fill="#A80036" points="183,178.6875,173,182.6875,183,186.6875,179,182.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="182.6875" y2="182.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="60" x="268.75" y="196.5039">NEXT=J</text><polygon fill="#A80036" points="413.5,228.6875,423.5,232.6875,413.5,236.6875,417.5,232.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="232.6875" y2="232.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="278.75" y="226.5039">NEXT</text><polygon fill="#A80036" points="183,240.6875,173,244.6875,183,248.6875,179,244.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="244.6875" y2="244.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="60" x="268.75" y="258.5039">NEXT=O</text><polygon fill="#A80036" points="413.5,290.6875,423.5,294.6875,413.5,298.6875,417.5,294.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="294.6875" y2="294.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="278.75" y="288.5039">NEXT</text><polygon fill="#A80036" points="183,302.6875,173,306.6875,183,310.6875,179,306.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="306.6875" y2="306.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="60" x="268.75" y="320.5039">NEXT=T</text><polygon fill="#A80036" points="413.5,352.6875,423.5,356.6875,413.5,360.6875,417.5,356.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="356.6875" y2="356.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="278.75" y="350.5039">NEXT</text><polygon fill="#A80036" points="183,364.6875,173,368.6875,183,372.6875,179,368.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="368.6875" y2="368.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="60" x="268.75" y="382.5039">NEXT=S</text><polygon fill="#A80036" points="413.5,414.6875,423.5,418.6875,413.5,422.6875,417.5,418.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="418.6875" y2="418.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="278.75" y="412.5039">NEXT</text><polygon fill="#A80036" points="183,426.6875,173,430.6875,183,434.6875,179,430.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="430.6875" y2="430.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="60" x="268.75" y="444.5039">NEXT=I</text><polygon fill="#A80036" points="413.5,501.6875,423.5,505.6875,413.5,509.6875,417.5,505.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="505.6875" y2="505.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="50" x="273.75" y="499.5039">RESET</text><polygon fill="#A80036" points="183,525.498,173,529.498,183,533.498,179,529.498" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="529.498" y2="529.498"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="80" x="258.75" y="543.3145">RESET OK</text><path d="M5,518.6875 L5,558.6875 L163,558.6875 L163,528.6875 L153,518.6875 L5,518.6875 " fill="#FBFB77" filter="url(#f187bmqmz2jkdb)" style="stroke:#A80036;stroke-width:1.0;"/><path d="M153,518.6875 L153,528.6875 L163,528.6875 L153,518.6875 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="137" x="11" y="536.2559">Reset uses same seed</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="119" x="11" y="551.5664">to repeat sequence</text><polygon fill="#A80036" points="413.5,587.3086,423.5,591.3086,413.5,595.3086,417.5,591.3086" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="172" x2="419.5" y1="591.3086" y2="591.3086"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="278.75" y="585.125">NEXT</text><polygon fill="#A80036" points="183,599.3086,173,603.3086,183,607.3086,179,603.3086" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="177" x2="424.5" y1="603.3086" y2="603.3086"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="60" x="268.75" y="617.125">NEXT=L</text><!--MD5=[62bcc6093c50643e096f5562814b3ed1]
+@startuml
+skinparam SequenceMessageAlignment center
+skinparam ParticipantPadding 80
+skinparam sequence {
+ArrowFontName "Courier"
+ArrowFontSize 17
+MinAsciiMessageLength 1000
+}
+skinparam responseMessageBelowArrow true
+
+Emulator -> Generator:  NEXT
+Generator - -> Emulator: NEXT=L
+
+Emulator -> Generator: NEXT
+Generator - -> Emulator: NEXT=J
+
+Emulator -> Generator: NEXT
+Generator - -> Emulator: NEXT=O
+
+Emulator -> Generator: NEXT
+Generator - -> Emulator: NEXT=T
+
+Emulator -> Generator: NEXT
+Generator - -> Emulator: NEXT=S
+
+Emulator -> Generator: NEXT
+Generator - -> Emulator: NEXT=I
+|||
+Emulator -> Generator: RESET
+Generator - -> Emulator: RESET OK
+note left
+Reset uses same seed
+to repeat sequence
+end note
+
+Emulator -> Generator: NEXT
+Generator - -> Emulator: NEXT=L
+
+title "Query next Shapes"
+@enduml
+
+PlantUML version 1.2020.26(Mon Dec 21 18:45:07 CET 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: DE
+--></g></svg>

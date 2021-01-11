@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="201px" preserveAspectRatio="none" style="width:462px;height:201px;" version="1.1" viewBox="0 0 462 201" width="462px" zoomAndPan="magnify"><defs><filter height="300%" id="fxmjux5tzfwyh" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="190" x="173.75" y="29.4023">"List available modes"</text><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="125" x2="125" y1="75.6875" y2="157.6875"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="408.5" x2="408.5" y1="75.6875" y2="157.6875"/><rect fill="#FEFECE" filter="url(#fxmjux5tzfwyh)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="76" x="85" y="40.1992"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="62" x="92" y="60.7344">Emulator</text><rect fill="#FEFECE" filter="url(#fxmjux5tzfwyh)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="76" x="85" y="156.6875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="62" x="92" y="177.2227">Emulator</text><rect fill="#FEFECE" filter="url(#fxmjux5tzfwyh)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="83" x="365.5" y="40.1992"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="69" x="372.5" y="60.7344">Generator</text><rect fill="#FEFECE" filter="url(#fxmjux5tzfwyh)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="83" x="365.5" y="156.6875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="69" x="372.5" y="177.2227">Generator</text><polygon fill="#A80036" points="397,104.6875,407,108.6875,397,112.6875,401,108.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="125" x2="403" y1="108.6875" y2="108.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="247" y="102.5039">LIST</text><polygon fill="#A80036" points="136,116.6875,126,120.6875,136,124.6875,132,120.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="130" x2="408" y1="120.6875" y2="120.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="260" x="137" y="134.5039">LIST=FAIR,RANDOM,EASY,HARD</text><!--MD5=[da2376a24e37a51614ee14449d6be401]
+@startuml
+skinparam SequenceMessageAlignment center
+skinparam ParticipantPadding 80
+skinparam sequence {
+ArrowFontName "Courier"
+ArrowFontSize 17
+}
+skinparam responseMessageBelowArrow true
+
+Emulator -> Generator: LIST
+Generator - -> Emulator: LIST=FAIR,RANDOM,EASY,HARD
+
+title "List available modes"
+@enduml
+
+PlantUML version 1.2020.26(Mon Dec 21 18:45:07 CET 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: DE
+--></g></svg>

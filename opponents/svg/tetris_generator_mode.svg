@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="263px" preserveAspectRatio="none" style="width:432px;height:263px;" version="1.1" viewBox="0 0 432 263" width="432px" zoomAndPan="magnify"><defs><filter height="300%" id="fnre9t7dqh35a" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="202" x="152.5" y="29.4023">"Get/Set current Mode"</text><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="125" x2="125" y1="75.6875" y2="219.6875"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="378" x2="378" y1="75.6875" y2="219.6875"/><rect fill="#FEFECE" filter="url(#fnre9t7dqh35a)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="76" x="85" y="40.1992"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="62" x="92" y="60.7344">Emulator</text><rect fill="#FEFECE" filter="url(#fnre9t7dqh35a)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="76" x="85" y="218.6875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="62" x="92" y="239.2227">Emulator</text><rect fill="#FEFECE" filter="url(#fnre9t7dqh35a)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="83" x="335" y="40.1992"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="69" x="342" y="60.7344">Generator</text><rect fill="#FEFECE" filter="url(#fnre9t7dqh35a)" height="30.4883" style="stroke:#A80036;stroke-width:1.5;" width="83" x="335" y="218.6875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="69" x="342" y="239.2227">Generator</text><polygon fill="#A80036" points="366.5,104.6875,376.5,108.6875,366.5,112.6875,370.5,108.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="125" x2="372.5" y1="108.6875" y2="108.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="40" x="231.75" y="102.5039">MODE</text><polygon fill="#A80036" points="136,116.6875,126,120.6875,136,124.6875,132,120.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="130" x2="377.5" y1="120.6875" y2="120.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="90" x="206.75" y="134.5039">MODE=FAIR</text><polygon fill="#A80036" points="366.5,166.6875,376.5,170.6875,366.5,174.6875,370.5,170.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;" x1="125" x2="372.5" y1="170.6875" y2="170.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="90" x="206.75" y="164.5039">MODE=EASY</text><polygon fill="#A80036" points="136,178.6875,126,182.6875,136,186.6875,132,182.6875" style="stroke:#A80036;stroke-width:1.0;"/><line style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="130" x2="377.5" y1="182.6875" y2="182.6875"/><text fill="#000000" font-family="Courier" font-size="17" lengthAdjust="spacingAndGlyphs" textLength="70" x="216.75" y="196.5039">MODE OK</text><!--MD5=[e21291f393612006cec60fa42b96cab3]
+@startuml
+skinparam SequenceMessageAlignment center
+skinparam ParticipantPadding 80
+skinparam sequence {
+ArrowFontName "Courier"
+ArrowFontSize 17
+}
+skinparam responseMessageBelowArrow true
+
+Emulator -> Generator: MODE
+Generator - -> Emulator: MODE=FAIR
+
+Emulator -> Generator: MODE=EASY
+Generator - -> Emulator: MODE OK
+
+title "Get/Set current Mode"
+@enduml
+
+PlantUML version 1.2020.26(Mon Dec 21 18:45:07 CET 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: DE
+--></g></svg>

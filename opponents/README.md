@@ -4,6 +4,10 @@ You will find pre-compiled executables to game opponents in this directory.
 
 Detailed documentation can be found here: https://github.com/alxhoff/FreeRTOS-Emulator/wiki/Opponents
 
+## NEW: Tetris Generator
+
+For information, see [`TETRIS.md`](TETRIS.md)
+
 ## Manual
 
 General Usage:
