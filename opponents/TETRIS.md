@@ -36,3 +36,10 @@ Set values by appending an `=VALUE` to the command. If successful the response w
 ![MODE Command](./svg/tetris_generator_mode.svg)
 ![SEED Command](./svg/tetris_generator_seed.svg)
 ![NEXT/RESET Command](./svg/tetris_generator_next.svg)
+
+## Debugging Advice
+
+1. Enable verbose mode to see what is happening: Addend `-v` or `--verbose` to the command
+2. Install `socat` to listen/write to the socket manually like this:
+  - `socat - udp4-listen:1234,reuseaddr,fork` -> Listens to messages by the Emulator without running the Generator
+  - `echo -n "NEXT" | socat - udp-sendto:127.0.0.1:1235` -> Write message to the Generator without using the Emulator
