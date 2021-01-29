@@ -43,3 +43,15 @@ Set values by appending an `=VALUE` to the command. If successful the response w
 2. Install `socat` to listen/write to the socket manually like this:
   - `socat - udp4-listen:1234,reuseaddr,fork` -> Listens to messages by the Emulator without running the Generator
   - `echo -n "NEXT" | socat - udp-sendto:127.0.0.1:1235` -> Write message to the Generator without using the Emulator
+  
+## Description of available modes
+
+Currently 5 modes are available:
+
+information about the 4 available modes:
+
+- `FAIR`: Default Tetris behavior (1/7 chance per shape but it is impossible to wait for a certain block longer than 7+6=13 blocks and also the same shape can only appear twice)
+- `RANDOM`: Naive Randomness (1/7 chance per shape which potentially allows long runs of good/bad blocks)
+- `EASY`: Randomness with increased likelihood of good blocks (70% chance for I,L,J,O, 30% chance for S,Z,T)
+- `HARD`: Randomness with increased likelihood of bad blocks (30% chance for I,L,J,O, 70% chance for S,Z,T)
+- `DETERMINISTIC`: Hardcoded sequence of 7 shapes (only the starting index is randomized)
