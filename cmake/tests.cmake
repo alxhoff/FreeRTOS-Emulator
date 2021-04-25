@@ -63,6 +63,7 @@ if(ENABLE_ASTYLE)
         DOWNLOAD_DIR        ${CMAKE_BINARY_DIR}/external/astyle/download
         SOURCE_DIR          ${CMAKE_BINARY_DIR}/external/astyle/src
         BINARY_DIR          ${CMAKE_BINARY_DIR}/external/astyle/build
+        UPDATE_COMMAND      "" # this keeps cmake from rebuilding astyle every time you run "make"
     )
 
     list(APPEND ASTYLE_ARGS
