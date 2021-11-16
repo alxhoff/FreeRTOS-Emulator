@@ -76,57 +76,56 @@ static void SDLFetchEvents(void)
             exit(EXIT_SUCCESS);
         }
         else if (event.type == SDL_KEYDOWN) {
-            xSemaphoreTake(mouse.lock, 0);
             buttons[event.key.keysym.scancode] = 1;
-            xSemaphoreGive(mouse.lock);
             send = 1;
         }
         else if (event.type == SDL_KEYUP) {
-            xSemaphoreTake(mouse.lock, 0);
             buttons[event.key.keysym.scancode] = 0;
-            xSemaphoreGive(mouse.lock);
             send = 1;
         }
         else if (event.type == SDL_MOUSEMOTION) {
-            xSemaphoreTake(mouse.lock, 0);
-            mouse.x = event.motion.x;
-            mouse.y = event.motion.y;
+            if(xSemaphoreTake(mouse.lock, 0) == pdTRUE){
+                mouse.x = event.motion.x;
+                mouse.y = event.motion.y;
+            }
             xSemaphoreGive(mouse.lock);
         }
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
-            xSemaphoreTake(mouse.lock, 0);
-            switch (event.button.button) {
-                case SDL_BUTTON_LEFT:
-                    mouse.left_button = 1;
-                    break;
-                case SDL_BUTTON_RIGHT:
-                    mouse.right_button = 1;
-                    break;
-                case SDL_BUTTON_MIDDLE:
-                    mouse.middle_button = 1;
-                    break;
-                default:
-                    break;
-            }
-            send = 1;
+            if(xSemaphoreTake(mouse.lock, 0) == pdTRUE){
+                switch (event.button.button) {
+                    case SDL_BUTTON_LEFT:
+                        mouse.left_button = 1;
+                        break;
+                    case SDL_BUTTON_RIGHT:
+                        mouse.right_button = 1;
+                        break;
+                    case SDL_BUTTON_MIDDLE:
+                        mouse.middle_button = 1;
+                        break;
+                    default:
+                        break;
+                }
+                send = 1;
+                }
             xSemaphoreGive(mouse.lock);
         }
         else if (event.type == SDL_MOUSEBUTTONUP) {
-            xSemaphoreTake(mouse.lock, 0);
-            switch (event.button.button) {
-                case SDL_BUTTON_LEFT:
-                    mouse.left_button = 0;
-                    break;
-                case SDL_BUTTON_RIGHT:
-                    mouse.right_button = 0;
-                    break;
-                case SDL_BUTTON_MIDDLE:
-                    mouse.middle_button = 0;
-                    break;
-                default:
-                    break;
+            if(xSemaphoreTake(mouse.lock, 0) == pdTRUE){
+                switch (event.button.button) {
+                    case SDL_BUTTON_LEFT:
+                        mouse.left_button = 0;
+                        break;
+                    case SDL_BUTTON_RIGHT:
+                        mouse.right_button = 0;
+                        break;
+                    case SDL_BUTTON_MIDDLE:
+                        mouse.middle_button = 0;
+                        break;
+                    default:
+                        break;
+                }
+                send = 1;
             }
-            send = 1;
             xSemaphoreGive(mouse.lock);
         }
     }
