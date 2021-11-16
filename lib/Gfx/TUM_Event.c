@@ -84,14 +84,14 @@ static void SDLFetchEvents(void)
             send = 1;
         }
         else if (event.type == SDL_MOUSEMOTION) {
-            if(xSemaphoreTake(mouse.lock, 0) == pdTRUE){
+            if (xSemaphoreTake(mouse.lock, 0) == pdTRUE) {
                 mouse.x = event.motion.x;
                 mouse.y = event.motion.y;
             }
             xSemaphoreGive(mouse.lock);
         }
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
-            if(xSemaphoreTake(mouse.lock, 0) == pdTRUE){
+            if (xSemaphoreTake(mouse.lock, 0) == pdTRUE) {
                 switch (event.button.button) {
                     case SDL_BUTTON_LEFT:
                         mouse.left_button = 1;
@@ -106,11 +106,11 @@ static void SDLFetchEvents(void)
                         break;
                 }
                 send = 1;
-                }
+            }
             xSemaphoreGive(mouse.lock);
         }
         else if (event.type == SDL_MOUSEBUTTONUP) {
-            if(xSemaphoreTake(mouse.lock, 0) == pdTRUE){
+            if (xSemaphoreTake(mouse.lock, 0) == pdTRUE) {
                 switch (event.button.button) {
                     case SDL_BUTTON_LEFT:
                         mouse.left_button = 0;

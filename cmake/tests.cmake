@@ -111,8 +111,8 @@ endif()
 
 if(ENABLE_CLANG_TIDY)
 
-    find_program(CLANG_TIDY_BIN clang-tidy-4.0)
-    find_program(RUN_CLANG_TIDY_BIN run-clang-tidy-4.0.py
+    find_program(CLANG_TIDY_BIN clang-tidy)
+    find_program(RUN_CLANG_TIDY_BIN run-clang-tidy.py
         PATHS /usr/share/clang
     )
 
