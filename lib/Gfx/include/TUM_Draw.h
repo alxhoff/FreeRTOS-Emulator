@@ -466,7 +466,7 @@ spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img, unsigned sprite_
         unsigned sprite_rows);
 
 /**
- * @brief Creates a spritesheet object from a loaded image
+ * @brief Draws a sprite from a spritesheet
  *
  * @param spritesheet Spritesheet to be drawn from
  * @param column Column on the sprite sheet where the target sprite is located
