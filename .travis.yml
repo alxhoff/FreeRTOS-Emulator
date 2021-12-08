@@ -110,8 +110,8 @@ matrix:
           - libsdl2-image-dev
           - libsdl2-gfx-dev
           - libsdl2-dev
-          - clang-4.0
-          - clang-tidy-4.0
+          - clang
+          - clang-tidy
 
     script:
       - cd build
