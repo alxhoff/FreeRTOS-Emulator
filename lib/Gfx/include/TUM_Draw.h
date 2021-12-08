@@ -459,7 +459,7 @@ int tumDrawImage(char *filename, signed short x, signed short y);
  *
  * @param img Loaded image to be used as the sprite sheet
  * @param sprite_cols Number of columns on the sprite sheet
- * @param sprite_cols Number of rows on the sprite sheet
+ * @param sprite_rows Number of rows on the sprite sheet
  * @return 0 on success
  */
 spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img, unsigned sprite_cols,
