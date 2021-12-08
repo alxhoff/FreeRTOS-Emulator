@@ -423,7 +423,8 @@ static int _drawTriangle(coord_t *points, int x_offset, int y_offset,
 
 static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
 {
-    SDL_Texture *tex =  IMG_LoadTexture(ren, tumUtilFindResourcePath(filename));
+    SDL_Texture *tex =
+        IMG_LoadTexture(ren, tumUtilFindResourcePath(filename));
 
     return tex;
 }
@@ -467,22 +468,10 @@ static int _getImageSize(char *filename, int *w, int *h)
     return 0;
 }
 
-animation_handle_t tumDrawAnimationCreate(image_handle_t spritesheet,
-        unsigned sprite_cols,
-        unsigned sprite_rows)
+animation_handle_t tumDrawAnimationCreate(spritesheet_handle_t spritesheet)
 {
     if (spritesheet == NULL) {
         PRINT_ERROR("Creating animation requires a valid spritesheet");
-        goto err;
-    }
-
-    if (sprite_cols == 0) {
-        PRINT_ERROR("Spritesheet cols are not valid");
-        goto err;
-    }
-
-    if (sprite_rows == 0) {
-        PRINT_ERROR("Spritesheet rows are not valid");
         goto err;
     }
 
@@ -493,25 +482,10 @@ animation_handle_t tumDrawAnimationCreate(image_handle_t spritesheet,
         goto err;
     }
 
-    ret->spritesheet = calloc(1, sizeof(spritesheet_t));
+    ret->spritesheet = spritesheet;
 
-    if (ret->spritesheet == NULL) {
-        PRINT_ERROR("Could not allocate spritesheet");
-        goto err_spritesheet;
-    }
+    return (animation_handle_t)ret;
 
-    ret->spritesheet->image = spritesheet;
-    ret->spritesheet->sprite_cols = sprite_cols;
-    ret->spritesheet->sprite_rows = sprite_rows;
-    ret->spritesheet->sprite_width =
-        ret->spritesheet->image->w / sprite_cols;
-    ret->spritesheet->sprite_height =
-        ret->spritesheet->image->h / sprite_rows;
-
-    return (void *)ret;
-
-err_spritesheet:
-    free(ret);
 err:
     return NULL;
 }
@@ -987,7 +961,8 @@ int tumDrawUpdateScreen(void)
         goto err;
     }
 
-    if (timespecDiffMilli(&last_time, &cur_time) < (float)FRAMELIMIT_PERIOD) {
+    if (timespecDiffMilli(&last_time, &cur_time) <
+        (float)FRAMELIMIT_PERIOD) {
         goto err;
     }
 
@@ -1530,6 +1505,68 @@ int __attribute_deprecated__ tumDrawImage(char *filename, signed short x,
     job->data->image.y = y;
 
     return 0;
+}
+
+spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img, unsigned sprite_cols,
+        unsigned sprite_rows)
+{
+    if (img == NULL) {
+        PRINT_ERROR("No spritesheet provided to load");
+        goto err;
+    }
+
+    spritesheet_t *ret = calloc(1, sizeof(spritesheet_t));
+
+    if (ret == NULL) {
+        PRINT_ERROR("Could not allocate spritesheet");
+        goto err;
+    }
+
+    ret->image = img;
+    ret->sprite_cols = sprite_cols;
+    ret->sprite_rows = sprite_rows;
+    ret->sprite_width = ret->image->w / sprite_cols;
+    ret->sprite_height = ret->image->h / sprite_rows;
+
+    return (spritesheet_handle_t)ret;
+
+err:
+    return NULL;
+}
+
+int tumDrawSprite(spritesheet_handle_t spritesheet, char column, char row,
+                  signed short x, signed short y)
+{
+    if (spritesheet == NULL) {
+        PRINT_ERROR("No spritesheet given to draw from");
+        goto err;
+    }
+
+    if (column < 0 || column > ((spritesheet_t *)spritesheet)->sprite_cols) {
+        PRINT_ERROR("Spritesheet column not valid");
+        goto err;
+    }
+
+    if (row < 0 || row > ((spritesheet_t *)spritesheet)->sprite_rows) {
+        PRINT_ERROR("Spritesheet row not valid");
+        goto err;
+    }
+
+    INIT_JOB(job, DRAW_LOADED_IMAGE_CROP);
+
+    ((spritesheet_t *)spritesheet)->image->ref_count++;
+    job->data->loaded_image_crop.image = ((spritesheet_t *)spritesheet)->image;
+    job->data->loaded_image_crop.x = x;
+    job->data->loaded_image_crop.y = y;
+    job->data->loaded_image_crop.c_w = ((spritesheet_t *)spritesheet)->sprite_width;
+    job->data->loaded_image_crop.c_h = ((spritesheet_t *)spritesheet)->sprite_height;
+    job->data->loaded_image_crop.c_x = column * ((spritesheet_t *)spritesheet)->sprite_width;
+    job->data->loaded_image_crop.c_y = row * ((spritesheet_t *)spritesheet)->sprite_height;
+
+    return 0;
+
+err:
+    return -1;
 }
 
 int __attribute_deprecated__ tumGetImageSize(char *filename, int *w, int *h)

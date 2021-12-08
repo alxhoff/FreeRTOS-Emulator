@@ -507,10 +507,12 @@ void vTCPDemoTask(void *pvParameters)
 
 void vDemoTask1(void *pvParameters)
 {
-    image_handle_t ball_spritesheet =
+    image_handle_t ball_spritesheet_image =
         tumDrawLoadImage("../resources/images/ball_spritesheet.png");
+    spritesheet_handle_t ball_spritesheet =
+        tumDrawLoadSpritesheet(ball_spritesheet_image, 25, 1);
     animation_handle_t ball_animation =
-        tumDrawAnimationCreate(ball_spritesheet, 25, 1);
+        tumDrawAnimationCreate(ball_spritesheet);
     tumDrawAnimationAddSequence(ball_animation, "FORWARDS", 0, 0,
                                 SPRITE_SEQUENCE_HORIZONTAL_POS, 24);
     tumDrawAnimationAddSequence(ball_animation, "REVERSE", 0, 23,
@@ -538,14 +540,19 @@ void vDemoTask1(void *pvParameters)
                 vDrawStaticItems();
                 vDrawCave(tumEventGetMouseLeft());
                 vDrawButtonText();
-                tumDrawAnimationDrawFrame(forward_sequence,
-                                          xTaskGetTickCount() -
-                                          xLastFrameTime,
-                                          SCREEN_WIDTH - 50, SCREEN_HEIGHT - 60);
-                tumDrawAnimationDrawFrame(reverse_sequence,
-                                          xTaskGetTickCount() -
-                                          xLastFrameTime,
-                                          SCREEN_WIDTH - 50 - 40, SCREEN_HEIGHT - 60);
+                tumDrawAnimationDrawFrame(
+                    forward_sequence,
+                    xTaskGetTickCount() - xLastFrameTime,
+                    SCREEN_WIDTH - 50, SCREEN_HEIGHT - 60);
+                tumDrawAnimationDrawFrame(
+                    reverse_sequence,
+                    xTaskGetTickCount() - xLastFrameTime,
+                    SCREEN_WIDTH - 90,
+                    SCREEN_HEIGHT - 60);
+                checkDraw(tumDrawSprite(ball_spritesheet, 5, 0,
+                                        SCREEN_WIDTH - 130, SCREEN_HEIGHT - 60),
+                          __FUNCTION__);
+
                 xLastFrameTime = xTaskGetTickCount();
 
                 // Draw FPS in lower right corner

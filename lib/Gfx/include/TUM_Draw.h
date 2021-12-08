@@ -141,13 +141,21 @@ typedef void *image_handle_t;
 typedef void *animation_handle_t;
 
 /**
- * @brief Returns an instance of an animation;
+ * @brief Returns an instance of an animation
  *
  * After an animation has been created and a sequence added, an instance of the
  * sequence must be created. This allows for the same animation sequence to
  * be run within the same frame.
  */
 typedef void *sequence_handle_t;
+
+/**
+ * @brief Returns an instance of a spritesheet
+ *
+ * A grid of images make up a sprite sheet, drawing partiular sprites can then
+ * be done by simply specifying the column and row of the particular image.
+ */
+typedef void *spritesheet_handle_t;
 
 /**
  * @brief Returns a string error message from the TUM Draw back end
@@ -447,6 +455,30 @@ int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y);
 int tumDrawImage(char *filename, signed short x, signed short y);
 
 /**
+ * @brief Creates a spritesheet object from a loaded image
+ *
+ * @param img Loaded image to be used as the sprite sheet
+ * @param sprite_cols Number of columns on the sprite sheet
+ * @param sprite_cols Number of rows on the sprite sheet
+ * @return 0 on success
+ */
+spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img, unsigned sprite_cols,
+        unsigned sprite_rows);
+
+/**
+ * @brief Creates a spritesheet object from a loaded image
+ *
+ * @param spritesheet Spritesheet to be drawn from
+ * @param column Column on the sprite sheet where the target sprite is located
+ * @param row Row on the sprite sheet where the target sprite is located
+ * @param x X coordinate where the sprite should be drawn on the screen
+ * @param y Y coordinate where the sprite should be drawn on the screen
+ * @return 0 on success
+ */
+int tumDrawSprite(spritesheet_handle_t spritesheet, char column, char row,
+                  signed short x, signed short y);
+
+/**
  * @brief Gets the width and height of an image
  *
  * @param filename Image filename to be tested
@@ -489,12 +521,9 @@ int tumDrawArrow(signed short x1, signed short y1, signed short x2,
  * loaded prior as an image.
  *
  * @param spritesheet The loaded image that contains the spritesheet
- * @param sprite_cols The number of colums in the sprite sheet
- * @param sprite_rows The number of rows in the sprite sheet
  * @return A handle to the created animation object
  */
-animation_handle_t tumDrawAnimationCreate(image_handle_t spritesheet,
-        unsigned sprite_cols, unsigned sprite_rows);
+animation_handle_t tumDrawAnimationCreate(spritesheet_handle_t spritesheet);
 
 /**
  * @brief Adds an animation sequence to a previously created animation
