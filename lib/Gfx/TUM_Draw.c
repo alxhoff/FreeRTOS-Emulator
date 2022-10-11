@@ -959,7 +959,7 @@ pthread_mutex_t renderer_lock = PTHREAD_MUTEX_INITIALIZER;
 
 int tumDrawUpdateScreen(void)
 {
-    pthread_mutex_lock(&renderer_lock);
+    // pthread_mutex_lock(&renderer_lock);
 
     pthread_cond_signal(&renderer_cond);
 
@@ -1120,10 +1120,8 @@ void *tumDrawRenderThread(void *args)
 
 draw_error:
             free(tmp_job);
-err:
-
         }
-
+err:
         pthread_mutex_unlock(&renderer_lock);
     }
 
@@ -1154,11 +1152,12 @@ int tumDrawInit(char *path) // Should be called from the Thread running main()
     clock_gettime(CLOCK_REALTIME, &ts);
     ts.tv_sec += 5;
     pthread_mutex_lock(&renderer_lock);
-    if (pthread_cond_timedwait(&renderer_cond, &renderer_lock, &ts) == ETIMEDOUT) {
-        PRINT_ERROR("Creating SDL renderer thread timed out");
-        pthread_mutex_unlock(&renderer_lock);
-        goto err_renderer_thread;
-    }
+    // if (pthread_cond_timedwait(&renderer_cond, &renderer_lock, &ts) == ETIMEDOUT) {
+        // PRINT_ERROR("Creating SDL renderer thread timed out");
+        // pthread_mutex_unlock(&renderer_lock);
+        // goto err_renderer_thread;
+    // }
+    pthread_cond_wait(&renderer_cond, &renderer_lock);
 
     PRINT_LOG("SDL renderer thread created");
 
