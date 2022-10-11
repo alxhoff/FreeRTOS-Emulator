@@ -24,6 +24,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
@@ -945,63 +946,32 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 #define FRAMELIMIT_PERIOD 1000.0 / FRAMELIMIT
 #endif //configFPS_LIMIT
 
-int tumDrawUpdateScreen(void)
-{
-    if (tumUtilIsCurGLThread()) {
-        PRINT_ERROR(
-            "Updating screen from thread that does not hold GL context");
-        goto err;
-    }
-
-#if (configFPS_LIMIT == 1)
-    static struct timespec last_time = { 0 }, cur_time = { 0 };
-
-    if (clock_gettime(CLOCK_MONOTONIC, &cur_time)) {
-        PRINT_ERROR("Failed to get monotonic clock");
-        goto err;
-    }
-
-    if (timespecDiffMilli(&last_time, &cur_time) <
-        (float)FRAMELIMIT_PERIOD) {
-        goto err;
-    }
-
-    memcpy(&last_time, &cur_time, sizeof(struct timespec));
-#endif //configFPS_LIMIT
-
-    if (job_list_head.next == NULL) {
-        goto err;
-    }
-
-    draw_job_t *tmp_job;
-
-    while ((tmp_job = popDrawJob()) != NULL) {
-        if (!tmp_job->data) {
-            return -1;
-        }
-        if (vHandleDrawJob(tmp_job) == -1) {
-            goto draw_error;
-        }
-        free(tmp_job);
-    }
-
-    SDL_RenderPresent(renderer);
-
-    return 0;
-
-draw_error:
-    free(tmp_job);
-err:
-    return -1;
-}
 
 char *tumGetErrorMessage(void)
 {
     return error_message;
 }
 
-int tumDrawInit(char *path) // Should be called from the Thread running main()
+pthread_t renderer_thread;
+pthread_cond_t renderer_cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t renderer_lock = PTHREAD_MUTEX_INITIALIZER;
+
+
+int tumDrawUpdateScreen(void)
 {
+    pthread_mutex_lock(&renderer_lock);
+
+    pthread_cond_signal(&renderer_cond);
+
+    pthread_mutex_unlock(&renderer_lock);
+
+    return 0;
+
+}
+
+void *tumDrawRenderThread(void *args)
+{
+
     /* Relevant for Docker-based toolchain */
 #ifdef DOCKER
 #ifndef HOST_OS
@@ -1028,7 +998,7 @@ int tumDrawInit(char *path) // Should be called from the Thread running main()
         goto err_ttf;
     }
 
-    if (tumFontInit(path)) {
+    if (tumFontInit((char *) args)) {
         PRINT_ERROR("TUM Font init failed");
         goto err_tum_font;
     }
@@ -1060,28 +1030,6 @@ int tumDrawInit(char *path) // Should be called from the Thread running main()
         goto err_make_current;
     }
 
-    tumDrawBindThread();
-
-    atexit(SDL_Quit);
-
-    return 0;
-
-err_make_current:
-    SDL_GL_DeleteContext(context);
-err_create_context:
-    SDL_DestroyWindow(window);
-err_window:
-    tumFontExit();
-err_tum_font:
-    TTF_Quit();
-err_ttf:
-    SDL_Quit();
-err_sdl:
-    return -1;
-}
-
-int tumDrawBindThread(void) // Should be called from the Drawing Thread
-{
     if (SDL_GL_MakeCurrent(window, context) < 0) {
         PRINT_SDL_ERROR("Releasing current context failed");
         goto err_make_current;
@@ -1121,14 +1069,104 @@ int tumDrawBindThread(void) // Should be called from the Drawing Thread
 
     tumUtilSetGLThread();
 
-    return 0;
+    pthread_cond_signal(&renderer_cond);
+
+    PRINT_LOG("SDL renderer thread init complete");
+
+    while (1) {
+
+        pthread_mutex_lock(&renderer_lock);
+
+        if (!pthread_cond_wait(&renderer_cond, &renderer_lock)) {
+            if (tumUtilIsCurGLThread()) {
+                PRINT_ERROR(
+                    "Updating screen from thread that does not hold GL context");
+                goto err;
+            }
+
+#if (configFPS_LIMIT == 1)
+            static struct timespec last_time = { 0 }, cur_time = { 0 };
+
+            if (clock_gettime(CLOCK_MONOTONIC, &cur_time)) {
+                PRINT_ERROR("Failed to get monotonic clock");
+                goto err;
+            }
+
+            if (timespecDiffMilli(&last_time, &cur_time) <
+                (float)FRAMELIMIT_PERIOD) {
+                goto err;
+            }
+
+            memcpy(&last_time, &cur_time, sizeof(struct timespec));
+#endif //configFPS_LIMIT
+
+            if (job_list_head.next == NULL) {
+                goto err;
+            }
+
+            draw_job_t *tmp_job;
+
+            while ((tmp_job = popDrawJob()) != NULL) {
+                if (!tmp_job->data) {
+                    return NULL;
+                }
+                if (vHandleDrawJob(tmp_job) == -1) {
+                    goto draw_error;
+                }
+                free(tmp_job);
+            }
+
+            SDL_RenderPresent(renderer);
+
+draw_error:
+            free(tmp_job);
+err:
+
+        }
+
+        pthread_mutex_unlock(&renderer_lock);
+    }
 
 err_renderer:
     SDL_DestroyWindow(window);
 err_make_current:
     SDL_GL_DeleteContext(context);
+err_create_context:
+    SDL_DestroyWindow(window);
+err_window:
+    tumFontExit();
+err_tum_font:
     TTF_Quit();
+err_ttf:
     SDL_Quit();
+err_sdl:
+    return NULL;
+}
+
+int tumDrawInit(char *path) // Should be called from the Thread running main()
+{
+    if (pthread_create(&renderer_thread, NULL, tumDrawRenderThread, path)) {
+        PRINT_ERROR("Failed to create renderer thread");
+        goto err_renderer_thread;
+    }
+
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 5;
+    pthread_mutex_lock(&renderer_lock);
+    if (pthread_cond_timedwait(&renderer_cond, &renderer_lock, &ts) == ETIMEDOUT) {
+        PRINT_ERROR("Creating SDL renderer thread timed out");
+        pthread_mutex_unlock(&renderer_lock);
+        goto err_renderer_thread;
+    }
+
+    PRINT_LOG("SDL renderer thread created");
+
+    atexit(SDL_Quit);
+
+    return 0;
+
+err_renderer_thread:
     return -1;
 }
 
@@ -1159,7 +1197,7 @@ int tumDrawText(char *str, signed short x, signed short y, unsigned int colour)
     job->data->text.str = (char *)calloc(strlen(str) + 1, sizeof(char));
 
     if (job->data->text.str == NULL) {
-        printf("Error allocating buffer in tumDrawText\n");
+        PRINT_ERROR("Error allocating buffer in tumDrawText\n");
         return -1;
     }
 

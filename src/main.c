@@ -192,8 +192,6 @@ void vSwapBuffers(void *pvParameters)
     xLastWakeTime = xTaskGetTickCount();
     const TickType_t frameratePeriod = 20;
 
-    tumDrawBindThread(); // Setup Rendering handle with correct GL context
-
     while (1) {
         if (xSemaphoreTake(ScreenLock, portMAX_DELAY) == pdTRUE) {
             tumDrawUpdateScreen();

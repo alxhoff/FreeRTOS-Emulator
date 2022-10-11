@@ -31,6 +31,8 @@
     fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__);                        \
     fprintf(stderr, "    @-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
 
+#define PRINT_LOG(msg, ...) fprintf(stdout, "[LOG] " msg, ##__VA_ARGS__);
+
 /**
  * @brief Checks if the calling thread is the thread that currently holds the
  * GL context
