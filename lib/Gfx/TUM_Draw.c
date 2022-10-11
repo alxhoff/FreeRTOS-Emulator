@@ -24,6 +24,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
@@ -241,6 +242,7 @@ typedef struct draw_job {
     struct draw_job *next;
 } draw_job_t;
 
+pthread_mutex_t job_list_lock = PTHREAD_MUTEX_INITIALIZER;
 draw_job_t job_list_head = { 0 };
 
 struct global_offsets {
@@ -298,13 +300,33 @@ static draw_job_t *pushDrawJob(void)
         return NULL;
     }
 
+    pthread_mutex_lock(&job_list_lock);
+
     for (iterator = &job_list_head; iterator->next;
          iterator = iterator->next)
         ;
 
     iterator->next = job;
 
+    pthread_mutex_unlock(&job_list_lock);
+
     return job;
+}
+
+static int waitingDrawJobs(void)
+{
+
+    int ret = 1;
+
+    pthread_mutex_lock(&job_list_lock);
+
+    if (job_list_head.next == NULL) {
+        ret = 0;
+    }
+
+    pthread_mutex_unlock(&job_list_lock);
+
+    return ret;
 }
 
 static draw_job_t *popDrawJob(void)
@@ -312,12 +334,17 @@ static draw_job_t *popDrawJob(void)
     draw_job_t *ret = job_list_head.next;
 
     if (ret) {
+
+        pthread_mutex_lock(&job_list_lock);
+
         if (ret->next) {
             job_list_head.next = ret->next;
         }
         else {
             job_list_head.next = NULL;
         }
+
+        pthread_mutex_unlock(&job_list_lock);
     }
 
     return ret;
@@ -947,7 +974,9 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 
 int tumDrawUpdateScreen(void)
 {
-    if (tumUtilIsCurGLThread()) {
+    tumDrawBindThread(); // Setup Rendering handle with correct GL context
+
+    if (!tumUtilIsCurGLThread()) {
         PRINT_ERROR(
             "Updating screen from thread that does not hold GL context");
         goto err;
@@ -963,27 +992,29 @@ int tumDrawUpdateScreen(void)
 
     if (timespecDiffMilli(&last_time, &cur_time) <
         (float)FRAMELIMIT_PERIOD) {
-        goto err;
+        goto no_jobs;
     }
 
     memcpy(&last_time, &cur_time, sizeof(struct timespec));
 #endif //configFPS_LIMIT
 
-    if (job_list_head.next == NULL) {
-        goto err;
+    if (!waitingDrawJobs()) {
+        goto  no_jobs;
     }
 
     draw_job_t *tmp_job;
 
     while ((tmp_job = popDrawJob()) != NULL) {
         if (!tmp_job->data) {
-            return -1;
+            goto err;
         }
         if (vHandleDrawJob(tmp_job) == -1) {
             goto draw_error;
         }
         free(tmp_job);
     }
+
+    pthread_mutex_unlock(&job_list_lock);
 
     SDL_RenderPresent(renderer);
 
@@ -992,7 +1023,11 @@ int tumDrawUpdateScreen(void)
 draw_error:
     free(tmp_job);
 err:
+    pthread_mutex_unlock(&job_list_lock);
     return -1;
+no_jobs:
+    pthread_mutex_unlock(&job_list_lock);
+    return 0;
 }
 
 char *tumGetErrorMessage(void)
@@ -1082,44 +1117,47 @@ err_sdl:
 
 int tumDrawBindThread(void) // Should be called from the Drawing Thread
 {
-    if (SDL_GL_MakeCurrent(window, context) < 0) {
-        PRINT_SDL_ERROR("Releasing current context failed");
-        goto err_make_current;
-    }
+    if (!tumUtilIsCurGLThread() || !renderer) {
 
-    if (renderer) {
-        SDL_DestroyRenderer(renderer);
-        renderer = NULL;
-    }
-
-    renderer = SDL_CreateRenderer(window, -1,
-                                  SDL_RENDERER_ACCELERATED |
-                                  SDL_RENDERER_TARGETTEXTURE |
-                                  SDL_RENDERER_PRESENTVSYNC);
-
-    if (renderer == NULL) {
-        PRINT_SDL_ERROR("Failed to create renderer");
-        goto err_renderer;
-    }
-
-    SDL_SetRenderDrawColor(renderer, MAX_8_BIT, MAX_8_BIT, MAX_8_BIT,
-                           ALPHA_SOLID);
-
-    SDL_RenderClear(renderer);
-
-    pthread_mutex_lock(&loaded_images_lock);
-    loaded_image_t *iterator = &loaded_images_list;
-
-    for (; iterator; iterator = iterator->next)
-        if (iterator->tex) {
-            SDL_DestroyTexture(iterator->tex);
-            iterator->tex = SDL_CreateTextureFromSurface(
-                                renderer, iterator->surf);
+        if (SDL_GL_MakeCurrent(window, context) < 0) {
+            PRINT_SDL_ERROR("Releasing current context failed");
+            goto err_make_current;
         }
 
-    pthread_mutex_unlock(&loaded_images_lock);
+        if (renderer) {
+            SDL_DestroyRenderer(renderer);
+            renderer = NULL;
+        }
 
-    tumUtilSetGLThread();
+        renderer = SDL_CreateRenderer(window, -1,
+                                      SDL_RENDERER_ACCELERATED |
+                                      SDL_RENDERER_TARGETTEXTURE |
+                                      SDL_RENDERER_PRESENTVSYNC);
+
+        if (renderer == NULL) {
+            PRINT_SDL_ERROR("Failed to create renderer");
+            goto err_renderer;
+        }
+
+        SDL_SetRenderDrawColor(renderer, MAX_8_BIT, MAX_8_BIT, MAX_8_BIT,
+                               ALPHA_SOLID);
+
+        SDL_RenderClear(renderer);
+
+        pthread_mutex_lock(&loaded_images_lock);
+        loaded_image_t *iterator = &loaded_images_list;
+
+        for (; iterator; iterator = iterator->next)
+            if (iterator->tex) {
+                SDL_DestroyTexture(iterator->tex);
+                iterator->tex = SDL_CreateTextureFromSurface(
+                                    renderer, iterator->surf);
+            }
+
+        pthread_mutex_unlock(&loaded_images_lock);
+
+        tumUtilSetGLThread();
+    }
 
     return 0;
 
@@ -1254,14 +1292,7 @@ void tumDrawDuplicateBuffer(void)
 
 int tumDrawClear(unsigned int colour)
 {
-    /** INIT_JOB(job, DRAW_CLEAR); */
-    draw_job_t *job = pushDrawJob();
-    union data_u *data = calloc(1, sizeof(union data_u));
-    if (data == NULL) {
-        logCriticalError("job->data alloc");
-    }
-    job->data = data;
-    job->type = DRAW_CLEAR;
+    INIT_JOB(job, DRAW_CLEAR);
 
     job->data->clear.colour = colour;
 
@@ -1333,6 +1364,13 @@ int tumDrawTriangle(coord_t *points, unsigned int colour)
 
 image_handle_t tumDrawLoadScaledImage(char *filename, float scale)
 {
+    if (!renderer || !tumUtilIsCurGLThread()) {
+        tumDrawBindThread();
+        if (!renderer) {
+            goto err_renderer;
+        }
+    }
+
     loaded_image_t *ret = calloc(1, sizeof(loaded_image_t));
     if (ret == NULL) {
         PRINT_ERROR("Failed to allocate loaded image");
@@ -1395,6 +1433,7 @@ err_file_open:
 err_filename:
     free(ret);
 err_alloc:
+err_renderer:
     return NULL;
 }
 

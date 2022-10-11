@@ -78,7 +78,6 @@ static TaskHandle_t DemoSendTask = NULL;
 
 static QueueHandle_t StateQueue = NULL;
 static SemaphoreHandle_t DrawSignal = NULL;
-static SemaphoreHandle_t ScreenLock = NULL;
 
 static image_handle_t logo_image = NULL;
 
@@ -192,17 +191,12 @@ void vSwapBuffers(void *pvParameters)
     xLastWakeTime = xTaskGetTickCount();
     const TickType_t frameratePeriod = 20;
 
-    tumDrawBindThread(); // Setup Rendering handle with correct GL context
-
     while (1) {
-        if (xSemaphoreTake(ScreenLock, portMAX_DELAY) == pdTRUE) {
-            tumDrawUpdateScreen();
-            tumEventFetchEvents(FETCH_EVENT_BLOCK);
-            xSemaphoreGive(ScreenLock);
-            xSemaphoreGive(DrawSignal);
-            vTaskDelayUntil(&xLastWakeTime,
-                            pdMS_TO_TICKS(frameratePeriod));
-        }
+        tumDrawUpdateScreen();
+        tumEventFetchEvents(FETCH_EVENT_BLOCK);
+        xSemaphoreGive(DrawSignal);
+        vTaskDelayUntil(&xLastWakeTime,
+                        pdMS_TO_TICKS(frameratePeriod));
     }
 }
 
@@ -507,8 +501,9 @@ void vTCPDemoTask(void *pvParameters)
 
 void vDemoTask1(void *pvParameters)
 {
+    char *ball_spritesheet_path = tumUtilFindResourcePath("ball_spritesheet.png");
     image_handle_t ball_spritesheet_image =
-        tumDrawLoadImage("../resources/images/ball_spritesheet.png");
+        tumDrawLoadImage(ball_spritesheet_path);
     spritesheet_handle_t ball_spritesheet =
         tumDrawLoadSpritesheet(ball_spritesheet_image, 25, 1);
     animation_handle_t ball_animation =
@@ -533,8 +528,6 @@ void vDemoTask1(void *pvParameters)
                                     FETCH_EVENT_NO_GL_CHECK);
                 xGetButtonInput(); // Update global input
 
-                xSemaphoreTake(ScreenLock, portMAX_DELAY);
-
                 // Clear screen
                 checkDraw(tumDrawClear(White), __FUNCTION__);
                 vDrawStaticItems();
@@ -557,8 +550,6 @@ void vDemoTask1(void *pvParameters)
 
                 // Draw FPS in lower right corner
                 vDrawFPS();
-
-                xSemaphoreGive(ScreenLock);
 
                 // Get input and check for state change
                 vCheckStateInput();
@@ -611,7 +602,6 @@ void vDemoTask2(void *pvParameters)
 
                 xGetButtonInput(); // Update global button data
 
-                xSemaphoreTake(ScreenLock, portMAX_DELAY);
                 // Clear screen
                 checkDraw(tumDrawClear(White), __FUNCTION__);
 
@@ -661,8 +651,6 @@ void vDemoTask2(void *pvParameters)
 
                 // Draw FPS in lower right corner
                 vDrawFPS();
-
-                xSemaphoreGive(ScreenLock);
 
                 // Check for state change
                 vCheckStateInput();
@@ -736,11 +724,6 @@ int main(int argc, char *argv[])
         PRINT_ERROR("Failed to create draw signal");
         goto err_draw_signal;
     }
-    ScreenLock = xSemaphoreCreateMutex();
-    if (!ScreenLock) {
-        PRINT_ERROR("Failed to create screen lock");
-        goto err_screen_lock;
-    }
 
     // Message sending
     StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
@@ -764,12 +747,12 @@ int main(int argc, char *argv[])
 
     /** Demo Tasks */
     if (xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2,
-                    NULL, mainGENERIC_PRIORITY, &DemoTask1) != pdPASS) {
+                    NULL, mainGENERIC_PRIORITY + 1, &DemoTask1) != pdPASS) {
         PRINT_TASK_ERROR("DemoTask1");
         goto err_demotask1;
     }
     if (xTaskCreate(vDemoTask2, "DemoTask2", mainGENERIC_STACK_SIZE * 2,
-                    NULL, mainGENERIC_PRIORITY, &DemoTask2) != pdPASS) {
+                    NULL, mainGENERIC_PRIORITY + 1, &DemoTask2) != pdPASS) {
         PRINT_TASK_ERROR("DemoTask2");
         goto err_demotask2;
     }
@@ -804,8 +787,6 @@ err_bufferswap:
 err_statemachine:
     vQueueDelete(StateQueue);
 err_state_queue:
-    vSemaphoreDelete(ScreenLock);
-err_screen_lock:
     vSemaphoreDelete(DrawSignal);
 err_draw_signal:
     vSemaphoreDelete(buttons.lock);
