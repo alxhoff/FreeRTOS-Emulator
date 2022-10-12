@@ -73,6 +73,11 @@
 // #define SAFE_PRINT_DEBUG
 /** @} */
 
+#define PRINT_ERROR(msg, ...)                                                  \
+    fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__);                        \
+    fprintf(stderr, "    @-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
+#define PRINT_TASK_ERROR(task) PRINT_ERROR("Failed to print task ##task");
+
 /**
  * @brief Prints a formatted string to the specifed IO stream
  *

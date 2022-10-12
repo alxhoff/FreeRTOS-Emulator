@@ -27,10 +27,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PRINT_ERROR(msg, ...)                                                  \
-    fprintf(stderr, "[ERROR] " msg, ##__VA_ARGS__);                        \
-    fprintf(stderr, "    @-> %s:%d, %s\n", __FILE__, __LINE__, __func__)
-
 /**
  * @brief Checks if the calling thread is the thread that currently holds the
  * GL context
@@ -51,7 +47,7 @@ void tumUtilSetGLThread(void);
  * @param file Filename to which the path string should be prepended
  * @return char * to the complete compiled path
  */
-char *tumUtilPrependPath(char *path, char *file);
+char *tumUtilPrependPath(const char *path, char *file);
 
 /**
  * @brief Gets the execution folder of the current program, assumes that program
@@ -61,6 +57,13 @@ char *tumUtilPrependPath(char *path, char *file);
  * @return char * String of the folder's absolute location
  */
 char *tumUtilGetBinFolderPath(char *bin_path);
+
+/**
+ * @brief Returns the lopcation of the resource directory
+ *
+ * @return String reference if found, otherwise NULL
+ */
+const char *tumUtilFindResourceDirectory(void);
 
 /**
  * @brief Searches for a file in the RESOURCES_DIRECTORY and returns

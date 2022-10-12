@@ -5,6 +5,7 @@
 
 #include "TUM_Sound.h"
 #include "TUM_Utils.h"
+#include "TUM_Print.h"
 
 #define SAMPLE_FOLDER "/../resources/waveforms/"
 

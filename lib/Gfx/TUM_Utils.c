@@ -35,6 +35,7 @@
 #include <dirent.h>
 
 #include "TUM_Utils.h"
+#include "TUM_Print.h"
 #include "EmulatorConfig.h"
 
 #ifndef __STDC_NO_ATOMICS__
@@ -76,7 +77,7 @@ void tumUtilSetGLThread(void)
     pthread_mutex_unlock(&GL_thread_lock);
 }
 
-char *tumUtilPrependPath(char *path, char *file)
+char *tumUtilPrependPath(const char *path, char *file)
 {
     char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
     if (!ret) {
@@ -116,7 +117,7 @@ char *tumUtilGetBinFolderPath(char *bin_path)
  * @return A reference to the statically allocated buffer where the filename
  * is being stored, else NULL
  */
-static char *recurseDirName(char *dir_name, char *filename, char flags)
+static char *recurseDirName(const char *dir_name, char *filename, char flags)
 {
     char *ret = NULL;
     struct dirent *dirp;
@@ -169,12 +170,12 @@ err:
     return NULL;
 }
 
-static FILE *recurseDirFile(char *dir_name, char *filename, const char *mode)
+static FILE *recurseDirFile(const char *dir_name, char *filename, const char *mode)
 {
     return fopen(recurseDirName(dir_name, filename, 0), mode);
 }
 
-static char *tumUtilFindResourceDirectory(void)
+const char *tumUtilFindResourceDirectory(void)
 {
     static char ret_dir[PATH_MAX];
 

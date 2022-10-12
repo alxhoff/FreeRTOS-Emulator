@@ -27,6 +27,7 @@
 
 #include "TUM_Font.h"
 #include "TUM_Utils.h"
+#include "TUM_Print.h"
 
 #define PRINT_TTF_ERROR(msg, ...)                                              \
     PRINT_ERROR("[TTF Error] %s\n" #msg, (char *)TTF_GetError(),           \
@@ -110,7 +111,8 @@ err_alloc_def_font:
 
 int tumFontInit(char *path)
 {
-    fonts_dir = tumUtilPrependPath(path, FONTS_DIR);
+    const char *resource_path = tumUtilFindResourceDirectory();
+    fonts_dir = tumUtilPrependPath(resource_path, FONTS_DIR);
 
     font_list.next = tumFontCreateFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
     if (font_list.next == NULL) {

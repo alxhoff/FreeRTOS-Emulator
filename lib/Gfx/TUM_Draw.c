@@ -35,6 +35,7 @@
 #include "TUM_Draw.h"
 #include "TUM_Font.h"
 #include "TUM_Utils.h"
+#include "TUM_Print.h"
 
 #define ONE_BYTE 8
 #define TWO_BYTES 16

@@ -33,6 +33,7 @@
 
 #include "TUM_Draw.h"
 #include "TUM_Utils.h"
+#include "TUM_Print.h"
 
 typedef struct mouse {
     xSemaphoreHandle lock;

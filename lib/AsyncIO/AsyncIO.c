@@ -256,7 +256,7 @@ static void aIOMQSigHandler(union sigval sv)
     }
 }
 
-int aIOMessageQueuePut(char *mq_name, char *buffer)
+int aIOMessageQueuePut(const char *mq_name, char *buffer)
 {
     mqd_t mq;
     char *full_name = calloc(strlen(mq_name) + 2, sizeof(char));
@@ -348,7 +348,7 @@ error_create_socket:
     return -1;
 }
 
-aIO_handle_t aIOOpenMessageQueue(char *name, long max_msg_num,
+aIO_handle_t aIOOpenMessageQueue(const char *name, long max_msg_num,
                                  long max_msg_size,
                                  void (*callback)(size_t, char *, void *),
                                  void *args)
