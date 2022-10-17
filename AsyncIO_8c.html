@@ -169,14 +169,14 @@ Functions</h2></td></tr>
 <tr class="separator:ga8e27c7e86259d74e9483118287482aa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad43f3711c9e563c48f75fe3d5f509a74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="AsyncIO_8c.html#afb84cfd359e581cabd1be916f02ea62e">aIO_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#ad43f3711c9e563c48f75fe3d5f509a74">createAsyncIO</a> (<a class="el" href="AsyncIO_8c.html#a2bc4da5f0e73b751aca2489dc0a5fa74">aIO_conn_e</a> type, size_t buffer_size, void(*callback)(size_t, char *, void *), void *args)</td></tr>
 <tr class="separator:ad43f3711c9e563c48f75fe3d5f509a74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3383aeeb2ad84918a13481fe4630f0d8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aio__comms.html#ga3383aeeb2ad84918a13481fe4630f0d8">aIOMessageQueuePut</a> (char *mq_name, char *buffer)</td></tr>
-<tr class="memdesc:ga3383aeeb2ad84918a13481fe4630f0d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends the data stored in buffer to the message queue with the provided name.  <a href="group__aio__comms.html#ga3383aeeb2ad84918a13481fe4630f0d8">More...</a><br /></td></tr>
-<tr class="separator:ga3383aeeb2ad84918a13481fe4630f0d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga875b051f50b6c928281db2c97eff2e15"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aio__comms.html#ga875b051f50b6c928281db2c97eff2e15">aIOMessageQueuePut</a> (const char *mq_name, char *buffer)</td></tr>
+<tr class="memdesc:ga875b051f50b6c928281db2c97eff2e15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends the data stored in buffer to the message queue with the provided name.  <a href="group__aio__comms.html#ga875b051f50b6c928281db2c97eff2e15">More...</a><br /></td></tr>
+<tr class="separator:ga875b051f50b6c928281db2c97eff2e15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2479aee5414c3adfb0de63246ebea795"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aio__comms.html#ga2479aee5414c3adfb0de63246ebea795">aIOSocketPut</a> (<a class="el" href="group__aio__comms.html#ga72fd4498dc73abcd615ec87c9daedf44">aIO_socket_e</a> protocol, char *s_addr, in_port_t port, char *buffer, size_t buffer_size)</td></tr>
 <tr class="memdesc:ga2479aee5414c3adfb0de63246ebea795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the data stored in buffer to the socket described by s_addr and port.  <a href="group__aio__comms.html#ga2479aee5414c3adfb0de63246ebea795">More...</a><br /></td></tr>
 <tr class="separator:ga2479aee5414c3adfb0de63246ebea795"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51be7919084405caf07396a9cced11f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aio__comms.html#ga656a5ddd0245ccdffc771cad0df730a7">aIO_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#a51be7919084405caf07396a9cced11f2">aIOOpenMessageQueue</a> (char *name, long max_msg_num, long max_msg_size, void(*callback)(size_t, char *, void *), void *args)</td></tr>
-<tr class="separator:a51be7919084405caf07396a9cced11f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acddec66851e791491e2d44b24b79c608"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aio__comms.html#ga656a5ddd0245ccdffc771cad0df730a7">aIO_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#acddec66851e791491e2d44b24b79c608">aIOOpenMessageQueue</a> (const char *name, long max_msg_num, long max_msg_size, void(*callback)(size_t, char *, void *), void *args)</td></tr>
+<tr class="separator:acddec66851e791491e2d44b24b79c608"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac914c522c36e60c4bd7d622e135197db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aio__comms.html#ga656a5ddd0245ccdffc771cad0df730a7">aIO_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#ac914c522c36e60c4bd7d622e135197db">aIOOpenUDPSocket</a> (char *s_addr, in_port_t port, size_t buffer_size, void(*callback)(size_t, char *, void *), void *args)</td></tr>
 <tr class="separator:ac914c522c36e60c4bd7d622e135197db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad3eb64180b561117adf84403b1cc130c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aio__comms.html#ga656a5ddd0245ccdffc771cad0df730a7">aIO_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="AsyncIO_8c.html#ad3eb64180b561117adf84403b1cc130c">aIOOpenTCPSocket</a> (char *s_addr, in_port_t port, size_t buffer_size, void(*callback)(size_t, char *, void *), void *args)</td></tr>
@@ -272,14 +272,14 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a51be7919084405caf07396a9cced11f2"></a>
+<a class="anchor" id="acddec66851e791491e2d44b24b79c608"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="group__aio__comms.html#ga656a5ddd0245ccdffc771cad0df730a7">aIO_handle_t</a> aIOOpenMessageQueue </td>
           <td>(</td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>name</em>, </td>
         </tr>
         <tr>

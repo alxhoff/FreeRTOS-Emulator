@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">TUM Printing</div>  </div>
@@ -87,6 +88,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Thread safe printing API.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:gabd4b982e6561fbe1e6bad710a93475e1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__print.html#gabd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(msg, ...)</td></tr>
+<tr class="separator:gabd4b982e6561fbe1e6bad710a93475e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga25abb65c929f9257cd2c8d4067799fff"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__print.html#ga25abb65c929f9257cd2c8d4067799fff">PRINT_TASK_ERROR</a>(task)&#160;&#160;&#160;<a class="el" href="group__tum__print.html#gabd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(&quot;Failed to print task ##task&quot;);</td></tr>
+<tr class="separator:ga25abb65c929f9257cd2c8d4067799fff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga7fbd8ab113e5ff59be957365d08acbad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__print.html#ga7fbd8ab113e5ff59be957365d08acbad">fprints</a> (FILE *__restrict __stream, const char *__format,...)</td></tr>
@@ -123,6 +131,48 @@ Safe print configuration default values</h2></td></tr>
 <p>Both functions are variadic and wrap the standard print functions, meaning their use is identical and as such the documentations for <code>printf</code> and <code>fprintf</code> can be used as reference.</p>
 <p>The functions also allow writing to any IO stream, <code>prints</code> is simply a call to <code>fprints</code> where the IO stream is fixed to <code>stdout</code>, </p>
 <h2 class="groupheader">Macro Definition Documentation</h2>
+<a class="anchor" id="gabd4b982e6561fbe1e6bad710a93475e1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRINT_ERROR</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">msg, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">fprintf(stderr, <span class="stringliteral">&quot;[ERROR] &quot;</span> msg, ##__VA_ARGS__);                        \</div><div class="line">    fprintf(stderr, <span class="stringliteral">&quot;    @-&gt; %s:%d, %s\n&quot;</span>, __FILE__, __LINE__, __func__)</div></div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="ga25abb65c929f9257cd2c8d4067799fff"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRINT_TASK_ERROR</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">task</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="group__tum__print.html#gabd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(&quot;Failed to print task ##task&quot;);</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="gae37672a6c3e39edc00aa6ba1b305729d"></a>
 <div class="memitem">
 <div class="memproto">

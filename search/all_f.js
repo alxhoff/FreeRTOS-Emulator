@@ -9,8 +9,9 @@ var searchData=
   ['poly_5fdata_5ft',['poly_data_t',['../TUM__Draw_8c.html#aab57592e0d778e3580bdabb7b91681a1',1,'TUM_Draw.c']]],
   ['prev_5fframe_5ftimestamp',['prev_frame_timestamp',['../structanimated__sequence__instance.html#afb9f0c52fd4e879ae5a42b2b30f9f3d6',1,'animated_sequence_instance']]],
   ['print_5fcheck',['PRINT_CHECK',['../AsyncIO_8c.html#a7d28eb068ca97ef73c3328b05b23c0cd',1,'AsyncIO.c']]],
-  ['print_5ferror',['PRINT_ERROR',['../TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1',1,'TUM_Utils.h']]],
+  ['print_5ferror',['PRINT_ERROR',['../group__tum__print.html#gabd4b982e6561fbe1e6bad710a93475e1',1,'TUM_Print.h']]],
   ['print_5fsdl_5ferror',['PRINT_SDL_ERROR',['../TUM__Draw_8c.html#aefbf8c180059dc3399747d2674286df5',1,'TUM_Draw.c']]],
+  ['print_5ftask_5ferror',['PRINT_TASK_ERROR',['../group__tum__print.html#ga25abb65c929f9257cd2c8d4067799fff',1,'TUM_Print.h']]],
   ['print_5fttf_5ferror',['PRINT_TTF_ERROR',['../TUM__Font_8c.html#add3786a670c7834d3fcbe9ab9452f3aa',1,'TUM_Font.c']]],
   ['prints',['prints',['../group__tum__print.html#ga6bb5d704b4d2f0e1c967e7e1b2bffda4',1,'prints(const char *__format,...):&#160;TUM_Print.c'],['../group__tum__print.html#ga6bb5d704b4d2f0e1c967e7e1b2bffda4',1,'prints(const char *__format,...):&#160;TUM_Print.c']]],
   ['purple',['Purple',['../group__tum__draw.html#ga5168ce33eb581e85fbfa454e89012bfb',1,'TUM_Draw.h']]]

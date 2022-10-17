@@ -88,7 +88,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
@@ -103,11 +102,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <p><a href="TUM__Utils_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:abd4b982e6561fbe1e6bad710a93475e1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#abd4b982e6561fbe1e6bad710a93475e1">PRINT_ERROR</a>(msg, ...)</td></tr>
-<tr class="separator:abd4b982e6561fbe1e6bad710a93475e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a0340f4935594ad3364d614e83aca525b"><td class="memItemLeft" align="right" valign="top">typedef void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#a0340f4935594ad3364d614e83aca525b">rbuf_handle_t</a></td></tr>
@@ -122,12 +116,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a0474a2baef480262b88d89fd17d195ee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#a0474a2baef480262b88d89fd17d195ee">tumUtilSetGLThread</a> (void)</td></tr>
 <tr class="memdesc:a0474a2baef480262b88d89fd17d195ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">The calling thread is registered as holding the current GL context.  <a href="#a0474a2baef480262b88d89fd17d195ee">More...</a><br /></td></tr>
 <tr class="separator:a0474a2baef480262b88d89fd17d195ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafb4b9b303d336c5377bd6f73092208f"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#aafb4b9b303d336c5377bd6f73092208f">tumUtilPrependPath</a> (char *path, char *file)</td></tr>
-<tr class="memdesc:aafb4b9b303d336c5377bd6f73092208f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepends a path string to a filename.  <a href="#aafb4b9b303d336c5377bd6f73092208f">More...</a><br /></td></tr>
-<tr class="separator:aafb4b9b303d336c5377bd6f73092208f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ebc468bbca8f7d2834d75f362fd72ce"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#a1ebc468bbca8f7d2834d75f362fd72ce">tumUtilPrependPath</a> (const char *path, char *file)</td></tr>
+<tr class="memdesc:a1ebc468bbca8f7d2834d75f362fd72ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepends a path string to a filename.  <a href="#a1ebc468bbca8f7d2834d75f362fd72ce">More...</a><br /></td></tr>
+<tr class="separator:a1ebc468bbca8f7d2834d75f362fd72ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#a8c8f0d3ac05dc5e1a6b1bc313c4bef6c">tumUtilGetBinFolderPath</a> (char *bin_path)</td></tr>
 <tr class="memdesc:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the execution folder of the current program, assumes that program is executing from a folder "bin".  <a href="#a8c8f0d3ac05dc5e1a6b1bc313c4bef6c">More...</a><br /></td></tr>
 <tr class="separator:a8c8f0d3ac05dc5e1a6b1bc313c4bef6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0ca92d2cd986a8cb548a9657fb0a44e"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#aa0ca92d2cd986a8cb548a9657fb0a44e">tumUtilFindResourceDirectory</a> (void)</td></tr>
+<tr class="memdesc:aa0ca92d2cd986a8cb548a9657fb0a44e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the lopcation of the resource directory.  <a href="#aa0ca92d2cd986a8cb548a9657fb0a44e">More...</a><br /></td></tr>
+<tr class="separator:aa0ca92d2cd986a8cb548a9657fb0a44e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1dc490a356032ca8f49459ddadd6ab96"><td class="memItemLeft" align="right" valign="top">FILE *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Utils_8h.html#a1dc490a356032ca8f49459ddadd6ab96">tumUtilFindResource</a> (char *resource_name, const char *mode)</td></tr>
 <tr class="memdesc:a1dc490a356032ca8f49459ddadd6ab96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a file in the RESOURCES_DIRECTORY and returns a FILE * if found.  <a href="#a1dc490a356032ca8f49459ddadd6ab96">More...</a><br /></td></tr>
 <tr class="separator:a1dc490a356032ca8f49459ddadd6ab96"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -191,34 +188,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 ----------------------------------------------------------------------
 </pre> </dd></dl>
-</div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a class="anchor" id="abd4b982e6561fbe1e6bad710a93475e1"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PRINT_ERROR</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">msg, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>...</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">fprintf(stderr, <span class="stringliteral">&quot;[ERROR] &quot;</span> msg, ##__VA_ARGS__);                        \</div><div class="line">    fprintf(stderr, <span class="stringliteral">&quot;    @-&gt; %s:%d, %s\n&quot;</span>, __FILE__, __LINE__, __func__)</div></div><!-- fragment -->
-</div>
-</div>
-<h2 class="groupheader">Typedef Documentation</h2>
+</div><h2 class="groupheader">Typedef Documentation</h2>
 <a class="anchor" id="a0340f4935594ad3364d614e83aca525b"></a>
 <div class="memitem">
 <div class="memproto">
@@ -656,6 +626,25 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
 </div>
 </div>
+<a class="anchor" id="aa0ca92d2cd986a8cb548a9657fb0a44e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* tumUtilFindResourceDirectory </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the lopcation of the resource directory. </p>
+<dl class="section return"><dt>Returns</dt><dd>String reference if found, otherwise NULL </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a2f7168cc6db6c032f28cf1cbb320b6c4"></a>
 <div class="memitem">
 <div class="memproto">
@@ -726,14 +715,14 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
 </div>
 </div>
-<a class="anchor" id="aafb4b9b303d336c5377bd6f73092208f"></a>
+<a class="anchor" id="a1ebc468bbca8f7d2834d75f362fd72ce"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">char* tumUtilPrependPath </td>
           <td>(</td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
