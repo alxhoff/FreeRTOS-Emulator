@@ -44,6 +44,7 @@ var searchData=
   ['size',['size',['../structtum__font.html#ad1d368dde1b68031a99beb96c3fb232b',1,'tum_font::size()'],['../structring__buf.html#ad4a72c23a2840d635224df92fee216af',1,'ring_buf::size()']]],
   ['skyblue',['Skyblue',['../group__tum__draw.html#gaf9e623f033bca1e70652a5736750bbd5',1,'TUM_Draw.h']]],
   ['socket',['socket',['../unionaIO__attr.html#a2fd6d3f33d812a6c26d6d566dd5d0d95',1,'aIO_attr::socket()'],['../AsyncIO_8c.html#a2bc4da5f0e73b751aca2489dc0a5fa74a0917971ba80f3b48c7d0cf1b2da024c7',1,'SOCKET():&#160;AsyncIO.c']]],
+  ['sprite',['sprite',['../structball.html#aa66cf58cc25dd38a21a224ff8efebd38',1,'ball']]],
   ['sprite_5fcols',['sprite_cols',['../structspritesheet.html#a072061bb77d1130f28c9c89ba42c499a',1,'spritesheet']]],
   ['sprite_5fheight',['sprite_height',['../structspritesheet.html#a23a81aa2ab0eebac2888fe6c4af789b9',1,'spritesheet']]],
   ['sprite_5frows',['sprite_rows',['../structspritesheet.html#a445da64e5de78f22c7f454a4e7199b4e',1,'spritesheet']]],

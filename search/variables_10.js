@@ -12,6 +12,7 @@ var searchData=
   ['sequences',['sequences',['../structanimated__image.html#a82fd957134627b54125407f6a0489693',1,'animated_image']]],
   ['size',['size',['../structtum__font.html#ad1d368dde1b68031a99beb96c3fb232b',1,'tum_font::size()'],['../structring__buf.html#ad4a72c23a2840d635224df92fee216af',1,'ring_buf::size()']]],
   ['socket',['socket',['../unionaIO__attr.html#a2fd6d3f33d812a6c26d6d566dd5d0d95',1,'aIO_attr']]],
+  ['sprite',['sprite',['../structball.html#aa66cf58cc25dd38a21a224ff8efebd38',1,'ball']]],
   ['sprite_5fcols',['sprite_cols',['../structspritesheet.html#a072061bb77d1130f28c9c89ba42c499a',1,'spritesheet']]],
   ['sprite_5fheight',['sprite_height',['../structspritesheet.html#a23a81aa2ab0eebac2888fe6c4af789b9',1,'spritesheet']]],
   ['sprite_5frows',['sprite_rows',['../structspritesheet.html#a445da64e5de78f22c7f454a4e7199b4e',1,'spritesheet']]],

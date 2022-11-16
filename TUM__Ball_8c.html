@@ -101,7 +101,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Ball_8h_source.html">TUM_Ball.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="TUM__Draw_8h_source.html">TUM_Draw.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="TUM__Sound_8h_source.html">TUM_Sound.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
@@ -162,8 +161,8 @@ Functions</h2></td></tr>
 <tr class="memitem:ga7b5b042be3729b4ad8de031fb376f3f5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5">setWallProperty</a> (<a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *<a class="el" href="structwall.html">wall</a>, signed short x, signed short y, signed short width, signed short height, unsigned char flags)</td></tr>
 <tr class="memdesc:ga7b5b042be3729b4ad8de031fb376f3f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets one or more properties of a wall.  <a href="group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5">More...</a><br /></td></tr>
 <tr class="separator:ga7b5b042be3729b4ad8de031fb376f3f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f815a1cd9bfa7125ede23fa9e11026e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#a1f815a1cd9bfa7125ede23fa9e11026e">createBall</a> (signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, void(*callback)(void *), void *args)</td></tr>
-<tr class="separator:a1f815a1cd9bfa7125ede23fa9e11026e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4126ec2e5ee372614979876d5724ce0d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="TUM__Ball_8c.html#a4126ec2e5ee372614979876d5724ce0d">createBall</a> (signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, void(*callback)(void *), void *args, <a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a> sprite)</td></tr>
+<tr class="separator:a4126ec2e5ee372614979876d5724ce0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab9764923f2a8501b17814d72f0970a42"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#gab9764923f2a8501b17814d72f0970a42">setBallSpeed</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, float dx, float dy, float max_speed, unsigned char flags)</td></tr>
 <tr class="memdesc:gab9764923f2a8501b17814d72f0970a42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the speed of the ball.  <a href="group__tum__ball.html#gab9764923f2a8501b17814d72f0970a42">More...</a><br /></td></tr>
 <tr class="separator:gab9764923f2a8501b17814d72f0970a42"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -605,7 +604,7 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a1f815a1cd9bfa7125ede23fa9e11026e"></a>
+<a class="anchor" id="a4126ec2e5ee372614979876d5724ce0d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -649,7 +648,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>args</em>&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a>&#160;</td>
+          <td class="paramname"><em>sprite</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

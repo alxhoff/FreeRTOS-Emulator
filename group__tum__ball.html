@@ -85,9 +85,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">TUM Ball API</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p>Demo "game engine" code for basic game objects.  
-<a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -112,9 +109,9 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga139002349c1da00ad81815585158c5bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga139002349c1da00ad81815585158c5bb">createBall</a> (signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args)</td></tr>
-<tr class="memdesc:ga139002349c1da00ad81815585158c5bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a ball object.  <a href="#ga139002349c1da00ad81815585158c5bb">More...</a><br /></td></tr>
-<tr class="separator:ga139002349c1da00ad81815585158c5bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5500dc5ddaad828d567c44128192ec3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga5500dc5ddaad828d567c44128192ec3e">createBall</a> (signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args, <a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a> sprite)</td></tr>
+<tr class="memdesc:ga5500dc5ddaad828d567c44128192ec3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a ball object.  <a href="#ga5500dc5ddaad828d567c44128192ec3e">More...</a><br /></td></tr>
+<tr class="separator:ga5500dc5ddaad828d567c44128192ec3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaef22e6e8b27740e4c34e607a961344f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#gaef22e6e8b27740e4c34e607a961344f1">createWall</a> (signed short x1, signed short y1, signed short w, signed short h, float dampening, unsigned int colour, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args)</td></tr>
 <tr class="memdesc:gaef22e6e8b27740e4c34e607a961344f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a wall object.  <a href="#gaef22e6e8b27740e4c34e607a961344f1">More...</a><br /></td></tr>
 <tr class="separator:gaef22e6e8b27740e4c34e607a961344f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,7 +166,6 @@ Set ball speed flags</h2></td></tr>
 <tr class="separator:gae8fce08edeb61123ef741d8279dd6612"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>Demo "game engine" code for basic game objects. </p>
 <p>Functions to generate ball and wall object that interact each other in a 2D environment </p>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="gae8fce08edeb61123ef741d8279dd6612"></a>
@@ -422,7 +418,7 @@ Set ball speed flags</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga139002349c1da00ad81815585158c5bb"></a>
+<a class="anchor" id="ga5500dc5ddaad828d567c44128192ec3e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -466,7 +462,13 @@ Set ball speed flags</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>args</em>&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a>&#160;</td>
+          <td class="paramname"><em>sprite</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -486,6 +488,7 @@ Set ball speed flags</h2></td></tr>
     <tr><td class="paramname">max_speed</td><td>The maximum speed (in pixels/second) that the ball can travel </td></tr>
     <tr><td class="paramname">callback</td><td>The callback function called (if set) when the ball collides with a wall </td></tr>
     <tr><td class="paramname">args</td><td>Args passed to callback function </td></tr>
+    <tr><td class="paramname">sprite</td><td>Optional sprite image to be stored within the ball object </td></tr>
   </table>
   </dd>
 </dl>
