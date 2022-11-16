@@ -1,3 +1,4 @@
+**/tags
 .clangd
 # Trace files
 trace.*
@@ -12,45 +13,45 @@ doxygen_warnings.txt
 
 bin/*
 
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-/Makefile
-/build/Makefile
-cmake_install.cmake
-install_manifest.txt
-build/compile_commands.json
-CMakeDoxyfile.in 
-CMakeDoxygenDefaults.cmake 
-CTestTestfile.cmake
-_deps
+      CMakeLists.txt.user
+      CMakeCache.txt
+      CMakeFiles
+      CMakeScripts
+      Testing
+      /Makefile
+      /build/Makefile
+      cmake_install.cmake
+      install_manifest.txt
+      build/compile_commands.json
+      CMakeDoxyfile.in
+      CMakeDoxygenDefaults.cmake
+      CTestTestfile.cmake
+      _deps
 
-.metadata
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-.recommenders
+      .metadata
+      tmp/
+    *.tmp
+    *.bak
+    *.swp
+    *~.nib
+    local.properties
+    .settings/
+    .loadpath
+    .recommenders
 
-remote/ssh/rtos-sim
-remote/ssh/rtos-sim.pub
+    remote/ssh/rtos-sim
+    remote/ssh/rtos-sim.pub
 
-.vscode
+    .vscode
 
 # External tool builders
 .externalToolBuilders/
 
 # Locally stored "Eclipse launch configurations"
-*.launch
+    *.launch
 
 # PyDev specific (Python IDE for Eclipse)
-*.pydevproject
+    *.pydevproject
 
 # CDT-specific (C/C++ Development Tooling)
 .cproject

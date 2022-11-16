@@ -25,10 +25,10 @@
 #ifndef __TUM_BALL_H__
 #define __TUM_BALL_H__
 
+#include "TUM_Draw.h"
+
 /**
  * @defgroup tum_ball TUM Ball API
- *
- * @brief Demo "game engine" code for basic game objects
  *
  * Functions to generate ball and wall object that interact each other in a
  * 2D environment
@@ -64,24 +64,26 @@ typedef void (*callback_t)(void *args);
  * start to move.
  */
 typedef struct ball {
-    signed short x; /**< X pixel coord of ball on screen */
-    signed short y; /**< Y pixel coord of ball on screen */
+	image_handle_t sprite;
 
-    float f_x; /**< Absolute X location of ball */
-    float f_y; /**< Absolute Y location of ball */
+	signed short x; /**< X pixel coord of ball on screen */
+	signed short y; /**< Y pixel coord of ball on screen */
 
-    float dx; /**< X axis speed in pixels/second */
-    float dy; /**< Y axis speed in pixels/second */
+	float f_x; /**< Absolute X location of ball */
+	float f_y; /**< Absolute Y location of ball */
 
-    float max_speed; /**< Maximum speed the ball is able to achieve in
+	float dx; /**< X axis speed in pixels/second */
+	float dy; /**< Y axis speed in pixels/second */
+
+	float max_speed; /**< Maximum speed the ball is able to achieve in
                               pixels/second */
 
-    unsigned int colour; /**< Hex RGB colour of the ball */
+	unsigned int colour; /**< Hex RGB colour of the ball */
 
-    signed short radius; /**< Radius of the ball in pixels */
+	signed short radius; /**< Radius of the ball in pixels */
 
-    callback_t callback; /**< Collision callback */
-    void *args; /**< Collision callback args */
+	callback_t callback; /**< Collision callback */
+	void *args; /**< Collision callback args */
 } ball_t;
 
 /**
@@ -109,22 +111,22 @@ typedef struct ball {
  * a specific wall is collided with.
  */
 typedef struct wall {
-    signed short x1; /**< Top left corner X coord of wall */
-    signed short y1; /**< Top left corner Y coord of wall */
+	signed short x1; /**< Top left corner X coord of wall */
+	signed short y1; /**< Top left corner Y coord of wall */
 
-    signed short w; /**< Width of wall (X axis) */
-    signed short h; /**< Height of wall (Y axis) */
+	signed short w; /**< Width of wall (X axis) */
+	signed short h; /**< Height of wall (Y axis) */
 
-    signed short x2; /**< Bottom right corner X coord of wall */
-    signed short y2; /**< Bottom right corner Y coord of wall */
+	signed short x2; /**< Bottom right corner X coord of wall */
+	signed short y2; /**< Bottom right corner Y coord of wall */
 
-    float dampening; /**< Value by which a balls speed is changed,
+	float dampening; /**< Value by which a balls speed is changed,
                               eg. 0.2 represents a 20% increase in speed*/
 
-    unsigned int colour; /**< Hex RGB colour of the ball */
+	unsigned int colour; /**< Hex RGB colour of the ball */
 
-    callback_t callback; /**< Collision callback */
-    void *args; /**< Collision callback args */
+	callback_t callback; /**< Collision callback */
+	void *args; /**< Collision callback args */
 } wall_t;
 
 /**
@@ -144,11 +146,12 @@ typedef struct wall {
  * @param callback The callback function called (if set) when the ball collides
  * with a wall
  * @param args Args passed to callback function
+ * @param sprite Optional sprite image to be stored within the ball object
  * @return A pointer to the created ball, program exits if creation failed
  */
 ball_t *createBall(signed short initial_x, signed short initial_y,
-                   unsigned int colour, signed short radius, float max_speed,
-                   callback_t callback, void *args);
+		   unsigned int colour, signed short radius, float max_speed,
+		   callback_t callback, void *args, image_handle_t sprite);
 
 /**
  * @brief Creates a wall object
@@ -165,8 +168,8 @@ ball_t *createBall(signed short initial_x, signed short initial_y,
  * @return A pointer to the created wall, program exits if creation failed
  */
 wall_t *createWall(signed short x1, signed short y1, signed short w,
-                   signed short h, float dampening, unsigned int colour,
-                   callback_t callback, void *args);
+		   signed short h, float dampening, unsigned int colour,
+		   callback_t callback, void *args);
 
 /**
  * @name Set wall location flags
@@ -206,8 +209,8 @@ wall_t *createWall(signed short x1, signed short y1, signed short w,
  *
  */
 void setWallProperty(wall_t *wall, signed short x, signed short y,
-                     signed short width, signed short height,
-                     unsigned char flags);
+		     signed short width, signed short height,
+		     unsigned char flags);
 
 /**
  * @name Set ball speed flags
@@ -266,7 +269,7 @@ void setWallProperty(wall_t *wall, signed short x, signed short y,
  * @return NULL Always returns NULL
  */
 void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
-                  unsigned char flags);
+		  unsigned char flags);
 
 /**
  * @brief Sets the location of the ball
