@@ -120,11 +120,11 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga9ae8f7127c4f8757ec8957205a6cbe47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exits the font backend.  <a href="#ga9ae8f7127c4f8757ec8957205a6cbe47">More...</a><br /></td></tr>
 <tr class="separator:ga9ae8f7127c4f8757ec8957205a6cbe47"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafb78ff9d2bf8dd86e5e4981ccf8f9a2d"><td class="memItemLeft" align="right" valign="top">TTF_Font *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__font.html#gafb78ff9d2bf8dd86e5e4981ccf8f9a2d">tumFontGetCurFont</a> (void)</td></tr>
-<tr class="memdesc:gafb78ff9d2bf8dd86e5e4981ccf8f9a2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective <a class="el" href="structtum__font.html">tum_font</a> object. Objects can not be free'd until all references have been put, this for each call to <a class="el" href="group__tum__font.html#gafb78ff9d2bf8dd86e5e4981ccf8f9a2d" title="Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective ...">tumFontGetCurFont()</a> a call to <a class="el" href="group__tum__font.html#ga52a59b71328021ba47b37f2a6a359d81" title="Finds the tum_font object associated with the loaded SDL2 TFF font, decreasing the reference count to...">tumFontPutFont()</a> must be made, passing in the SDL2 TTF font reference returned from this function.  <a href="#gafb78ff9d2bf8dd86e5e4981ccf8f9a2d">More...</a><br /></td></tr>
+<tr class="memdesc:gafb78ff9d2bf8dd86e5e4981ccf8f9a2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective <a class="el" href="structtum__font.html">tum_font</a> object. Objects can not be free'd until all references have been put, this for each call to <a class="el" href="group__tum__font.html#gafb78ff9d2bf8dd86e5e4981ccf8f9a2d" title="Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective ...">tumFontGetCurFont()</a> a call to <a class="el" href="group__tum__font.html#gafbd1d94f1bbeec0cb19da0540efcf5de" title="Finds the tum_font object associated with the loaded SDL2 TFF font, decreasing the reference count to...">tumFontPutFont()</a> must be made, passing in the SDL2 TTF font reference returned from this function.  <a href="#gafb78ff9d2bf8dd86e5e4981ccf8f9a2d">More...</a><br /></td></tr>
 <tr class="separator:gafb78ff9d2bf8dd86e5e4981ccf8f9a2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga52a59b71328021ba47b37f2a6a359d81"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__font.html#ga52a59b71328021ba47b37f2a6a359d81">tumFontPutFont</a> (TTF_Font *font)</td></tr>
-<tr class="memdesc:ga52a59b71328021ba47b37f2a6a359d81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="structtum__font.html">tum_font</a> object associated with the loaded SDL2 TFF font, decreasing the reference count to the object with each call, once an object's reference count has reached zero and the font backed has flagged the <a class="el" href="structtum__font.html">tum_font</a> object as no longer being needed it is then free'd.  <a href="#ga52a59b71328021ba47b37f2a6a359d81">More...</a><br /></td></tr>
-<tr class="separator:ga52a59b71328021ba47b37f2a6a359d81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafbd1d94f1bbeec0cb19da0540efcf5de"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__font.html#gafbd1d94f1bbeec0cb19da0540efcf5de">tumFontPutFont</a> (const TTF_Font *font)</td></tr>
+<tr class="memdesc:gafbd1d94f1bbeec0cb19da0540efcf5de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="structtum__font.html">tum_font</a> object associated with the loaded SDL2 TFF font, decreasing the reference count to the object with each call, once an object's reference count has reached zero and the font backed has flagged the <a class="el" href="structtum__font.html">tum_font</a> object as no longer being needed it is then free'd.  <a href="#gafbd1d94f1bbeec0cb19da0540efcf5de">More...</a><br /></td></tr>
+<tr class="separator:gafbd1d94f1bbeec0cb19da0540efcf5de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0ee30f16073abdb1f485b2cccfe6bc34"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__font.html#ga0ee30f16073abdb1f485b2cccfe6bc34">tumFontPutFontHandle</a> (<a class="el" href="group__tum__font.html#gab0bfbac2477f4beb07dab591ec5975d3">font_handle_t</a> font)</td></tr>
 <tr class="memdesc:ga0ee30f16073abdb1f485b2cccfe6bc34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the <a class="el" href="structtum__font.html">tum_font</a> object associated with the loaded SDL2 TFF font, decreasing the reference count to the object with each call, once an object's reference count has reached zero and the font backed has flagged the <a class="el" href="structtum__font.html">tum_font</a> object as no longer being needed it is then free'd.  <a href="#ga0ee30f16073abdb1f485b2cccfe6bc34">More...</a><br /></td></tr>
 <tr class="separator:ga0ee30f16073abdb1f485b2cccfe6bc34"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -263,7 +263,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective <a class="el" href="structtum__font.html">tum_font</a> object. Objects can not be free'd until all references have been put, this for each call to <a class="el" href="group__tum__font.html#gafb78ff9d2bf8dd86e5e4981ccf8f9a2d" title="Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective ...">tumFontGetCurFont()</a> a call to <a class="el" href="group__tum__font.html#ga52a59b71328021ba47b37f2a6a359d81" title="Finds the tum_font object associated with the loaded SDL2 TFF font, decreasing the reference count to...">tumFontPutFont()</a> must be made, passing in the SDL2 TTF font reference returned from this function. </p>
+<p>Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective <a class="el" href="structtum__font.html">tum_font</a> object. Objects can not be free'd until all references have been put, this for each call to <a class="el" href="group__tum__font.html#gafb78ff9d2bf8dd86e5e4981ccf8f9a2d" title="Retrieved a reference to the current SDL2 TTF font, increasing the reference count of the respective ...">tumFontGetCurFont()</a> a call to <a class="el" href="group__tum__font.html#gafbd1d94f1bbeec0cb19da0540efcf5de" title="Finds the tum_font object associated with the loaded SDL2 TFF font, decreasing the reference count to...">tumFontPutFont()</a> must be made, passing in the SDL2 TTF font reference returned from this function. </p>
 <dl class="section return"><dt>Returns</dt><dd>A reference to the SDL2 TTF font currently loaded as the font backend's active font </dd></dl>
 
 </div>
@@ -386,14 +386,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga52a59b71328021ba47b37f2a6a359d81"></a>
+<a class="anchor" id="gafbd1d94f1bbeec0cb19da0540efcf5de"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void tumFontPutFont </td>
           <td>(</td>
-          <td class="paramtype">TTF_Font *&#160;</td>
+          <td class="paramtype">const TTF_Font *&#160;</td>
           <td class="paramname"><em>font</em></td><td>)</td>
           <td></td>
         </tr>
