@@ -130,13 +130,12 @@ static void SDLFetchEvents(void)
                 send = 1;
                 xSemaphoreGive(mouse.lock);
             }
-
         }
     }
 
     if (send) {
         xQueueOverwrite(buttonInputQueue, &buttons);
-        send = 0;
+        /** send = 0; */
     }
 }
 

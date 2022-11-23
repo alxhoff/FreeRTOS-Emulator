@@ -174,10 +174,9 @@ void tumFontPutFontHandle(font_handle_t font)
         delete = iterator;
     }
     pthread_mutex_unlock(&list_lock);
-
 }
 
-void tumFontPutFont(TTF_Font *font)
+void tumFontPutFont(const TTF_Font *font)
 {
     pthread_mutex_lock(&list_lock);
     struct tum_font *iterator = &font_list;

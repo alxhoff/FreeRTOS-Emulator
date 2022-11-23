@@ -39,7 +39,7 @@ wall_t *createWall(signed short x1, signed short y1, signed short w,
     walls.walls = realloc(walls.walls, sizeof(wall_t *) * walls.wall_count);
 
     if (!walls.walls) {
-        fprintf(stderr, "Increasing walls list to %d walls failed\n",
+        fprintf(stderr, "Increasing walls list to %u walls failed\n",
                 walls.wall_count);
         exit(EXIT_FAILURE);
     }

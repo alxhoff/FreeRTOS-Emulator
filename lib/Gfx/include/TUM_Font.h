@@ -129,7 +129,7 @@ TTF_Font *tumFontGetCurFont(void);
  *
  * @param font SDL2 TTF font reference, retrieved originally via tumFontGetCurFont()
  */
-void tumFontPutFont(TTF_Font *font);
+void tumFontPutFont(const TTF_Font *font);
 
 /**
  * @brief Finds the tum_font object associated with the loaded SDL2 TFF font,

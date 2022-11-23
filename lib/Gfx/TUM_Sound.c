@@ -76,7 +76,8 @@ int tumSoundInit(char *bin_dir_str)
     }
 
     for (i = 0; i < NUM_WAVEFORMS; i++) {
-        samples[i] = Mix_LoadWAV(tumUtilFindResourcePath(fullWaveFileNames[i]));
+        samples[i] = Mix_LoadWAV(
+                         tumUtilFindResourcePath(fullWaveFileNames[i]));
         if (!samples[i]) {
             PRINT_ERROR("Failed to load WAV: %s",
                         fullWaveFileNames[i]);

@@ -13,7 +13,7 @@ SET(TIDY_SOURCES
     ${PROJECT_SOURCE_DIR}/lib/Gfx
     ${PROJECT_SOURCE_DIR}/lib/AsyncIO
     ${PROJECT_SOURCE_DIR}/src
-    )
+)
 
 # ------------------------------------------------------------------------------
 # All checks
@@ -160,7 +160,7 @@ if(ENABLE_CPPCHECK)
     ExternalProject_Add(
         cppcheck
         GIT_REPOSITORY      https://github.com/danmar/cppcheck.git
-        GIT_TAG             1.79
+        GIT_TAG             main
         GIT_SHALLOW         1
         CMAKE_ARGS          ${CPPCHECK_CMAKE_ARGS}
         PREFIX              ${CMAKE_BINARY_DIR}/external/cppcheck/prefix
@@ -174,6 +174,8 @@ if(ENABLE_CPPCHECK)
     list(APPEND CPPCHECK_ARGS
         --enable=warning,style,performance,portability
         --suppress=arithOperationsOnVoidPointer
+        --suppress=unusedStructMember
+        --suppress=arrayIndexOutOfBounds
         --std=c99
         --verbose
         --error-exitcode=1
@@ -213,10 +215,10 @@ if(ENABLE_MEMCHECK)
     add_test(emulator_memtest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/FreeRTOS_Emulator)
 
     add_custom_target(
-            memcheck
-            COMMAND ${CTEST} -T memcheck
-            COMMENT "running cppcheck"
-        )
+        memcheck
+        COMMAND ${CTEST} -T memcheck
+        COMMENT "running cppcheck"
+    )
 endif()
 
 # ------------------------------------------------------------------------------
