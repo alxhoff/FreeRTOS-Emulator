@@ -101,7 +101,7 @@ jobs:
       - name: Install Latest Clang
         run: sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
       - name: Install CLang Dependencies
-        run: sudo apt-get install -y clang-4.0 clang-tidy-4.0
+        run: sudo apt-get install -y clang clang-tidy
       - name: Configure CMake
         run: mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_CLANG_TIDY=ON ..
       - name: Build with CMake
