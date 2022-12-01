@@ -113,16 +113,34 @@ endif()
 if(ENABLE_CLANG_TIDY)
 
     find_program(CLANG_TIDY_BIN clang-tidy)
-    find_program(RUN_CLANG_TIDY_BIN run-clang-tidy.py
+    find_program(RUN_CLANG_TIDY_BIN run-clang-tidy
         PATHS /usr/share/clang
     )
 
     if(CLANG_TIDY_BIN STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
-        message(FATAL_ERROR "unable to locate clang-tidy-4.0")
+        message(FATAL_ERROR "unable to locate clang-tidy")
     endif()
 
     if(RUN_CLANG_TIDY_BIN STREQUAL "RUN_CLANG_TIDY_BIN-NOTFOUND")
-        message(FATAL_ERROR "unable to locate run-clang-tidy-4.0.py")
+        message(WARNING "unable to locate run-clang-tidy")
+        find_program(RUN_CLANG_TIDY_BIN run-clang-tidy.py
+            PATHS /usr/share/clang
+        )
+        if(RUN_CLANG_TIDY_BIN STREQUAL "RUN_CLANG_TIDY_BIN-NOTFOUND")
+            message(WARNING "unable to locate run-clang-tidy.py")
+            find_program(RUN_CLANG_TIDY_BIN run-clang-tidy-4.0.py
+                PATHS /usr/share/clang
+            )
+            if(RUN_CLANG_TIDY_BIN STREQUAL "RUN_CLANG_TIDY_BIN-NOTFOUND")
+                message(WARNING "unable to locate run-clang-tidy-4.0.py")
+                find_program(RUN_CLANG_TIDY_BIN run-clang-tidy-8
+                    PATHS /usr/share/clang
+                )
+                if(RUN_CLANG_TIDY_BIN STREQUAL "RUN_CLANG_TIDY_BIN-NOTFOUND")
+                    message(FATAL_ERROR "unable to locate run-clang-tidy")
+                endif()
+            endif()
+        endif()
     endif()
 
     SET(FILTER_REGEX "^((?!Kernel).)*$$")
