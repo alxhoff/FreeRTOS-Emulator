@@ -278,6 +278,21 @@ int tumDrawText(char *str, signed short x, signed short y, unsigned int colour);
 int tumGetTextSize(char *str, int *width, int *height);
 
 /**
+ * @brief Prints a string to the screen
+ *
+ * The given string is printed in the given colour centered at the location x,y.
+ * The location is centered at the center of the text.
+ *
+ * @param str String to print
+ * @param x X coordinate of the middle of the text's bounding box
+ * @param y Y coordinate of the middle of the text's bounding box
+ * @param colour RGB colour of the text
+ * @return 0 on success
+ */
+int tumDrawCenteredText(char *str, signed short x, signed short y,
+                        unsigned int colour);
+
+/**
  * @brief Draws a filled box on the screen
  *
  * @param x X coordinate of the top left point of the box

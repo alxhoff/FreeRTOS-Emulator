@@ -316,7 +316,6 @@ static draw_job_t *pushDrawJob(void)
 
 static int waitingDrawJobs(void)
 {
-
     int ret = 1;
 
     pthread_mutex_lock(&job_list_lock);
@@ -335,7 +334,6 @@ static draw_job_t *popDrawJob(void)
     draw_job_t *ret = job_list_head.next;
 
     if (ret) {
-
         pthread_mutex_lock(&job_list_lock);
 
         if (ret->next) {
@@ -1000,7 +998,7 @@ int tumDrawUpdateScreen(void)
 #endif //configFPS_LIMIT
 
     if (!waitingDrawJobs()) {
-        goto  no_jobs;
+        goto no_jobs;
     }
 
     draw_job_t *tmp_job;
@@ -1119,7 +1117,6 @@ err_sdl:
 int tumDrawBindThread(void) // Should be called from the Drawing Thread
 {
     if (!tumUtilIsCurGLThread() || !renderer) {
-
         if (SDL_GL_MakeCurrent(window, context) < 0) {
             PRINT_SDL_ERROR("Releasing current context failed");
             goto err_make_current;
@@ -1130,18 +1127,19 @@ int tumDrawBindThread(void) // Should be called from the Drawing Thread
             renderer = NULL;
         }
 
-        renderer = SDL_CreateRenderer(window, -1,
-                                      SDL_RENDERER_ACCELERATED |
-                                      SDL_RENDERER_TARGETTEXTURE |
-                                      SDL_RENDERER_PRESENTVSYNC);
+        renderer =
+            SDL_CreateRenderer(window, -1,
+                               SDL_RENDERER_ACCELERATED |
+                               SDL_RENDERER_TARGETTEXTURE |
+                               SDL_RENDERER_PRESENTVSYNC);
 
         if (renderer == NULL) {
             PRINT_SDL_ERROR("Failed to create renderer");
             goto err_renderer;
         }
 
-        SDL_SetRenderDrawColor(renderer, MAX_8_BIT, MAX_8_BIT, MAX_8_BIT,
-                               ALPHA_SOLID);
+        SDL_SetRenderDrawColor(renderer, MAX_8_BIT, MAX_8_BIT,
+                               MAX_8_BIT, ALPHA_SOLID);
 
         SDL_RenderClear(renderer);
 
@@ -1217,6 +1215,17 @@ int tumGetTextSize(char *str, int *width, int *height)
         return -1;
     }
     return _getTextSize(str, width, height);
+}
+
+int tumDrawCenteredText(char *str, signed short x, signed short y,
+                        unsigned int colour)
+{
+    int width, height;
+    if (tumGetTextSize(str, &width, &height)) {
+        return -1;
+    }
+
+    return tumDrawText(str, x - width / 2, y - height / 2, colour);
 }
 
 int tumDrawEllipse(signed short x, signed short y, signed short rx,
@@ -1547,7 +1556,8 @@ int __attribute_deprecated__ tumDrawImage(char *filename, signed short x,
     return 0;
 }
 
-spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img, unsigned sprite_cols,
+spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img,
+        unsigned sprite_cols,
         unsigned sprite_rows)
 {
     if (img == NULL) {
@@ -1582,7 +1592,8 @@ int tumDrawSprite(spritesheet_handle_t spritesheet, char column, char row,
         goto err;
     }
 
-    if (column < 0 || column > ((spritesheet_t *)spritesheet)->sprite_cols) {
+    if (column < 0 ||
+        column > ((spritesheet_t *)spritesheet)->sprite_cols) {
         PRINT_ERROR("Spritesheet column not valid");
         goto err;
     }
@@ -1595,13 +1606,18 @@ int tumDrawSprite(spritesheet_handle_t spritesheet, char column, char row,
     INIT_JOB(job, DRAW_LOADED_IMAGE_CROP);
 
     ((spritesheet_t *)spritesheet)->image->ref_count++;
-    job->data->loaded_image_crop.image = ((spritesheet_t *)spritesheet)->image;
+    job->data->loaded_image_crop.image =
+        ((spritesheet_t *)spritesheet)->image;
     job->data->loaded_image_crop.x = x;
     job->data->loaded_image_crop.y = y;
-    job->data->loaded_image_crop.c_w = ((spritesheet_t *)spritesheet)->sprite_width;
-    job->data->loaded_image_crop.c_h = ((spritesheet_t *)spritesheet)->sprite_height;
-    job->data->loaded_image_crop.c_x = column * ((spritesheet_t *)spritesheet)->sprite_width;
-    job->data->loaded_image_crop.c_y = row * ((spritesheet_t *)spritesheet)->sprite_height;
+    job->data->loaded_image_crop.c_w =
+        ((spritesheet_t *)spritesheet)->sprite_width;
+    job->data->loaded_image_crop.c_h =
+        ((spritesheet_t *)spritesheet)->sprite_height;
+    job->data->loaded_image_crop.c_x =
+        column * ((spritesheet_t *)spritesheet)->sprite_width;
+    job->data->loaded_image_crop.c_y =
+        row * ((spritesheet_t *)spritesheet)->sprite_height;
 
     return 0;
 
