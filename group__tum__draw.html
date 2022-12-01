@@ -168,6 +168,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga8e11da21f36bfa4805706ba5a3166e35"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga8e11da21f36bfa4805706ba5a3166e35">tumGetTextSize</a> (char *str, int *width, int *height)</td></tr>
 <tr class="memdesc:ga8e11da21f36bfa4805706ba5a3166e35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the width and height of a strings bounding box.  <a href="#ga8e11da21f36bfa4805706ba5a3166e35">More...</a><br /></td></tr>
 <tr class="separator:ga8e11da21f36bfa4805706ba5a3166e35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga12a75a85f671253ff0f9fcbd38655ae8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#ga12a75a85f671253ff0f9fcbd38655ae8">tumDrawCenteredText</a> (char *str, signed short x, signed short y, unsigned int colour)</td></tr>
+<tr class="memdesc:ga12a75a85f671253ff0f9fcbd38655ae8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a string to the screen.  <a href="#ga12a75a85f671253ff0f9fcbd38655ae8">More...</a><br /></td></tr>
+<tr class="separator:ga12a75a85f671253ff0f9fcbd38655ae8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadb522372235b028676bccaa0109ca780"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__draw.html#gadb522372235b028676bccaa0109ca780">tumDrawBox</a> (signed short x, signed short y, signed short w, signed short h, unsigned int colour)</td></tr>
 <tr class="memdesc:gadb522372235b028676bccaa0109ca780"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws a filled box on the screen.  <a href="#gadb522372235b028676bccaa0109ca780">More...</a><br /></td></tr>
 <tr class="separator:gadb522372235b028676bccaa0109ca780"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1115,6 +1118,57 @@ Hex RGB colours</h2></td></tr>
     <tr><td class="paramname">w</td><td>Width of the box </td></tr>
     <tr><td class="paramname">h</td><td>Height of the box </td></tr>
     <tr><td class="paramname">colour</td><td>RGB colour of the box </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>0 on success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga12a75a85f671253ff0f9fcbd38655ae8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tumDrawCenteredText </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">signed short&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">signed short&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>colour</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Prints a string to the screen. </p>
+<p>The given string is printed in the given colour centered at the location x,y. The location is centered at the center of the text.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td>String to print </td></tr>
+    <tr><td class="paramname">x</td><td>X coordinate of the middle of the text's bounding box </td></tr>
+    <tr><td class="paramname">y</td><td>Y coordinate of the middle of the text's bounding box </td></tr>
+    <tr><td class="paramname">colour</td><td>RGB colour of the text </td></tr>
   </table>
   </dd>
 </dl>
