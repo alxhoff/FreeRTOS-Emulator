@@ -515,7 +515,7 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
         goto error_socket;
     }
 
-    printf("Opened socket on port %" PRIu16 " with FD: %d\n", port,
+    printf("Configured socket on port %" PRIu16 " with FD: %d\n", port,
            s_udp->fd);
 
     struct sigaction act = { 0 };
@@ -563,9 +563,9 @@ aIO_handle_t aIOOpenUDPSocket(char *s_addr, in_port_t port, size_t buffer_size,
 error_fcntl:
     close(s_udp->fd);
 error_socket:
+    pthread_mutex_unlock(&conn->next->lock);
     free(conn->next);
     conn->next = NULL;
-    pthread_mutex_unlock(&conn->next->lock);
 error_IO:
     return NULL;
 }
