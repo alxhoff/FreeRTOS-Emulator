@@ -12,4 +12,11 @@ extern TaskHandle_t DemoSendTask;
 int createDemoTasks(void);
 void deleteDemoTasks(void);
 
+void vStateOneEnter(void);
+void vStateOneExit(void);
+void vStateTwoInit(void);
+void vStateTwoEnter(void);
+void vStateTwoExit(void);
+
+
 #endif // __DEMO_TASKS_H__

@@ -8,8 +8,6 @@
 #include "state_machine.h"
 #include "states.h"
 
-QueueHandle_t StateQueue = NULL;
-
 int vCheckStateInput(void)
 {
     if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
@@ -23,26 +21,6 @@ int vCheckStateInput(void)
     }
 
     return 0;
-}
-
-void vStateOneEnter(void)
-{
-    vTaskResume(DemoTask1);
-}
-
-void vStateOneExit(void)
-{
-    vTaskSuspend(DemoTask1);
-}
-
-void vStateTwoEnter(void)
-{
-    vTaskResume(DemoTask2);
-}
-
-void vStateTwoExit(void)
-{
-    vTaskSuspend(DemoTask2);
 }
 
 void vStateMachineTask(void *pvParameters)
@@ -64,7 +42,7 @@ int StateMachineInit(void)
         return -1;
     }
 
-    if (states_add(NULL, vStateTwoEnter, NULL, vStateTwoExit, STATE_TWO,
+    if (states_add(vStateTwoInit, vStateTwoEnter, NULL, vStateTwoExit, STATE_TWO,
                    "State Two")) {
         return -1;
     }

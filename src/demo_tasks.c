@@ -18,6 +18,21 @@ TaskHandle_t DemoTask1 = NULL;
 TaskHandle_t DemoTask2 = NULL;
 TaskHandle_t DemoSendTask = NULL;
 
+struct locked_ball {
+    ball_t *ball;
+    SemaphoreHandle_t lock;
+} my_ball = { 0 };
+
+void vStateOneEnter(void)
+{
+    vTaskResume(DemoTask1);
+}
+
+void vStateOneExit(void)
+{
+    vTaskSuspend(DemoTask1);
+}
+
 void vDemoTask1(void *pvParameters)
 {
     vDrawInitAnnimations();
@@ -54,23 +69,48 @@ void playBallSound(void *args)
     tumSoundPlaySample(a3);
 }
 
+void vResetBall(void)
+{
+    if (xSemaphoreTake(my_ball.lock, portMAX_DELAY) == pdTRUE) {
+        setBallSpeed(my_ball.ball, 100, 100, 0, SET_BALL_SPEED_AXES);
+        setBallLocation(my_ball.ball, SCREEN_WIDTH / 2,
+                        SCREEN_HEIGHT / 2);
+        xSemaphoreGive(my_ball.lock);
+    }
+}
+
+void vStateTwoInit(void)
+{
+    my_ball.lock = xSemaphoreCreateMutex();
+    if (xSemaphoreTake(my_ball.lock, portMAX_DELAY) == pdTRUE) {
+        my_ball.ball =
+            createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, Black,
+                       20, 1000, &playBallSound, NULL, NULL);
+        xSemaphoreGive(my_ball.lock);
+        vResetBall();
+    }
+}
+
+void vStateTwoEnter(void)
+{
+    vResetBall();
+    vTaskResume(DemoTask2);
+}
+
+void vStateTwoExit(void)
+{
+    vTaskSuspend(DemoTask2);
+}
+
 void vDemoTask2(void *pvParameters)
 {
     TickType_t xLastWakeTime, prevWakeTime;
     xLastWakeTime = xTaskGetTickCount();
     prevWakeTime = xLastWakeTime;
 
-    ball_t *my_ball = createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, Black,
-                                 20, 1000, &playBallSound, NULL, NULL);
-    setBallSpeed(my_ball, 250, 250, 0, SET_BALL_SPEED_AXES);
-
     wall_t *left_wall = NULL, *right_wall = NULL, *top_wall = NULL,
             *bottom_wall = NULL;
     vCreateWalls(&left_wall, &right_wall, &top_wall, &bottom_wall);
-
-    unsigned char collisions;
-
-    prints("Task 1 init'd\n");
 
     while (1) {
         if (DrawSignal)
@@ -85,19 +125,24 @@ void vDemoTask2(void *pvParameters)
                 vDrawWalls(left_wall, right_wall, top_wall,
                            bottom_wall);
 
-                // Check if ball has made a collision
-                collisions = checkBallCollisions(my_ball, NULL,
-                                                 NULL);
-                if (collisions) {
-                    prints("Collision\n");
+                if (xSemaphoreTake(my_ball.lock,
+                                   portMAX_DELAY) == pdTRUE) {
+                    // Check if ball has made a collision
+                    if (checkBallCollisions(my_ball.ball,
+                                            NULL, NULL)) {
+                        prints("Collision\n");
+                    }
+
+                    // Update the balls position now that possible collisions have
+                    // updated its speeds
+                    updateBallPosition(
+                        my_ball.ball,
+                        xLastWakeTime - prevWakeTime);
+
+                    vDrawBall(my_ball.ball);
+
+                    xSemaphoreGive(my_ball.lock);
                 }
-
-                // Update the balls position now that possible collisions have
-                // updated its speeds
-                updateBallPosition(
-                    my_ball, xLastWakeTime - prevWakeTime);
-
-                vDrawBall(my_ball);
 
                 // Draw FPS in lower right corner
                 vDrawFPS();
