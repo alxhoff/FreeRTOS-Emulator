@@ -29,9 +29,6 @@
 #include "tracer.h"
 #endif
 
-const unsigned char next_state_signal = NEXT_TASK;
-const unsigned char prev_state_signal = PREV_TASK;
-
 static TaskHandle_t StateMachine = NULL;
 static TaskHandle_t BufferSwap = NULL;
 
@@ -112,17 +109,11 @@ int main(int argc, char *argv[])
     }
 
     // Message sending
-    StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
-    if (!StateQueue) {
-        PRINT_ERROR("Could not open state queue");
-        goto err_state_queue;
-    }
-
-    if (xTaskCreate(basicSequentialStateMachine, "StateMachine",
+    if (xTaskCreate(vStateMachineTask, "StateMachine",
                     mainGENERIC_STACK_SIZE * 2, NULL,
                     configMAX_PRIORITIES - 1, &StateMachine) != pdPASS) {
         PRINT_TASK_ERROR("StateMachine");
-        goto err_statemachine;
+        goto err_statemachinetask;
     }
     if (xTaskCreate(vSwapBuffers, "BufferSwapTask",
                     mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES,
@@ -146,12 +137,19 @@ int main(int argc, char *argv[])
         goto err_messagequeuetasks;
     }
 
+    /** State Machine */
+    if (StateMachineInit()) {
+        goto err_statemachine;
+    }
+
     tumFUtilPrintTaskStateList();
 
     vTaskStartScheduler();
 
     return EXIT_SUCCESS;
 
+err_statemachine:
+    deleteMessageQueueTasks();
 err_messagequeuetasks:
     deleteSocketTasks();
 err_sockettasks:
@@ -160,9 +158,7 @@ err_demotasks:
     vTaskDelete(BufferSwap);
 err_bufferswap:
     vTaskDelete(StateMachine);
-err_statemachine:
-    vQueueDelete(StateQueue);
-err_state_queue:
+err_statemachinetask:
     vSemaphoreDelete(DrawSignal);
 err_draw_signal:
     buttonsExit();

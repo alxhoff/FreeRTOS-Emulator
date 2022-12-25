@@ -36,6 +36,7 @@ else()
         ${PROJECT_SOURCE_DIR}/lib/Gfx/include
         ${PROJECT_SOURCE_DIR}/lib/AsyncIO/include
         ${PROJECT_SOURCE_DIR}/lib/tracer/include
+        ${PROJECT_SOURCE_DIR}/lib
     )
 
     include_directories(${PROJECT_INCLUDES})

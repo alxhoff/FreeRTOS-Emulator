@@ -52,3 +52,8 @@ int createMessageQueueTasks(void)
 
     return 0;
 }
+
+void deleteMessageQueueTasks(void)
+{
+    vTaskDelete(MQDemoTask);
+}
