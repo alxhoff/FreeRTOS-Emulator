@@ -12,5 +12,6 @@ extern TaskHandle_t MQDemoTask;
 
 int createMessageQueueTasks(void);
 void deleteSocketTasks(void);
+void deleteMessageQueueTasks(void);
 
 #endif //__ASYNC_MESSAGE_QUEUES_H__
