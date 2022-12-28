@@ -109,31 +109,31 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga5500dc5ddaad828d567c44128192ec3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga5500dc5ddaad828d567c44128192ec3e">createBall</a> (signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args, <a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a> sprite)</td></tr>
-<tr class="memdesc:ga5500dc5ddaad828d567c44128192ec3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a ball object.  <a href="#ga5500dc5ddaad828d567c44128192ec3e">More...</a><br /></td></tr>
-<tr class="separator:ga5500dc5ddaad828d567c44128192ec3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaef22e6e8b27740e4c34e607a961344f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#gaef22e6e8b27740e4c34e607a961344f1">createWall</a> (signed short x1, signed short y1, signed short w, signed short h, float dampening, unsigned int colour, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args)</td></tr>
-<tr class="memdesc:gaef22e6e8b27740e4c34e607a961344f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a wall object.  <a href="#gaef22e6e8b27740e4c34e607a961344f1">More...</a><br /></td></tr>
-<tr class="separator:gaef22e6e8b27740e4c34e607a961344f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga7b5b042be3729b4ad8de031fb376f3f5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5">setWallProperty</a> (<a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *<a class="el" href="structwall.html">wall</a>, signed short x, signed short y, signed short width, signed short height, unsigned char flags)</td></tr>
-<tr class="memdesc:ga7b5b042be3729b4ad8de031fb376f3f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets one or more properties of a wall.  <a href="#ga7b5b042be3729b4ad8de031fb376f3f5">More...</a><br /></td></tr>
-<tr class="separator:ga7b5b042be3729b4ad8de031fb376f3f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab9764923f2a8501b17814d72f0970a42"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#gab9764923f2a8501b17814d72f0970a42">setBallSpeed</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, float dx, float dy, float max_speed, unsigned char flags)</td></tr>
-<tr class="memdesc:gab9764923f2a8501b17814d72f0970a42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the speed of the ball.  <a href="#gab9764923f2a8501b17814d72f0970a42">More...</a><br /></td></tr>
-<tr class="separator:gab9764923f2a8501b17814d72f0970a42"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga310d5cc25909afb952d02502f35d9104"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga310d5cc25909afb952d02502f35d9104">setBallLocation</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, signed short x, signed short y)</td></tr>
-<tr class="memdesc:ga310d5cc25909afb952d02502f35d9104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the location of the ball.  <a href="#ga310d5cc25909afb952d02502f35d9104">More...</a><br /></td></tr>
-<tr class="separator:ga310d5cc25909afb952d02502f35d9104"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gacc32195b596cfb433e5cee542eca327b"><td class="memItemLeft" align="right" valign="top">signed char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#gacc32195b596cfb433e5cee542eca327b">checkBallCollisions</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args)</td></tr>
-<tr class="memdesc:gacc32195b596cfb433e5cee542eca327b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if a ball is currently collided with other objects.  <a href="#gacc32195b596cfb433e5cee542eca327b">More...</a><br /></td></tr>
-<tr class="separator:gacc32195b596cfb433e5cee542eca327b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gafeea779a954a17c1a833ccb6cb502e9c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#gafeea779a954a17c1a833ccb6cb502e9c">updateBallPosition</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, unsigned int milli_seconds)</td></tr>
-<tr class="memdesc:gafeea779a954a17c1a833ccb6cb502e9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the position of the ball.  <a href="#gafeea779a954a17c1a833ccb6cb502e9c">More...</a><br /></td></tr>
-<tr class="separator:gafeea779a954a17c1a833ccb6cb502e9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga433677eec97e5cc7d7ef6fe1cdb19ff1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga433677eec97e5cc7d7ef6fe1cdb19ff1">pCreateBall</a> (signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args, <a class="el" href="group__tum__draw.html#gac6a2817cea43f79996e1373bbe8e1795">image_handle_t</a> sprite)</td></tr>
+<tr class="memdesc:ga433677eec97e5cc7d7ef6fe1cdb19ff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a ball object.  <a href="#ga433677eec97e5cc7d7ef6fe1cdb19ff1">More...</a><br /></td></tr>
+<tr class="separator:ga433677eec97e5cc7d7ef6fe1cdb19ff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6795c4479b7caa3893d9e7d4b347ffd6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga6795c4479b7caa3893d9e7d4b347ffd6">pCreateWall</a> (signed short x1, signed short y1, signed short w, signed short h, float dampening, unsigned int colour, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args)</td></tr>
+<tr class="memdesc:ga6795c4479b7caa3893d9e7d4b347ffd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a wall object.  <a href="#ga6795c4479b7caa3893d9e7d4b347ffd6">More...</a><br /></td></tr>
+<tr class="separator:ga6795c4479b7caa3893d9e7d4b347ffd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2188ba50978a7925fde977a8c5e8cb83"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga2188ba50978a7925fde977a8c5e8cb83">vSetWallProperty</a> (<a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *<a class="el" href="structwall.html">wall</a>, signed short x, signed short y, signed short width, signed short height, unsigned char flags)</td></tr>
+<tr class="memdesc:ga2188ba50978a7925fde977a8c5e8cb83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets one or more properties of a wall.  <a href="#ga2188ba50978a7925fde977a8c5e8cb83">More...</a><br /></td></tr>
+<tr class="separator:ga2188ba50978a7925fde977a8c5e8cb83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga81fae0bb85452a9c92ea55a9d959665a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga81fae0bb85452a9c92ea55a9d959665a">vSetBallSpeed</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, float dx, float dy, float max_speed, unsigned char flags)</td></tr>
+<tr class="memdesc:ga81fae0bb85452a9c92ea55a9d959665a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the speed of the ball.  <a href="#ga81fae0bb85452a9c92ea55a9d959665a">More...</a><br /></td></tr>
+<tr class="separator:ga81fae0bb85452a9c92ea55a9d959665a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga69a1ac4386d156e50c0109bcb45c912f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga69a1ac4386d156e50c0109bcb45c912f">vSetBallLocation</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, signed short x, signed short y)</td></tr>
+<tr class="memdesc:ga69a1ac4386d156e50c0109bcb45c912f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the location of the ball.  <a href="#ga69a1ac4386d156e50c0109bcb45c912f">More...</a><br /></td></tr>
+<tr class="separator:ga69a1ac4386d156e50c0109bcb45c912f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9819282dcceb7dbc4cea1e7f02995f71"><td class="memItemLeft" align="right" valign="top">signed char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga9819282dcceb7dbc4cea1e7f02995f71">sCheckBallCollisions</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, <a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a> callback, void *args)</td></tr>
+<tr class="memdesc:ga9819282dcceb7dbc4cea1e7f02995f71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if a ball is currently collided with other objects.  <a href="#ga9819282dcceb7dbc4cea1e7f02995f71">More...</a><br /></td></tr>
+<tr class="separator:ga9819282dcceb7dbc4cea1e7f02995f71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga19ccd38f6230ee95d93eb874351d7815"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga19ccd38f6230ee95d93eb874351d7815">vUpdateBallPosition</a> (<a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *<a class="el" href="structball.html">ball</a>, unsigned int milli_seconds)</td></tr>
+<tr class="memdesc:ga19ccd38f6230ee95d93eb874351d7815"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the position of the ball.  <a href="#ga19ccd38f6230ee95d93eb874351d7815">More...</a><br /></td></tr>
+<tr class="separator:ga19ccd38f6230ee95d93eb874351d7815"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 Set wall location flags</h2></td></tr>
-<tr><td class="ititle" colspan="2"><p><a class="anchor" id="amgrpf6933b8fc6b3221b7d11f9a3f9a96bb6"></a>Flags passed to <a class="el" href="group__tum__ball.html#ga7b5b042be3729b4ad8de031fb376f3f5">setWallProperty</a> to set the X, Y, width or height of a wall. </p>
+<tr><td class="ititle" colspan="2"><p><a class="anchor" id="amgrpf6933b8fc6b3221b7d11f9a3f9a96bb6"></a>Flags passed to <a class="el" href="group__tum__ball.html#ga2188ba50978a7925fde977a8c5e8cb83">vSetWallProperty</a> to set the X, Y, width or height of a wall. </p>
 </td></tr>
 <tr class="memitem:ga2d1bfe9b0f8755ec6a508fe8e517ee11"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#ga2d1bfe9b0f8755ec6a508fe8e517ee11">SET_WALL_X</a>&#160;&#160;&#160;0b1</td></tr>
 <tr class="separator:ga2d1bfe9b0f8755ec6a508fe8e517ee11"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,7 +152,7 @@ Set wall location flags</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 Set ball speed flags</h2></td></tr>
-<tr><td class="ititle" colspan="2"><p><a class="anchor" id="amgrp05e6e078144b5ea61fecc5f2415cc3c3"></a>Flags passed to <a class="el" href="group__tum__ball.html#gab9764923f2a8501b17814d72f0970a42">setBallSpeed</a> to set various speed properties of a ball </p>
+<tr><td class="ititle" colspan="2"><p><a class="anchor" id="amgrp05e6e078144b5ea61fecc5f2415cc3c3"></a>Flags passed to <a class="el" href="group__tum__ball.html#ga81fae0bb85452a9c92ea55a9d959665a">vSetBallSpeed</a> to set various speed properties of a ball </p>
 </td></tr>
 <tr class="memitem:gab83512dcf4b54129306a8f2f597b8950"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__tum__ball.html#gab83512dcf4b54129306a8f2f597b8950">SET_BALL_SPEED_X</a>&#160;&#160;&#160;0b1</td></tr>
 <tr class="separator:gab83512dcf4b54129306a8f2f597b8950"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -375,55 +375,12 @@ Set ball speed flags</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="gacc32195b596cfb433e5cee542eca327b"></a>
+<a class="anchor" id="ga433677eec97e5cc7d7ef6fe1cdb19ff1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">signed char checkBallCollisions </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td>
-          <td class="paramname"><em>ball</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a>&#160;</td>
-          <td class="paramname"><em>callback</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>args</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Checks if a ball is currently collided with other objects. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ball</td><td>Reference to the ball object which is to be checked </td></tr>
-    <tr><td class="paramname">callback</td><td>Callback function that is to be called when a collision is detected </td></tr>
-    <tr><td class="paramname">args</td><td>Args passed to callback function </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>1 if a collision is detected </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ga5500dc5ddaad828d567c44128192ec3e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a>* createBall </td>
+          <td class="memname"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a>* pCreateBall </td>
           <td>(</td>
           <td class="paramtype">signed short&#160;</td>
           <td class="paramname"><em>initial_x</em>, </td>
@@ -496,12 +453,12 @@ Set ball speed flags</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="gaef22e6e8b27740e4c34e607a961344f1"></a>
+<a class="anchor" id="ga6795c4479b7caa3893d9e7d4b347ffd6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a>* createWall </td>
+          <td class="memname"><a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a>* pCreateWall </td>
           <td>(</td>
           <td class="paramtype">signed short&#160;</td>
           <td class="paramname"><em>x1</em>, </td>
@@ -574,12 +531,55 @@ Set ball speed flags</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga310d5cc25909afb952d02502f35d9104"></a>
+<a class="anchor" id="ga9819282dcceb7dbc4cea1e7f02995f71"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void setBallLocation </td>
+          <td class="memname">signed char sCheckBallCollisions </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td>
+          <td class="paramname"><em>ball</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__tum__ball.html#ga8e2457fce951915ba7cb3ab932931149">callback_t</a>&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks if a ball is currently collided with other objects. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ball</td><td>Reference to the ball object which is to be checked </td></tr>
+    <tr><td class="paramname">callback</td><td>Callback function that is to be called when a collision is detected </td></tr>
+    <tr><td class="paramname">args</td><td>Args passed to callback function </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if a collision is detected </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga69a1ac4386d156e50c0109bcb45c912f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vSetBallLocation </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td>
           <td class="paramname"><em>ball</em>, </td>
@@ -613,16 +613,15 @@ Set ball speed flags</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>NULL Always returns NULL </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="gab9764923f2a8501b17814d72f0970a42"></a>
+<a class="anchor" id="ga81fae0bb85452a9c92ea55a9d959665a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void setBallSpeed </td>
+          <td class="memname">void vSetBallSpeed </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td>
           <td class="paramname"><em>ball</em>, </td>
@@ -671,16 +670,15 @@ Set ball speed flags</h2></td></tr>
   </dd>
 </dl>
 <dl class="section see"><dt>See also</dt><dd>speed_flags. </dd></dl>
-<dl class="section return"><dt>Returns</dt><dd>NULL Always returns NULL </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="ga7b5b042be3729b4ad8de031fb376f3f5"></a>
+<a class="anchor" id="ga2188ba50978a7925fde977a8c5e8cb83"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void setWallProperty </td>
+          <td class="memname">void vSetWallProperty </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__tum__ball.html#ga6870ef41c8faeae520387a786849a0ef">wall_t</a> *&#160;</td>
           <td class="paramname"><em>wall</em>, </td>
@@ -739,12 +737,12 @@ Set ball speed flags</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="gafeea779a954a17c1a833ccb6cb502e9c"></a>
+<a class="anchor" id="ga19ccd38f6230ee95d93eb874351d7815"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void updateBallPosition </td>
+          <td class="memname">void vUpdateBallPosition </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__tum__ball.html#ga7c63b67aa2c487dd24bb4431494d9cdd">ball_t</a> *&#160;</td>
           <td class="paramname"><em>ball</em>, </td>
@@ -773,7 +771,6 @@ Set ball speed flags</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>

@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['handlecollision',['handleCollision',['../TUM__Ball_8c.html#a661fe1f68ef6d24070174fa20ee00068',1,'TUM_Ball.c']]]
+  ['pcreateball',['pCreateBall',['../group__tum__ball.html#ga433677eec97e5cc7d7ef6fe1cdb19ff1',1,'pCreateBall(signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, callback_t callback, void *args, image_handle_t sprite):&#160;TUM_Ball.h'],['../TUM__Ball_8c.html#a6008b4b537e9b18fa427d1d9ce193dde',1,'pCreateBall(signed short initial_x, signed short initial_y, unsigned int colour, signed short radius, float max_speed, void(*callback)(void *), void *args, image_handle_t sprite):&#160;TUM_Ball.c']]],
+  ['pcreatewall',['pCreateWall',['../group__tum__ball.html#ga6795c4479b7caa3893d9e7d4b347ffd6',1,'pCreateWall(signed short x1, signed short y1, signed short w, signed short h, float dampening, unsigned int colour, callback_t callback, void *args):&#160;TUM_Ball.h'],['../TUM__Ball_8c.html#a6461e14b2bc7845d1bb5953a3bd800e8',1,'pCreateWall(signed short x1, signed short y1, signed short w, signed short h, float dampening, unsigned int colour, void(*callback)(void *), void *args):&#160;TUM_Ball.c']]],
+  ['prints',['prints',['../group__tum__print.html#ga6bb5d704b4d2f0e1c967e7e1b2bffda4',1,'prints(const char *__format,...):&#160;TUM_Print.c'],['../group__tum__print.html#ga6bb5d704b4d2f0e1c967e7e1b2bffda4',1,'prints(const char *__format,...):&#160;TUM_Print.c']]]
 ];
