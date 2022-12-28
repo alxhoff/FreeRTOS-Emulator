@@ -16,6 +16,14 @@ extern aIO_handle_t udp_soc_one;
 extern aIO_handle_t udp_soc_two;
 extern aIO_handle_t tcp_soc;
 
-int createSocketTasks(void);
+/// @brief Creates the UDP and TCP demo tasks used for demonstration purposes
+/// @param void
+/// @return 0 on success
+int xCreateSocketTasks(void);
+
+/// @brief Deletes the demo sockets tasks found in async_sockets.h
+/// @param void
+void vDeleteSocketTasks(void);
+
 
 #endif //__ASYNC_SOCKETS_H__

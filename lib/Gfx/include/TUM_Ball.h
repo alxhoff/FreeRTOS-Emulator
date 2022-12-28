@@ -149,9 +149,9 @@ typedef struct wall {
  * @param sprite Optional sprite image to be stored within the ball object
  * @return A pointer to the created ball, program exits if creation failed
  */
-ball_t *createBall(signed short initial_x, signed short initial_y,
-                   unsigned int colour, signed short radius, float max_speed,
-                   callback_t callback, void *args, image_handle_t sprite);
+ball_t *pCreateBall(signed short initial_x, signed short initial_y,
+                    unsigned int colour, signed short radius, float max_speed,
+                    callback_t callback, void *args, image_handle_t sprite);
 
 /**
  * @brief Creates a wall object
@@ -167,14 +167,14 @@ ball_t *createBall(signed short initial_x, signed short initial_y,
  * @param args Args passed to callback function
  * @return A pointer to the created wall, program exits if creation failed
  */
-wall_t *createWall(signed short x1, signed short y1, signed short w,
-                   signed short h, float dampening, unsigned int colour,
-                   callback_t callback, void *args);
+wall_t *pCreateWall(signed short x1, signed short y1, signed short w,
+                    signed short h, float dampening, unsigned int colour,
+                    callback_t callback, void *args);
 
 /**
  * @name Set wall location flags
  *
- * Flags passed to @ref setWallProperty to set the X, Y, width or height
+ * Flags passed to @ref vSetWallProperty to set the X, Y, width or height
  * of a wall.
  *
  * @{
@@ -208,14 +208,14 @@ wall_t *createWall(signed short x1, signed short y1, signed short w,
  * to be set. @see wall_flags.
  *
  */
-void setWallProperty(wall_t *wall, signed short x, signed short y,
-                     signed short width, signed short height,
-                     unsigned char flags);
+void vSetWallProperty(wall_t *wall, signed short x, signed short y,
+                      signed short width, signed short height,
+                      unsigned char flags);
 
 /**
  * @name Set ball speed flags
  *
- * Flags passed to @ref setBallSpeed to set various speed properties of a ball
+ * Flags passed to @ref vSetBallSpeed to set various speed properties of a ball
  *
  * @{
  */
@@ -266,10 +266,9 @@ void setWallProperty(wall_t *wall, signed short x, signed short y,
  * @param max_speed New maximum speed limit that is to be set
  * @param flags Flag specifying which attributes of the referenced ball are
  * to be set. @see speed_flags.
- * @return NULL Always returns NULL
  */
-void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
-                  unsigned char flags);
+void vSetBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
+                   unsigned char flags);
 
 /**
  * @brief Sets the location of the ball
@@ -278,9 +277,8 @@ void setBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
  * @param ball Reference to the ball objects whose parameters are to be modified
  * @param x New X axis location that is to be set
  * @param y New Y axis location that is to be set
- * @return NULL Always returns NULL
  */
-void setBallLocation(ball_t *ball, signed short x, signed short y);
+void vSetBallLocation(ball_t *ball, signed short x, signed short y);
 
 /**
  * @brief Checks if a ball is currently collided with other objects
@@ -292,7 +290,7 @@ void setBallLocation(ball_t *ball, signed short x, signed short y);
  * @param args Args passed to callback function
  * @return 1 if a collision is detected
  */
-signed char checkBallCollisions(ball_t *ball, callback_t callback, void *args);
+signed char sCheckBallCollisions(ball_t *ball, callback_t callback, void *args);
 
 /**
  * @brief Updates the position of the ball
@@ -308,9 +306,8 @@ signed char checkBallCollisions(ball_t *ball, callback_t callback, void *args);
  *
  * @param ball Reference to the ball object whose position is to be updated
  * @param milli_seconds Milliseconds passed since balls position was last updated
- * @return
  */
-void updateBallPosition(ball_t *ball, unsigned int milli_seconds);
+void vUpdateBallPosition(ball_t *ball, unsigned int milli_seconds);
 
 /** @}*/
 #endif

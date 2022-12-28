@@ -67,7 +67,7 @@
  *
  * @return 0 on success
  */
-unsigned char states_init(void);
+unsigned char uStatesInit(void);
 
 /**
  * @brief Ticks the state machine over
@@ -80,7 +80,7 @@ unsigned char states_init(void);
  *
  * @return 0 on success
  */
-unsigned char states_run(void);
+unsigned char uStatesRun(void);
 
 /**
  * @brief Adds a state to the state machine
@@ -93,7 +93,7 @@ unsigned char states_run(void);
  * @param name A string representation of the state's name
  * @return 0 on success
  */
-int states_add(void (*probe)(void), void (*enter)(void),
+int xStatesAdd(void (*probe)(void), void (*enter)(void),
                void (*run)(void), void (*exit)(void), int ID,
                char *name);
 
@@ -105,7 +105,7 @@ int states_add(void (*probe)(void), void (*enter)(void),
  *
  * @param callback A function pointer to the function that is to be called
  */
-void states_set_callback(void (*callback)(void));
+void vStatesSetCallback(void (*callback)(void));
 
 /**
  * @brief Sets the data of the current state
@@ -113,7 +113,7 @@ void states_set_callback(void (*callback)(void));
  * @param data A void pointer to the data structure that is to be stored in the
  * current state
  */
-void states_set_data(void *data);
+void vStatesSetData(void *data);
 
 /**
  * @brief Sets the input variable stored in the state machine
@@ -123,7 +123,7 @@ void states_set_data(void *data);
  *
  * @param input 8 bit input vector
  */
-void states_set_input(unsigned char input);
+void vStatesSetInput(unsigned char input);
 
 /**
  * @brief Sets the next state of the state machine using the state's ID
@@ -136,7 +136,7 @@ void states_set_input(unsigned char input);
  * @param state_id ID of the state that is to be run next
  * @return 0 on success
  */
-unsigned char states_set_state(unsigned int state_id);
+unsigned char uStatesSetState(unsigned int state_id);
 
 /**
  * @brief Returns a pointer to the data stored in the current state
@@ -145,53 +145,53 @@ unsigned char states_set_state(unsigned int state_id);
  *
  * @return void * to the data
  */
-void *states_get_data(void);
+void *pStatesGetData(void);
 
 /**
  * @brief Returns the string of the current state's name
  *
  * @return char * to the string
  */
-char *states_get_state_name(void);
+char *pStatesGetStateName(void);
 
 /**
  * @brief Retrieves the input vector stored within the state machine
  *
  * @return unsigned char 8 bit input vector
  */
-unsigned char states_get_input(void);
+unsigned char uStatesGetInput(void);
 
 /**
  * @brief Returns the ID of the current state
  *
  * @return unsigned int ID
  */
-int states_get_state_id(void);
+int xStatesGetStateID(void);
 
 /**
  * @brief Returns the number of states currently stored within the state machine
  *
  * @return unsigned int count of the number of states in the state machine
  */
-int states_get_state_count(void);
+int xStatesGetStateCount(void);
 
 /**
  * @brief Increments the state to the next in the linked list of states
  *
  * @return 0 on success
  */
-int states_increment_state(void);
+int xStatesIncrementState(void);
 
 /**
  * @brief Decrements the state to the previous in the linked list of states
  *
  * @return 0 on success
  */
-int states_decrement_state(void);
+int xStatesDecrementState(void);
 
 /**
  * @brief Clears the 8 bit input vector stored in the state machine
  */
-void states_clear_input(void);
+void vStatesClearInput(void);
 
 #endif /* STATES_H_ */

@@ -92,7 +92,6 @@ void tumSoundExit(void);
  *
  * @param index Index to specify which sample to play, @ref tumSound_samples_e gives
  * appropriate indices
- * @return NULL always returns NULL
  */
 void tumSoundPlaySample(unsigned char index);
 

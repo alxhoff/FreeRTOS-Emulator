@@ -1,17 +1,13 @@
 #include <stdio.h>
 
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include "TUM_Draw.h"
 #include "TUM_Font.h"
 #include "TUM_Event.h"
-#include "TUM_Ball.h"
 #include "TUM_Utils.h"
 #include "TUM_Print.h"
 
 #include "defines.h"
 #include "buttons.h"
+#include "draw.h"
 
 #define FPS_AVERAGE_COUNT 50
 #define LOGO_FILENAME "freertos.jpg"
@@ -24,7 +20,7 @@
 
 image_handle_t logo_image = NULL;
 
-void checkDraw(unsigned char status, const char *msg)
+void vCheckDraw(unsigned char status, const char *msg)
 {
     if (status) {
         if (msg)
@@ -38,79 +34,79 @@ void checkDraw(unsigned char status, const char *msg)
 
 void vDrawClearScreen(void)
 {
-    checkDraw(tumDrawClear(White), __FUNCTION__);
+    vCheckDraw(tumDrawClear(White), __FUNCTION__);
 }
 
 void vDrawCaveBoundingBox(void)
 {
-    checkDraw(tumDrawFilledBox(CAVE_X - CAVE_THICKNESS,
-                               CAVE_Y - CAVE_THICKNESS,
-                               CAVE_SIZE_X + CAVE_THICKNESS * 2,
-                               CAVE_SIZE_Y + CAVE_THICKNESS * 2, TUMBlue),
-              __FUNCTION__);
+    vCheckDraw(tumDrawFilledBox(CAVE_X - CAVE_THICKNESS,
+                                CAVE_Y - CAVE_THICKNESS,
+                                CAVE_SIZE_X + CAVE_THICKNESS * 2,
+                                CAVE_SIZE_Y + CAVE_THICKNESS * 2, TUMBlue),
+               __FUNCTION__);
 
-    checkDraw(tumDrawFilledBox(CAVE_X, CAVE_Y, CAVE_SIZE_X, CAVE_SIZE_Y,
-                               Aqua),
-              __FUNCTION__);
+    vCheckDraw(tumDrawFilledBox(CAVE_X, CAVE_Y, CAVE_SIZE_X, CAVE_SIZE_Y,
+                                Aqua),
+               __FUNCTION__);
 }
 
 void vCreateWalls(wall_t **left_wall, wall_t **right_wall, wall_t **top_wall, wall_t **bottom_wall)
 {
     // Left wall
     *left_wall =
-        createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y, CAVE_THICKNESS,
-                   CAVE_SIZE_Y, 0.2, Red, NULL, NULL);
+        pCreateWall(CAVE_X - CAVE_THICKNESS, CAVE_Y, CAVE_THICKNESS,
+                    CAVE_SIZE_Y, 0.2, Red, NULL, NULL);
     // Right wall
     *right_wall =
-        createWall(CAVE_X + CAVE_SIZE_X, CAVE_Y, CAVE_THICKNESS,
-                   CAVE_SIZE_Y, 0.2, Red, NULL, NULL);
+        pCreateWall(CAVE_X + CAVE_SIZE_X, CAVE_Y, CAVE_THICKNESS,
+                    CAVE_SIZE_Y, 0.2, Red, NULL, NULL);
     // Top wall
     *top_wall =
-        createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y - CAVE_THICKNESS,
-                   CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS,
-                   0.2, Blue, NULL, NULL);
+        pCreateWall(CAVE_X - CAVE_THICKNESS, CAVE_Y - CAVE_THICKNESS,
+                    CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS,
+                    0.2, Blue, NULL, NULL);
     // Bottom wall
     *bottom_wall =
-        createWall(CAVE_X - CAVE_THICKNESS, CAVE_Y + CAVE_SIZE_Y,
-                   CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS,
-                   0.2, Blue, NULL, NULL);
+        pCreateWall(CAVE_X - CAVE_THICKNESS, CAVE_Y + CAVE_SIZE_Y,
+                    CAVE_SIZE_X + CAVE_THICKNESS * 2, CAVE_THICKNESS,
+                    0.2, Blue, NULL, NULL);
 }
 
 void vDrawWalls(wall_t *left_wall, wall_t *right_wall, wall_t *top_wall, wall_t *bottom_wall)
 {
-    checkDraw(tumDrawFilledBox(
-                  left_wall->x1, left_wall->y1,
-                  left_wall->w, left_wall->h,
-                  left_wall->colour),
-              __FUNCTION__);
-    checkDraw(tumDrawFilledBox(right_wall->x1,
-                               right_wall->y1,
-                               right_wall->w,
-                               right_wall->h,
-                               right_wall->colour),
-              __FUNCTION__);
-    checkDraw(tumDrawFilledBox(
-                  top_wall->x1, top_wall->y1,
-                  top_wall->w, top_wall->h,
-                  top_wall->colour),
-              __FUNCTION__);
-    checkDraw(tumDrawFilledBox(bottom_wall->x1,
-                               bottom_wall->y1,
-                               bottom_wall->w,
-                               bottom_wall->h,
-                               bottom_wall->colour),
-              __FUNCTION__);
+    vCheckDraw(tumDrawFilledBox(
+                   left_wall->x1, left_wall->y1,
+                   left_wall->w, left_wall->h,
+                   left_wall->colour),
+               __FUNCTION__);
+    vCheckDraw(tumDrawFilledBox(right_wall->x1,
+                                right_wall->y1,
+                                right_wall->w,
+                                right_wall->h,
+                                right_wall->colour),
+               __FUNCTION__);
+    vCheckDraw(tumDrawFilledBox(
+                   top_wall->x1, top_wall->y1,
+                   top_wall->w, top_wall->h,
+                   top_wall->colour),
+               __FUNCTION__);
+    vCheckDraw(tumDrawFilledBox(bottom_wall->x1,
+                                bottom_wall->y1,
+                                bottom_wall->w,
+                                bottom_wall->h,
+                                bottom_wall->colour),
+               __FUNCTION__);
 }
 
 void vDrawBall(ball_t *ball)
 {
-    checkDraw(tumDrawCircle(ball->x, ball->y,
-                            ball->radius,
-                            ball->colour),
-              __FUNCTION__);
+    vCheckDraw(tumDrawCircle(ball->x, ball->y,
+                             ball->radius,
+                             ball->colour),
+               __FUNCTION__);
 }
 
-void vDrawCave(unsigned char ball_color_inverted)
+void vDrawMouseBallAndBoundingBox(unsigned char ball_color_inverted)
 {
     static unsigned short circlePositionX, circlePositionY;
 
@@ -120,13 +116,13 @@ void vDrawCave(unsigned char ball_color_inverted)
     circlePositionY = CAVE_Y + tumEventGetMouseY() / 2;
 
     if (ball_color_inverted)
-        checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20,
-                                Black),
-                  __FUNCTION__);
+        vCheckDraw(tumDrawCircle(circlePositionX, circlePositionY, 20,
+                                 Black),
+                   __FUNCTION__);
     else
-        checkDraw(tumDrawCircle(circlePositionX, circlePositionY, 20,
-                                Silver),
-                  __FUNCTION__);
+        vCheckDraw(tumDrawCircle(circlePositionX, circlePositionY, 20,
+                                 Silver),
+                   __FUNCTION__);
 }
 
 void vDrawHelpText(void)
@@ -140,9 +136,9 @@ void vDrawHelpText(void)
     sprintf(str, "[Q]uit, [C]hange State");
 
     if (!tumGetTextSize((char *)str, &text_width, NULL))
-        checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
-                              DEFAULT_FONT_SIZE * 0.5, Black),
-                  __FUNCTION__);
+        vCheckDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
+                               DEFAULT_FONT_SIZE * 0.5, Black),
+                   __FUNCTION__);
 
     tumFontSetSize(prev_font_size);
 }
@@ -193,10 +189,10 @@ void vDrawFPS(void)
     sprintf(str, "FPS: %2d", fps);
 
     if (!tumGetTextSize((char *)str, &text_width, NULL))
-        checkDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
-                              SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
-                              Skyblue),
-                  __FUNCTION__);
+        vCheckDraw(tumDrawText(str, SCREEN_WIDTH - text_width - 10,
+                               SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
+                               Skyblue),
+                   __FUNCTION__);
 
     tumFontSelectFontFromHandle(cur_font);
     tumFontPutFontHandle(cur_font);
@@ -211,9 +207,9 @@ void vDrawLogo(void)
     }
 
     if ((image_height = tumDrawGetLoadedImageHeight(logo_image)) != -1)
-        checkDraw(tumDrawLoadedImage(logo_image, 10,
-                                     SCREEN_HEIGHT - 10 - image_height),
-                  __FUNCTION__);
+        vCheckDraw(tumDrawLoadedImage(logo_image, 10,
+                                      SCREEN_HEIGHT - 10 - image_height),
+                   __FUNCTION__);
     else {
         fprints(stderr,
                 "Failed to get size of image '%s', does it exist?\n",
@@ -234,8 +230,8 @@ void vDrawButtonText(void)
     sprintf(str, "Axis 1: %5d | Axis 2: %5d", tumEventGetMouseX(),
             tumEventGetMouseY());
 
-    checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black),
-              __FUNCTION__);
+    vCheckDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 0.5, Black),
+               __FUNCTION__);
 
     if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
         sprintf(str, "W: %d | S: %d | A: %d | D: %d",
@@ -244,8 +240,8 @@ void vDrawButtonText(void)
                 buttons.buttons[KEYCODE(A)],
                 buttons.buttons[KEYCODE(D)]);
         xSemaphoreGive(buttons.lock);
-        checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 2, Black),
-                  __FUNCTION__);
+        vCheckDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 2, Black),
+                   __FUNCTION__);
     }
 
     if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
@@ -255,8 +251,8 @@ void vDrawButtonText(void)
                 buttons.buttons[KEYCODE(LEFT)],
                 buttons.buttons[KEYCODE(RIGHT)]);
         xSemaphoreGive(buttons.lock);
-        checkDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 3.5, Black),
-                  __FUNCTION__);
+        vCheckDraw(tumDrawText(str, 10, DEFAULT_FONT_SIZE * 3.5, Black),
+                   __FUNCTION__);
     }
 }
 
@@ -296,7 +292,7 @@ void vDrawSpriteAnnimations(TickType_t xLastFrameTime)
         xTaskGetTickCount() - xLastFrameTime,
         SCREEN_WIDTH - 90,
         SCREEN_HEIGHT - 60);
-    checkDraw(tumDrawSprite(ball_spritesheet, 5, 0,
-                            SCREEN_WIDTH - 130, SCREEN_HEIGHT - 60),
-              __FUNCTION__);
+    vCheckDraw(tumDrawSprite(ball_spritesheet, 5, 0,
+                             SCREEN_WIDTH - 130, SCREEN_HEIGHT - 60),
+               __FUNCTION__);
 }

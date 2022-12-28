@@ -15,12 +15,12 @@ aIO_handle_t tcp_soc = NULL;
 TaskHandle_t UDPDemoTask = NULL;
 TaskHandle_t TCPDemoTask = NULL;
 
-void UDPHandlerOne(size_t read_size, char *buffer, void *args)
+void vUDPHandlerOne(size_t read_size, char *buffer, void *args)
 {
     prints("UDP Recv in first handler: %s\n", buffer);
 }
 
-void UDPHandlerTwo(size_t read_size, char *buffer, void *args)
+void vUDPHandlerTwo(size_t read_size, char *buffer, void *args)
 {
     prints("UDP Recv in second handler: %s\n", buffer);
 }
@@ -31,7 +31,7 @@ void vUDPDemoTask(void *pvParameters)
     in_port_t port = UDP_TEST_PORT_1;
 
     udp_soc_one = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
-                                   UDPHandlerOne, NULL);
+                                   vUDPHandlerOne, NULL);
 
     prints("UDP socket opened on port %d\n", port);
     prints("Demo UDP Socket can be tested using\n");
@@ -40,7 +40,7 @@ void vUDPDemoTask(void *pvParameters)
     port = UDP_TEST_PORT_2;
 
     udp_soc_two = aIOOpenUDPSocket(addr, port, UDP_BUFFER_SIZE,
-                                   UDPHandlerTwo, NULL);
+                                   vUDPHandlerTwo, NULL);
 
     prints("UDP socket opened on port %d\n", port);
     prints("Demo UDP Socket can be tested using\n");
@@ -51,7 +51,7 @@ void vUDPDemoTask(void *pvParameters)
     }
 }
 
-void TCPHandler(size_t read_size, char *buffer, void *args)
+void vTCPHandler(size_t read_size, char *buffer, void *args)
 {
     prints("TCP Recv: %s\n", buffer);
 }
@@ -62,7 +62,7 @@ void vTCPDemoTask(void *pvParameters)
     in_port_t port = TCP_TEST_PORT;
 
     tcp_soc =
-        aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, TCPHandler, NULL);
+        aIOOpenTCPSocket(addr, port, TCP_BUFFER_SIZE, vTCPHandler, NULL);
 
     prints("TCP socket opened on port %d\n", port);
     prints("Demo TCP socket can be tested using\n");
@@ -73,7 +73,7 @@ void vTCPDemoTask(void *pvParameters)
     }
 }
 
-int createSocketTasks(void)
+int xCreateSocketTasks(void)
 {
     if (xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2, NULL,
                     configMAX_PRIORITIES - 1, &UDPDemoTask) != pdPASS) {
@@ -93,7 +93,7 @@ err_udp:
     return -1;
 }
 
-void deleteSocketTasks(void)
+void vDeleteSocketTasks(void)
 {
     vTaskDelete(vUDPDemoTask);
     vTaskDelete(vTCPDemoTask);

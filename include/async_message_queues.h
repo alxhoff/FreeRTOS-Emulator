@@ -10,8 +10,13 @@ extern aIO_handle_t mq_one;
 extern aIO_handle_t mq_two;
 extern TaskHandle_t MQDemoTask;
 
-int createMessageQueueTasks(void);
-void deleteSocketTasks(void);
-void deleteMessageQueueTasks(void);
+/// @brief Creates the demo message queue task found in async_message_queues.h
+/// @param void
+/// @return 0 on success
+int xCreateMessageQueueTasks(void);
+
+/// @brief Deletes the demo message queue task found in async_message_queues.h
+/// @param void
+void vDeleteMessageQueueTasks(void);
 
 #endif //__ASYNC_MESSAGE_QUEUES_H__

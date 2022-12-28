@@ -8,11 +8,11 @@
 #include "defines.h"
 #include "main.h"
 #include "demo_tasks.h"
-#include "draw.h"
 #include "async_message_queues.h"
 #include "async_sockets.h"
 #include "buttons.h"
 #include "state_machine.h"
+#include "draw.h"
 
 TaskHandle_t DemoTask1 = NULL;
 TaskHandle_t DemoTask2 = NULL;
@@ -45,11 +45,11 @@ void vDemoTask1(void *pvParameters)
                 pdTRUE) {
                 tumEventFetchEvents(FETCH_EVENT_BLOCK |
                                     FETCH_EVENT_NO_GL_CHECK);
-                xGetButtonInput(); // Update global input
+                vGetButtonInput(); // Update global input
 
                 vDrawClearScreen();
                 vDrawStaticItems();
-                vDrawCave(tumEventGetMouseLeft());
+                vDrawMouseBallAndBoundingBox(tumEventGetMouseLeft());
                 vDrawButtonText();
                 vDrawSpriteAnnimations(xLastFrameTime);
 
@@ -64,7 +64,7 @@ void vDemoTask1(void *pvParameters)
     }
 }
 
-void playBallSound(void *args)
+void vPlayBallSound(void *args)
 {
     tumSoundPlaySample(a3);
 }
@@ -72,9 +72,9 @@ void playBallSound(void *args)
 void vResetBall(void)
 {
     if (xSemaphoreTake(my_ball.lock, portMAX_DELAY) == pdTRUE) {
-        setBallSpeed(my_ball.ball, 100, 100, 0, SET_BALL_SPEED_AXES);
-        setBallLocation(my_ball.ball, SCREEN_WIDTH / 2,
-                        SCREEN_HEIGHT / 2);
+        vSetBallSpeed(my_ball.ball, 100, 100, 0, SET_BALL_SPEED_AXES);
+        vSetBallLocation(my_ball.ball, SCREEN_WIDTH / 2,
+                         SCREEN_HEIGHT / 2);
         xSemaphoreGive(my_ball.lock);
     }
 }
@@ -84,8 +84,8 @@ void vStateTwoInit(void)
     my_ball.lock = xSemaphoreCreateMutex();
     if (xSemaphoreTake(my_ball.lock, portMAX_DELAY) == pdTRUE) {
         my_ball.ball =
-            createBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, Black,
-                       20, 1000, &playBallSound, NULL, NULL);
+            pCreateBall(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, Black,
+                        20, 1000, &vPlayBallSound, NULL, NULL);
         xSemaphoreGive(my_ball.lock);
         vResetBall();
     }
@@ -118,7 +118,7 @@ void vDemoTask2(void *pvParameters)
                 pdTRUE) {
                 xLastWakeTime = xTaskGetTickCount();
 
-                xGetButtonInput(); // Update global button data
+                vGetButtonInput(); // Update global button data
 
                 vDrawClearScreen();
                 vDrawStaticItems();
@@ -128,14 +128,14 @@ void vDemoTask2(void *pvParameters)
                 if (xSemaphoreTake(my_ball.lock,
                                    portMAX_DELAY) == pdTRUE) {
                     // Check if ball has made a collision
-                    if (checkBallCollisions(my_ball.ball,
-                                            NULL, NULL)) {
+                    if (sCheckBallCollisions(my_ball.ball,
+                                             NULL, NULL)) {
                         prints("Collision\n");
                     }
 
                     // Update the balls position now that possible collisions have
                     // updated its speeds
-                    updateBallPosition(
+                    vUpdateBallPosition(
                         my_ball.ball,
                         xLastWakeTime - prevWakeTime);
 
@@ -187,7 +187,7 @@ void vDemoSendTask(void *pvParameters)
     }
 }
 
-int createDemoTasks(void)
+int xCreateDemoTasks(void)
 {
     if (xTaskCreate(vDemoTask1, "DemoTask1", mainGENERIC_STACK_SIZE * 2,
                     NULL, mainGENERIC_PRIORITY + 1, &DemoTask1) != pdPASS) {
@@ -220,7 +220,7 @@ err_task1:
     return -1;
 }
 
-void deleteDemoTasks(void)
+void vDeleteDemoTasks(void)
 {
     if (DemoTask1) {
         vTaskDelete(DemoTask1);

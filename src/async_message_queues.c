@@ -43,7 +43,7 @@ void vMQDemoTask(void *pvParameters)
     }
 }
 
-int createMessageQueueTasks(void)
+int xCreateMessageQueueTasks(void)
 {
     if (xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
                     configMAX_PRIORITIES - 1, &MQDemoTask) != pdPASS) {
@@ -53,7 +53,7 @@ int createMessageQueueTasks(void)
     return 0;
 }
 
-void deleteMessageQueueTasks(void)
+void vDeleteMessageQueueTasks(void)
 {
     vTaskDelete(MQDemoTask);
 }

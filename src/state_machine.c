@@ -14,7 +14,7 @@ int vCheckStateInput(void)
         if (buttons.buttons[KEYCODE(C)]) {
             buttons.buttons[KEYCODE(C)] = 0;
             xSemaphoreGive(buttons.lock);
-            states_increment_state();
+            xStatesIncrementState();
             return 0;
         }
         xSemaphoreGive(buttons.lock);
@@ -26,23 +26,23 @@ int vCheckStateInput(void)
 void vStateMachineTask(void *pvParameters)
 {
     while (1) {
-        states_run();
+        uStatesRun();
         vTaskDelay(pdMS_TO_TICKS(STATE_MACHINE_PERIOD));
     }
 }
 
-int StateMachineInit(void)
+int xStateMachineInit(void)
 {
-    if (states_init()) {
+    if (uStatesInit()) {
         return -1;
     }
 
-    if (states_add(NULL, vStateOneEnter, NULL, vStateOneExit, STATE_ONE,
+    if (xStatesAdd(NULL, vStateOneEnter, NULL, vStateOneExit, STATE_ONE,
                    "State One")) {
         return -1;
     }
 
-    if (states_add(vStateTwoInit, vStateTwoEnter, NULL, vStateTwoExit, STATE_TWO,
+    if (xStatesAdd(vStateTwoInit, vStateTwoEnter, NULL, vStateTwoExit, STATE_TWO,
                    "State Two")) {
         return -1;
     }
