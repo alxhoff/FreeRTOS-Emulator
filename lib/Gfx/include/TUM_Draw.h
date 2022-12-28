@@ -182,8 +182,6 @@ int tumDrawBindThread(void);
 
 /**
  * @brief Exits the TUM Draw backend
- *
- * @return NULL always returns NULL
  */
 void tumDrawExit(void);
 
@@ -477,7 +475,8 @@ int tumDrawImage(char *filename, signed short x, signed short y);
  * @param sprite_rows Number of rows on the sprite sheet
  * @return 0 on success
  */
-spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img, unsigned sprite_cols,
+spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img,
+        unsigned sprite_cols,
         unsigned sprite_rows);
 
 /**
@@ -559,10 +558,10 @@ animation_handle_t tumDrawAnimationCreate(spritesheet_handle_t spritesheet);
  * @param frames The number of sprite frames that make up the animation
  * @return 0 on success
  */
-int tumDrawAnimationAddSequence(animation_handle_t animation, char *name,
-                                unsigned start_row, unsigned start_col,
-                                enum sprite_sequence_direction sprite_step_direction,
-                                unsigned frames);
+int tumDrawAnimationAddSequence(
+    animation_handle_t animation, char *name, unsigned start_row,
+    unsigned start_col,
+    enum sprite_sequence_direction sprite_step_direction, unsigned frames);
 /**
  * @brief Creates an instance of an animation from a loaded animation object
  * and a sequence name of a sequence previously added to the animation object
@@ -574,8 +573,10 @@ int tumDrawAnimationAddSequence(animation_handle_t animation, char *name,
  * between sprite frames
  * @return A handle to the instantiated animation sequence, NULL otherwise
  */
-sequence_handle_t tumDrawAnimationSequenceInstantiate(animation_handle_t animation,
-        char *sequence_name, unsigned frame_period_ms);
+sequence_handle_t
+tumDrawAnimationSequenceInstantiate(animation_handle_t animation,
+                                    char *sequence_name,
+                                    unsigned frame_period_ms);
 
 /**
  * @brief Draws the target intantiated animation sequence at a given location

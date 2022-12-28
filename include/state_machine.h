@@ -24,6 +24,6 @@ void vStateMachineTask(void *pvParameters);
 
 /// @brief Initialized the states for the state machine
 /// @return 0 on success
-int StateMachineInit(void);
+int xStateMachineInit(void);
 
 #endif // __STATE_MACHINE_H__

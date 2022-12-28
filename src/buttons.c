@@ -6,7 +6,7 @@
 
 buttons_buffer_t buttons = { 0 };
 
-void xGetButtonInput(void)
+void vGetButtonInput(void)
 {
     if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
         xQueueReceive(buttonInputQueue, &buttons.buttons, 0);
@@ -14,7 +14,7 @@ void xGetButtonInput(void)
     }
 }
 
-int buttonsInit(void)
+int xButtonsInit(void)
 {
     buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
     if (!buttons.lock) {
@@ -25,7 +25,7 @@ int buttonsInit(void)
     return 0;
 }
 
-void buttonsExit(void)
+void vButtonsExit(void)
 {
     vSemaphoreDelete(buttons.lock);
 }

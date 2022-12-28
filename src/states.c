@@ -80,7 +80,7 @@ typedef struct state_machine {
 
 state_machine_t state_machine_dev = { 0 };
 
-void states_set_callback(void (*callback)(void))
+void vStatesSetCallback(void (*callback)(void))
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -90,7 +90,7 @@ void states_set_callback(void (*callback)(void))
         }
 }
 
-void states_set_data(void *data)
+void vStatesSetData(void *data)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -103,7 +103,7 @@ void states_set_data(void *data)
         }
 }
 
-unsigned char states_set_state(unsigned int state_id)
+unsigned char uStatesSetState(unsigned int state_id)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -124,7 +124,7 @@ unsigned char states_set_state(unsigned int state_id)
     return -1;
 }
 
-void *states_get_data(void)
+void *pStatesGetData(void)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -136,7 +136,7 @@ void *states_get_data(void)
     return NULL;
 }
 
-char *states_get_state_name(void)
+char *pStatesGetStateName(void)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -149,7 +149,7 @@ char *states_get_state_name(void)
     return NULL;
 }
 
-int states_get_state_id(void)
+int xStatesGetStateID(void)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -161,7 +161,7 @@ int states_get_state_id(void)
     return -1;
 }
 
-int states_get_state_count(void)
+int xStatesGetStateCount(void)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -173,7 +173,7 @@ int states_get_state_count(void)
     return -1;
 }
 
-int states_increment_state(void)
+int xStatesIncrementState(void)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -202,7 +202,7 @@ int states_increment_state(void)
     return -1;
 }
 
-int states_decrement_state(void)
+int xStatesDecrementState(void)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) ==
@@ -232,7 +232,7 @@ int states_decrement_state(void)
     return -1;
 }
 
-unsigned char states_run(void)
+unsigned char uStatesRun(void)
 {
     if (state_machine_dev.lock)
         if (xSemaphoreTake(state_machine_dev.lock, portMAX_DELAY) !=
@@ -283,7 +283,7 @@ init_next:
     return 0;
 }
 
-int states_add(void (*probe)(void), void (*enter)(void), void (*run)(void),
+int xStatesAdd(void (*probe)(void), void (*enter)(void), void (*run)(void),
                void (*exit)(void), int ID, char *name)
 {
     state_t *ret = calloc(1, sizeof(state_t));
@@ -312,7 +312,7 @@ int states_add(void (*probe)(void), void (*enter)(void), void (*run)(void),
 
     // Check if LL has been init'd
     if (state_machine_dev.states.next == NULL)
-        if (states_init()) {
+        if (uStatesInit()) {
             goto err_statesinit;
         }
 
@@ -344,7 +344,7 @@ err_statesinit:
     return -1;
 }
 
-unsigned char states_init(void)
+unsigned char uStatesInit(void)
 {
     state_machine_dev.lock = xSemaphoreCreateMutex();
 

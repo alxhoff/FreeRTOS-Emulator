@@ -21,7 +21,6 @@
 #include "demo_tasks.h"
 #include "async_sockets.h"
 #include "async_message_queues.h"
-#include "draw.h"
 #include "buttons.h"
 
 
@@ -91,13 +90,12 @@ int main(int argc, char *argv[])
         goto err_init_safe_print;
     }
 
-
     atexit(aIODeinit);
 
     //Load a second font for fun
     tumFontLoadFont(FPS_FONT, DEFAULT_FONT_SIZE);
 
-    if (buttonsInit()) {
+    if (xButtonsInit()) {
         PRINT_ERROR("Failed to init buttons");
         goto err_buttons_lock;
     }
@@ -123,22 +121,22 @@ int main(int argc, char *argv[])
     }
 
     /** Demo Tasks */
-    if (createDemoTasks()) {
+    if (xCreateDemoTasks()) {
         goto err_demotasks;
     }
 
     /** SOCKETS */
-    if (createSocketTasks()) {
+    if (xCreateSocketTasks()) {
         goto err_sockettasks;
     }
 
     /** POSIX MESSAGE QUEUES */
-    if (createMessageQueueTasks()) {
+    if (xCreateMessageQueueTasks()) {
         goto err_messagequeuetasks;
     }
 
     /** State Machine */
-    if (StateMachineInit()) {
+    if (xStateMachineInit()) {
         goto err_statemachine;
     }
 
@@ -149,11 +147,11 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 
 err_statemachine:
-    deleteMessageQueueTasks();
+    vDeleteMessageQueueTasks();
 err_messagequeuetasks:
-    deleteSocketTasks();
+    vDeleteSocketTasks();
 err_sockettasks:
-    deleteDemoTasks();
+    vDeleteDemoTasks();
 err_demotasks:
     vTaskDelete(BufferSwap);
 err_bufferswap:
@@ -161,7 +159,7 @@ err_bufferswap:
 err_statemachinetask:
     vSemaphoreDelete(DrawSignal);
 err_draw_signal:
-    buttonsExit();
+    vButtonsExit();
 err_buttons_lock:
     tumSoundExit();
 err_init_audio:
