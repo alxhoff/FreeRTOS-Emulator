@@ -49,7 +49,8 @@ void vDemoTask1(void *pvParameters)
 
                 vDrawClearScreen();
                 vDrawStaticItems();
-                vDrawMouseBallAndBoundingBox(tumEventGetMouseLeft());
+                vDrawMouseBallAndBoundingBox(
+                    tumEventGetMouseLeft());
                 vDrawButtonText();
                 vDrawSpriteAnnimations(xLastFrameTime);
 
@@ -161,8 +162,35 @@ void vDemoTask2(void *pvParameters)
 void vDemoSendTask(void *pvParameters)
 {
     static char *test_str_1 = "UDP test 1";
-    static char *test_str_2 = "UDP test 2";
-    static char *test_str_3 = "TCP test";
+
+    struct __attribute__((__packed__)) my_item {
+        char populated;
+        char x;
+        char y;
+    };
+
+    // Attribute packed will guarentee that the compiler
+    // doesnt pad the struct to align members with address
+    // doundaries. Explination can be found here
+    // https://stackoverflow.com/questions/4306186/structure-padding-and-packing
+    struct __attribute__((__packed__)) my_struct {
+        int my_int;
+        char my_string[10];
+        struct common_struct my_common_struct;
+        struct my_item my_items[3];
+    };
+
+    struct my_struct test_struct = {
+        .my_int = 85,
+        .my_string = "testing",
+        .my_common_struct = {.first_int = 420, .second_int = 100},
+        .my_items = { { .populated = 1, .x = 10, .y = 15 },
+            { .populated = 1, .x = 50, .y = 100 },
+            { .populated = 0 }
+        }
+    };
+
+    static char *test_str_2 = "TCP test";
 
     while (1) {
         prints("*****TICK******\n");
@@ -177,11 +205,11 @@ void vDemoSendTask(void *pvParameters)
             aIOSocketPut(UDP, NULL, UDP_TEST_PORT_1, test_str_1,
                          strlen(test_str_1));
         if (udp_soc_two)
-            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2, test_str_2,
-                         strlen(test_str_2));
+            aIOSocketPut(UDP, NULL, UDP_TEST_PORT_2, &test_struct,
+                         sizeof(test_struct));
         if (tcp_soc)
-            aIOSocketPut(TCP, NULL, TCP_TEST_PORT, test_str_3,
-                         strlen(test_str_3));
+            aIOSocketPut(TCP, NULL, TCP_TEST_PORT, test_str_2,
+                         strlen(test_str_2));
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
