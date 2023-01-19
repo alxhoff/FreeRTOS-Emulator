@@ -8,6 +8,11 @@ extern TaskHandle_t DemoTask1;
 extern TaskHandle_t DemoTask2;
 extern TaskHandle_t DemoSendTask;
 
+struct __attribute__((__packed__)) common_struct {
+    int first_int;
+    int second_int;
+};
+
 /// @brief Creates the demo tasks found in demo_tasks.c
 /// @param void
 /// @return 0 on success
