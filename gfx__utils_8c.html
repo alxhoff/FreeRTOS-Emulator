@@ -98,22 +98,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Utilities required by other gfx_XXX files.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;sys/syscall.h&gt;</code><br />
-<code>#include &lt;unistd.h&gt;</code><br />
-<code>#include &lt;sys/types.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;assert.h&gt;</code><br />
+<code>#include &lt;dirent.h&gt;</code><br />
+<code>#include &lt;libgen.h&gt;</code><br />
 <code>#include &lt;pthread.h&gt;</code><br />
 <code>#include &lt;regex.h&gt;</code><br />
-<code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
-<code>#include &lt;libgen.h&gt;</code><br />
-<code>#include &lt;assert.h&gt;</code><br />
-<code>#include &lt;dirent.h&gt;</code><br />
-<code>#include &quot;<a class="el" href="gfx__utils_8h_source.html">gfx_utils.h</a>&quot;</code><br />
+<code>#include &lt;sys/syscall.h&gt;</code><br />
+<code>#include &lt;sys/types.h&gt;</code><br />
+<code>#include &lt;unistd.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="gfx__print_8h_source.html">gfx_print.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="gfx__utils_8h_source.html">gfx_utils.h</a>&quot;</code><br />
 <code>#include &quot;EmulatorConfig.h&quot;</code><br />
 <code>#include &lt;stdatomic.h&gt;</code><br />
-<code>#include &quot;utils.h&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -124,7 +123,7 @@ Classes</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:a369266c24eacffb87046522897a570d5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gfx__utils_8c.html#a369266c24eacffb87046522897a570d5">_GNU_SOURCE</a></td></tr>
 <tr class="separator:a369266c24eacffb87046522897a570d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae0e9a8585a9a2feac2b0652b5bf895a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gfx__utils_8c.html#aae0e9a8585a9a2feac2b0652b5bf895a">CAST_RBUF</a>(rbuf)&#160;&#160;&#160;((struct <a class="el" href="structring__buf.html">ring_buf</a> *)rbuf)</td></tr>
+<tr class="memitem:aae0e9a8585a9a2feac2b0652b5bf895a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gfx__utils_8c.html#aae0e9a8585a9a2feac2b0652b5bf895a">CAST_RBUF</a>(rbuf)&#160;&#160;&#160;((struct <a class="el" href="structring__buf.html">ring_buf</a>*)rbuf)</td></tr>
 <tr class="separator:aae0e9a8585a9a2feac2b0652b5bf895a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46cba92ac4f87966b3a557c19558effc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gfx__utils_8c.html#a46cba92ac4f87966b3a557c19558effc">INCLUDE_DIR_NAMES</a>&#160;&#160;&#160;0b1</td></tr>
 <tr class="separator:a46cba92ac4f87966b3a557c19558effc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -231,7 +230,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">rbuf</td><td>)</td>
-          <td>&#160;&#160;&#160;((struct <a class="el" href="structring__buf.html">ring_buf</a> *)rbuf)</td>
+          <td>&#160;&#160;&#160;((struct <a class="el" href="structring__buf.html">ring_buf</a>*)rbuf)</td>
         </tr>
       </table>
 </div><div class="memdoc">
