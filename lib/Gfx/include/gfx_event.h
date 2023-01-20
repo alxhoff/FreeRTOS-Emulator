@@ -1,8 +1,8 @@
 /**
- * @file TUM_Event.h
+ * @file gfx_event.h
  * @author Alex Hoffman
  * @date 27 August 2019
- * @brief Utilities required by other TUM_XXX files
+ * @brief Utilities required by other gfx_XXX files
  *
  * @verbatim
  ----------------------------------------------------------------------
@@ -21,20 +21,20 @@
  @endverbatim
  */
 
-#ifndef __TUM_EVENT_H__
-#define __TUM_EVENT_H__
+#ifndef __GFX_EVENT_H__
+#define __GFX_EVENT_H__
 
 #include "FreeRTOS.h"
 #include "queue.h"
 
 /**
- * @defgroup tum_event TUM Event API
+ * @defgroup gfx_event GFX Event API
  *
  * @brief Keyboard and mouse event retrieval API
  *
  * API to retrieve event's from the backend SDL library. Events are the movement
  * of the mouse and keypresses. Mouse coordinates are exposed through
- * @ref tumEventGetMouseX and @ref tumEventGetMouseY while keypress events are received by
+ * @ref gfxEventGetMouseX and @ref gfxEventGetMouseY while keypress events are received by
  * retriving the most recent copy of the button status lookup table exposed
  * through the FreeRTOS queue @ref buttonInputQueue.
  *
@@ -47,59 +47,59 @@
  */
 
 /**
- * @brief Initializes the TUM Event backend
+ * @brief Initializes the GFX Event backend
  *
  * @return 0 on success
  */
-int tumEventInit(void);
+int gfxEventInit(void);
 
 /**
- * @brief Deinitializes the TUM Event backend
+ * @brief Deinitializes the GFX Event backend
  */
-void tumEventExit(void);
+void gfxEventExit(void);
 
 /**
  * @brief Returns a copy of the mouse's most recent X coord (in pixels)
  *
  * @return signed short X axis pixel location of the mouse
  */
-signed short tumEventGetMouseX(void);
+signed short gfxEventGetMouseX(void);
 
 /**
  * @brief Returns a copy of the mouse's most recent Y coord (in pixels)
  *
  * @return signed short Y axis pixel location of the mouse
  */
-signed short tumEventGetMouseY(void);
+signed short gfxEventGetMouseY(void);
 
 /**
  * @brief Returns a copy of the mouse's left button status
  *
  * @return Either 1 for pressed or 0 for not pressed.
  */
-signed char tumEventGetMouseLeft(void);
+signed char gfxEventGetMouseLeft(void);
 
 /**
  * @brief Returns a copy of the mouse's right button status
  *
  * @return Either 1 for pressed or 0 for not pressed.
  */
-signed char tumEventGetMouseRight(void);
+signed char gfxEventGetMouseRight(void);
 
 /**
  * @brief Returns a copy of the mouse's middle button status
  *
  * @return Either 1 for pressed or 0 for not pressed.
  */
-signed char tumEventGetMouseMiddle(void);
+signed char gfxEventGetMouseMiddle(void);
 
 /**
  * @name Event fetching flags
  *
- * @brief Flags for tumEventFetchEvents()
+ * @brief Flags for gfxEventFetchEvents()
  *
  * Fetching of SDL events can be done in a block, nonblocking as well as GL
- * context checking fashion. See tumEventFetchEvents() for more details.
+ * context checking fashion. See gfxEventFetchEvents() for more details.
  *
  * @{
  */
@@ -126,7 +126,7 @@ signed char tumEventGetMouseMiddle(void);
  * result in nonblocking behaviour.
  *
  * Events ideally should only be fetched from threads that holds the GL context,
- * obtained using tumDrawBindThread(). Binding a thread has a large overhead and should
+ * obtained using gfxDrawBindThread(). Binding a thread has a large overhead and should
  * be avoided. It is unsure if this is absolutly necessary and as such
  * if you would like to fetch events in a non-context holding thread, pass the
  * flag FETCH_EVENT_NO_GL_CHECK to skip this check.
@@ -134,13 +134,13 @@ signed char tumEventGetMouseMiddle(void);
  * Multiple flags can be used in a 'OR' fashion,
  *
  * eg.
- * @verbatim tumEventFetchEvents(FETCH_EVENT_NONBLOCK | FETCH_EVENT_NO_GL_CHECK)@endverbatim
+ * @verbatim gfxEventFetchEvents(FETCH_EVENT_NONBLOCK | FETCH_EVENT_NO_GL_CHECK)@endverbatim
  *
  * @param flags Flags specifying the bahaviour of the function. See FETCH_EVENT_BLOCK,
  * FETCH_EVENT_NONBLOCK and FETCH_EVENT_NO_GL_CHECK
  * @return 0 on success.
  */
-int tumEventFetchEvents(int flags);
+int gfxEventFetchEvents(int flags);
 
 /*!<
  * @brief FreeRTOS queue used to obtain a current copy of the keyboard lookup table

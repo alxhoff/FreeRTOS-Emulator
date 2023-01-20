@@ -1,5 +1,5 @@
 /**
- * @file TUM_FreeRTOS_Utils.c
+ * @file gfx_FreeRTOS_utils.c
  * @author Alex Hoffman
  * @date 24 August 2020
  * @brief Small verbose utilities for showing FreeRTOS functionality
@@ -29,7 +29,7 @@
 
 #define STATE_LIST_HEADER ("NAME         STATE   PRIORITY  STACK   NUM\n")
 
-void tumFUtilPrintTaskStateList(void)
+void gfxFUtilPrintTaskStateList(void)
 {
     UBaseType_t num_tasks = uxTaskGetNumberOfTasks();
     if (!(int)num_tasks) {
@@ -52,7 +52,7 @@ void tumFUtilPrintTaskStateList(void)
 
 #define UTIL_LIST_HEADER ("NAME              RUN TIME  \%\n")
 
-void tumFUtilPrintTaskUtils(void)
+void gfxFUtilPrintTaskUtils(void)
 {
     char *buff = (char *)pvPortMalloc(sizeof(char) * 2000);
     if (buff == NULL) {

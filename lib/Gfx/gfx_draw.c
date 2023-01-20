@@ -1,5 +1,5 @@
 /**
- * @file TUM_Draw.c
+ * @file gfx_draw.c
  * @author Alex Hoffman
  * @date 27 August 2019
  * @brief A SDL2 based library to implement work queue based drawing of graphical
@@ -32,10 +32,10 @@
 
 #include <pthread.h>
 
-#include "TUM_Draw.h"
-#include "TUM_Font.h"
-#include "TUM_Utils.h"
-#include "TUM_Print.h"
+#include "gfx_draw.h"
+#include "gfx_font.h"
+#include "gfx_utils.h"
+#include "gfx_print.h"
 
 #define ONE_BYTE 8
 #define TWO_BYTES 16
@@ -268,7 +268,7 @@ SDL_GLContext context = NULL;
 
 char *error_message = NULL;
 
-static uint32_t SwapBytes(unsigned int x)
+static uint32_t swapBytes(unsigned int x)
 {
     return ((x & FIRST_BYTE) << THREE_BYTES) +
            ((x & SECOND_BYTE) << ONE_BYTE) +
@@ -276,7 +276,7 @@ static uint32_t SwapBytes(unsigned int x)
            ((x & FOURTH_BYTE) >> THREE_BYTES);
 }
 
-void setErrorMessage(char *msg)
+void _setErrorMessage(char *msg)
 {
     if (error_message) {
         free(error_message);
@@ -293,7 +293,7 @@ void setErrorMessage(char *msg)
     PRINT_ERROR("[SDL Error] %s\n" #msg, (char *)SDL_GetError(),           \
                 ##__VA_ARGS__)
 
-static draw_job_t *pushDrawJob(void)
+static draw_job_t *_pushDrawJob(void)
 {
     draw_job_t *iterator;
     draw_job_t *job = calloc(1, sizeof(draw_job_t));
@@ -314,7 +314,7 @@ static draw_job_t *pushDrawJob(void)
     return job;
 }
 
-static int waitingDrawJobs(void)
+static int _waitingDrawJobs(void)
 {
     int ret = 1;
 
@@ -363,7 +363,7 @@ static int _drawRectangle(signed short x, signed short y, signed short w,
                           signed short h, unsigned int colour)
 {
     rectangleColor(renderer, x + w, y, x, y + h,
-                   SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+                   swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -372,7 +372,7 @@ static int _drawFilledRectangle(signed short x, signed short y, signed short w,
                                 signed short h, unsigned int colour)
 {
     boxColor(renderer, x + w, y, x, y + h,
-             SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+             swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -381,7 +381,7 @@ static int _drawArc(signed short x, signed short y, signed short radius,
                     signed short start, signed short end, unsigned int colour)
 {
     arcColor(renderer, x, y, radius, start, end,
-             SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+             swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -390,7 +390,7 @@ static int _drawEllipse(signed short x, signed short y, signed short rx,
                         signed short ry, unsigned int colour)
 {
     ellipseColor(renderer, x, y, rx, ry,
-                 SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+                 swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -399,7 +399,7 @@ static int _drawCircle(signed short x, signed short y, signed short radius,
                        unsigned int colour)
 {
     filledCircleColor(renderer, x, y, radius,
-                      SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+                      swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -409,7 +409,7 @@ static int _drawLine(signed short x1, signed short y1, signed short x2,
                      unsigned int colour)
 {
     thickLineColor(renderer, x1, y1, x2, y2, thickness,
-                   SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+                   swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
@@ -427,7 +427,7 @@ static int _drawPoly(coord_t *points, unsigned int n, int x_offset,
     }
 
     polygonColor(renderer, x_coords, y_coords, n,
-                 SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+                 swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     free(x_coords);
     free(y_coords);
@@ -442,15 +442,15 @@ static int _drawTriangle(coord_t *points, int x_offset, int y_offset,
                       points[0].y + y_offset, points[1].x + x_offset,
                       points[1].y + y_offset, points[2].x + x_offset,
                       points[2].y + y_offset,
-                      SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
+                      swapBytes((colour << ONE_BYTE) | ALPHA_SOLID));
 
     return 0;
 }
 
-static SDL_Texture *loadImage(char *filename, SDL_Renderer *ren)
+static SDL_Texture *_loadImage(char *filename, SDL_Renderer *ren)
 {
     SDL_Texture *tex =
-        IMG_LoadTexture(ren, tumUtilFindResourcePath(filename));
+        IMG_LoadTexture(ren, gfxUtilFindResourcePath(filename));
 
     return tex;
 }
@@ -484,7 +484,7 @@ static int _renderScaledImage(SDL_Texture *tex, SDL_Renderer *ren,
 
 static int _getImageSize(char *filename, int *w, int *h)
 {
-    SDL_Texture *tex = loadImage(filename, renderer);
+    SDL_Texture *tex = _loadImage(filename, renderer);
     if (tex == NULL) {
         return -1;
     }
@@ -494,7 +494,7 @@ static int _getImageSize(char *filename, int *w, int *h)
     return 0;
 }
 
-animation_handle_t tumDrawAnimationCreate(spritesheet_handle_t spritesheet)
+gfx_animation_handle_t gfxDrawAnimationCreate(gfx_spritesheet_handle_t spritesheet)
 {
     if (spritesheet == NULL) {
         PRINT_ERROR("Creating animation requires a valid spritesheet");
@@ -510,14 +510,14 @@ animation_handle_t tumDrawAnimationCreate(spritesheet_handle_t spritesheet)
 
     ret->spritesheet = spritesheet;
 
-    return (animation_handle_t)ret;
+    return (gfx_animation_handle_t)ret;
 
 err:
     return NULL;
 }
 
-int tumDrawAnimationAddSequence(
-    animation_handle_t animation, char *name, unsigned start_row,
+int gfxDrawAnimationAddSequence(
+    gfx_animation_handle_t animation, char *name, unsigned start_row,
     unsigned start_col,
     enum sprite_sequence_direction sprite_step_direction, unsigned frames)
 {
@@ -569,8 +569,8 @@ err:
     return -1;
 }
 
-sequence_handle_t
-tumDrawAnimationSequenceInstantiate(animation_handle_t animation,
+gfx_sequence_handle_t
+gfxDrawAnimationSequenceInstantiate(gfx_animation_handle_t animation,
                                     char *sequence_name,
                                     unsigned frame_period_ms)
 {
@@ -661,7 +661,7 @@ static int freeLoadedImage(loaded_image_t **img)
     return ret;
 }
 
-static void vPutLoadedImage(image_handle_t img)
+static void vPutLoadedImage(gfx_image_handle_t img)
 {
     loaded_image_t *loaded_img = (loaded_image_t *)img;
 
@@ -718,7 +718,7 @@ static int _drawText(char *string, signed short x, signed short y,
                         BLUE_PORTION(colour), ZERO_ALPHA
                       };
     SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
-    tumFontPutFont(font);
+    gfxFontPutFont(font);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_Rect dst = { 0 };
     SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
@@ -734,9 +734,9 @@ static int _drawText(char *string, signed short x, signed short y,
 static int _getTextSize(char *string, int *width, int *height)
 {
     SDL_Color color = { 0 };
-    TTF_Font *font = tumFontGetCurFont();
+    TTF_Font *font = gfxFontGetCurFont();
     SDL_Surface *surface = TTF_RenderText_Solid(font, string, color);
-    tumFontPutFont(font);
+    gfxFontPutFont(font);
     if (surface == NULL) {
         goto err_surface;
     }
@@ -787,15 +787,15 @@ static int _drawArrow(signed short x1, signed short y1, signed short x2,
         roundf(y2 - unit_dy * head_length - unit_dx * head_length);
 
     if (thickLineColor(renderer, x1, y1, x2, y2, thickness,
-                       SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
+                       swapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
         return -1;
     }
     if (thickLineColor(renderer, head_x1, head_y1, x2, y2, thickness,
-                       SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
+                       swapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
         return -1;
     }
     if (thickLineColor(renderer, head_x2, head_y2, x2, y2, thickness,
-                       SwapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
+                       swapBytes((colour << ONE_BYTE) | ALPHA_SOLID))) {
         return -1;
     }
 
@@ -883,7 +883,7 @@ static int vHandleDrawJob(draw_job_t *job)
             break;
         case DRAW_IMAGE:
             job->data->image.tex =
-                loadImage(job->data->image.filename, renderer);
+                _loadImage(job->data->image.filename, renderer);
             ret = _drawImage(job->data->image.tex, renderer,
                              job->data->image.x + x_offset,
                              job->data->image.y + y_offset);
@@ -906,7 +906,7 @@ static int vHandleDrawJob(draw_job_t *job)
             vPutLoadedImage(job->data->loaded_image_crop.image);
             break;
         case DRAW_SCALED_IMAGE:
-            job->data->scaled_image.image.tex = loadImage(
+            job->data->scaled_image.image.tex = _loadImage(
                                                     job->data->scaled_image.image.filename, renderer);
             ret = _drawScaledImage(
                       job->data->scaled_image.image.tex, renderer,
@@ -932,7 +932,7 @@ static int vHandleDrawJob(draw_job_t *job)
 }
 
 #define INIT_JOB(JOB, TYPE)                                                    \
-    draw_job_t *JOB = pushDrawJob();                                       \
+    draw_job_t *JOB = _pushDrawJob();                                       \
     if (!JOB)                                                              \
         return -1;                                                     \
     union data_u *data = calloc(1, sizeof(union data_u));                  \
@@ -971,11 +971,11 @@ static float timespecDiffMilli(struct timespec *start, struct timespec *stop)
 #define FRAMELIMIT_PERIOD 1000.0 / FRAMELIMIT
 #endif //configFPS_LIMIT
 
-int tumDrawUpdateScreen(void)
+int gfxDrawUpdateScreen(void)
 {
-    tumDrawBindThread(); // Setup Rendering handle with correct GL context
+    gfxDrawBindThread(); // Setup Rendering handle with correct GL context
 
-    if (!tumUtilIsCurGLThread()) {
+    if (!gfxUtilIsCurGLThread()) {
         PRINT_ERROR(
             "Updating screen from thread that does not hold GL context");
         goto err;
@@ -997,7 +997,7 @@ int tumDrawUpdateScreen(void)
     memcpy(&last_time, &cur_time, sizeof(struct timespec));
 #endif //configFPS_LIMIT
 
-    if (!waitingDrawJobs()) {
+    if (!_waitingDrawJobs()) {
         goto no_jobs;
     }
 
@@ -1029,12 +1029,12 @@ no_jobs:
     return 0;
 }
 
-char *tumGetErrorMessage(void)
+char *gfxGetErrorMessage(void)
 {
     return error_message;
 }
 
-int tumDrawInit(char *path) // Should be called from the Thread running main()
+int gfxDrawInit(char *path) // Should be called from the Thread running main()
 {
     /* Relevant for Docker-based toolchain */
 #ifdef DOCKER
@@ -1062,9 +1062,9 @@ int tumDrawInit(char *path) // Should be called from the Thread running main()
         goto err_ttf;
     }
 
-    if (tumFontInit(path)) {
-        PRINT_ERROR("TUM Font init failed");
-        goto err_tum_font;
+    if (gfxFontInit(path)) {
+        PRINT_ERROR("GFX Font init failed");
+        goto err_gfx_font;
     }
 
     window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED,
@@ -1094,7 +1094,7 @@ int tumDrawInit(char *path) // Should be called from the Thread running main()
         goto err_make_current;
     }
 
-    tumDrawBindThread();
+    gfxDrawBindThread();
 
     atexit(SDL_Quit);
 
@@ -1105,8 +1105,8 @@ err_make_current:
 err_create_context:
     SDL_DestroyWindow(window);
 err_window:
-    tumFontExit();
-err_tum_font:
+    gfxFontExit();
+err_gfx_font:
     TTF_Quit();
 err_ttf:
     SDL_Quit();
@@ -1114,9 +1114,9 @@ err_sdl:
     return -1;
 }
 
-int tumDrawBindThread(void) // Should be called from the Drawing Thread
+int gfxDrawBindThread(void) // Should be called from the Drawing Thread
 {
-    if (!tumUtilIsCurGLThread() || !renderer) {
+    if (!gfxUtilIsCurGLThread() || !renderer) {
         if (SDL_GL_MakeCurrent(window, context) < 0) {
             PRINT_SDL_ERROR("Releasing current context failed");
             goto err_make_current;
@@ -1155,7 +1155,7 @@ int tumDrawBindThread(void) // Should be called from the Drawing Thread
 
         pthread_mutex_unlock(&loaded_images_lock);
 
-        tumUtilSetGLThread();
+        gfxUtilSetGLThread();
     }
 
     return 0;
@@ -1169,7 +1169,7 @@ err_make_current:
     return -1;
 }
 
-void tumDrawExit(void)
+void gfxDrawExit(void)
 {
     if (window) {
         SDL_DestroyWindow(window);
@@ -1185,7 +1185,7 @@ void tumDrawExit(void)
     exit(EXIT_SUCCESS);
 }
 
-int tumDrawText(char *str, signed short x, signed short y, unsigned int colour)
+int gfxDrawText(char *str, signed short x, signed short y, unsigned int colour)
 {
     if (strcmp(str, "") == 0) {
         return -1;
@@ -1196,12 +1196,12 @@ int tumDrawText(char *str, signed short x, signed short y, unsigned int colour)
     job->data->text.str = (char *)calloc(strlen(str) + 1, sizeof(char));
 
     if (job->data->text.str == NULL) {
-        printf("Error allocating buffer in tumDrawText\n");
+        printf("Error allocating buffer in gfxDrawText\n");
         return -1;
     }
 
     strcpy(job->data->text.str, str);
-    job->data->text.font = tumFontGetCurFont();
+    job->data->text.font = gfxFontGetCurFont();
     job->data->text.x = x;
     job->data->text.y = y;
     job->data->text.colour = colour;
@@ -1209,7 +1209,7 @@ int tumDrawText(char *str, signed short x, signed short y, unsigned int colour)
     return 0;
 }
 
-int tumGetTextSize(char *str, int *width, int *height)
+int gfxGetTextSize(char *str, int *width, int *height)
 {
     if (str == NULL) {
         return -1;
@@ -1217,18 +1217,18 @@ int tumGetTextSize(char *str, int *width, int *height)
     return _getTextSize(str, width, height);
 }
 
-int tumDrawCenteredText(char *str, signed short x, signed short y,
+int gfxDrawCenteredText(char *str, signed short x, signed short y,
                         unsigned int colour)
 {
     int width, height;
-    if (tumGetTextSize(str, &width, &height)) {
+    if (gfxGetTextSize(str, &width, &height)) {
         return -1;
     }
 
-    return tumDrawText(str, x - width / 2, y - height / 2, colour);
+    return gfxDrawText(str, x - width / 2, y - height / 2, colour);
 }
 
-int tumDrawEllipse(signed short x, signed short y, signed short rx,
+int gfxDrawEllipse(signed short x, signed short y, signed short rx,
                    signed short ry, unsigned int colour)
 {
     INIT_JOB(job, DRAW_ELLIPSE);
@@ -1242,7 +1242,7 @@ int tumDrawEllipse(signed short x, signed short y, signed short rx,
     return 0;
 }
 
-int tumDrawArc(signed short x, signed short y, signed short radius,
+int gfxDrawArc(signed short x, signed short y, signed short radius,
                signed short start, signed short end, unsigned int colour)
 {
     INIT_JOB(job, DRAW_ARC);
@@ -1257,7 +1257,7 @@ int tumDrawArc(signed short x, signed short y, signed short radius,
     return 0;
 }
 
-int tumDrawFilledBox(signed short x, signed short y, signed short w,
+int gfxDrawFilledBox(signed short x, signed short y, signed short w,
                      signed short h, unsigned int colour)
 {
     INIT_JOB(job, DRAW_FILLED_RECT);
@@ -1271,7 +1271,7 @@ int tumDrawFilledBox(signed short x, signed short y, signed short w,
     return 0;
 }
 
-int tumDrawBox(signed short x, signed short y, signed short w, signed short h,
+int gfxDrawBox(signed short x, signed short y, signed short w, signed short h,
                unsigned int colour)
 {
     INIT_JOB(job, DRAW_RECT);
@@ -1285,7 +1285,7 @@ int tumDrawBox(signed short x, signed short y, signed short w, signed short h,
     return 0;
 }
 
-void tumDrawDuplicateBuffer(void)
+void gfxDrawDuplicateBuffer(void)
 {
     SDL_Surface *screen_shot =
         SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32,
@@ -1300,7 +1300,7 @@ void tumDrawDuplicateBuffer(void)
     SDL_RenderPresent(renderer);
 }
 
-int tumDrawClear(unsigned int colour)
+int gfxDrawClear(unsigned int colour)
 {
     INIT_JOB(job, DRAW_CLEAR);
 
@@ -1309,7 +1309,7 @@ int tumDrawClear(unsigned int colour)
     return 0;
 }
 
-int tumDrawCircle(signed short x, signed short y, signed short radius,
+int gfxDrawCircle(signed short x, signed short y, signed short radius,
                   unsigned int colour)
 {
     INIT_JOB(job, DRAW_CIRCLE);
@@ -1322,7 +1322,7 @@ int tumDrawCircle(signed short x, signed short y, signed short radius,
     return 0;
 }
 
-int tumDrawLine(signed short x1, signed short y1, signed short x2,
+int gfxDrawLine(signed short x1, signed short y1, signed short x2,
                 signed short y2, unsigned char thickness, unsigned int colour)
 {
     INIT_JOB(job, DRAW_LINE);
@@ -1337,7 +1337,7 @@ int tumDrawLine(signed short x1, signed short y1, signed short x2,
     return 0;
 }
 
-int tumDrawPoly(coord_t *points, int n, unsigned int colour)
+int gfxDrawPoly(coord_t *points, int n, unsigned int colour)
 {
     INIT_JOB(job, DRAW_POLY);
 
@@ -1355,7 +1355,7 @@ int tumDrawPoly(coord_t *points, int n, unsigned int colour)
     return 0;
 }
 
-int tumDrawTriangle(coord_t *points, unsigned int colour)
+int gfxDrawTriangle(coord_t *points, unsigned int colour)
 {
     INIT_JOB(job, DRAW_TRIANGLE);
 
@@ -1372,10 +1372,10 @@ int tumDrawTriangle(coord_t *points, unsigned int colour)
     return 0;
 }
 
-image_handle_t tumDrawLoadScaledImage(char *filename, float scale)
+gfx_image_handle_t gfxDrawLoadScaledImage(char *filename, float scale)
 {
-    if (!renderer || !tumUtilIsCurGLThread()) {
-        tumDrawBindThread();
+    if (!renderer || !gfxUtilIsCurGLThread()) {
+        gfxDrawBindThread();
         if (!renderer) {
             goto err_renderer;
         }
@@ -1393,7 +1393,7 @@ image_handle_t tumDrawLoadScaledImage(char *filename, float scale)
         goto err_filename;
     }
 
-    ret->file = tumUtilFindResource(filename, "rb");
+    ret->file = gfxUtilFindResource(filename, "rb");
     if (ret->file == NULL) {
         PRINT_ERROR("Failed to open file '%s'", filename);
         goto err_file_open;
@@ -1447,12 +1447,12 @@ err_renderer:
     return NULL;
 }
 
-image_handle_t tumDrawLoadImage(char *filename)
+gfx_image_handle_t gfxDrawLoadImage(char *filename)
 {
-    return tumDrawLoadScaledImage(filename, 1);
+    return gfxDrawLoadScaledImage(filename, 1);
 }
 
-int tumDrawFreeLoadedImage(image_handle_t *img)
+int gfxDrawFreeLoadedImage(gfx_image_handle_t *img)
 {
     int ret = 0;
     loaded_image_t **loaded_img = (loaded_image_t **)img;
@@ -1467,7 +1467,7 @@ int tumDrawFreeLoadedImage(image_handle_t *img)
     return ret;
 }
 
-int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y)
+int gfxDrawLoadedImage(gfx_image_handle_t img, signed short x, signed short y)
 {
     if (img == NULL) {
         return -1;
@@ -1483,7 +1483,7 @@ int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y)
     return 0;
 }
 
-int tumDrawSetLoadedImageScale(image_handle_t img, float scale)
+int gfxDrawSetLoadedImageScale(gfx_image_handle_t img, float scale)
 {
     if (img == NULL) {
         return -1;
@@ -1494,7 +1494,7 @@ int tumDrawSetLoadedImageScale(image_handle_t img, float scale)
     return 0;
 }
 
-float tumDrawGetLoadedImageScale(image_handle_t img)
+float gfxDrawGetLoadedImageScale(gfx_image_handle_t img)
 {
     if (img == NULL) {
         return -1;
@@ -1503,7 +1503,7 @@ float tumDrawGetLoadedImageScale(image_handle_t img)
     return ((loaded_image_t *)img)->scale;
 }
 
-int tumDrawGetLoadedImageWidth(image_handle_t img)
+int gfxDrawGetLoadedImageWidth(gfx_image_handle_t img)
 {
     if (img == NULL) {
         return -1;
@@ -1512,7 +1512,7 @@ int tumDrawGetLoadedImageWidth(image_handle_t img)
     return ((loaded_image_t *)img)->w * ((loaded_image_t *)img)->scale;
 }
 
-int tumDrawGetLoadedImageHeight(image_handle_t img)
+int gfxDrawGetLoadedImageHeight(gfx_image_handle_t img)
 {
     if (img == NULL) {
         return -1;
@@ -1521,14 +1521,14 @@ int tumDrawGetLoadedImageHeight(image_handle_t img)
     return ((loaded_image_t *)img)->h * ((loaded_image_t *)img)->scale;
 }
 
-int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int *h)
+int gfxDrawGetLoadedImageSize(gfx_image_handle_t img, int *w, int *h)
 {
     if (img == NULL) {
         return -1;
     }
 
-    *w = tumDrawGetLoadedImageWidth(img);
-    *h = tumDrawGetLoadedImageHeight(img);
+    *w = gfxDrawGetLoadedImageWidth(img);
+    *h = gfxDrawGetLoadedImageHeight(img);
 
     if (*w == -1 || *h == -1) {
         return -1;
@@ -1537,7 +1537,7 @@ int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int *h)
     return 0;
 }
 
-int __attribute_deprecated__ tumDrawImage(char *filename, signed short x,
+int __attribute_deprecated__ gfxDrawImage(char *filename, signed short x,
         signed short y)
 {
     INIT_JOB(job, DRAW_IMAGE);
@@ -1556,7 +1556,7 @@ int __attribute_deprecated__ tumDrawImage(char *filename, signed short x,
     return 0;
 }
 
-spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img,
+gfx_spritesheet_handle_t gfxDrawLoadSpritesheet(gfx_image_handle_t img,
         unsigned sprite_cols,
         unsigned sprite_rows)
 {
@@ -1578,13 +1578,13 @@ spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img,
     ret->sprite_width = ret->image->w / sprite_cols;
     ret->sprite_height = ret->image->h / sprite_rows;
 
-    return (spritesheet_handle_t)ret;
+    return (gfx_spritesheet_handle_t)ret;
 
 err:
     return NULL;
 }
 
-int tumDrawSprite(spritesheet_handle_t spritesheet, char column, char row,
+int gfxDrawSprite(gfx_spritesheet_handle_t spritesheet, char column, char row,
                   signed short x, signed short y)
 {
     if (spritesheet == NULL) {
@@ -1625,14 +1625,14 @@ err:
     return -1;
 }
 
-int __attribute_deprecated__ tumGetImageSize(char *filename, int *w, int *h)
+int __attribute_deprecated__ gfxGetImageSize(char *filename, int *w, int *h)
 {
     char full_filename[PATH_MAX + 1];
     realpath(filename, full_filename);
     return _getImageSize(full_filename, w, h);
 }
 
-int __attribute_deprecated__ tumDrawScaledImage(char *filename, signed short x,
+int __attribute_deprecated__ gfxDrawScaledImage(char *filename, signed short x,
         signed short y, float scale)
 {
     INIT_JOB(job, DRAW_SCALED_IMAGE);
@@ -1653,7 +1653,7 @@ int __attribute_deprecated__ tumDrawScaledImage(char *filename, signed short x,
     return 0;
 }
 
-int tumDrawArrow(signed short x1, signed short y1, signed short x2,
+int gfxDrawArrow(signed short x1, signed short y1, signed short x2,
                  signed short y2, signed short head_length,
                  unsigned char thickness, unsigned int colour)
 {
@@ -1670,7 +1670,7 @@ int tumDrawArrow(signed short x1, signed short y1, signed short x2,
     return 0;
 }
 
-int tumDrawAnimationDrawFrame(sequence_handle_t sequence, unsigned ms_timestep,
+int gfxDrawAnimationDrawFrame(gfx_sequence_handle_t sequence, unsigned ms_timestep,
                               int x, int y)
 {
     if (sequence == NULL) {
@@ -1749,7 +1749,7 @@ err:
     return -1;
 }
 
-int tumDrawSetGlobalXOffset(int offset)
+int gfxDrawSetGlobalXOffset(int offset)
 {
     int ret;
 
@@ -1764,7 +1764,7 @@ int tumDrawSetGlobalXOffset(int offset)
     return ret;
 }
 
-int tumDrawSetGlobalYOffset(int offset)
+int gfxDrawSetGlobalYOffset(int offset)
 {
     int ret;
 
@@ -1779,7 +1779,7 @@ int tumDrawSetGlobalYOffset(int offset)
     return ret;
 }
 
-int tumDrawGetGlobalXOffset(int *offset)
+int gfxDrawGetGlobalXOffset(int *offset)
 {
     int ret;
 
@@ -1794,7 +1794,7 @@ int tumDrawGetGlobalXOffset(int *offset)
     return ret;
 }
 
-int tumDrawGetGlobalYOffset(int *offset)
+int gfxDrawGetGlobalYOffset(int *offset)
 {
     int ret;
 

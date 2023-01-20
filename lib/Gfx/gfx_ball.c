@@ -1,9 +1,33 @@
+/**
+ * @file gfx_ball.c
+ * @author Alex Hoffman
+ * @date 27 August 2019
+ * @brief API to create balls and walls that interact with each other on a 2D
+ * plane
+ *
+ * @verbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2019
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
+ */
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "TUM_Ball.h"
-#include "TUM_Sound.h"
+#include "gfx_ball.h"
+#include "gfx_sound.h"
 
 typedef struct walls {
     wall_t **walls;
@@ -13,9 +37,9 @@ typedef struct walls {
 
 walls_t walls = { 0 };
 
-wall_t *pCreateWall(signed short x1, signed short y1, signed short w,
-                    signed short h, float dampening, unsigned int colour,
-                    void (*callback)(void *), void *args)
+wall_t *gfxCreateWall(signed short x1, signed short y1, signed short w,
+                      signed short h, float dampening, unsigned int colour,
+                      void (*callback)(void *), void *args)
 {
     wall_t *ret = calloc(1, sizeof(wall_t));
 
@@ -49,9 +73,9 @@ wall_t *pCreateWall(signed short x1, signed short y1, signed short w,
     return ret;
 }
 
-void vSetWallProperty(wall_t *wall, signed short x, signed short y,
-                      signed short width, signed short height,
-                      unsigned char flags)
+void gfxSetWallProperty(wall_t *wall, signed short x, signed short y,
+                        signed short width, signed short height,
+                        unsigned char flags)
 {
     if (flags & 1) { // Set X
         wall->x1 = x;
@@ -71,9 +95,9 @@ void vSetWallProperty(wall_t *wall, signed short x, signed short y,
     }
 }
 
-ball_t *pCreateBall(signed short initial_x, signed short initial_y,
-                    unsigned int colour, signed short radius, float max_speed,
-                    void (*callback)(void *), void *args, image_handle_t sprite)
+ball_t *gfxCreateBall(signed short initial_x, signed short initial_y,
+                      unsigned int colour, signed short radius, float max_speed,
+                      void (*callback)(void *), void *args, gfx_image_handle_t sprite)
 {
     ball_t *ret = calloc(1, sizeof(ball_t));
 
@@ -96,8 +120,8 @@ ball_t *pCreateBall(signed short initial_x, signed short initial_y,
     return ret;
 }
 
-void vSetBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
-                   unsigned char flags)
+void gfxSetBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
+                     unsigned char flags)
 {
     if (flags & 1) // Set X
         if (abs(dx) <= ball->max_speed) {
@@ -116,7 +140,7 @@ void vSetBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
     ball->AXIS = VAL;                                                      \
     ball->f_##AXIS = VAL;
 
-void vSetBallLocation(ball_t *ball, signed short x, signed short y)
+void gfxSetBallLocation(ball_t *ball, signed short x, signed short y)
 {
     if (x < ball->radius) {
         SET_BALL_COORD(x, ball->radius);
@@ -139,7 +163,7 @@ void vSetBallLocation(ball_t *ball, signed short x, signed short y)
     }
 }
 
-void vUpdateBallPosition(ball_t *ball, unsigned int milli_seconds)
+void gfxUpdateBallPosition(ball_t *ball, unsigned int milli_seconds)
 {
     float update_interval = milli_seconds / 1000.0;
     ball->f_x += ball->dx * update_interval;
@@ -151,18 +175,18 @@ void vUpdateBallPosition(ball_t *ball, unsigned int milli_seconds)
 #define HORIZONTAL 0b1
 #define VERTICAL 0b10
 
-void vChangeBallDirection(ball_t *ball, signed char direction, float dampening)
+void _changeBallDirection(ball_t *ball, signed char direction, float dampening)
 {
     if (direction & 1) {
         ball->dx *= -1;
-        vSetBallSpeed(ball, ball->dx * (1 + dampening), 0, 0,
-                      SET_BALL_SPEED_X);
+        gfxSetBallSpeed(ball, ball->dx * (1 + dampening), 0, 0,
+                        SET_BALL_SPEED_X);
     }
 
     if ((direction >> 1) & 1) {
         ball->dy *= -1;
-        vSetBallSpeed(ball, 0, ball->dy * (1 + dampening), 0,
-                      SET_BALL_SPEED_Y);
+        gfxSetBallSpeed(ball, 0, ball->dy * (1 + dampening), 0,
+                        SET_BALL_SPEED_Y);
     }
 }
 
@@ -186,7 +210,7 @@ void vChangeBallDirection(ball_t *ball, signed char direction, float dampening)
 #define WALL ((wall_t *)object)
 #define BALL ((ball_t *)object)
 
-signed char sCollideWall(ball_t *ball, wall_t *wall,
+signed char _collideWall(ball_t *ball, wall_t *wall,
                          unsigned char collision_type, void (*callback)(void *),
                          void *args)
 {
@@ -202,11 +226,11 @@ signed char sCollideWall(ball_t *ball, wall_t *wall,
     switch (collision_type) {
         case COLLIDE_WALL_TOP:
         case COLLIDE_WALL_BOTTOM:
-            vChangeBallDirection(ball, VERTICAL, wall->dampening);
+            _changeBallDirection(ball, VERTICAL, wall->dampening);
             break;
         case COLLIDE_WALL_RIGHT:
         case COLLIDE_WALL_LEFT:
-            vChangeBallDirection(ball, HORIZONTAL, wall->dampening);
+            _changeBallDirection(ball, HORIZONTAL, wall->dampening);
             break;
         default:
             break;
@@ -215,7 +239,7 @@ signed char sCollideWall(ball_t *ball, wall_t *wall,
     return 0;
 }
 
-signed char sHandleCollision(ball_t *ball, void *object, unsigned char flag,
+signed char _handleCollision(ball_t *ball, void *object, unsigned char flag,
                              void (*callback)(void *), void *args)
 {
     unsigned char ret = 0;
@@ -229,7 +253,7 @@ signed char sHandleCollision(ball_t *ball, void *object, unsigned char flag,
                 BALL_BOTTOM_POINT_X <= WALL->x2 && ball->dy > 0) {
                 // Place ball next to wall to prevent ball getting stuck in wall
                 ball->f_y = WALL->y1 - ball->radius;
-                sCollideWall(ball, WALL, COLLIDE_WALL_TOP, callback,
+                _collideWall(ball, WALL, COLLIDE_WALL_TOP, callback,
                              args);
                 ret = 1;
             }
@@ -239,7 +263,7 @@ signed char sHandleCollision(ball_t *ball, void *object, unsigned char flag,
                 BALL_TOP_POINT_X >= WALL->x1 &&
                 BALL_TOP_POINT_X <= WALL->x2 && ball->dy < 0) {
                 ball->f_y = WALL->y2 + ball->radius;
-                sCollideWall(ball, WALL, COLLIDE_WALL_BOTTOM, callback,
+                _collideWall(ball, WALL, COLLIDE_WALL_BOTTOM, callback,
                              args);
                 ret = 1;
             }
@@ -249,7 +273,7 @@ signed char sHandleCollision(ball_t *ball, void *object, unsigned char flag,
                 BALL_RIGHT_POINT_Y >= WALL->y1 &&
                 BALL_RIGHT_POINT_Y <= WALL->y2 && ball->dx > 0) {
                 ball->f_x = WALL->x1 - ball->radius;
-                sCollideWall(ball, WALL, COLLIDE_WALL_RIGHT, callback,
+                _collideWall(ball, WALL, COLLIDE_WALL_RIGHT, callback,
                              args);
                 ret = 1;
             }
@@ -259,7 +283,7 @@ signed char sHandleCollision(ball_t *ball, void *object, unsigned char flag,
                 BALL_LEFT_POINT_Y >= WALL->y1 &&
                 BALL_RIGHT_POINT_Y <= WALL->y2 && ball->dx < 0) {
                 ball->f_x = WALL->x2 + ball->radius;
-                sCollideWall(ball, WALL, COLLIDE_WALL_LEFT, callback,
+                _collideWall(ball, WALL, COLLIDE_WALL_LEFT, callback,
                              args);
                 ret = 1;
             }
@@ -274,33 +298,33 @@ signed char sHandleCollision(ball_t *ball, void *object, unsigned char flag,
     return ret;
 }
 
-signed char sCheckBallCollisionsWithWalls(ball_t *ball, void (*callback)(void *),
+signed char _checkBallCollisionsWithWalls(ball_t *ball, void (*callback)(void *),
         void *args)
 {
     unsigned char ret = 0;
     unsigned int i;
     for (i = 0; i < walls.wall_count; i++)
-        if (sHandleCollision(ball, walls.walls[i], COLLIDE_WALL,
+        if (_handleCollision(ball, walls.walls[i], COLLIDE_WALL,
                              callback, args)) {
             ret = -1;
         }
     return ret;
 }
 
-unsigned char sCheckBallCollisionsWithBalls(ball_t *ball)
+unsigned char _checkBallCollisionsWithBalls(ball_t *ball)
 {
     // TODO
     return 0;
 }
 
-signed char sCheckBallCollisions(ball_t *ball, void (*callback)(void *),
-                                 void *args)
+signed char gfxCheckBallCollisions(ball_t *ball, void (*callback)(void *),
+                                   void *args)
 {
     unsigned char ret = 0;
-    if (sCheckBallCollisionsWithWalls(ball, callback, args)) {
+    if (_checkBallCollisionsWithWalls(ball, callback, args)) {
         ret = -1;
     }
-    if (sCheckBallCollisionsWithBalls(ball)) {
+    if (_checkBallCollisionsWithBalls(ball)) {
         ret = -1;
     }
     return ret;

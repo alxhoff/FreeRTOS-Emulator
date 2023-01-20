@@ -1,8 +1,8 @@
 /**
- * @file TUM_Utils.c
+ * @file gfx_utils.c
  * @author Alex Hoffman
  * @date 27 August 2019
- * @brief Utilities required by other TUM_XXX files
+ * @brief Utilities required by other gfx_XXX files
  *
  * @verbatim
    ----------------------------------------------------------------------
@@ -34,15 +34,16 @@
 #include <assert.h>
 #include <dirent.h>
 
-#include "TUM_Utils.h"
-#include "TUM_Print.h"
+#include "gfx_utils.h"
+#include "gfx_print.h"
+
 #include "EmulatorConfig.h"
 
 #ifndef __STDC_NO_ATOMICS__
 #include <stdatomic.h>
 #endif // _STDC_NO_ATOMICS__
 
-#include "TUM_Utils.h"
+#include "utils.h"
 
 #define CAST_RBUF(rbuf) ((struct ring_buf *)rbuf)
 
@@ -59,7 +60,7 @@ struct ring_buf {
 static pthread_mutex_t GL_thread_lock = PTHREAD_MUTEX_INITIALIZER;
 static pid_t cur_GL_thread = 0;
 
-int tumUtilIsCurGLThread(void)
+int gfxUtilIsCurGLThread(void)
 {
     int ret = 0;
 
@@ -70,14 +71,14 @@ int tumUtilIsCurGLThread(void)
     return ret;
 }
 
-void tumUtilSetGLThread(void)
+void gfxUtilSetGLThread(void)
 {
     pthread_mutex_lock(&GL_thread_lock);
     cur_GL_thread = syscall(SYS_gettid);
     pthread_mutex_unlock(&GL_thread_lock);
 }
 
-char *tumUtilPrependPath(const char *path, char *file)
+char *gfxUtilPrependPath(const char *path, char *file)
 {
     char *ret = calloc(1, sizeof(char) * (strlen(path) + strlen(file) + 2));
     if (!ret) {
@@ -91,7 +92,7 @@ char *tumUtilPrependPath(const char *path, char *file)
     return ret;
 }
 
-char *tumUtilGetBinFolderPath(char *bin_path)
+char *gfxUtilGetBinFolderPath(char *bin_path)
 {
     char *dir_name = dirname(bin_path);
 
@@ -117,7 +118,7 @@ char *tumUtilGetBinFolderPath(char *bin_path)
  * @return A reference to the statically allocated buffer where the filename
  * is being stored, else NULL
  */
-static char *recurseDirName(const char *dir_name, char *filename, char flags)
+static char *_recurseDirName(const char *dir_name, char *filename, char flags)
 {
     char *ret = NULL;
     struct dirent *dirp;
@@ -145,7 +146,7 @@ static char *recurseDirName(const char *dir_name, char *filename, char flags)
                 strcpy(wdir, dir_name);
                 strcat(wdir, "/");
                 strcat(wdir, dirp->d_name);
-                ret = recurseDirName(wdir, filename, flags);
+                ret = _recurseDirName(wdir, filename, flags);
                 if (ret) {
                     return ret;
                 }
@@ -170,12 +171,12 @@ err:
     return NULL;
 }
 
-static FILE *recurseDirFile(const char *dir_name, char *filename, const char *mode)
+static FILE *_recurseDirFile(const char *dir_name, char *filename, const char *mode)
 {
-    return fopen(recurseDirName(dir_name, filename, 0), mode);
+    return fopen(_recurseDirName(dir_name, filename, 0), mode);
 }
 
-const char *tumUtilFindResourceDirectory(void)
+const char *gfxUtilFindResourceDirectory(void)
 {
     static char ret_dir[PATH_MAX];
 
@@ -185,13 +186,13 @@ const char *tumUtilFindResourceDirectory(void)
     }
     else {
         strcpy(ret_dir,
-               recurseDirName(".", basename(RESOURCES_DIRECTORY),
-                              INCLUDE_DIR_NAMES));
+               _recurseDirName(".", basename(RESOURCES_DIRECTORY),
+                               INCLUDE_DIR_NAMES));
         return ret_dir;
     }
 }
 
-FILE *tumUtilFindResource(char *resource_name, const char *mode)
+FILE *gfxUtilFindResource(char *resource_name, const char *mode)
 {
     if (!resource_name) {
         PRINT_ERROR("Cannot find invalid resource name");
@@ -201,11 +202,11 @@ FILE *tumUtilFindResource(char *resource_name, const char *mode)
         return fopen(resource_name, mode);
     }
     else
-        return recurseDirFile(tumUtilFindResourceDirectory(),
-                              basename(resource_name), mode);
+        return _recurseDirFile(gfxUtilFindResourceDirectory(),
+                               basename(resource_name), mode);
 }
 
-char *tumUtilFindResourcePath(char *resource_name)
+char *gfxUtilFindResourcePath(char *resource_name)
 {
     if (!resource_name) {
         PRINT_ERROR("Cannot find invalid resource name");
@@ -216,11 +217,11 @@ char *tumUtilFindResourcePath(char *resource_name)
         return resource_name;
     }
     else
-        return recurseDirName(tumUtilFindResourceDirectory(),
-                              basename(resource_name), 0);
+        return _recurseDirName(gfxUtilFindResourceDirectory(),
+                               basename(resource_name), 0);
 }
 
-static void inc_buf(rbuf_handle_t rbuf)
+static void _inc_buf(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return;
@@ -242,7 +243,7 @@ static void inc_buf(rbuf_handle_t rbuf)
     rb->full = (rb->head == rb->tail);
 }
 
-static void dec_buf(rbuf_handle_t rbuf)
+static void _dec_buf(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return;
@@ -255,7 +256,7 @@ static void dec_buf(rbuf_handle_t rbuf)
     rb->tail %= rb->size;
 }
 
-rbuf_handle_t rbuf_init(size_t item_size, size_t item_count)
+rbuf_handle_t gfxRbufInit(size_t item_size, size_t item_count)
 {
     struct ring_buf *ret =
         (struct ring_buf *)calloc(1, sizeof(struct ring_buf));
@@ -283,8 +284,8 @@ err_alloc_rbuf:
     return NULL;
 }
 
-rbuf_handle_t rbuf_init_static(size_t item_size, size_t item_count,
-                               void *buffer)
+rbuf_handle_t gfxRbufInitStatic(size_t item_size, size_t item_count,
+                                void *buffer)
 {
     if (buffer == NULL) {
         goto err_buffer;
@@ -311,7 +312,7 @@ err_buffer:
 }
 
 //Destroy
-void rbuf_free(rbuf_handle_t rbuf)
+void gfxRbufFree(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return;
@@ -322,7 +323,7 @@ void rbuf_free(rbuf_handle_t rbuf)
 }
 
 //Reset
-void rbuf_reset(rbuf_handle_t rbuf)
+void gfxRbufReset(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return;
@@ -338,7 +339,7 @@ void rbuf_reset(rbuf_handle_t rbuf)
 //Put pointer to buffer back
 //Works the same as get, using references already put could result in undefined
 //behaviour
-int rbuf_put_buffer(rbuf_handle_t rbuf)
+int gfxRbufPutBuffer(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return -1;
@@ -346,13 +347,13 @@ int rbuf_put_buffer(rbuf_handle_t rbuf)
 
     struct ring_buf *rb = CAST_RBUF(rbuf);
 
-    dec_buf(rb);
+    _dec_buf(rb);
 
     return 0;
 }
 
 //Add data
-int rbuf_put(rbuf_handle_t rbuf, void *data)
+int gfxRbufPut(rbuf_handle_t rbuf, void *data)
 {
     if (rbuf == NULL) {
         return -1;
@@ -370,13 +371,13 @@ int rbuf_put(rbuf_handle_t rbuf, void *data)
 
     memcpy(rb->buffer + rb->head * rb->item_size, data, rb->item_size);
 
-    inc_buf(rb);
+    _inc_buf(rb);
 
     return 0;
 }
 
 //Add and overwrite
-int rbuf_fput(rbuf_handle_t rbuf, void *data)
+int gfxRbufFPut(rbuf_handle_t rbuf, void *data)
 {
     if (rbuf == NULL) {
         return -1;
@@ -390,14 +391,14 @@ int rbuf_fput(rbuf_handle_t rbuf, void *data)
 
     memcpy(rb->buffer + rb->head * rb->item_size, data, rb->item_size);
 
-    inc_buf(rb);
+    _inc_buf(rb);
 
     return 0;
 }
 
 //Get pointer to buffer slot
 //Works similar to put except it just returns a pointer to the ringbuf slot
-void *rbuf_get_buffer(rbuf_handle_t rbuf)
+void *gfxRbufGetBuffer(rbuf_handle_t rbuf)
 {
     static const _Atomic int increment = 1;
     if (rbuf == NULL) {
@@ -419,13 +420,13 @@ void *rbuf_get_buffer(rbuf_handle_t rbuf)
 
     ret = rb->buffer + offset * rb->item_size;
 
-    inc_buf(rb);
+    _inc_buf(rb);
 
     return ret;
 }
 
 //Get data
-int rbuf_get(rbuf_handle_t rbuf, void *data)
+int gfxRbufGet(rbuf_handle_t rbuf, void *data)
 {
     if (rbuf == NULL) {
         return -1;
@@ -437,18 +438,18 @@ int rbuf_get(rbuf_handle_t rbuf, void *data)
         return -1;
     }
 
-    if (rbuf_empty(rb)) {
+    if (gfxRbufEmpty(rb)) {
         return -1;
     }
 
     memcpy(data, rb->buffer + rb->tail * rb->item_size, rb->item_size);
-    dec_buf(rb);
+    _dec_buf(rb);
 
     return 0;
 }
 
 //Check empty or full
-unsigned char rbuf_empty(rbuf_handle_t rbuf)
+unsigned char gfxRbufEmpty(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return -1;
@@ -459,7 +460,7 @@ unsigned char rbuf_empty(rbuf_handle_t rbuf)
     return (!rb->full) && (rb->head == rb->tail);
 }
 
-unsigned char rbug_full(rbuf_handle_t rbuf)
+unsigned char gfxRbufFull(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return -1;
@@ -471,7 +472,7 @@ unsigned char rbug_full(rbuf_handle_t rbuf)
 }
 
 //Num of elements
-size_t rbuf_size(rbuf_handle_t rbuf)
+size_t gfxRbufSize(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return -1;
@@ -492,7 +493,7 @@ size_t rbuf_size(rbuf_handle_t rbuf)
 }
 
 //Get max capacity
-size_t rbuf_capacity(rbuf_handle_t rbuf)
+size_t gfxRbufCapacity(rbuf_handle_t rbuf)
 {
     if (rbuf == NULL) {
         return -1;

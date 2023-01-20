@@ -1,11 +1,11 @@
 /**
- * @file TUM_Sound.h
+ * @file gfx_sound.h
  * @author Alex Hoffman
  * @date 27 August 2019
  * @brief A simple interface to play wav files using the SDL2 Mixer library
  *
  * @verbatim
- ----------------------------------------------------------------------
+ ---------------------------------------------------------------------
  Copyright (C) Alexander Hoffman, 2019
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
  @endverbatim
  */
 
-#ifndef __TUM_SOUND_H__
-#define __TUM_SOUND_H__
+#ifndef __GFX_SOUND_H__
+#define __GFX_SOUND_H__
 
 /**
- * @defgroup tum_sound TUM Sound API
+ * @defgroup gfx_sound GFX Sound API
  *
  * @brief An API wrapper around the SDL Mixer library to play a set of predefined
  * pong waveforms
@@ -80,12 +80,12 @@ enum tumSound_samples_e { FOR_EACH_SAMPLE(GEN_ENUM) };
  * @param bin_dir_str String specifying where the program's binary is located
  * @return 0 on success
  */
-int tumSoundInit(char *bin_dir_str);
+int gfxSoundInit(char *bin_dir_str);
 
 /**
  * @brief Deinitializes the SDL2 Mixer library
  */
-void tumSoundExit(void);
+void gfxSoundExit(void);
 
 /**
  * @brief Plays a wav sample
@@ -93,7 +93,7 @@ void tumSoundExit(void);
  * @param index Index to specify which sample to play, @ref tumSound_samples_e gives
  * appropriate indices
  */
-void tumSoundPlaySample(unsigned char index);
+void gfxSoundPlaySample(unsigned char index);
 
 /**
  * @brief Loads a .wav sample from disk
@@ -105,7 +105,7 @@ void tumSoundPlaySample(unsigned char index);
  * @param filepath The location of the waveform on disk to be loaded
  * @return 0 on success
  */
-int tumSoundLoadUserSample(const char *filepath);
+int gfxSoundLoadUserSample(const char *filepath);
 
 /**
  * @brief Plays a loaded waveform
@@ -117,7 +117,7 @@ int tumSoundLoadUserSample(const char *filepath);
  * @param filename The name of the waveform to be played
  * @return 0 on success
  */
-int tumSoundPlayUserSample(const char *filename);
+int gfxSoundPlayUserSample(const char *filename);
 
 /** @}*/
 

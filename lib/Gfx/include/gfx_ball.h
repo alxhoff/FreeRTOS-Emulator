@@ -1,5 +1,5 @@
 /**
- * @file TUM_Ball.h
+ * @file gfx_ball.h
  * @author Alex Hoffman
  * @date 27 August 2019
  * @brief API to create balls and walls that interact with each other on a 2D
@@ -22,13 +22,13 @@
  @endverbatim
  */
 
-#ifndef __TUM_BALL_H__
-#define __TUM_BALL_H__
+#ifndef __GFX_BALL_H__
+#define __GFX_BALL_H__
 
-#include "TUM_Draw.h"
+#include "gfx_draw.h"
 
 /**
- * @defgroup tum_ball TUM Ball API
+ * @defgroup gfx_ball GFX Ball API
  *
  * Functions to generate ball and wall object that interact each other in a
  * 2D environment
@@ -64,7 +64,7 @@ typedef void (*callback_t)(void *args);
  * start to move.
  */
 typedef struct ball {
-    image_handle_t sprite;
+    gfx_image_handle_t sprite;
 
     signed short x; /**< X pixel coord of ball on screen */
     signed short y; /**< Y pixel coord of ball on screen */
@@ -149,9 +149,9 @@ typedef struct wall {
  * @param sprite Optional sprite image to be stored within the ball object
  * @return A pointer to the created ball, program exits if creation failed
  */
-ball_t *pCreateBall(signed short initial_x, signed short initial_y,
-                    unsigned int colour, signed short radius, float max_speed,
-                    callback_t callback, void *args, image_handle_t sprite);
+ball_t *gfxCreateBall(signed short initial_x, signed short initial_y,
+                      unsigned int colour, signed short radius, float max_speed,
+                      callback_t callback, void *args, gfx_image_handle_t sprite);
 
 /**
  * @brief Creates a wall object
@@ -167,14 +167,14 @@ ball_t *pCreateBall(signed short initial_x, signed short initial_y,
  * @param args Args passed to callback function
  * @return A pointer to the created wall, program exits if creation failed
  */
-wall_t *pCreateWall(signed short x1, signed short y1, signed short w,
-                    signed short h, float dampening, unsigned int colour,
-                    callback_t callback, void *args);
+wall_t *gfxCreateWall(signed short x1, signed short y1, signed short w,
+                      signed short h, float dampening, unsigned int colour,
+                      callback_t callback, void *args);
 
 /**
  * @name Set wall location flags
  *
- * Flags passed to @ref vSetWallProperty to set the X, Y, width or height
+ * Flags passed to @ref gfxSetWallProperty to set the X, Y, width or height
  * of a wall.
  *
  * @{
@@ -208,14 +208,14 @@ wall_t *pCreateWall(signed short x1, signed short y1, signed short w,
  * to be set. @see wall_flags.
  *
  */
-void vSetWallProperty(wall_t *wall, signed short x, signed short y,
-                      signed short width, signed short height,
-                      unsigned char flags);
+void gfxSetWallProperty(wall_t *wall, signed short x, signed short y,
+                        signed short width, signed short height,
+                        unsigned char flags);
 
 /**
  * @name Set ball speed flags
  *
- * Flags passed to @ref vSetBallSpeed to set various speed properties of a ball
+ * Flags passed to @ref gfxSetBallSpeed to set various speed properties of a ball
  *
  * @{
  */
@@ -267,8 +267,8 @@ void vSetWallProperty(wall_t *wall, signed short x, signed short y,
  * @param flags Flag specifying which attributes of the referenced ball are
  * to be set. @see speed_flags.
  */
-void vSetBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
-                   unsigned char flags);
+void gfxSetBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
+                     unsigned char flags);
 
 /**
  * @brief Sets the location of the ball
@@ -278,7 +278,7 @@ void vSetBallSpeed(ball_t *ball, float dx, float dy, float max_speed,
  * @param x New X axis location that is to be set
  * @param y New Y axis location that is to be set
  */
-void vSetBallLocation(ball_t *ball, signed short x, signed short y);
+void gfxSetBallLocation(ball_t *ball, signed short x, signed short y);
 
 /**
  * @brief Checks if a ball is currently collided with other objects
@@ -290,7 +290,7 @@ void vSetBallLocation(ball_t *ball, signed short x, signed short y);
  * @param args Args passed to callback function
  * @return 1 if a collision is detected
  */
-signed char sCheckBallCollisions(ball_t *ball, callback_t callback, void *args);
+signed char gfxCheckBallCollisions(ball_t *ball, callback_t callback, void *args);
 
 /**
  * @brief Updates the position of the ball
@@ -307,7 +307,7 @@ signed char sCheckBallCollisions(ball_t *ball, callback_t callback, void *args);
  * @param ball Reference to the ball object whose position is to be updated
  * @param milli_seconds Milliseconds passed since balls position was last updated
  */
-void vUpdateBallPosition(ball_t *ball, unsigned int milli_seconds);
+void gfxUpdateBallPosition(ball_t *ball, unsigned int milli_seconds);
 
 /** @}*/
 #endif

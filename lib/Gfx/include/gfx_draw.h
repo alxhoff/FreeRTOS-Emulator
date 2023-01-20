@@ -1,5 +1,5 @@
 /**
- * @file TUM_Draw.h
+ * @file gfx_draw.h
  * @author Alex Hoffman
  * @date 27 August 2019
  * @brief A SDL2 based library to implement work queue based drawing of graphical
@@ -12,7 +12,7 @@
  * This basic API aims to provide a simple method for drawing
  * graphical objects onto a screen in a thread-safe and consistent fashion.
  * The library is built on top of the widely used SDL2 graphics, text and sound
- * libraries. The core of the library is the functionality found in @ref tum_draw
+ * libraries. The core of the library is the functionality found in @ref gfx_draw
  * with extra features such as event handling and sound found in the auxiliary
  * files.
  *
@@ -34,10 +34,10 @@
  @endverbatim
  */
 
-#ifndef __TUM_DRAW_H__
-#define __TUM_DRAW_H__
+#ifndef __GFX_DRAW_H__
+#define __GFX_DRAW_H__
 /**
- * @defgroup tum_draw TUM Drawing API
+ * @defgroup gfx_draw GFX Drawing API
  *
  * @brief A simple interface to draw graphical primitives and images in a
  * multi-threaded application
@@ -75,7 +75,7 @@
 /**
  * @name Hex RGB colours
  *
- * RRGGBB colours used by TUM Draw backend, colour standard is the same as the
+ * RRGGBB colours used by GFX Draw backend, colour standard is the same as the
  * common html standard
  *
  * @{
@@ -127,7 +127,7 @@ typedef struct coord {
  * @brief Handle used to reference loaded images, an invalid image will have a
  * NULL handle
  */
-typedef void *image_handle_t;
+typedef void *gfx_image_handle_t;
 
 /**
  * @brief Handle used to reference a loaded animation spritesheet, an invalid
@@ -135,10 +135,10 @@ typedef void *image_handle_t;
  *
  * Sprite sheets are loaded as images and contain many individua sprites that
  * are cycled to make animations. Thus a sequence of frames must be defined using
- * tumDrawAnimationAddSequence() and this must be added to an animation that
+ * gfxDrawAnimationAddSequence() and this must be added to an animation that
  * has been created by passing in a loaded sprite sheet.
  */
-typedef void *animation_handle_t;
+typedef void *gfx_animation_handle_t;
 
 /**
  * @brief Returns an instance of an animation
@@ -147,7 +147,7 @@ typedef void *animation_handle_t;
  * sequence must be created. This allows for the same animation sequence to
  * be run within the same frame.
  */
-typedef void *sequence_handle_t;
+typedef void *gfx_sequence_handle_t;
 
 /**
  * @brief Returns an instance of a spritesheet
@@ -155,56 +155,56 @@ typedef void *sequence_handle_t;
  * A grid of images make up a sprite sheet, drawing partiular sprites can then
  * be done by simply specifying the column and row of the particular image.
  */
-typedef void *spritesheet_handle_t;
+typedef void *gfx_spritesheet_handle_t;
 
 /**
- * @brief Returns a string error message from the TUM Draw back end
+ * @brief Returns a string error message from the gfx_draw back end
  *
- * @return String holding the most recent TUM Draw error message
+ * @return String holding the most recent gfx_draw error message
  */
-char *tumGetErrorMessage(void);
+char *gfxGetErrorMessage(void);
 
 /**
- * @brief Initializes the TUM Draw backend
+ * @brief Initializes the gfx_draw backend
  *
  * @param path Path to the folder's location where the program's binary is
  * located
  * @return 0 on success
  */
-int tumDrawInit(char *path);
+int gfxDrawInit(char *path);
 
 /**
  * @brief Transfers the drawing ability to the calling thread/taskd
  *
  * @return 0 on success
  */
-int tumDrawBindThread(void);
+int gfxDrawBindThread(void);
 
 /**
- * @brief Exits the TUM Draw backend
+ * @brief Exits the GFX Draw backend
  */
-void tumDrawExit(void);
+void gfxDrawExit(void);
 
 /**
  * @brief Executes the queued draw jobs
  *
- * The tumDraw primative draw functions are designed to be callable from any
+ * The gfx_draw primative draw functions are designed to be callable from any
  * thread, as such each function queues a draw job into a queue. Once
- * tumDrawUpdateScreen is called, the queued draw jobs are executed by the
+ * gfxDrawUpdateScreen is called, the queued draw jobs are executed by the
  * background SDL thread.
  *
- * While primitive drawing functions, such as tumDrawCircle(), are thread-safe
- * calls to tumDrawUpdateScreen() must come from the thread that holds the GL
+ * While primitive drawing functions, such as gfxDrawCircle(), are thread-safe
+ * calls to gfxDrawUpdateScreen() must come from the thread that holds the GL
  * (graphics layer) context. A thread can obtain the GL context by calling
- * tumDrawBindThread(). Please be wary that tumDrawBindThread() has a large
+ * gfxDrawBindThread(). Please be wary that gfxDrawBindThread() has a large
  * overhead and should be avoided when possible. Having a centeralized screen
  * updating thread is a good solution to this problem. Calls to GL context
- * dependent calls, such as tumDrawUpdateScreen() will fail if the calling
+ * dependent calls, such as gfxDrawUpdateScreen() will fail if the calling
  * thread does not hold the GL context.
  *
  * @returns 0 on success
  */
-int tumDrawUpdateScreen(void);
+int gfxDrawUpdateScreen(void);
 
 /**
  * @brief Sets the screen to a solid colour
@@ -212,14 +212,14 @@ int tumDrawUpdateScreen(void);
  * @param colour RGB colour to fill the screen with
  * @return 0 on success
  */
-int tumDrawClear(unsigned int colour);
+int gfxDrawClear(unsigned int colour);
 
 /*
  * @brief Copies a screenshot of the current frame to the next frame
  *
  * Experimental, performance can not be guarenteed.
  */
-void tumDrawDuplicateBuffer(void);
+void gfxDrawDuplicateBuffer(void);
 
 /**
  * @brief Draws an ellipse on the screen
@@ -231,7 +231,7 @@ void tumDrawDuplicateBuffer(void);
  * @param colour RGB colour of the ellipse
  * @return 0 on success
  */
-int tumDrawEllipse(signed short x, signed short y, signed short rx,
+int gfxDrawEllipse(signed short x, signed short y, signed short rx,
                    signed short ry, unsigned int colour);
 
 /**
@@ -248,7 +248,7 @@ int tumDrawEllipse(signed short x, signed short y, signed short rx,
  * @param colour RGB colour of the arc
  * @return 0 on success
  */
-int tumDrawArc(signed short x, signed short y, signed short radius,
+int gfxDrawArc(signed short x, signed short y, signed short radius,
                signed short start, signed short end, unsigned int colour);
 
 /**
@@ -263,7 +263,7 @@ int tumDrawArc(signed short x, signed short y, signed short radius,
  * @param colour RGB colour of the text
  * @return 0 on success
  */
-int tumDrawText(char *str, signed short x, signed short y, unsigned int colour);
+int gfxDrawText(char *str, signed short x, signed short y, unsigned int colour);
 
 /**
  * @brief Finds the width and height of a strings bounding box
@@ -273,7 +273,7 @@ int tumDrawText(char *str, signed short x, signed short y, unsigned int colour);
  * @param height Integer where the height shall be stored
  * @return 0 on success
  */
-int tumGetTextSize(char *str, int *width, int *height);
+int gfxGetTextSize(char *str, int *width, int *height);
 
 /**
  * @brief Prints a string to the screen
@@ -287,7 +287,7 @@ int tumGetTextSize(char *str, int *width, int *height);
  * @param colour RGB colour of the text
  * @return 0 on success
  */
-int tumDrawCenteredText(char *str, signed short x, signed short y,
+int gfxDrawCenteredText(char *str, signed short x, signed short y,
                         unsigned int colour);
 
 /**
@@ -300,7 +300,7 @@ int tumDrawCenteredText(char *str, signed short x, signed short y,
  * @param colour RGB colour of the box
  * @return 0 on success
  */
-int tumDrawBox(signed short x, signed short y, signed short w, signed short h,
+int gfxDrawBox(signed short x, signed short y, signed short w, signed short h,
                unsigned int colour);
 
 /**
@@ -313,7 +313,7 @@ int tumDrawBox(signed short x, signed short y, signed short w, signed short h,
  * @param colour RGB colour of the filled box
  * @return 0 on success
  */
-int tumDrawFilledBox(signed short x, signed short y, signed short w,
+int gfxDrawFilledBox(signed short x, signed short y, signed short w,
                      signed short h, unsigned int colour);
 
 /**
@@ -325,7 +325,7 @@ int tumDrawFilledBox(signed short x, signed short y, signed short w,
  * @param colour RGB colour of the ellipse
  * @return 0 on success
  */
-int tumDrawCircle(signed short x, signed short y, signed short radius,
+int gfxDrawCircle(signed short x, signed short y, signed short radius,
                   unsigned int colour);
 
 /**
@@ -339,7 +339,7 @@ int tumDrawCircle(signed short x, signed short y, signed short radius,
  * @param colour RGB colour of the ellipse
  * @return 0 on success
  */
-int tumDrawLine(signed short x1, signed short y1, signed short x2,
+int gfxDrawLine(signed short x1, signed short y1, signed short x2,
                 signed short y2, unsigned char thickness, unsigned int colour);
 
 /**
@@ -354,7 +354,7 @@ int tumDrawLine(signed short x1, signed short y1, signed short x2,
  * @param colour RGB colour of the ellipse
  * @return 0 on success
  */
-int tumDrawPoly(coord_t *points, int n, unsigned int colour);
+int gfxDrawPoly(coord_t *points, int n, unsigned int colour);
 
 /**
  * @brief Draws a triangle on the screen
@@ -363,11 +363,11 @@ int tumDrawPoly(coord_t *points, int n, unsigned int colour);
  * @param colour RGB colour of the ellipse
  * @return 0 on success
  */
-int tumDrawTriangle(coord_t *points, unsigned int colour);
+int gfxDrawTriangle(coord_t *points, unsigned int colour);
 
 /**
  * @brief Loads an image file from disk, loaded image file can be closed using
- * tumDrawFreeLoadedImage()
+ * gfxDrawFreeLoadedImage()
  *
  * Resources are searched for inside the RESOURCES_DIRECTORY, specified in
  * EmulatorConfig.h, otherwise realtive or absolute filepaths can be give.
@@ -375,22 +375,22 @@ int tumDrawTriangle(coord_t *points, unsigned int colour);
  * file system
  *
  * @param filename Name of the image file to be loaded
- * @return Returns a image_handle_t handle to the image
+ * @return Returns a gfx_image_handle_t handle to the image
  */
-image_handle_t tumDrawLoadImage(char *filename);
+gfx_image_handle_t gfxDrawLoadImage(char *filename);
 
 /**
  * @brief Loads an image from disk and scales the image, loaded image file can
- * be closed using tumDrawFreeLoadedImage(). Note that scaled images have large
+ * be closed using gfxDrawFreeLoadedImage(). Note that scaled images have large
  * overheads compared to manually scaled images (changing image file's dimensions)
  *
- * See tumDrawLoadImage() for information on filenames.
+ * See gfxDrawLoadImage() for information on filenames.
  *
  * @param filename Name of the image file to be loaded
  * @param scale Scaling factor with which the image should be drawn
- * @return Returns a image_handle_t handle to the image
+ * @return Returns a gfx_image_handle_t handle to the image
  */
-image_handle_t tumDrawLoadScaledImage(char *filename, float scale);
+gfx_image_handle_t gfxDrawLoadScaledImage(char *filename, float scale);
 
 /**
  * @brief Closes a loaded image and frees all memory used by the image structure
@@ -398,7 +398,7 @@ image_handle_t tumDrawLoadScaledImage(char *filename, float scale);
  * @param img Handle to the loaded image
  * @return 0 on success
  */
-int tumDrawFreeLoadedImage(image_handle_t *img);
+int gfxDrawFreeLoadedImage(gfx_image_handle_t *img);
 
 /**
  * @brief Scales a loaded image, the scale is a value where, for example, 1.0
@@ -409,7 +409,7 @@ int tumDrawFreeLoadedImage(image_handle_t *img);
  * @param scale Scaling factor to be applied to the image file
  * @return 0 on success
  */
-int tumDrawSetLoadedImageScale(image_handle_t img, float scale);
+int gfxDrawSetLoadedImageScale(gfx_image_handle_t img, float scale);
 
 /**
  * @brief Retrieves the current scaling factor of an image
@@ -418,7 +418,7 @@ int tumDrawSetLoadedImageScale(image_handle_t img, float scale);
  * retrieved
  * @return Current scaling factor
  */
-float tumDrawGetLoadedImageScale(image_handle_t img);
+float gfxDrawGetLoadedImageScale(gfx_image_handle_t img);
 
 /**
  * @brief Retrieves the image's width when drawn to screen, ie. after scaling
@@ -426,7 +426,7 @@ float tumDrawGetLoadedImageScale(image_handle_t img);
  * @param img Handle to the image for which the width is to be retrieved
  * @return Width of the image in pixels
  */
-int tumDrawGetLoadedImageWidth(image_handle_t img);
+int gfxDrawGetLoadedImageWidth(gfx_image_handle_t img);
 
 /**
  * @brief Retrieves the image's height when drawn to screen, ie. after scaling
@@ -434,7 +434,7 @@ int tumDrawGetLoadedImageWidth(image_handle_t img);
  * @param img Handle to the image for which the height is to be retrieved
  * @return Height of the image in pixels
  */
-int tumDrawGetLoadedImageHeight(image_handle_t img);
+int gfxDrawGetLoadedImageHeight(gfx_image_handle_t img);
 
 /**
  * @brief Retrieves bother the image's width and height when drawn to screen,
@@ -445,7 +445,7 @@ int tumDrawGetLoadedImageHeight(image_handle_t img);
  * @param h Reference to the variable to store the retrieved height
  * @return 0 on success
  */
-int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int *h);
+int gfxDrawGetLoadedImageSize(gfx_image_handle_t img, int *w, int *h);
 
 /**
  * @brief Draws a loaded image to the screen
@@ -455,7 +455,7 @@ int tumDrawGetLoadedImageSize(image_handle_t img, int *w, int *h);
  * @param y Y coordinate of the top left corner of the image
  * @return 0 on success
  */
-int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y);
+int gfxDrawLoadedImage(gfx_image_handle_t img, signed short x, signed short y);
 
 /**
  * @brief Draws an image on the screen
@@ -465,7 +465,7 @@ int tumDrawLoadedImage(image_handle_t img, signed short x, signed short y);
  * @param y Y coordinate of the top left corner of the image
  * @return 0 on success
  */
-int tumDrawImage(char *filename, signed short x, signed short y);
+int gfxDrawImage(char *filename, signed short x, signed short y);
 
 /**
  * @brief Creates a spritesheet object from a loaded image
@@ -475,7 +475,7 @@ int tumDrawImage(char *filename, signed short x, signed short y);
  * @param sprite_rows Number of rows on the sprite sheet
  * @return 0 on success
  */
-spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img,
+gfx_spritesheet_handle_t gfxDrawLoadSpritesheet(gfx_image_handle_t img,
         unsigned sprite_cols,
         unsigned sprite_rows);
 
@@ -489,7 +489,7 @@ spritesheet_handle_t tumDrawLoadSpritesheet(image_handle_t img,
  * @param y Y coordinate where the sprite should be drawn on the screen
  * @return 0 on success
  */
-int tumDrawSprite(spritesheet_handle_t spritesheet, char column, char row,
+int gfxDrawSprite(gfx_spritesheet_handle_t spritesheet, char column, char row,
                   signed short x, signed short y);
 
 /**
@@ -500,7 +500,7 @@ int tumDrawSprite(spritesheet_handle_t spritesheet, char column, char row,
  * @param h Integer where the height shall be stored
  * @return 0 on sucess
  */
-int tumGetImageSize(char *filename, int *w, int *h);
+int gfxGetImageSize(char *filename, int *w, int *h);
 
 /**
  * @brief Draws a scaled image on the screen
@@ -511,7 +511,7 @@ int tumGetImageSize(char *filename, int *w, int *h);
  * @param scale The scale factor of the image
  * @return 0 on success
  */
-int tumDrawScaledImage(char *filename, signed short x, signed short y,
+int gfxDrawScaledImage(char *filename, signed short x, signed short y,
                        float scale);
 
 /**
@@ -526,7 +526,7 @@ int tumDrawScaledImage(char *filename, signed short x, signed short y,
  * @param colour RGB colour of the ellipse
  * @return 0 on success
  */
-int tumDrawArrow(signed short x1, signed short y1, signed short x2,
+int gfxDrawArrow(signed short x1, signed short y1, signed short x2,
                  signed short y2, signed short head_length,
                  unsigned char thickness, unsigned int colour);
 
@@ -537,7 +537,7 @@ int tumDrawArrow(signed short x1, signed short y1, signed short x2,
  * @param spritesheet The loaded image that contains the spritesheet
  * @return A handle to the created animation object
  */
-animation_handle_t tumDrawAnimationCreate(spritesheet_handle_t spritesheet);
+gfx_animation_handle_t gfxDrawAnimationCreate(gfx_spritesheet_handle_t spritesheet);
 
 /**
  * @brief Adds an animation sequence to a previously created animation
@@ -558,8 +558,8 @@ animation_handle_t tumDrawAnimationCreate(spritesheet_handle_t spritesheet);
  * @param frames The number of sprite frames that make up the animation
  * @return 0 on success
  */
-int tumDrawAnimationAddSequence(
-    animation_handle_t animation, char *name, unsigned start_row,
+int gfxDrawAnimationAddSequence(
+    gfx_animation_handle_t animation, char *name, unsigned start_row,
     unsigned start_col,
     enum sprite_sequence_direction sprite_step_direction, unsigned frames);
 /**
@@ -573,8 +573,8 @@ int tumDrawAnimationAddSequence(
  * between sprite frames
  * @return A handle to the instantiated animation sequence, NULL otherwise
  */
-sequence_handle_t
-tumDrawAnimationSequenceInstantiate(animation_handle_t animation,
+gfx_sequence_handle_t
+gfxDrawAnimationSequenceInstantiate(gfx_animation_handle_t animation,
                                     char *sequence_name,
                                     unsigned frame_period_ms);
 
@@ -584,7 +584,7 @@ tumDrawAnimationSequenceInstantiate(animation_handle_t animation,
  * Animation sequences update which frame to show based upon how much time has
  * passed since they were last rendered. This is tracked incrementally and as
  * such each call to this function should pass in the number of milliseconds that
- * has transpired since the last call to tumDrawAnimationDrawFrame() so that
+ * has transpired since the last call to gfxDrawAnimationDrawFrame() so that
  * the sprite frame can be selected appropriately.
  *
  * @param sequence Sequence instance that is to be rendered
@@ -596,7 +596,7 @@ tumDrawAnimationSequenceInstantiate(animation_handle_t animation,
  * sprite frame
  * @return 0 on success
  */
-int tumDrawAnimationDrawFrame(sequence_handle_t sequence, unsigned ms_timestep,
+int gfxDrawAnimationDrawFrame(gfx_sequence_handle_t sequence, unsigned ms_timestep,
                               int x, int y);
 
 /**
@@ -605,7 +605,7 @@ int tumDrawAnimationDrawFrame(sequence_handle_t sequence, unsigned ms_timestep,
  * @param offset Value in pixels that all drawing should be offset on the X axis
  * @return 0 on success
  */
-int tumDrawSetGlobalXOffset(int offset);
+int gfxDrawSetGlobalXOffset(int offset);
 
 /**
  * @brief Sets the global draw position offset's Y axis value
@@ -613,7 +613,7 @@ int tumDrawSetGlobalXOffset(int offset);
  * @param offset Value in pixels that all drawing should be offset on the X axis
  * @return 0 on success
  */
-int tumDrawSetGlobalYOffset(int offset);
+int gfxDrawSetGlobalYOffset(int offset);
 
 /**
  * @brief Retrieves a copy of the current global X axis drawing offset
@@ -621,7 +621,7 @@ int tumDrawSetGlobalYOffset(int offset);
  * @param offset Refernce to the int where the value should be stored
  * @return 0 on success
  */
-int tumDrawGetGlobalXOffset(int *offset);
+int gfxDrawGetGlobalXOffset(int *offset);
 
 /**
  * @brief Retrieves a copy of the current global X axis drawing offset
@@ -629,7 +629,7 @@ int tumDrawGetGlobalXOffset(int *offset);
  * @param offset Refernce to the int where the value should be stored
  * @return 0 on success
  */
-int tumDrawGetGlobalYOffset(int *offset);
+int gfxDrawGetGlobalYOffset(int *offset);
 
 /** @} */
 #endif

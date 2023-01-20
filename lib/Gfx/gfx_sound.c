@@ -1,5 +1,5 @@
 /**
- * @file TUM_Sound.c
+ * @file gfx_sound.c
  * @author Alex Hoffman
  * @date 18 April 2020
  * @brief A simple interface to play wav files using the SDL2 Mixer library
@@ -26,9 +26,9 @@
 
 #include <SDL2/SDL_mixer.h>
 
-#include "TUM_Sound.h"
-#include "TUM_Utils.h"
-#include "TUM_Print.h"
+#include "gfx_sound.h"
+#include "gfx_utils.h"
+#include "gfx_print.h"
 
 #define SAMPLE_FOLDER "/../resources/waveforms/"
 
@@ -51,7 +51,7 @@ typedef struct loaded_sample {
 
 loaded_sample_t user_samples = { .name = "HEAD" };
 
-void tumSoundExit(void)
+void gfxSoundExit(void)
 {
 #ifndef DOCKER
     unsigned int i;
@@ -62,7 +62,7 @@ void tumSoundExit(void)
 #endif /* DOCKER */
 }
 
-int tumSoundInit(char *bin_dir_str)
+int gfxSoundInit(char *bin_dir_str)
 {
 #ifndef DOCKER
     char *waveFileNames[] = { FOR_EACH_SAMPLE(GEN_FULL_SAMPLE_PATH) };
@@ -100,7 +100,7 @@ int tumSoundInit(char *bin_dir_str)
 
     for (i = 0; i < NUM_WAVEFORMS; i++) {
         samples[i] = Mix_LoadWAV(
-                         tumUtilFindResourcePath(fullWaveFileNames[i]));
+                         gfxUtilFindResourcePath(fullWaveFileNames[i]));
         if (!samples[i]) {
             PRINT_ERROR("Failed to load WAV: %s",
                         fullWaveFileNames[i]);
@@ -114,7 +114,7 @@ int tumSoundInit(char *bin_dir_str)
 
     TUMSound_online = 1;
 
-    atexit(tumSoundExit);
+    atexit(gfxSoundExit);
 
     return 0;
 
@@ -137,7 +137,7 @@ err_file_names:
 #endif /* DOCKER */
 }
 
-void tumSoundPlaySample(unsigned char index)
+void gfxSoundPlaySample(unsigned char index)
 {
 #ifndef DOCKER
     if (TUMSound_online) {
@@ -146,11 +146,11 @@ void tumSoundPlaySample(unsigned char index)
 #endif /* DOCKER */
 }
 
-int tumSoundLoadUserSample(const char *filepath)
+int gfxSoundLoadUserSample(const char *filepath)
 {
     if (!TUMSound_online) {
         PRINT_ERROR(
-            "Trying to load sample without calling 'tumSoundInit'");
+            "Trying to load sample without calling 'gfxSoundInit'");
         return -1;
     }
 
@@ -192,7 +192,7 @@ err_name:
     return -1;
 }
 
-int tumSoundPlayUserSample(const char *filename)
+int gfxSoundPlayUserSample(const char *filename)
 {
     if (filename == NULL) {
         PRINT_ERROR("Invalid sample name provided");

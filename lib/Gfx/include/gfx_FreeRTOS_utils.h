@@ -1,5 +1,5 @@
 /**
- * @file TUM_FreeRTOS_Utils.h
+ * @file gfx_FreeRTOS_utils.h
  * @author Alex Hoffman
  * @date 24 August 2020
  * @brief Small verbose utilities for showing FreeRTOS functionality
@@ -21,11 +21,11 @@
  @endverbatim
  */
 
-#ifndef __TUM_FREERTOS_UTILS_H__
-#define __TUM_FREERTOS_UTILS_H__
+#ifndef __GFX_FREERTOS_UTILS_H__
+#define __GFX_FREERTOS_UTILS_H__
 
 /**
- * @defgroup tum_freertos_utils TUM FreeRTOS Utils API
+ * @defgroup gfx_freertos_utils GFX FreeRTOS Utils API
  *
  * @brief Helper functions for FreeRTOS
  *
@@ -39,13 +39,13 @@
  * @brief Prints a list of the current tasks executing on the system and their
  * states
  */
-void tumFUtilPrintTaskStateList(void);
+void gfxFUtilPrintTaskStateList(void);
 
 /**
  * @brief Prints a list of the current tasks executing on the system and their
  * utilizations
  */
-void tumFUtilPrintTaskUtils(void);
+void gfxFUtilPrintTaskUtils(void);
 
 /** @} */
-#endif // __TUM__FREERTOS_UTILS_H__
+#endif // __GFX__FREERTOS_UTILS_H__
