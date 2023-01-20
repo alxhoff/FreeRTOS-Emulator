@@ -2,37 +2,212 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "main.h"
-#include "queue.h"
+#include "FreeRTOS.h"
 #include "task.h"
 
-#include "gfx_ball.h"
-#include "gfx_draw.h"
+#include "gfx_utils.h"
 #include "gfx_font.h"
 #include "gfx_event.h"
 #include "gfx_sound.h"
-#include "gfx_utils.h"
-#include "gfx_FreeRTOS_utils.h"
+#include "gfx_ball.h"
 #include "gfx_print.h"
+#include "gfx_draw.h"
 
 #include "AsyncIO.h"
 
-#include "defines.h"
-#include "demo_tasks.h"
-#include "async_sockets.h"
-#include "async_message_queues.h"
-#include "buttons.h"
+#include "main.h"
+#include "pong.h"
 
+#define STATE_QUEUE_LENGTH 1
+
+#define STATE_COUNT 2
+
+#define STATE_PLAYING 0
+#define STATE_PAUSED 1
+
+#define STARTING_STATE STATE_PLAYING
+
+#define STATE_DEBOUNCE_DELAY 300
 
 #ifdef TRACE_FUNCTIONS
 #include "tracer.h"
 #endif
 
+const unsigned char next_state_signal = NEXT_TASK;
+const unsigned char prev_state_signal = PREV_TASK;
+
 static TaskHandle_t StateMachine = NULL;
 static TaskHandle_t BufferSwap = NULL;
 
+QueueHandle_t StateQueue = NULL;
 
-SemaphoreHandle_t DrawSignal = NULL;
+void checkDraw(unsigned char status, const char *msg)
+{
+    if (status) {
+        if (msg)
+            fprintf(stderr, "[ERROR] %s, %s\n", msg,
+                    gfxGetErrorMessage());
+        else {
+            fprintf(stderr, "[ERROR] %s\n", gfxGetErrorMessage());
+        }
+    }
+}
+
+#define FPS_AVERAGE_COUNT 50
+#define FPS_FONT "IBMPlexSans-Bold.ttf"
+
+void vDrawFPS(void)
+{
+    static unsigned int periods[FPS_AVERAGE_COUNT] = { 0 };
+    static unsigned int periods_total = 0;
+    static unsigned int index = 0;
+    static unsigned int average_count = 0;
+    static TickType_t xLastWakeTime = 0, prevWakeTime = 0;
+    static char str[10] = { 0 };
+    static int text_width;
+    int fps = 0;
+    font_handle_t cur_font = gfxFontGetCurFontHandle();
+
+    xLastWakeTime = xTaskGetTickCount();
+
+    if (prevWakeTime != xLastWakeTime) {
+        periods[index] =
+            configTICK_RATE_HZ / (xLastWakeTime - prevWakeTime);
+        prevWakeTime = xLastWakeTime;
+    }
+    else {
+        periods[index] = 0;
+    }
+
+    periods_total += periods[index];
+
+    if (index == (FPS_AVERAGE_COUNT - 1)) {
+        index = 0;
+    }
+    else {
+        index++;
+    }
+
+    if (average_count < FPS_AVERAGE_COUNT) {
+        average_count++;
+    }
+    else {
+        periods_total -= periods[index];
+    }
+
+    fps = periods_total / average_count;
+
+    gfxFontSelectFontFromName(FPS_FONT);
+
+    sprintf(str, "FPS: %2d", fps);
+
+    if (!gfxGetTextSize((char *)str, &text_width, NULL))
+        checkDraw(gfxDrawText(str,
+                              (SCREEN_WIDTH / 2) - (text_width / 2),
+                              SCREEN_HEIGHT - DEFAULT_FONT_SIZE * 1.5,
+                              Blue),
+                  __FUNCTION__);
+
+    gfxFontSelectFontFromHandle(cur_font);
+    gfxFontPutFontHandle(cur_font);
+}
+
+/*
+ * Changes the state, either forwards of backwards
+ */
+void changeState(volatile unsigned char *state, unsigned char forwards)
+{
+    switch (forwards) {
+        case NEXT_TASK:
+            if (*state == STATE_COUNT - 1) {
+                *state = 0;
+            }
+            else {
+                (*state)++;
+            }
+            break;
+        case PREV_TASK:
+            if (*state == 0) {
+                *state = STATE_COUNT - 1;
+            }
+            else {
+                (*state)--;
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+/*
+ * Example basic state machine with sequential states
+ */
+void basicSequentialStateMachine(void *pvParameters)
+{
+    unsigned char current_state = STARTING_STATE; // Default state
+    // Only re-evaluate state if it has changed
+    unsigned char state_changed = 1;
+    unsigned char input = 0;
+
+    const int state_change_period = STATE_DEBOUNCE_DELAY;
+
+    TickType_t last_change = xTaskGetTickCount();
+
+    while (1) {
+        if (state_changed) {
+            goto initial_state;
+        }
+
+        // Handle state machine input
+        if (StateQueue)
+            if (xQueueReceive(StateQueue, &input, portMAX_DELAY) ==
+                pdTRUE)
+                if (xTaskGetTickCount() - last_change >
+                    state_change_period) {
+                    changeState(&current_state, input);
+                    state_changed = 1;
+                    last_change = xTaskGetTickCount();
+                }
+
+initial_state:
+        // Handle current state
+        if (state_changed) {
+            switch (current_state) {
+                case STATE_PLAYING:
+                    if (PausedStateTask) {
+                        vTaskSuspend(PausedStateTask);
+                    }
+                    if (PongControlTask) {
+                        vTaskResume(PongControlTask);
+                    }
+                    if (LeftPaddleTask) {
+                        vTaskResume(LeftPaddleTask);
+                    }
+                    if (RightPaddleTask) {
+                        vTaskResume(RightPaddleTask);
+                    }
+                    break;
+                case STATE_PAUSED:
+                    if (PongControlTask) {
+                        vTaskSuspend(PongControlTask);
+                    }
+                    if (LeftPaddleTask) {
+                        vTaskSuspend(LeftPaddleTask);
+                    }
+                    if (RightPaddleTask) {
+                        vTaskSuspend(RightPaddleTask);
+                    }
+                    if (PausedStateTask) {
+                        vTaskResume(PausedStateTask);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            state_changed = 0;
+        }
+    }
+}
 
 void vSwapBuffers(void *pvParameters)
 {
@@ -40,12 +215,17 @@ void vSwapBuffers(void *pvParameters)
     xLastWakeTime = xTaskGetTickCount();
     const TickType_t frameratePeriod = 20;
 
+    gfxDrawBindThread(); // Setup Rendering handle with correct GL context
+
     while (1) {
-        gfxDrawUpdateScreen();
-        gfxEventFetchEvents(FETCH_EVENT_BLOCK);
-        xSemaphoreGive(DrawSignal);
-        vTaskDelayUntil(&xLastWakeTime,
-                        pdMS_TO_TICKS(frameratePeriod));
+        if (xSemaphoreTake(ScreenLock, portMAX_DELAY) == pdTRUE) {
+            gfxDrawUpdateScreen();
+            gfxEventFetchEvents(FETCH_EVENT_NONBLOCK);
+            xSemaphoreGive(ScreenLock);
+            xSemaphoreGive(DrawSignal);
+            vTaskDelayUntil(&xLastWakeTime,
+                            pdMS_TO_TICKS(frameratePeriod));
+        }
     }
 }
 
@@ -53,41 +233,21 @@ int main(int argc, char *argv[])
 {
     char *bin_folder_path = gfxUtilGetBinFolderPath(argv[0]);
 
-    prints("Initializing: ");
-
-    //  Note PRINT_ERROR is not thread safe and is only used before the
-    //  scheduler is started. There are thread safe print functions in
-    //  gfx_Print.h, `prints` and `fprints` that work exactly the same as
-    //  `printf` and `fprintf`. So you can read the documentation on these
-    //  functions to understand the functionality.
+    printf("Initializing: ");
 
     if (gfxDrawInit(bin_folder_path)) {
         PRINT_ERROR("Failed to intialize drawing");
         goto err_init_drawing;
-    }
-    else {
-        prints("drawing");
     }
 
     if (gfxEventInit()) {
         PRINT_ERROR("Failed to initialize events");
         goto err_init_events;
     }
-    else {
-        prints(", events");
-    }
 
     if (gfxSoundInit(bin_folder_path)) {
         PRINT_ERROR("Failed to initialize audio");
         goto err_init_audio;
-    }
-    else {
-        prints(", and audio\n");
-    }
-
-    if (gfxSafePrintInit()) {
-        PRINT_ERROR("Failed to init safe print");
-        goto err_init_safe_print;
     }
 
     atexit(aIODeinit);
@@ -95,80 +255,44 @@ int main(int argc, char *argv[])
     //Load a second font for fun
     gfxFontLoadFont(FPS_FONT, DEFAULT_FONT_SIZE);
 
-    if (xButtonsInit()) {
-        PRINT_ERROR("Failed to init buttons");
-        goto err_buttons_lock;
-    }
-
-    DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
-    if (!DrawSignal) {
-        PRINT_ERROR("Failed to create draw signal");
-        goto err_draw_signal;
-    }
-
     // Message sending
-    if (xTaskCreate(vStateMachineTask, "StateMachine",
+    StateQueue = xQueueCreate(STATE_QUEUE_LENGTH, sizeof(unsigned char));
+    if (!StateQueue) {
+        PRINT_ERROR("Could not open state queue");
+        goto err_state_queue;
+    }
+
+    if (xTaskCreate(basicSequentialStateMachine, "StateMachine",
                     mainGENERIC_STACK_SIZE * 2, NULL,
-                    configMAX_PRIORITIES - 1, &StateMachine) != pdPASS) {
+                    configMAX_PRIORITIES - 1, StateMachine) != pdPASS) {
         PRINT_TASK_ERROR("StateMachine");
-        goto err_statemachinetask;
+        goto err_statemachine;
     }
     if (xTaskCreate(vSwapBuffers, "BufferSwapTask",
                     mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES,
-                    &BufferSwap) != pdPASS) {
+                    BufferSwap) != pdPASS) {
         PRINT_TASK_ERROR("BufferSwapTask");
         goto err_bufferswap;
     }
 
-    /** Demo Tasks */
-    if (xCreateDemoTasks()) {
-        goto err_demotasks;
-    }
-
-    /** SOCKETS */
-    if (xCreateSocketTasks()) {
-        goto err_sockettasks;
-    }
-
-    /** POSIX MESSAGE QUEUES */
-    if (xCreateMessageQueueTasks()) {
-        goto err_messagequeuetasks;
-    }
-
-    /** State Machine */
-    if (xStateMachineInit()) {
-        goto err_statemachine;
-    }
-
-    gfxFUtilPrintTaskStateList();
+    pongInit();
 
     vTaskStartScheduler();
 
     return EXIT_SUCCESS;
 
-err_statemachine:
-    vDeleteMessageQueueTasks();
-err_messagequeuetasks:
-    vDeleteSocketTasks();
-err_sockettasks:
-    vDeleteDemoTasks();
-err_demotasks:
     vTaskDelete(BufferSwap);
 err_bufferswap:
     vTaskDelete(StateMachine);
-err_statemachinetask:
-    vSemaphoreDelete(DrawSignal);
-err_draw_signal:
-    vButtonsExit();
-err_buttons_lock:
+err_statemachine:
+    vQueueDelete(StateQueue);
+err_state_queue:
     gfxSoundExit();
 err_init_audio:
     gfxEventExit();
 err_init_events:
     gfxDrawExit();
 err_init_drawing:
-    gfxSafePrintExit();
-err_init_safe_print:
     return EXIT_FAILURE;
 }
 
