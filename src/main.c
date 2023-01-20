@@ -6,14 +6,14 @@
 #include "queue.h"
 #include "task.h"
 
-#include "TUM_Ball.h"
-#include "TUM_Draw.h"
-#include "TUM_Font.h"
-#include "TUM_Event.h"
-#include "TUM_Sound.h"
-#include "TUM_Utils.h"
-#include "TUM_FreeRTOS_Utils.h"
-#include "TUM_Print.h"
+#include "gfx_ball.h"
+#include "gfx_draw.h"
+#include "gfx_font.h"
+#include "gfx_event.h"
+#include "gfx_sound.h"
+#include "gfx_utils.h"
+#include "gfx_FreeRTOS_utils.h"
+#include "gfx_print.h"
 
 #include "AsyncIO.h"
 
@@ -41,8 +41,8 @@ void vSwapBuffers(void *pvParameters)
     const TickType_t frameratePeriod = 20;
 
     while (1) {
-        tumDrawUpdateScreen();
-        tumEventFetchEvents(FETCH_EVENT_BLOCK);
+        gfxDrawUpdateScreen();
+        gfxEventFetchEvents(FETCH_EVENT_BLOCK);
         xSemaphoreGive(DrawSignal);
         vTaskDelayUntil(&xLastWakeTime,
                         pdMS_TO_TICKS(frameratePeriod));
@@ -51,17 +51,17 @@ void vSwapBuffers(void *pvParameters)
 
 int main(int argc, char *argv[])
 {
-    char *bin_folder_path = tumUtilGetBinFolderPath(argv[0]);
+    char *bin_folder_path = gfxUtilGetBinFolderPath(argv[0]);
 
     prints("Initializing: ");
 
     //  Note PRINT_ERROR is not thread safe and is only used before the
     //  scheduler is started. There are thread safe print functions in
-    //  TUM_Print.h, `prints` and `fprints` that work exactly the same as
+    //  gfx_Print.h, `prints` and `fprints` that work exactly the same as
     //  `printf` and `fprintf`. So you can read the documentation on these
     //  functions to understand the functionality.
 
-    if (tumDrawInit(bin_folder_path)) {
+    if (gfxDrawInit(bin_folder_path)) {
         PRINT_ERROR("Failed to intialize drawing");
         goto err_init_drawing;
     }
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
         prints("drawing");
     }
 
-    if (tumEventInit()) {
+    if (gfxEventInit()) {
         PRINT_ERROR("Failed to initialize events");
         goto err_init_events;
     }
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
         prints(", events");
     }
 
-    if (tumSoundInit(bin_folder_path)) {
+    if (gfxSoundInit(bin_folder_path)) {
         PRINT_ERROR("Failed to initialize audio");
         goto err_init_audio;
     }
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         prints(", and audio\n");
     }
 
-    if (safePrintInit()) {
+    if (gfxSafePrintInit()) {
         PRINT_ERROR("Failed to init safe print");
         goto err_init_safe_print;
     }
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     atexit(aIODeinit);
 
     //Load a second font for fun
-    tumFontLoadFont(FPS_FONT, DEFAULT_FONT_SIZE);
+    gfxFontLoadFont(FPS_FONT, DEFAULT_FONT_SIZE);
 
     if (xButtonsInit()) {
         PRINT_ERROR("Failed to init buttons");
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
         goto err_statemachine;
     }
 
-    tumFUtilPrintTaskStateList();
+    gfxFUtilPrintTaskStateList();
 
     vTaskStartScheduler();
 
@@ -161,13 +161,13 @@ err_statemachinetask:
 err_draw_signal:
     vButtonsExit();
 err_buttons_lock:
-    tumSoundExit();
+    gfxSoundExit();
 err_init_audio:
-    tumEventExit();
+    gfxEventExit();
 err_init_events:
-    tumDrawExit();
+    gfxDrawExit();
 err_init_drawing:
-    safePrintExit();
+    gfxSafePrintExit();
 err_init_safe_print:
     return EXIT_FAILURE;
 }

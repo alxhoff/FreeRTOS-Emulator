@@ -1,10 +1,10 @@
 #include <stdlib.h>
-#include <string.h>s
+#include <string.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "TUM_Print.h"
+#include "gfx_print.h"
 
 #include "async_sockets.h"
 #include "defines.h"

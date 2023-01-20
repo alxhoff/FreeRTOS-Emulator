@@ -3,7 +3,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "TUM_Print.h"
+#include "gfx_print.h"
 
 #include "async_message_queues.h"
 #include "defines.h"
