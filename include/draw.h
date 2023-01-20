@@ -4,10 +4,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "TUM_Draw.h"
-#include "TUM_Ball.h"
+#include "gfx_draw.h"
+#include "gfx_ball.h"
 
-extern image_handle_t logo_image;
+extern gfx_image_handle_t logo_image;
 
 /// @brief Creates the four demo walls used
 /// @param left_wall Double pointer to the wall handle for the left wall
