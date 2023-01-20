@@ -1,9 +1,8 @@
-
 /**
- * @file TUM_Font.c
+ * @file gfx_font.c
  * @author Alex Hoffman
  * @date 30 April 2020
- * @brief Manages fonts used in TUM Draw
+ * @brief Manages fonts used in GFX Draw
  *
  * @verbatim
  ----------------------------------------------------------------------
@@ -25,35 +24,35 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "TUM_Font.h"
-#include "TUM_Utils.h"
-#include "TUM_Print.h"
+#include "gfx_font.h"
+#include "gfx_utils.h"
+#include "gfx_print.h"
 
 #define PRINT_TTF_ERROR(msg, ...)                                              \
     PRINT_ERROR("[TTF Error] %s\n" #msg, (char *)TTF_GetError(),           \
                 ##__VA_ARGS__)
 
-struct tum_font_ref {
+struct gfx_font_ref {
     TTF_Font *font;
     unsigned ref_count;
     unsigned pending_free;
 };
 
-typedef struct tum_font {
+typedef struct gfx_font {
     char *path;
     char *name;
-    struct tum_font_ref font;
+    struct gfx_font_ref font;
     unsigned size;
-    struct tum_font *next;
-} tum_font_t;
+    struct gfx_font *next;
+} gfx_font_t;
 
 pthread_mutex_t list_lock = PTHREAD_MUTEX_INITIALIZER;
-static struct tum_font font_list = { 0 };
+static struct gfx_font font_list = { 0 };
 
 static const char *fonts_dir;
-static struct tum_font *cur_default_font = NULL;
+static struct gfx_font *cur_default_font = NULL;
 
-static char *getFontPath(char *font_name)
+static char *_getFontPath(char *font_name)
 {
     unsigned font_dir_len = strlen(fonts_dir);
     unsigned font_len = strlen(font_name);
@@ -73,16 +72,16 @@ static char *getFontPath(char *font_name)
     return ret;
 }
 
-static struct tum_font *tumFontCreateFont(char *font_name, ssize_t size)
+static struct gfx_font *_loadFont(char *font_name, ssize_t size)
 {
-    struct tum_font *ret;
+    struct gfx_font *ret;
 
-    ret = calloc(1, sizeof(struct tum_font));
+    ret = calloc(1, sizeof(struct gfx_font));
     if (ret == NULL) {
         goto err_alloc_def_font;
     }
 
-    ret->path = getFontPath(font_name);
+    ret->path = _getFontPath(font_name);
     if (ret->path == NULL) {
         goto err_get_font_path;
     }
@@ -109,12 +108,12 @@ err_alloc_def_font:
     return NULL;
 }
 
-int tumFontInit(char *path)
+int gfxFontInit(char *path)
 {
-    const char *resource_path = tumUtilFindResourceDirectory();
-    fonts_dir = tumUtilPrependPath(resource_path, FONTS_DIR);
+    const char *resource_path = gfxUtilFindResourceDirectory();
+    fonts_dir = gfxUtilPrependPath(resource_path, FONTS_DIR);
 
-    font_list.next = tumFontCreateFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
+    font_list.next = _loadFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
     if (font_list.next == NULL) {
         return -1;
     }
@@ -124,34 +123,34 @@ int tumFontInit(char *path)
     return 0;
 }
 
-void tumFontDeleteFont(struct tum_font *font)
+void gfxFontDeleteFont(struct gfx_font *font)
 {
     free(font->path);
     TTF_CloseFont(font->font.font);
     free(font);
 }
 
-void tumFontExit(void)
+void gfxFontExit(void)
 {
     pthread_mutex_lock(&list_lock);
-    struct tum_font *iterator = font_list.next;
-    struct tum_font *delete = NULL;
+    struct gfx_font *iterator = font_list.next;
+    struct gfx_font *delete = NULL;
 
     while (iterator) {
         delete = iterator;
         iterator = iterator->next;
 
-        tumFontDeleteFont(delete);
+        gfxFontDeleteFont(delete);
     }
 
     pthread_mutex_unlock(&list_lock);
 }
 
-void tumFontPutFontHandle(font_handle_t font)
+void gfxFontPutFontHandle(font_handle_t font)
 {
     pthread_mutex_lock(&list_lock);
-    struct tum_font *iterator = &font_list;
-    struct tum_font *delete = NULL;
+    struct gfx_font *iterator = &font_list;
+    struct gfx_font *delete = NULL;
 
     for (; iterator; iterator = iterator->next) {
         if (iterator == font) {
@@ -166,7 +165,7 @@ void tumFontPutFontHandle(font_handle_t font)
                         font_list.next = iterator->next;
                     }
                 }
-                tumFontDeleteFont(iterator);
+                gfxFontDeleteFont(iterator);
             }
             pthread_mutex_unlock(&list_lock);
             return;
@@ -176,11 +175,11 @@ void tumFontPutFontHandle(font_handle_t font)
     pthread_mutex_unlock(&list_lock);
 }
 
-void tumFontPutFont(const TTF_Font *font)
+void gfxFontPutFont(const TTF_Font *font)
 {
     pthread_mutex_lock(&list_lock);
-    struct tum_font *iterator = &font_list;
-    struct tum_font *delete = NULL;
+    struct gfx_font *iterator = &font_list;
+    struct gfx_font *delete = NULL;
 
     for (; iterator; iterator = iterator->next) {
         if (iterator->font.font == font) {
@@ -195,7 +194,7 @@ void tumFontPutFont(const TTF_Font *font)
                         font_list.next = iterator->next;
                     }
                 }
-                tumFontDeleteFont(iterator);
+                gfxFontDeleteFont(iterator);
             }
             pthread_mutex_unlock(&list_lock);
             return;
@@ -205,7 +204,7 @@ void tumFontPutFont(const TTF_Font *font)
     pthread_mutex_unlock(&list_lock);
 }
 
-TTF_Font *tumFontGetCurFont(void)
+TTF_Font *gfxFontGetCurFont(void)
 {
     TTF_Font *ret;
 
@@ -219,7 +218,7 @@ TTF_Font *tumFontGetCurFont(void)
     return ret;
 }
 
-ssize_t tumFontGetCurFontSize(void)
+ssize_t gfxFontGetCurFontSize(void)
 {
     pthread_mutex_lock(&list_lock);
     ssize_t ret = cur_default_font->size;
@@ -227,7 +226,7 @@ ssize_t tumFontGetCurFontSize(void)
     return ret;
 }
 
-char *tumFontGetCurFontName(void)
+char *gfxFontGetCurFontName(void)
 {
     pthread_mutex_lock(&list_lock);
     char *ret = strdup(cur_default_font->name);
@@ -235,7 +234,7 @@ char *tumFontGetCurFontName(void)
     return ret;
 }
 
-font_handle_t tumFontGetCurFontHandle(void)
+font_handle_t gfxFontGetCurFontHandle(void)
 {
     pthread_mutex_lock(&list_lock);
     cur_default_font->font.ref_count++;
@@ -244,14 +243,14 @@ font_handle_t tumFontGetCurFontHandle(void)
     return ret;
 }
 
-static struct tum_font *tumFontAppendFont(char *font_name, ssize_t size)
+static struct gfx_font *_appendFont(char *font_name, ssize_t size)
 {
-    struct tum_font *iterator = &font_list;
+    struct gfx_font *iterator = &font_list;
 
     for (; iterator->next; iterator = iterator->next)
         ;
 
-    iterator->next = tumFontCreateFont(font_name, size);
+    iterator->next = _loadFont(font_name, size);
     if (iterator->next == NULL) {
         return NULL;
     }
@@ -259,13 +258,13 @@ static struct tum_font *tumFontAppendFont(char *font_name, ssize_t size)
     return iterator->next;
 }
 
-int tumFontLoadFont(char *font_name, ssize_t size)
+int gfxFontLoadFont(char *font_name, ssize_t size)
 {
     int ret = 0;
 
     pthread_mutex_lock(&list_lock);
 
-    if (tumFontAppendFont(font_name, (size) ? size : DEFAULT_FONT_SIZE) ==
+    if (_appendFont(font_name, (size) ? size : DEFAULT_FONT_SIZE) ==
         NULL) {
         ret = -1;
     }
@@ -275,10 +274,10 @@ int tumFontLoadFont(char *font_name, ssize_t size)
     return ret;
 }
 
-int tumFontSelectFontFromName(char *font_name)
+int gfxFontSelectFontFromName(char *font_name)
 {
     pthread_mutex_lock(&list_lock);
-    struct tum_font *iterator = &font_list;
+    struct gfx_font *iterator = &font_list;
 
     for (; iterator; iterator = iterator->next)
         if (iterator->name)
@@ -293,10 +292,10 @@ int tumFontSelectFontFromName(char *font_name)
     return -1;
 }
 
-int tumFontSelectFontFromHandle(font_handle_t font_handle)
+int gfxFontSelectFontFromHandle(font_handle_t font_handle)
 {
     pthread_mutex_lock(&list_lock);
-    struct tum_font *iterator = &font_list;
+    struct gfx_font *iterator = &font_list;
 
     for (; iterator; iterator = iterator->next)
         if (iterator == font_handle) {
@@ -310,7 +309,7 @@ int tumFontSelectFontFromHandle(font_handle_t font_handle)
     return -1;
 }
 
-int tumFontSetSize(ssize_t font_size)
+int gfxFontSetSize(ssize_t font_size)
 {
     if (cur_default_font == NULL) {
         goto err_;
@@ -338,7 +337,7 @@ int tumFontSetSize(ssize_t font_size)
     else {
         cur_default_font->font.pending_free = 1;
         cur_default_font =
-            tumFontAppendFont(cur_default_font->name, font_size);
+            _appendFont(cur_default_font->name, font_size);
         if (!cur_default_font) {
             goto err_;
         }

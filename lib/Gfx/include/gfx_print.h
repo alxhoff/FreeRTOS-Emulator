@@ -1,6 +1,6 @@
 
 /**
- * @file TUM_Print.h
+ * @file gfx_print.h
  * @author Alex Hoffman
  * @date 18 April 2020
  * @brief A couple of drop in replacements for `printf` and `fprintf` to be used
@@ -23,13 +23,13 @@
  @endverbatim
  */
 
-#ifndef __TUM_PRINT_H__
-#define __TUM_PRINT_H__
+#ifndef __GFX_PRINT_H__
+#define __GFX_PRINT_H__
 
 #include <stdio.h>
 
 /**
- * @defgroup tum_print TUM Printing
+ * @defgroup gfx_print GFX Printing
  *
  * @brief Thread safe printing API
  *
@@ -98,13 +98,13 @@ void prints(const char *__format, ...);
  *
  * @return 0 on sucess
  */
-int safePrintInit(void);
+int gfxSafePrintInit(void);
 
 /**
  * @brief Exits the printing module
  */
-void safePrintExit(void);
+void gfxSafePrintExit(void);
 
 /** @} */
 
-#endif // __TUM_PRINT_H__
+#endif // __GFX_PRINT_H__

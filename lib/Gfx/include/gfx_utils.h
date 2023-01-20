@@ -1,8 +1,8 @@
 /**
- * @file TUM_Utils.h
+ * @file gfx_utils.h
  * @author Alex Hoffman
  * @date 27 August 2019
- * @brief Utilities required by other TUM_XXX files
+ * @brief Utilities required by other gfx_XXX files
  *
  * @verbatim
  ----------------------------------------------------------------------
@@ -21,8 +21,8 @@
  @endverbatim
  */
 
-#ifndef __TUM_UTILS_H__
-#define __TUM_UTILS_H__
+#ifndef __GFX_UTILS_H__
+#define __GFX_UTILS_H__
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,12 +33,12 @@
  *
  * @return 0 if the current thread does hold the GL context, -1 otherwise.
  */
-int tumUtilIsCurGLThread(void);
+int gfxUtilIsCurGLThread(void);
 
 /**
  * @brief The calling thread is registered as holding the current GL context
  */
-void tumUtilSetGLThread(void);
+void gfxUtilSetGLThread(void);
 
 /**
  * @brief Prepends a path string to a filename
@@ -47,7 +47,7 @@ void tumUtilSetGLThread(void);
  * @param file Filename to which the path string should be prepended
  * @return char * to the complete compiled path
  */
-char *tumUtilPrependPath(const char *path, char *file);
+char *gfxUtilPrependPath(const char *path, char *file);
 
 /**
  * @brief Gets the execution folder of the current program, assumes that program
@@ -56,14 +56,14 @@ char *tumUtilPrependPath(const char *path, char *file);
  * @param bin_path The program's binary's location, usually argv[0]
  * @return char * String of the folder's absolute location
  */
-char *tumUtilGetBinFolderPath(char *bin_path);
+char *gfxUtilGetBinFolderPath(char *bin_path);
 
 /**
  * @brief Returns the lopcation of the resource directory
  *
  * @return String reference if found, otherwise NULL
  */
-const char *tumUtilFindResourceDirectory(void);
+const char *gfxUtilFindResourceDirectory(void);
 
 /**
  * @brief Searches for a file in the RESOURCES_DIRECTORY and returns
@@ -73,10 +73,10 @@ const char *tumUtilFindResourceDirectory(void);
  * @param mode The reading mode to be used when opening the file, eg. "rw"
  * @return FILE reference if found, otherwise NULL
  */
-FILE *tumUtilFindResource(char *resource_name, const char *mode);
+FILE *gfxUtilFindResource(char *resource_name, const char *mode);
 
 /**
- * @brief Similar to tumUtilFindResource() only returning the file's path instead
+ * @brief Similar to gfxUtilFindResource() only returning the file's path instead
  * of the opened FILE's reference.
  *
  * The found filename is stored in a statically allocated buffer and can be
@@ -85,10 +85,10 @@ FILE *tumUtilFindResource(char *resource_name, const char *mode);
  * @param resource_name Name of the file to be found
  * @return Reference to the statically allocated filename, else NULL
  */
-char *tumUtilFindResourcePath(char *resource_name);
+char *gfxUtilFindResourcePath(char *resource_name);
 
 /**
- * @brief A handle to a ring buffer object, created using rbuf_init()
+ * @brief A handle to a ring buffer object, created using gfxRbufInit()
  */
 typedef void *rbuf_handle_t;
 
@@ -100,7 +100,7 @@ typedef void *rbuf_handle_t;
  * @param item_count The maximum number of items to be stored in the ring buffer
  * @return A handle to the created ring buffer, else NULL
  */
-rbuf_handle_t rbuf_init(size_t item_size, size_t item_count);
+rbuf_handle_t gfxRbufInit(size_t item_size, size_t item_count);
 
 /**
  * @brief Initialized a ring buffer object with a certain number of objects
@@ -112,21 +112,21 @@ rbuf_handle_t rbuf_init(size_t item_size, size_t item_count);
  * to be used for storing the ring buffer
  * @return A handle to the created ring buffer, else NULL
  */
-rbuf_handle_t rbuf_init_static(size_t item_size, size_t item_count, void *buffer);
+rbuf_handle_t gfxRbufInitStatic(size_t item_size, size_t item_count, void *buffer);
 
 /**
  * @brief Frees a ring buffer
  *
  * @param rbuf Handle to the ring buffer
  */
-void rbuf_free(rbuf_handle_t rbuf);
+void gfxRbufFree(rbuf_handle_t rbuf);
 
 /**
  * @brief Resets the ring buffer to it's initial state
  *
  * @param rbuf Handle to the ring buffer
  */
-void rbuf_reset(rbuf_handle_t rbuf);
+void gfxRbufReset(rbuf_handle_t rbuf);
 
 /**
  * @brief Used when a reference to the next buffer item is already filled,
@@ -135,7 +135,7 @@ void rbuf_reset(rbuf_handle_t rbuf);
  * @param rbuf Handle to the ring buffer
  * @return 0 on success
  */
-int rbuf_put_buffer(rbuf_handle_t rbuf);
+int gfxRbufPutBuffer(rbuf_handle_t rbuf);
 
 /**
  * @brief Fills the next available buffer slot, if a slot is free
@@ -144,7 +144,7 @@ int rbuf_put_buffer(rbuf_handle_t rbuf);
  * @param data Reference to the data to be copied into the buffer
  * @return 0 on success
  */
-int rbuf_put(rbuf_handle_t rbuf, void *data);
+int gfxRbufPut(rbuf_handle_t rbuf, void *data);
 
 /**
  * @brief Fills the next available buffer, overwriting data if the ring buffer
@@ -154,7 +154,7 @@ int rbuf_put(rbuf_handle_t rbuf, void *data);
  * @param data Reference to the data to be copied into the buffer
  * @return 0 on success
  */
-int rbuf_fput(rbuf_handle_t rbuf, void *data);
+int gfxRbufFPut(rbuf_handle_t rbuf, void *data);
 
 /**
  * @brief Returns a reference to the data of the next ring buffer entry
@@ -165,7 +165,7 @@ int rbuf_fput(rbuf_handle_t rbuf, void *data);
  * @param rbuf Handle to the ring buffer
  * @return A reference to the next item in the buffer's data
  */
-void *rbuf_get_buffer(rbuf_handle_t rbuf);
+void *gfxRbufGetBuffer(rbuf_handle_t rbuf);
 
 /**
  * @brief Returns a copy of the next buffer item's data
@@ -175,7 +175,7 @@ void *rbuf_get_buffer(rbuf_handle_t rbuf);
  * should be copied
  * @return 0 on success
  */
-int rbuf_get(rbuf_handle_t rbuf, void *data);
+int gfxRbufGet(rbuf_handle_t rbuf, void *data);
 
 /**
  * @brief Checks if the buffer is empty or not
@@ -183,7 +183,7 @@ int rbuf_get(rbuf_handle_t rbuf, void *data);
  * @param rbuf Handle to the ring buffer
  * @return 1 if the buffer is empty, 0 otherwise
  */
-unsigned char rbuf_empty(rbuf_handle_t rbuf);
+unsigned char gfxRbufEmpty(rbuf_handle_t rbuf);
 
 /**
  * @brief Checks if the buffer is full
@@ -191,7 +191,7 @@ unsigned char rbuf_empty(rbuf_handle_t rbuf);
  * @param rbuf Handle to the ring buffer
  * @return 1 if the buffer is full, 0 otherwise
  */
-unsigned char rbug_full(rbuf_handle_t rbuf);
+unsigned char gfxRbufFull(rbuf_handle_t rbuf);
 
 /**
  * @brief Returns the number of elements currently stored in the ring buffer
@@ -199,7 +199,7 @@ unsigned char rbug_full(rbuf_handle_t rbuf);
  * @param rbuf Handle to the ring buffer
  * @return Number of elements stored in the ring buffer
  */
-size_t rbuf_size(rbuf_handle_t rbuf);
+size_t gfxRbufSize(rbuf_handle_t rbuf);
 
 /**
  * @brief Returns the maximum number of elements that the ring buffer can store
@@ -207,6 +207,6 @@ size_t rbuf_size(rbuf_handle_t rbuf);
  * @param rbuf Handle to the ring buffer
  * @return The maximum number of elements that the ring buffer can store
  */
-size_t rbuf_capacity(rbuf_handle_t rbuf);
+size_t gfxRbufCapacity(rbuf_handle_t rbuf);
 
 #endif

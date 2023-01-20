@@ -1,8 +1,8 @@
 /**
- * @file TUM_Event.c
+ * @file gfx_event.c
  * @author Alex Hoffman
  * @date 27 August 2019
- * @brief Utilities required by other TUM_XXX files
+ * @brief Utilities required by other gfx_XXX files
  *
  * @verbatim
    ----------------------------------------------------------------------
@@ -24,16 +24,16 @@
 #include <linux/unistd.h>
 #include <assert.h>
 
-#include "TUM_Event.h"
+#include "include/gfx_event.h"
 #include "task.h"
 #include "semphr.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mouse.h"
 
-#include "TUM_Draw.h"
-#include "TUM_Utils.h"
-#include "TUM_Print.h"
+#include "gfx_draw.h"
+#include "gfx_utils.h"
+#include "gfx_print.h"
 
 typedef struct mouse {
     xSemaphoreHandle lock;
@@ -50,7 +50,7 @@ mouse_t mouse;
 
 xSemaphoreHandle fetch_lock;
 
-static int initMouse(void)
+static int _initMouse(void)
 {
     mouse.lock = xSemaphoreCreateMutex();
     if (!mouse.lock) {
@@ -65,7 +65,7 @@ static int initMouse(void)
     return 0;
 }
 
-static void SDLFetchEvents(void)
+static void _SDLFetchEvents(void)
 {
     SDL_Event event = { 0 };
     static unsigned char buttons[SDL_NUM_SCANCODES] = { 0 };
@@ -143,12 +143,12 @@ static void SDLFetchEvents(void)
 #define FETCH_NONBLOCK_S 1
 #define FETCH_NO_GL_CHECK_S 2
 
-int tumEventFetchEvents(int flags)
+int gfxEventFetchEvents(int flags)
 {
     if (!((flags >> FETCH_NO_GL_CHECK_S) & 0x1))
-        if (!tumUtilIsCurGLThread()) {
-            tumDrawBindThread();
-            if (!tumUtilIsCurGLThread()) {
+        if (!gfxUtilIsCurGLThread()) {
+            gfxDrawBindThread();
+            if (!gfxUtilIsCurGLThread()) {
                 PRINT_ERROR(
                     "Fetching events from task that does not hold GL context");
                 return -1;
@@ -157,13 +157,13 @@ int tumEventFetchEvents(int flags)
 
     if ((flags >> FETCH_BLOCK_S) & 0x01) {
         xSemaphoreTake(fetch_lock, portMAX_DELAY);
-        SDLFetchEvents();
+        _SDLFetchEvents();
         xSemaphoreGive(fetch_lock);
         return 0;
     }
     else {
         if (xSemaphoreTake(fetch_lock, 0) == pdTRUE) {
-            SDLFetchEvents();
+            _SDLFetchEvents();
             xSemaphoreGive(fetch_lock);
             return 0;
         }
@@ -171,7 +171,7 @@ int tumEventFetchEvents(int flags)
     return -1;
 }
 
-signed short tumEventGetMouseX(void)
+signed short gfxEventGetMouseX(void)
 {
     signed short ret;
 
@@ -184,7 +184,7 @@ signed short tumEventGetMouseX(void)
     return 0;
 }
 
-signed short tumEventGetMouseY(void)
+signed short gfxEventGetMouseY(void)
 {
     signed short ret;
 
@@ -198,7 +198,7 @@ signed short tumEventGetMouseY(void)
     return 0;
 }
 
-signed char tumEventGetMouseLeft(void)
+signed char gfxEventGetMouseLeft(void)
 {
     signed char ret;
 
@@ -209,7 +209,7 @@ signed char tumEventGetMouseLeft(void)
     return ret;
 }
 
-signed char tumEventGetMouseRight(void)
+signed char gfxEventGetMouseRight(void)
 {
     signed char ret;
 
@@ -220,7 +220,7 @@ signed char tumEventGetMouseRight(void)
     return ret;
 }
 
-signed char tumEventGetMouseMiddle(void)
+signed char gfxEventGetMouseMiddle(void)
 {
     signed char ret;
 
@@ -231,9 +231,9 @@ signed char tumEventGetMouseMiddle(void)
     return ret;
 }
 
-int tumEventInit(void)
+int gfxEventInit(void)
 {
-    if (initMouse()) {
+    if (_initMouse()) {
         PRINT_ERROR("Init mouse failed");
         goto err_init_mouse;
     }
@@ -259,7 +259,7 @@ err_init_mouse:
     return -1;
 }
 
-void tumEventExit(void)
+void gfxEventExit(void)
 {
     vQueueDelete(buttonInputQueue);
     vSemaphoreDelete(mouse.lock);

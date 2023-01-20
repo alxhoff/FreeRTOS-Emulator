@@ -1,5 +1,5 @@
 /**
- * @file TUM_Print.c
+ * @file gfx_print.c
  * @author Alex Hoffman
  * @date 18 April 2020
  * @brief A couple of drop in replacements for `printf` and `fprintf` to be used
@@ -29,8 +29,8 @@
 #include "task.h"
 #include "semphr.h"
 
-#include "TUM_Print.h"
-#include "TUM_Utils.h"
+#include "gfx_print.h"
+#include "gfx_utils.h"
 
 struct error_print_msg {
 #ifdef SAFE_PRINT_DEBUG
@@ -52,8 +52,8 @@ rbuf_handle_t input_rbuf = NULL;
 xQueueHandle safePrintQueue = NULL;
 xTaskHandle safePrintTaskHandle = NULL;
 
-static void vfprints(FILE *__restrict __stream, const char *__format,
-                     va_list args)
+static void _vfprints(FILE *__restrict __stream, const char *__format,
+                      va_list args)
 {
     struct error_print_msg *tmp_msg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -68,7 +68,7 @@ static void vfprints(FILE *__restrict __stream, const char *__format,
         return;
     }
 
-    tmp_msg = (struct error_print_msg *)rbuf_get_buffer(input_rbuf);
+    tmp_msg = (struct error_print_msg *)gfxRbufGetBuffer(input_rbuf);
 
 #ifdef SAFE_PRINT_DEBUG
     if (xSemaphoreGive(input_debug_count) == pdTRUE) {
@@ -88,7 +88,7 @@ static void vfprints(FILE *__restrict __stream, const char *__format,
 
     xQueueSendFromISR(safePrintQueue, tmp_msg, &xHigherPriorityTaskWoken);
 
-    rbuf_put_buffer(input_rbuf);
+    gfxRbufPutBuffer(input_rbuf);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
@@ -97,7 +97,7 @@ void fprints(FILE *__restrict __stream, const char *__format, ...)
 {
     va_list args;
     va_start(args, __format);
-    vfprints(__stream, __format, args);
+    _vfprints(__stream, __format, args);
     va_end(args);
 }
 
@@ -105,7 +105,7 @@ void prints(const char *__format, ...)
 {
     va_list args;
     va_start(args, __format);
-    vfprints(stdout, __format, args);
+    _vfprints(stdout, __format, args);
     va_end(args);
 }
 
@@ -123,7 +123,7 @@ static void safePrintTask(void *pvParameters)
     }
 }
 
-int safePrintInit(void)
+int gfxSafePrintInit(void)
 {
     safePrintQueue =
         xQueueCreate(SAFE_PRINT_QUEUE_LEN, SAFE_PRINT_MAX_MSG_LEN);
@@ -139,8 +139,8 @@ int safePrintInit(void)
         return -1;
     }
 
-    input_rbuf = rbuf_init_static(sizeof(struct error_print_msg),
-                                  SAFE_PRINT_INPUT_BUFFER_COUNT, (void *)rbuf_buffer);
+    input_rbuf = gfxRbufInitStatic(sizeof(struct error_print_msg),
+                                   SAFE_PRINT_INPUT_BUFFER_COUNT, (void *)rbuf_buffer);
 
     if (input_rbuf == NULL) {
         return -1;
@@ -157,7 +157,7 @@ int safePrintInit(void)
     return 0;
 }
 
-void safePrintExit(void)
+void gfxSafePrintExit(void)
 {
     vTaskDelete(safePrintTaskHandle);
 
