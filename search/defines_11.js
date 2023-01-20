@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wall',['WALL',['../TUM__Ball_8c.html#ac749b87dd5d843e4add3eb8e8a130f62',1,'TUM_Ball.c']]]
+  ['wall',['WALL',['../gfx__ball_8c.html#ac749b87dd5d843e4add3eb8e8a130f62',1,'gfx_ball.c']]]
 ];

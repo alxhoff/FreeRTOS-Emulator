@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['getlastconnection',['getLastConnection',['../AsyncIO_8c.html#a5f5884a494342c3a4a40748accbd316f',1,'AsyncIO.c']]]
+  ['fprints',['fprints',['../group__gfx__print.html#ga7fbd8ab113e5ff59be957365d08acbad',1,'fprints(FILE *__restrict __stream, const char *__format,...):&#160;gfx_print.c'],['../group__gfx__print.html#ga7fbd8ab113e5ff59be957365d08acbad',1,'fprints(FILE *__restrict __stream, const char *__format,...):&#160;gfx_print.c']]]
 ];
