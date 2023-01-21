@@ -12,6 +12,7 @@ branches:
     only:
         - master
         - udp_demo
+        - clean
         - pong
         - ci
 
