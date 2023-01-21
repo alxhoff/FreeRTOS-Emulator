@@ -1,9 +1,14 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <inttypes.h>
 
-#include "main.h"
+#include <SDL2/SDL_scancode.h>
+
+#include "FreeRTOS.h"
 #include "queue.h"
+#include "semphr.h"
 #include "task.h"
 
 #include "gfx_ball.h"
@@ -15,24 +20,36 @@
 #include "gfx_FreeRTOS_utils.h"
 #include "gfx_print.h"
 
-#include "AsyncIO.h"
-
-#include "defines.h"
-#include "demo_tasks.h"
-#include "async_sockets.h"
-#include "async_message_queues.h"
-#include "buttons.h"
-
 
 #ifdef TRACE_FUNCTIONS
 #include "tracer.h"
 #endif
 
-static TaskHandle_t StateMachine = NULL;
+#define KEYCODE(CHAR) SDL_SCANCODE_##CHAR
+
+#define mainGENERIC_PRIORITY (tskIDLE_PRIORITY)
+#define mainGENERIC_STACK_SIZE ((unsigned short)2560)
+
+static TaskHandle_t DemoTask = NULL;
 static TaskHandle_t BufferSwap = NULL;
 
-
 SemaphoreHandle_t DrawSignal = NULL;
+
+typedef struct buttons_buffer {
+    unsigned char buttons[SDL_NUM_SCANCODES];
+    SemaphoreHandle_t lock;
+} buttons_buffer_t;
+
+static buttons_buffer_t buttons = { 0 };
+
+
+void xGetButtonInput(void)
+{
+    if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
+        xQueueReceive(buttonInputQueue, &buttons.buttons, 0);
+        xSemaphoreGive(buttons.lock);
+    }
+}
 
 void vSwapBuffers(void *pvParameters)
 {
@@ -46,6 +63,63 @@ void vSwapBuffers(void *pvParameters)
         xSemaphoreGive(DrawSignal);
         vTaskDelayUntil(&xLastWakeTime,
                         pdMS_TO_TICKS(frameratePeriod));
+    }
+}
+
+void vDemoTask(void *pvParameters)
+{
+    // structure to store time retrieved from Linux kernel
+    static struct timespec the_time;
+    static char our_time_string[100];
+    static int our_time_strings_width = 0;
+
+    // Needed such that Gfx library knows which thread controlls drawing
+    // Only one thread can call gfxDrawUpdateScreen while and thread can call
+    // the drawing functions to draw objects. This is a limitation of the SDL
+    // backend.
+    gfxDrawBindThread();
+
+    while (1) {
+        gfxEventFetchEvents(
+            FETCH_EVENT_NONBLOCK); // Query events backend for new events, ie. button presses
+        xGetButtonInput(); // Update global input
+
+        // `buttons` is a global shared variable and as such needs to be
+        // guarded with a mutex, mutex must be obtained before accessing the
+        // resource and given back when you're finished. If the mutex is not
+        // given back then no other task can access the reseource.
+        if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
+            if (buttons.buttons[KEYCODE(
+                                    Q)]) { // Equiv to SDL_SCANCODE_Q
+                exit(EXIT_SUCCESS);
+            }
+            xSemaphoreGive(buttons.lock);
+        }
+
+        gfxDrawClear(White); // Clear screen
+
+        clock_gettime(CLOCK_REALTIME,
+                      &the_time); // Get kernel real time
+
+        // Format our string into our char array
+        sprintf(our_time_string,
+                "There has been %ld seconds since the Epoch. Press Q to quit",
+                (long int)the_time.tv_sec);
+
+        // Get the width of the string on the screen so we can center it
+        // Returns 0 if width was successfully obtained
+        if (!gfxGetTextSize((char *)our_time_string,
+                            &our_time_strings_width, NULL))
+            gfxDrawText(our_time_string,
+                        SCREEN_WIDTH / 2 -
+                        our_time_strings_width / 2,
+                        SCREEN_HEIGHT / 2 - DEFAULT_FONT_SIZE / 2,
+                        TUMBlue);
+
+        gfxDrawUpdateScreen(); // Refresh the screen to draw string
+
+        // Basic sleep of 1000 milliseconds
+        vTaskDelay((TickType_t)1000);
     }
 }
 
@@ -83,21 +157,17 @@ int main(int argc, char *argv[])
     }
     else {
         prints(", and audio\n");
+
+        buttons.lock = xSemaphoreCreateMutex(); // Locking mechanism
+        if (!buttons.lock) {
+            PRINT_ERROR("Failed to create buttons lock");
+            goto err_buttons_lock;
+        }
     }
 
     if (gfxSafePrintInit()) {
         PRINT_ERROR("Failed to init safe print");
         goto err_init_safe_print;
-    }
-
-    atexit(aIODeinit);
-
-    //Load a second font for fun
-    gfxFontLoadFont(FPS_FONT, DEFAULT_FONT_SIZE);
-
-    if (xButtonsInit()) {
-        PRINT_ERROR("Failed to init buttons");
-        goto err_buttons_lock;
     }
 
     DrawSignal = xSemaphoreCreateBinary(); // Screen buffer locking
@@ -106,13 +176,11 @@ int main(int argc, char *argv[])
         goto err_draw_signal;
     }
 
-    // Message sending
-    if (xTaskCreate(vStateMachineTask, "StateMachine",
-                    mainGENERIC_STACK_SIZE * 2, NULL,
-                    configMAX_PRIORITIES - 1, &StateMachine) != pdPASS) {
-        PRINT_TASK_ERROR("StateMachine");
-        goto err_statemachinetask;
+    if (xTaskCreate(vDemoTask, "DemoTask", mainGENERIC_STACK_SIZE * 2, NULL,
+                    mainGENERIC_PRIORITY, &DemoTask) != pdPASS) {
+        goto err_demotask;
     }
+
     if (xTaskCreate(vSwapBuffers, "BufferSwapTask",
                     mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES,
                     &BufferSwap) != pdPASS) {
@@ -120,46 +188,18 @@ int main(int argc, char *argv[])
         goto err_bufferswap;
     }
 
-    /** Demo Tasks */
-    if (xCreateDemoTasks()) {
-        goto err_demotasks;
-    }
-
-    /** SOCKETS */
-    if (xCreateSocketTasks()) {
-        goto err_sockettasks;
-    }
-
-    /** POSIX MESSAGE QUEUES */
-    if (xCreateMessageQueueTasks()) {
-        goto err_messagequeuetasks;
-    }
-
-    /** State Machine */
-    if (xStateMachineInit()) {
-        goto err_statemachine;
-    }
-
-    gfxFUtilPrintTaskStateList();
-
     vTaskStartScheduler();
 
     return EXIT_SUCCESS;
 
-err_statemachine:
-    vDeleteMessageQueueTasks();
-err_messagequeuetasks:
-    vDeleteSocketTasks();
-err_sockettasks:
-    vDeleteDemoTasks();
-err_demotasks:
-    vTaskDelete(BufferSwap);
 err_bufferswap:
-    vTaskDelete(StateMachine);
-err_statemachinetask:
+    vTaskDelete(DemoTask);
+err_demotask:
     vSemaphoreDelete(DrawSignal);
 err_draw_signal:
-    vButtonsExit();
+    gfxSafePrintExit();
+err_init_safe_print:
+    vSemaphoreDelete(buttons.lock);
 err_buttons_lock:
     gfxSoundExit();
 err_init_audio:
@@ -167,8 +207,6 @@ err_init_audio:
 err_init_events:
     gfxDrawExit();
 err_init_drawing:
-    gfxSafePrintExit();
-err_init_safe_print:
     return EXIT_FAILURE;
 }
 
