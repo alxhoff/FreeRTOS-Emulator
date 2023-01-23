@@ -1,3 +1,27 @@
+/**
+ * @file async_sockets.c
+ * @author Alex Hoffman
+ * @date 23 January 2023
+ * @brief Basic example functions on how to use the sockets in the AIO library
+
+ *
+ * @verbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2023
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
+ */
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,7 +31,6 @@
 #include "gfx_print.h"
 
 #include "async_sockets.h"
-#include "defines.h"
 #include "demo_tasks.h"
 
 aIO_handle_t udp_soc_one = NULL;
@@ -141,13 +164,13 @@ void vTCPDemoTask(void *pvParameters)
 
 int xCreateSocketTasks(void)
 {
-    if (xTaskCreate(vUDPDemoTask, "UDPTask", mainGENERIC_STACK_SIZE * 2,
+    if (xTaskCreate(vUDPDemoTask, "UDPTask", 512,
                     NULL, configMAX_PRIORITIES - 1,
                     &UDPDemoTask) != pdPASS) {
         PRINT_TASK_ERROR("UDPTask");
         goto err_udp;
     }
-    if (xTaskCreate(vTCPDemoTask, "TCPTask", mainGENERIC_STACK_SIZE, NULL,
+    if (xTaskCreate(vTCPDemoTask, "TCPTask", 512, NULL,
                     configMAX_PRIORITIES - 1, &TCPDemoTask) != pdPASS) {
         PRINT_TASK_ERROR("TCPTask");
         goto err_tcp;

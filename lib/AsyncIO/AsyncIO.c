@@ -296,7 +296,7 @@ int aIOSocketPut(aIO_socket_e protocol, char *s_addr, in_port_t port,
     struct sockaddr_in server = { .sin_addr.s_addr =
             s_addr ? inet_addr(s_addr) : 0,
             .sin_family = AF_INET,
-             .sin_port = htons(port)
+            .sin_port = htons(port)
     };
 
     switch (protocol) {

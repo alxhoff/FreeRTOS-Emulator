@@ -1,11 +1,33 @@
-// #include "gfx_draw.h"
+/**
+ * @file demo_tasks.c
+ * @author Alex Hoffman
+ * @date 23 January 2023
+ * @brief Demo tasks created to illustrate the emulator's functionalities
+
+ *
+ * @verbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2023
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
+ */
+
 #include "gfx_event.h"
 #include "gfx_ball.h"
 #include "gfx_sound.h"
 #include "gfx_utils.h"
 #include "gfx_print.h"
 
-#include "defines.h"
 #include "main.h"
 #include "demo_tasks.h"
 #include "async_message_queues.h"
@@ -13,6 +35,9 @@
 #include "buttons.h"
 #include "state_machine.h"
 #include "draw.h"
+
+#define mainGENERIC_PRIORITY (tskIDLE_PRIORITY)
+#define mainGENERIC_STACK_SIZE ((unsigned short)2560)
 
 TaskHandle_t DemoTask1 = NULL;
 TaskHandle_t DemoTask2 = NULL;

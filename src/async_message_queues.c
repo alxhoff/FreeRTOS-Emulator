@@ -1,3 +1,26 @@
+/**
+ * @file async_message_queues.c
+ * @author Alex Hoffman
+ * @date 23 January 2023
+ * @brief Basic example functions on how to use the message queues in the AIO library
+ *
+ * @verbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2023
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
+ */
+
 #include <stdlib.h>
 
 #include "FreeRTOS.h"
@@ -6,7 +29,6 @@
 #include "gfx_print.h"
 
 #include "async_message_queues.h"
-#include "defines.h"
 
 #define MSG_QUEUE_BUFFER_SIZE 1000
 #define MSG_QUEUE_MAX_MSG_COUNT 10
@@ -45,7 +67,7 @@ void vMQDemoTask(void *pvParameters)
 
 int xCreateMessageQueueTasks(void)
 {
-    if (xTaskCreate(vMQDemoTask, "MQTask", mainGENERIC_STACK_SIZE * 2, NULL,
+    if (xTaskCreate(vMQDemoTask, "MQTask", 512, NULL,
                     configMAX_PRIORITIES - 1, &MQDemoTask) != pdPASS) {
         return -1;
     }

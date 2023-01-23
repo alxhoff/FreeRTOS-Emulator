@@ -1,3 +1,27 @@
+/**
+ * @file draw.c
+ * @author Alex Hoffman
+ * @date 23 January 2023
+ * @brief Example draw functions for drawing user objects
+
+ *
+ * @verbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2023
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
+ */
+
 #include <stdio.h>
 
 #include "FreeRTOS.h"
@@ -10,8 +34,8 @@
 #include "gfx_print.h"
 #include "gfx_draw.h"
 
-#include "defines.h"
 #include "buttons.h"
+#include "draw.h"
 
 #define FPS_AVERAGE_COUNT 50
 #define LOGO_FILENAME "freertos.jpg"

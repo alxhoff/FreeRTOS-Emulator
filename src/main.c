@@ -1,3 +1,25 @@
+/**
+ * @file main.c
+ * @author Alex Hoffman
+ * @date 23 January 2023
+ *
+ * @verbatim
+ ----------------------------------------------------------------------
+ Copyright (C) Alexander Hoffman, 2023
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ----------------------------------------------------------------------
+ @endverbatim
+ */
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,11 +39,11 @@
 
 #include "AsyncIO.h"
 
-#include "defines.h"
 #include "demo_tasks.h"
 #include "async_sockets.h"
 #include "async_message_queues.h"
 #include "buttons.h"
+#include "draw.h"
 
 
 #ifdef TRACE_FUNCTIONS
@@ -30,7 +52,6 @@
 
 static TaskHandle_t StateMachine = NULL;
 static TaskHandle_t BufferSwap = NULL;
-
 
 SemaphoreHandle_t DrawSignal = NULL;
 
@@ -108,13 +129,13 @@ int main(int argc, char *argv[])
 
     // Message sending
     if (xTaskCreate(vStateMachineTask, "StateMachine",
-                    mainGENERIC_STACK_SIZE * 2, NULL,
+                    512, NULL,
                     configMAX_PRIORITIES - 1, &StateMachine) != pdPASS) {
         PRINT_TASK_ERROR("StateMachine");
         goto err_statemachinetask;
     }
     if (xTaskCreate(vSwapBuffers, "BufferSwapTask",
-                    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES,
+                    512, NULL, configMAX_PRIORITIES,
                     &BufferSwap) != pdPASS) {
         PRINT_TASK_ERROR("BufferSwapTask");
         goto err_bufferswap;
