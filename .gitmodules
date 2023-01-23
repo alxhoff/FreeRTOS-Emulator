@@ -1,3 +1,7 @@
 [submodule "docker/docker-freertos-sdl2"]
 	path = docker/docker-freertos-sdl2
 	url = https://github.com/PhilippvK/docker-freertos-sdl2.git
+[submodule "lib/Gfx"]
+	path = lib/Gfx
+	url = https://github.com/alxhoff/FreeRTOS_Emulator_Graphics.git
+	branch = master
