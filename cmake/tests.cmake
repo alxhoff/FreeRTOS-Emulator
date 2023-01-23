@@ -47,24 +47,13 @@ add_custom_target(
 
 if(ENABLE_ASTYLE)
 
-    list(APPEND ASTYLE_CMAKE_ARGS
-        "-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}"
-    )
+    find_program(ASTYLE_BIN astyle)
 
-    ExternalProject_Add(
-        astyle
-        GIT_REPOSITORY      https://github.com/Bareflank/astyle.git
-        GIT_TAG             v1.2
-        GIT_SHALLOW         1
-        CMAKE_ARGS          ${ASTYLE_CMAKE_ARGS}
-        PREFIX              ${CMAKE_BINARY_DIR}/external/astyle/prefix
-        TMP_DIR             ${CMAKE_BINARY_DIR}/external/astyle/tmp
-        STAMP_DIR           ${CMAKE_BINARY_DIR}/external/astyle/stamp
-        DOWNLOAD_DIR        ${CMAKE_BINARY_DIR}/external/astyle/download
-        SOURCE_DIR          ${CMAKE_BINARY_DIR}/external/astyle/src
-        BINARY_DIR          ${CMAKE_BINARY_DIR}/external/astyle/build
-        UPDATE_COMMAND      "" # this keeps cmake from rebuilding astyle every time you run "make"
-    )
+    if(ASTYLE_BIN STREQUAL "ASTYLE_BIN-NOTFOUND")
+        message(FATAL_ERROR "unable to locate astyle")
+    endif()
+
+    message(STATUS "astyle binary: ${ASTYLE_BIN}")
 
     list(APPEND ASTYLE_ARGS
         --style=linux
@@ -90,19 +79,12 @@ if(ENABLE_ASTYLE)
         ${CHECK_FILES}
     )
 
-    if(NOT WIN32 STREQUAL "1")
-        add_custom_target(
-            format
-            COMMAND ${CMAKE_BINARY_DIR}/bin/astyle ${ASTYLE_ARGS}
-            COMMENT "running astyle"
-        )
-    else()
-        add_custom_target(
-            format
-            COMMAND ${CMAKE_BINARY_DIR}/bin/astyle.exe ${ASTYLE_ARGS}
-            COMMENT "running astyle"
-        )
-    endif()
+    add_custom_target(
+        format
+        COMMAND ${ASTYLE_BIN} ${ASTYLE_ARGS}
+        COMMENT "running astyle"
+    )
+
 
 endif()
 
@@ -171,23 +153,13 @@ endif()
 
 if(ENABLE_CPPCHECK)
 
-    list(APPEND CPPCHECK_CMAKE_ARGS
-        "-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}"
-    )
+    find_program(CPP_CHECK_BIN cppcheck)
 
-    ExternalProject_Add(
-        cppcheck
-        GIT_REPOSITORY      https://github.com/danmar/cppcheck.git
-        GIT_TAG             main
-        GIT_SHALLOW         1
-        CMAKE_ARGS          ${CPPCHECK_CMAKE_ARGS}
-        PREFIX              ${CMAKE_BINARY_DIR}/external/cppcheck/prefix
-        TMP_DIR             ${CMAKE_BINARY_DIR}/external/cppcheck/tmp
-        STAMP_DIR           ${CMAKE_BINARY_DIR}/external/cppcheck/stamp
-        DOWNLOAD_DIR        ${CMAKE_BINARY_DIR}/external/cppcheck/download
-        SOURCE_DIR          ${CMAKE_BINARY_DIR}/external/cppcheck/src
-        BINARY_DIR          ${CMAKE_BINARY_DIR}/external/cppcheck/build
-    )
+    if(CPP_CHECK_BIN STREQUAL "CPP_CHECK_BIN-NOTFOUND")
+        message(FATAL_ERROR "unable to locate clang-tidy")
+    endif()
+
+    message(STATUS "cppcheck binary: ${CPP_CHECK_BIN}")
 
     list(APPEND CPPCHECK_ARGS
         --enable=warning,style,performance,portability
@@ -206,7 +178,7 @@ if(ENABLE_CPPCHECK)
 
     add_custom_target(
         check
-        COMMAND ${CMAKE_BINARY_DIR}/bin/cppcheck ${CPPCHECK_ARGS}
+        COMMAND ${CPP_CHECK_BIN} ${CPPCHECK_ARGS}
         COMMENT "running cppcheck"
     )
 
