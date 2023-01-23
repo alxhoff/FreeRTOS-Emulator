@@ -5,3 +5,12 @@
 	path = lib/Gfx
 	url = https://github.com/alxhoff/FreeRTOS_Emulator_Graphics.git
 	branch = master
+[submodule "lib/StateMachine"]
+	path = lib/StateMachine
+	url = https://github.com/alxhoff/FreeRTOS_State_Machine.git
+[submodule "lib/AsyncIO"]
+	path = lib/AsyncIO
+	url = https://github.com/alxhoff/FreeRTOS_POXIS_Async_IO.git
+[submodule "lib/LL"]
+	path = lib/LL
+	url = git@github.com:alxhoff/Linked_List.git
