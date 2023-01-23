@@ -13,4 +13,4 @@
 	url = https://github.com/alxhoff/FreeRTOS_POXIS_Async_IO.git
 [submodule "lib/LL"]
 	path = lib/LL
-	url = git@github.com:alxhoff/Linked_List.git
+	url = https://github.com/alxhoff/Linked_List.git

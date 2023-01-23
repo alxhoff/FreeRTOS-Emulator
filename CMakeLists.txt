@@ -53,7 +53,7 @@ else()
         ${PROJECT_SOURCE_DIR}/lib/AsyncIO/include
         ${PROJECT_SOURCE_DIR}/lib/StateMachine/include
         ${PROJECT_SOURCE_DIR}/lib/tracer/include
-        ${PROJECT_SOURCE_DIR}/lib
+        ${PROJECT_SOURCE_DIR}/lib/LL
         ${PROJECT_SOURCE_DIR}/include
     )
 
