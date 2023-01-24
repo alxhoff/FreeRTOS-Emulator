@@ -11,7 +11,7 @@
 
 An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware. Used at the Technical University of Munich in the teaching of the "Embedded Systems Programming Lab".
 
-Based on/inspired by the FreeRTOS (V5.X) simulator developed by William Davy. Updated to use FreeRTOS V9.0.0.
+Based on/inspired by the FreeRTOS (V5.X) simulator developed by William Davy. Updated to use FreeRTOS V10.5.0.
 
 Checkout the [Wiki page](../../wiki) for a detailed Documentation!
 
@@ -20,6 +20,14 @@ Doxygen documentation can also be found on the [GitHub Pages](ihttps://alxhoff.g
 ## Dependencies
 
 All of the library dependencies written by me are pulled in as submodules automatically when CMake is run.
+
+### FreeRTOS Kernel
+
+To keep a tight control of the kernel being run in the emulator, the kernel is pulled in from a [*fork*](https://github.com/alxhoff/FreeRTOS-Kernel) of the upstream [*FreeRTOS/FreeRTOS-Kernel*](https://github.com/FreeRTOS/FreeRTOS-Kernel).
+
+#### POSIX port
+
+The port and portmacro files required for the FreeRTOS Kernel have been added to the kernel fork as a submodule, they can be found [*here*](https://github.com/alxhoff/FreeRTOS_Kernel_POSIX_port).
 
 ### Graphics Library
 
