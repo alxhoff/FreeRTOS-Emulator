@@ -14,3 +14,7 @@
 [submodule "lib/LL"]
 	path = lib/LL
 	url = https://github.com/alxhoff/Linked_List.git
+[submodule "lib/FreeRTOS_Kernel"]
+	path = lib/FreeRTOS_Kernel
+	url = https://github.com/alxhoff/FreeRTOS-Kernel.git
+    branch = main
