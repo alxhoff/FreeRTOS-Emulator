@@ -185,6 +185,6 @@ err_udp:
 
 void vDeleteSocketTasks(void)
 {
-    vTaskDelete(vUDPDemoTask);
-    vTaskDelete(vTCPDemoTask);
+    vTaskDelete(UDPDemoTask);
+    vTaskDelete(TCPDemoTask);
 }
