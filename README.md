@@ -9,9 +9,9 @@
   </a>
 </p>
 
-An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware. Used at the Technical University of Munich in the teaching of the "Embedded Systems Programming Lab". Please excuse any references to "students" or "course" if you're not one of my students.
+An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware. Used at the Technical University of Munich in the teaching of the "Embedded Systems Programming Lab".
 
-Based on the FreeRTOS (V5.X) simulator developed by William Davy. Updated to use FreeRTOS V9.0.0.
+Based on/inspired by the FreeRTOS (V5.X) simulator developed by William Davy. Updated to use FreeRTOS V9.0.0.
 
 Checkout the [Wiki page](../../wiki) for a detailed Documentation!
 
@@ -19,7 +19,23 @@ Doxygen documentation can also be found on the [GitHub Pages](ihttps://alxhoff.g
 
 ## Dependencies
 
-The simulator uses the SDL2 graphics libraries.
+All of the library dependencies written by me are pulled in as submodules automatically when CMake is run.
+
+### Graphics Library
+
+The graphics library used by the emulator can be found [*here*](https://github.com/alxhoff/FreeRTOS_Emulator_Graphics) and is based around the SDL2 graphics libraries.
+
+### State Machine
+
+The emulator provides demo code, a portion of this is a state machine implementation to help users structure a state machine behind their RTOS tasks. Sources can be found [*here*](https://github.com/alxhoff/FreeRTOS_State_Machine).
+
+#### Linked List
+
+The state machine implementation uses a linked list implementation found [*here*](https://github.com/alxhoff/Linked_List).
+
+### Async IO
+
+Asynchronous communications through POSIX message queues and sockets is possible via the ASyncIO library found [*here*](https://github.com/alxhoff/FreeRTOS_POXIS_Async_IO).
 
 ### Debian/Ubuntu
 
