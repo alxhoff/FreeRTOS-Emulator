@@ -62,7 +62,7 @@ else()
     file(GLOB FREERTOS_SOURCES
         "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/*.c"
         "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix/*.c"
-        "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/MemMang/*.c")
+        "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/MemMang/heap_3.c")
     file(GLOB GFX_SOURCES "${PROJECT_SOURCE_DIR}/lib/Gfx/*.c")
     file(GLOB STATE_MACHINE_SOURCES "${PROJECT_SOURCE_DIR}/lib/StateMachine/*.c")
     file(GLOB ASYNC_SOURCES "${PROJECT_SOURCE_DIR}/lib/AsyncIO/*.c")
