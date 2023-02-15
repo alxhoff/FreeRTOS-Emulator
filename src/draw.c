@@ -26,6 +26,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semaphore.h"
 
 #include "gfx_ball.h"
 #include "gfx_font.h"
@@ -46,7 +47,17 @@
 #define CAVE_Y CAVE_SIZE_Y / 2
 #define CAVE_THICKNESS 25
 
-gfx_image_handle_t logo_image = NULL;
+struct images {
+    SemaphoreHandle_t lock;
+    gfx_image_handle_t logo_image;
+} my_images = { 0 };
+
+struct animations {
+    SemaphoreHandle_t lock;
+    gfx_spritesheet_handle_t ball_spritesheet;
+    gfx_sequence_handle_t forward_sequence;
+    gfx_sequence_handle_t reverse_sequence;
+} my_animations = { 0 };
 
 void vCheckDraw(unsigned char status, const char *msg)
 {
@@ -78,7 +89,8 @@ void vDrawCaveBoundingBox(void)
                __FUNCTION__);
 }
 
-void vCreateWalls(wall_t **left_wall, wall_t **right_wall, wall_t **top_wall, wall_t **bottom_wall)
+void vCreateWalls(wall_t **left_wall, wall_t **right_wall, wall_t **top_wall,
+                  wall_t **bottom_wall)
 {
     // Left wall
     *left_wall =
@@ -100,37 +112,28 @@ void vCreateWalls(wall_t **left_wall, wall_t **right_wall, wall_t **top_wall, wa
                       0.2, Blue, NULL, NULL);
 }
 
-void vDrawWalls(wall_t *left_wall, wall_t *right_wall, wall_t *top_wall, wall_t *bottom_wall)
+void vDrawWalls(wall_t *left_wall, wall_t *right_wall, wall_t *top_wall,
+                wall_t *bottom_wall)
 {
-    vCheckDraw(gfxDrawFilledBox(
-                   left_wall->x1, left_wall->y1,
-                   left_wall->w, left_wall->h,
-                   left_wall->colour),
+    vCheckDraw(gfxDrawFilledBox(left_wall->x1, left_wall->y1, left_wall->w,
+                                left_wall->h, left_wall->colour),
                __FUNCTION__);
-    vCheckDraw(gfxDrawFilledBox(right_wall->x1,
-                                right_wall->y1,
-                                right_wall->w,
-                                right_wall->h,
+    vCheckDraw(gfxDrawFilledBox(right_wall->x1, right_wall->y1,
+                                right_wall->w, right_wall->h,
                                 right_wall->colour),
                __FUNCTION__);
-    vCheckDraw(gfxDrawFilledBox(
-                   top_wall->x1, top_wall->y1,
-                   top_wall->w, top_wall->h,
-                   top_wall->colour),
+    vCheckDraw(gfxDrawFilledBox(top_wall->x1, top_wall->y1, top_wall->w,
+                                top_wall->h, top_wall->colour),
                __FUNCTION__);
-    vCheckDraw(gfxDrawFilledBox(bottom_wall->x1,
-                                bottom_wall->y1,
-                                bottom_wall->w,
-                                bottom_wall->h,
+    vCheckDraw(gfxDrawFilledBox(bottom_wall->x1, bottom_wall->y1,
+                                bottom_wall->w, bottom_wall->h,
                                 bottom_wall->colour),
                __FUNCTION__);
 }
 
 void vDrawBall(ball_t *ball)
 {
-    vCheckDraw(gfxDrawCircle(ball->x, ball->y,
-                             ball->radius,
-                             ball->colour),
+    vCheckDraw(gfxDrawCircle(ball->x, ball->y, ball->radius, ball->colour),
                __FUNCTION__);
 }
 
@@ -228,21 +231,25 @@ void vDrawFPS(void)
 
 void vDrawLogo(void)
 {
-    static int image_height;
 
-    if (logo_image == NULL) {
-        logo_image = gfxDrawLoadImage(LOGO_FILENAME);
-    }
+    if (my_images.lock)
+        if (xSemaphoreTake(my_images.lock, 0) == pdTRUE) {
+            static int image_height;
 
-    if ((image_height = gfxDrawGetLoadedImageHeight(logo_image)) != -1)
-        vCheckDraw(gfxDrawLoadedImage(logo_image, 10,
-                                      SCREEN_HEIGHT - 10 - image_height),
-                   __FUNCTION__);
-    else {
-        fprints(stderr,
-                "Failed to get size of image '%s', does it exist?\n",
-                LOGO_FILENAME);
-    }
+            if ((image_height = gfxDrawGetLoadedImageHeight(
+                                    my_images.logo_image)) != -1)
+                vCheckDraw(gfxDrawLoadedImage(
+                               my_images.logo_image, 10,
+                               SCREEN_HEIGHT - 10 -
+                               image_height),
+                           __FUNCTION__);
+            else {
+                fprints(stderr,
+                        "Failed to get size of image '%s', does it exist?\n",
+                        LOGO_FILENAME);
+            }
+            xSemaphoreGive(my_images.lock);
+        }
 }
 
 void vDrawStaticItems(void)
@@ -284,43 +291,59 @@ void vDrawButtonText(void)
     }
 }
 
-gfx_spritesheet_handle_t ball_spritesheet = NULL;
-gfx_sequence_handle_t forward_sequence = NULL;
-gfx_sequence_handle_t reverse_sequence = NULL;
+void vDrawInitImages(void)
+{
+    my_images.lock = xSemaphoreCreateMutex();
+
+    if (my_images.logo_image == NULL) {
+        my_images.logo_image = gfxDrawLoadImage(LOGO_FILENAME);
+    }
+}
 
 void vDrawInitAnnimations(void)
 {
-    char *ball_spritesheet_path = gfxUtilFindResourcePath("ball_spritesheet.png");
+    my_animations.lock = xSemaphoreCreateMutex();
+
+    char *ball_spritesheet_path =
+        gfxUtilFindResourcePath("ball_spritesheet.png");
     gfx_image_handle_t ball_spritesheet_image =
         gfxDrawLoadImage(ball_spritesheet_path);
-    ball_spritesheet =
+    my_animations.ball_spritesheet =
         gfxDrawLoadSpritesheet(ball_spritesheet_image, 25, 1);
     gfx_animation_handle_t ball_animation =
-        gfxDrawAnimationCreate(ball_spritesheet);
+        gfxDrawAnimationCreate(my_animations.ball_spritesheet);
     gfxDrawAnimationAddSequence(ball_animation, "FORWARDS", 0, 0,
                                 SPRITE_SEQUENCE_HORIZONTAL_POS, 24);
     gfxDrawAnimationAddSequence(ball_animation, "REVERSE", 0, 23,
                                 SPRITE_SEQUENCE_HORIZONTAL_NEG, 24);
-    forward_sequence =
-        gfxDrawAnimationSequenceInstantiate(ball_animation, "FORWARDS",
-                                            40);
-    reverse_sequence =
-        gfxDrawAnimationSequenceInstantiate(ball_animation, "REVERSE",
-                                            40);
+    my_animations.forward_sequence = gfxDrawAnimationSequenceInstantiate(
+                                         ball_animation, "FORWARDS", 40);
+    my_animations.reverse_sequence = gfxDrawAnimationSequenceInstantiate(
+                                         ball_animation, "REVERSE", 40);
+}
+
+void vDrawInitResources(void)
+{
+    vDrawInitImages();
+    vDrawInitAnnimations();
 }
 
 void vDrawSpriteAnnimations(TickType_t xLastFrameTime)
 {
-    gfxDrawAnimationDrawFrame(
-        forward_sequence,
-        xTaskGetTickCount() - xLastFrameTime,
-        SCREEN_WIDTH - 50, SCREEN_HEIGHT - 60);
-    gfxDrawAnimationDrawFrame(
-        reverse_sequence,
-        xTaskGetTickCount() - xLastFrameTime,
-        SCREEN_WIDTH - 90,
-        SCREEN_HEIGHT - 60);
-    vCheckDraw(gfxDrawSprite(ball_spritesheet, 5, 0,
-                             SCREEN_WIDTH - 130, SCREEN_HEIGHT - 60),
-               __FUNCTION__);
+    if (my_animations.lock)
+        if (xSemaphoreTake(my_animations.lock, 0) == pdTRUE) {
+            gfxDrawAnimationDrawFrame(
+                my_animations.forward_sequence,
+                xTaskGetTickCount() - xLastFrameTime,
+                SCREEN_WIDTH - 50, SCREEN_HEIGHT - 60);
+            gfxDrawAnimationDrawFrame(
+                my_animations.reverse_sequence,
+                xTaskGetTickCount() - xLastFrameTime,
+                SCREEN_WIDTH - 90, SCREEN_HEIGHT - 60);
+            vCheckDraw(gfxDrawSprite(my_animations.ball_spritesheet, 5, 0,
+                                     SCREEN_WIDTH - 130,
+                                     SCREEN_HEIGHT - 60),
+                       __FUNCTION__);
+            xSemaphoreGive(my_animations.lock);
+        }
 }

@@ -72,7 +72,7 @@ void vDrawButtonText(void);
 /// @param xLastFrameTime Ticks since last frame
 void vDrawSpriteAnnimations(TickType_t xLastFrameTime);
 
-/// @brief Loads the sprite sheet and creates the annimation sequence needed
-void vDrawInitAnnimations(void);
+/// @brief Loads images, sprite sheets and creates the annimation sequences needed
+void vDrawInitResources(void);
 
 #endif //__DRAW_H__

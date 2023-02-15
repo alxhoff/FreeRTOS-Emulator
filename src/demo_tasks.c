@@ -60,7 +60,7 @@ void vStateOneExit(void)
 
 void vDemoTask1(void *pvParameters)
 {
-    vDrawInitAnnimations();
+    vDrawInitResources();
 
     TickType_t xLastFrameTime = xTaskGetTickCount();
 
