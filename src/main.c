@@ -20,7 +20,6 @@
 #include "gfx_FreeRTOS_utils.h"
 #include "gfx_print.h"
 
-
 #ifdef TRACE_FUNCTIONS
 #include "tracer.h"
 #endif
@@ -42,7 +41,6 @@ typedef struct buttons_buffer {
 
 static buttons_buffer_t buttons = { 0 };
 
-
 void xGetButtonInput(void)
 {
     if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
@@ -61,8 +59,7 @@ void vSwapBuffers(void *pvParameters)
         gfxDrawUpdateScreen();
         gfxEventFetchEvents(FETCH_EVENT_BLOCK);
         xSemaphoreGive(DrawSignal);
-        vTaskDelayUntil(&xLastWakeTime,
-                        pdMS_TO_TICKS(frameratePeriod));
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(frameratePeriod));
     }
 }
 
@@ -80,46 +77,52 @@ void vDemoTask(void *pvParameters)
     gfxDrawBindThread();
 
     while (1) {
-        gfxEventFetchEvents(
-            FETCH_EVENT_NONBLOCK); // Query events backend for new events, ie. button presses
-        xGetButtonInput(); // Update global input
+        if (DrawSignal)
+            if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
+                pdTRUE) {
+                gfxEventFetchEvents(
+                    FETCH_EVENT_NONBLOCK); // Query events backend for new events, ie. button presses
+                xGetButtonInput(); // Update global input
 
-        // `buttons` is a global shared variable and as such needs to be
-        // guarded with a mutex, mutex must be obtained before accessing the
-        // resource and given back when you're finished. If the mutex is not
-        // given back then no other task can access the reseource.
-        if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
-            if (buttons.buttons[KEYCODE(
-                                    Q)]) { // Equiv to SDL_SCANCODE_Q
-                exit(EXIT_SUCCESS);
-            }
-            xSemaphoreGive(buttons.lock);
-        }
+                // `buttons` is a global shared variable and as such needs to be
+                // guarded with a mutex, mutex must be obtained before accessing the
+                // resource and given back when you're finished. If the mutex is not
+                // given back then no other task can access the reseource.
+                if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
+                    if (buttons.buttons[KEYCODE(
+                                            Q)]) { // Equiv to SDL_SCANCODE_Q
+                        exit(EXIT_SUCCESS);
+                    }
+                    xSemaphoreGive(buttons.lock);
+                }
 
-        gfxDrawClear(White); // Clear screen
+                gfxDrawClear(White); // Clear screen
 
-        clock_gettime(CLOCK_REALTIME,
-                      &the_time); // Get kernel real time
+                clock_gettime(
+                    CLOCK_REALTIME,
+                    &the_time); // Get kernel real time
 
-        // Format our string into our char array
-        sprintf(our_time_string,
-                "There has been %ld seconds since the Epoch. Press Q to quit",
-                (long int)the_time.tv_sec);
+                // Format our string into our char array
+                sprintf(our_time_string,
+                        "There has been %ld seconds since the Epoch. Press Q to quit",
+                        (long int)the_time.tv_sec);
 
-        // Get the width of the string on the screen so we can center it
-        // Returns 0 if width was successfully obtained
-        if (!gfxGetTextSize((char *)our_time_string,
-                            &our_time_strings_width, NULL))
-            gfxDrawText(our_time_string,
+                // Get the width of the string on the screen so we can center it
+                // Returns 0 if width was successfully obtained
+                if (!gfxGetTextSize((char *)our_time_string,
+                                    &our_time_strings_width,
+                                    NULL))
+                    gfxDrawText(
+                        our_time_string,
                         SCREEN_WIDTH / 2 -
-                        our_time_strings_width / 2,
-                        SCREEN_HEIGHT / 2 - DEFAULT_FONT_SIZE / 2,
+                        our_time_strings_width /
+                        2,
+                        SCREEN_HEIGHT / 2 -
+                        DEFAULT_FONT_SIZE / 2,
                         TUMBlue);
 
-        gfxDrawUpdateScreen(); // Refresh the screen to draw string
-
-        // Basic sleep of 1000 milliseconds
-        vTaskDelay((TickType_t)1000);
+                gfxDrawUpdateScreen(); // Refresh the screen to draw string
+            }
     }
 }
 
