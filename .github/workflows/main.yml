@@ -5,11 +5,15 @@ on:
     branches:
       - master
       - pong
+      - clean
+      - udp_demo
       - ci
   push:
     branches:
       - master
       - pong
+      - clean
+      - udp_demo
       - ci
 
 env:
@@ -73,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install SDL2 Dependencies
-        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev astyle
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure CMake
@@ -130,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install SDL2 Dependencies
-        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev
+        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev cppcheck
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure CMake
