@@ -399,13 +399,13 @@ void vDrawInitBallVerticalAnimations(void)
 
     // Create animation sequences
     if (gfxDrawAnimationAddSequence(ball_animation_rotated, "DOWNWARDS", 0,
-                                    0, SPRITE_SEQUENCY_VERTICAL_POS,
+                                    0, SPRITE_SEQUENCE_VERTICAL_POS,
                                     NUMBER_OF_BALL_FRAMES)) {
         PRINT_ERROR(
             "Failed to create downwards rotated ball animation sequence");
     }
     if (gfxDrawAnimationAddSequence(ball_animation_rotated, "UPWARDS", 23,
-                                    0, SPRITE_SEQUENCY_VERTICAL_NEG,
+                                    0, SPRITE_SEQUENCE_VERTICAL_NEG,
                                     NUMBER_OF_BALL_FRAMES)) {
         PRINT_ERROR(
             "Failed to create upwards rotated ball animation sequence");
@@ -546,10 +546,29 @@ void vDrawInitResources(void)
     vDrawInitAnnimations();
 }
 
-void vDrawSpriteAnnimations(TickType_t xLastFrameTime)
+void vDrawSpriteStatic()
+{
+    // Static sprite example
+    vCheckDraw(gfxDrawSprite(my_animations.ball_spritesheet,
+                             5, 0, SCREEN_WIDTH - 130,
+                             SCREEN_HEIGHT - 60),
+               __FUNCTION__);
+
+}
+
+void vDrawSpriteResetDownwardSequence()
+{
+    // Show what resetting does
+    gfxDrawAnimationReset(my_animations.downward_sequence);
+}
+
+void vDrawSpriteAnimations(TickType_t xLastFrameTime)
 {
     if (my_animations.lock)
         if (xSemaphoreTake(my_animations.lock, 0) == pdTRUE) {
+
+            // Show all four directions you can use for creating an
+            // animation
             TickType_t current_tick = xTaskGetTickCount();
             gfxDrawAnimationDrawFrame(
                 my_animations.forward_sequence,
@@ -562,11 +581,13 @@ void vDrawSpriteAnnimations(TickType_t xLastFrameTime)
             gfxDrawAnimationDrawFrame(
                 my_animations.downward_sequence,
                 current_tick - xLastFrameTime,
-                SCREEN_WIDTH - 50, SCREEN_HEIGHT - 100);
+                SCREEN_WIDTH - 50, SCREEN_HEIGHT - 200);
             gfxDrawAnimationDrawFrame(my_animations.upward_sequence,
                                       current_tick - xLastFrameTime,
                                       SCREEN_WIDTH - 90,
                                       SCREEN_HEIGHT - 100);
+
+            // Mario examples
             gfxDrawAnimationDrawFrame(
                 my_animations.mario_running_sequence,
                 current_tick - xLastFrameTime,
@@ -575,10 +596,6 @@ void vDrawSpriteAnnimations(TickType_t xLastFrameTime)
                                       current_tick - xLastFrameTime,
                                       SCREEN_WIDTH - 150,
                                       SCREEN_HEIGHT - 50);
-            vCheckDraw(gfxDrawSprite(my_animations.ball_spritesheet,
-                                     5, 0, SCREEN_WIDTH - 130,
-                                     SCREEN_HEIGHT - 60),
-                       __FUNCTION__);
             xSemaphoreGive(my_animations.lock);
         }
 }

@@ -68,9 +68,15 @@ void vDrawStaticItems(void);
 /// @brief Draws the status information of the button presses on the screen
 void vDrawButtonText(void);
 
+/// @brief Draws the static sprite to the bottom right corner of the screen
+void vDrawSpriteStatic();
+
+/// @brief Resets the downward animation sequence for example purposes
+void vDrawSpriteResetDownwardSequence();
+
 /// @brief Draws the sprite annimation to the bottom right corner of the screen
 /// @param xLastFrameTime Ticks since last frame
-void vDrawSpriteAnnimations(TickType_t xLastFrameTime);
+void vDrawSpriteAnimations(TickType_t xLastFrameTime);
 
 /// @brief Loads images, sprite sheets and creates the annimation sequences needed
 void vDrawInitResources(void);

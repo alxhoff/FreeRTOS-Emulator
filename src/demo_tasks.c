@@ -62,6 +62,7 @@ void vDemoTask1(void *pvParameters)
 {
     vDrawInitResources();
 
+    TickType_t xLastResetTime = xTaskGetTickCount();
     TickType_t xLastFrameTime = xTaskGetTickCount();
 
     while (1) {
@@ -77,7 +78,14 @@ void vDemoTask1(void *pvParameters)
                 vDrawMouseBallAndBoundingBox(
                     gfxEventGetMouseLeft());
                 vDrawButtonText();
-                vDrawSpriteAnnimations(xLastFrameTime);
+                vDrawSpriteStatic();
+
+                // Reset the downwards animation sequence every 500ms
+                if ((xTaskGetTickCount() - xLastResetTime) > 500) {
+                    xLastResetTime = xTaskGetTickCount();
+                    vDrawSpriteResetDownwardSequence();
+                }
+                vDrawSpriteAnimations(xLastFrameTime);
 
                 xLastFrameTime = xTaskGetTickCount();
 
