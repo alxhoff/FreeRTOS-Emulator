@@ -57,6 +57,13 @@ struct animations {
     gfx_spritesheet_handle_t ball_spritesheet;
     gfx_sequence_handle_t forward_sequence;
     gfx_sequence_handle_t reverse_sequence;
+    gfx_spritesheet_handle_t ball_spritesheet_rotated;
+    gfx_sequence_handle_t downward_sequence;
+    gfx_sequence_handle_t upward_sequence;
+    gfx_spritesheet_handle_t mario_run_spritesheet;
+    gfx_sequence_handle_t mario_running_sequence;
+    gfx_spritesheet_handle_t barrel_spritesheet;
+    gfx_sequence_handle_t barrel_sequence;
 } my_animations = { 0 };
 
 void vCheckDraw(unsigned char status, const char *msg)
@@ -231,7 +238,6 @@ void vDrawFPS(void)
 
 void vDrawLogo(void)
 {
-
     if (my_images.lock)
         if (xSemaphoreTake(my_images.lock, 0) == pdTRUE) {
             static int image_height;
@@ -300,26 +306,238 @@ void vDrawInitImages(void)
     }
 }
 
+#define TOTAL_NUMBER_OF_BALL_SPRITES 25
+#define NUMBER_OF_BALL_FRAMES 24
+#define BALL_FRAME_PERIOD_MS 40
+
+void vDrawInitBallHorizontalAnimations(void)
+{
+    // Get path to image
+    char *ball_spritesheet_path =
+        gfxUtilFindResourcePath("ball_spritesheet.png");
+
+    // Load image into emulator
+    gfx_image_handle_t ball_spritesheet_image = NULL;
+    if ((ball_spritesheet_image =
+             gfxDrawLoadImage(ball_spritesheet_path)) == NULL) {
+        PRINT_ERROR("Failed to load ball_spritesheet.png");
+    }
+
+    // Create spritesheet from image
+    if ((my_animations.ball_spritesheet =
+             gfxDrawLoadSpritesheetFromEntireImageUnpadded(
+                 ball_spritesheet_image,
+                 TOTAL_NUMBER_OF_BALL_SPRITES, 1)) == NULL) {
+        PRINT_ERROR("Failed to create ball spritesheet");
+    }
+
+    // Create animation sequence, referencing spritesheet containing frame images
+    gfx_animation_handle_t ball_animation = NULL;
+    if ((ball_animation = gfxDrawAnimationCreate(
+                              my_animations.ball_spritesheet)) == NULL) {
+        PRINT_ERROR("Failed to create ball animation");
+    }
+
+    // Create animation sequences
+    if (gfxDrawAnimationAddSequence(ball_animation, "FORWARDS", 0, 0,
+                                    SPRITE_SEQUENCE_HORIZONTAL_POS,
+                                    NUMBER_OF_BALL_FRAMES)) {
+        PRINT_ERROR(
+            "Failed to create forwards ball animation sequence");
+    }
+    if (gfxDrawAnimationAddSequence(ball_animation, "REVERSE", 0, 23,
+                                    SPRITE_SEQUENCE_HORIZONTAL_NEG,
+                                    NUMBER_OF_BALL_FRAMES)) {
+        PRINT_ERROR(
+            "Failed to create forwards ball animation sequence");
+    }
+
+    // Create instances of the defined animation sequences
+    if ((my_animations.forward_sequence =
+             gfxDrawAnimationSequenceInstantiate(
+                 ball_animation, "FORWARDS",
+                 BALL_FRAME_PERIOD_MS)) == NULL) {
+        PRINT_ERROR(
+            "Failed to instantiate forwards ball animation sequence");
+    }
+    if ((my_animations.reverse_sequence =
+             gfxDrawAnimationSequenceInstantiate(
+                 ball_animation, "REVERSE",
+                 BALL_FRAME_PERIOD_MS)) == NULL) {
+        PRINT_ERROR(
+            "Failed to instantiate forwards ball animation sequence");
+    }
+}
+
+void vDrawInitBallVerticalAnimations(void)
+{
+    // Get path to image
+    char *ball_spritesheet_path =
+        gfxUtilFindResourcePath("ball_spritesheet_rotated.png");
+
+    // Load image into emulator
+    gfx_image_handle_t ball_spritesheet_image = NULL;
+    if ((ball_spritesheet_image =
+             gfxDrawLoadImage(ball_spritesheet_path)) == NULL) {
+        PRINT_ERROR("Failed to load ball_spritesheet_rotated.png");
+    }
+
+    // Create spritesheet from image
+    if ((my_animations.ball_spritesheet_rotated =
+             gfxDrawLoadSpritesheetFromEntireImageUnpadded(
+                 ball_spritesheet_image, 1,
+                 TOTAL_NUMBER_OF_BALL_SPRITES)) == NULL) {
+        PRINT_ERROR("Failed to create rotated ball spritesheet");
+    }
+
+    // Create animation sequence, referencing spritesheet containing frame images
+    gfx_animation_handle_t ball_animation_rotated = NULL;
+    if ((ball_animation_rotated = gfxDrawAnimationCreate(
+                                      my_animations.ball_spritesheet_rotated)) == NULL) {
+        PRINT_ERROR("Failed to create rotated ball animation");
+    }
+
+    // Create animation sequences
+    if (gfxDrawAnimationAddSequence(ball_animation_rotated, "DOWNWARDS", 0,
+                                    0, SPRITE_SEQUENCY_VERTICAL_POS,
+                                    NUMBER_OF_BALL_FRAMES)) {
+        PRINT_ERROR(
+            "Failed to create downwards rotated ball animation sequence");
+    }
+    if (gfxDrawAnimationAddSequence(ball_animation_rotated, "UPWARDS", 23,
+                                    0, SPRITE_SEQUENCY_VERTICAL_NEG,
+                                    NUMBER_OF_BALL_FRAMES)) {
+        PRINT_ERROR(
+            "Failed to create upwards rotated ball animation sequence");
+    }
+
+    // Create instances of the defined animation sequences
+    if ((my_animations.upward_sequence =
+             gfxDrawAnimationSequenceInstantiate(
+                 ball_animation_rotated, "DOWNWARDS",
+                 BALL_FRAME_PERIOD_MS)) == NULL) {
+        PRINT_ERROR(
+            "Failed to instantiate forwards ball animation sequence");
+    }
+    if ((my_animations.downward_sequence =
+             gfxDrawAnimationSequenceInstantiate(
+                 ball_animation_rotated, "UPWARDS",
+                 BALL_FRAME_PERIOD_MS)) == NULL) {
+        PRINT_ERROR(
+            "Failed to instantiate forwards ball animation sequence");
+    }
+}
+
+// To get these values one can use a program like GIMP,
+// hover over the left and top most pixes of the first
+// sprite in a sequence to get the pixel values.
+// Measuring the number of pixels between the sprites
+// gives the spacing, in this case all the sprites are
+// in a single row so we can imagine there is no Y spacing.
+#define MARIO_SEQUENCE_IMAGES 3
+#define MARIO_START_IMAGE_X 12
+#define MARIO_START_IMAGE_Y 204
+#define MARIO_X_SPACING 4
+#define MARIO_Y_SPACING 0
+#define MARIO_WIDTH 15
+#define MARIO_HEIGHT 16
+#define MARIO_RUN_FRAME_PERIOD 200
+
+void vDrawInitMarioRunAnimation(gfx_image_handle_t donkey_kong_image)
+{
+    if ((my_animations.mario_run_spritesheet =
+             gfxDrawLoadSpritesheetFromPortionOfImagePaddedSpacing(
+                 donkey_kong_image, MARIO_SEQUENCE_IMAGES, 1,
+                 MARIO_WIDTH, MARIO_HEIGHT, MARIO_X_SPACING,
+                 MARIO_Y_SPACING, MARIO_START_IMAGE_X,
+                 MARIO_START_IMAGE_Y)) == NULL) {
+        PRINT_ERROR("Failed to create Mario run spritesheet");
+    }
+
+    gfx_animation_handle_t mario_run_animation = NULL;
+    if ((mario_run_animation = gfxDrawAnimationCreate(
+                                   my_animations.mario_run_spritesheet)) == NULL) {
+        PRINT_ERROR("Failed to create Mario run animation");
+    }
+
+    if (gfxDrawAnimationAddSequence(mario_run_animation, "Mario Run", 0, 0,
+                                    SPRITE_SEQUENCE_HORIZONTAL_POS,
+                                    MARIO_SEQUENCE_IMAGES)) {
+        PRINT_ERROR(
+            "Failed to create Mario running animation sequence");
+    }
+
+    if ((my_animations.mario_running_sequence =
+             gfxDrawAnimationSequenceInstantiate(
+                 mario_run_animation, "Mario Run",
+                 MARIO_RUN_FRAME_PERIOD)) == NULL) {
+        PRINT_ERROR(
+            "Failed to instantiate Mario running animation sequence");
+    }
+}
+
+#define BARREL_SEQUENCE_IMAGES 4
+#define BARREL_START_IMAGE_X 245
+#define BARREL_START_IMAGE_Y 76
+#define BARREL_X_PADDING 2
+#define BARREL_Y_PADDING 0
+#define BARREL_WIDTH 12
+#define BARREL_HEIGHT 12
+#define BARREL_FRAME_PERIOD 100
+
+void vDrawInitBarrelAnimation(gfx_image_handle_t donkey_kong_image)
+{
+    if ((my_animations.barrel_spritesheet =
+             gfxDrawLoadSpritesheetFromPortionOfImagePadded(
+                 donkey_kong_image, BARREL_SEQUENCE_IMAGES, 1,
+                 BARREL_WIDTH, BARREL_HEIGHT, BARREL_X_PADDING,
+                 BARREL_Y_PADDING, BARREL_START_IMAGE_X,
+                 BARREL_START_IMAGE_Y)) == NULL) {
+        PRINT_ERROR("Failed to create barrel spritesheet");
+    }
+
+    gfx_animation_handle_t barrel_animation = NULL;
+    if ((barrel_animation = gfxDrawAnimationCreate(
+                                my_animations.barrel_spritesheet)) == NULL) {
+        PRINT_ERROR("Failed to create barrel animation");
+    }
+
+    if (gfxDrawAnimationAddSequence(barrel_animation, "Barrel Forward", 0,
+                                    0, SPRITE_SEQUENCE_HORIZONTAL_POS,
+                                    BARREL_SEQUENCE_IMAGES)) {
+        PRINT_ERROR(
+            "Failed to create barrel forward animation sequence");
+    }
+
+    if ((my_animations.barrel_sequence =
+             gfxDrawAnimationSequenceInstantiate(
+                 barrel_animation, "Barrel Forward",
+                 BARREL_FRAME_PERIOD)) == NULL) {
+        PRINT_ERROR(
+            "Failed to instantiate barrel forward animation sequence");
+    }
+}
+
+void vDrawInitDonkeyKongAnimations(void)
+{
+    char *donkey_kong_path =
+        gfxUtilFindResourcePath("donkey_kong_spritesheet.png");
+    gfx_image_handle_t donkey_kong_image = NULL;
+    if ((donkey_kong_image = gfxDrawLoadImage(donkey_kong_path)) == NULL) {
+        PRINT_ERROR("Failed to load donkey_kong_spritesheet.png");
+    }
+
+    vDrawInitMarioRunAnimation(donkey_kong_image);
+    vDrawInitBarrelAnimation(donkey_kong_image);
+}
+
 void vDrawInitAnnimations(void)
 {
     my_animations.lock = xSemaphoreCreateMutex();
 
-    char *ball_spritesheet_path =
-        gfxUtilFindResourcePath("ball_spritesheet.png");
-    gfx_image_handle_t ball_spritesheet_image =
-        gfxDrawLoadImage(ball_spritesheet_path);
-    my_animations.ball_spritesheet =
-        gfxDrawLoadSpritesheet(ball_spritesheet_image, 25, 1);
-    gfx_animation_handle_t ball_animation =
-        gfxDrawAnimationCreate(my_animations.ball_spritesheet);
-    gfxDrawAnimationAddSequence(ball_animation, "FORWARDS", 0, 0,
-                                SPRITE_SEQUENCE_HORIZONTAL_POS, 24);
-    gfxDrawAnimationAddSequence(ball_animation, "REVERSE", 0, 23,
-                                SPRITE_SEQUENCE_HORIZONTAL_NEG, 24);
-    my_animations.forward_sequence = gfxDrawAnimationSequenceInstantiate(
-                                         ball_animation, "FORWARDS", 40);
-    my_animations.reverse_sequence = gfxDrawAnimationSequenceInstantiate(
-                                         ball_animation, "REVERSE", 40);
+    vDrawInitBallHorizontalAnimations();
+    vDrawInitBallVerticalAnimations();
+    vDrawInitDonkeyKongAnimations();
 }
 
 void vDrawInitResources(void)
@@ -332,16 +550,33 @@ void vDrawSpriteAnnimations(TickType_t xLastFrameTime)
 {
     if (my_animations.lock)
         if (xSemaphoreTake(my_animations.lock, 0) == pdTRUE) {
+            TickType_t current_tick = xTaskGetTickCount();
             gfxDrawAnimationDrawFrame(
                 my_animations.forward_sequence,
-                xTaskGetTickCount() - xLastFrameTime,
+                current_tick - xLastFrameTime,
                 SCREEN_WIDTH - 50, SCREEN_HEIGHT - 60);
             gfxDrawAnimationDrawFrame(
                 my_animations.reverse_sequence,
-                xTaskGetTickCount() - xLastFrameTime,
+                current_tick - xLastFrameTime,
                 SCREEN_WIDTH - 90, SCREEN_HEIGHT - 60);
-            vCheckDraw(gfxDrawSprite(my_animations.ball_spritesheet, 5, 0,
-                                     SCREEN_WIDTH - 130,
+            gfxDrawAnimationDrawFrame(
+                my_animations.downward_sequence,
+                current_tick - xLastFrameTime,
+                SCREEN_WIDTH - 50, SCREEN_HEIGHT - 100);
+            gfxDrawAnimationDrawFrame(my_animations.upward_sequence,
+                                      current_tick - xLastFrameTime,
+                                      SCREEN_WIDTH - 90,
+                                      SCREEN_HEIGHT - 100);
+            gfxDrawAnimationDrawFrame(
+                my_animations.mario_running_sequence,
+                current_tick - xLastFrameTime,
+                SCREEN_WIDTH - 180, SCREEN_HEIGHT - 50);
+            gfxDrawAnimationDrawFrame(my_animations.barrel_sequence,
+                                      current_tick - xLastFrameTime,
+                                      SCREEN_WIDTH - 150,
+                                      SCREEN_HEIGHT - 50);
+            vCheckDraw(gfxDrawSprite(my_animations.ball_spritesheet,
+                                     5, 0, SCREEN_WIDTH - 130,
                                      SCREEN_HEIGHT - 60),
                        __FUNCTION__);
             xSemaphoreGive(my_animations.lock);
