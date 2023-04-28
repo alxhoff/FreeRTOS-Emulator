@@ -11,10 +11,10 @@ on:
   push:
     branches:
       - master
-      - pong
-      - clean
-      - udp_demo
-      - ci
+#       - pong
+#       - clean
+#       - udp_demo
+#       - ci
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -35,14 +35,25 @@ jobs:
         run: cd build && make
   doxygen:
     name: Doxygen Build
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Generate Doxygen Documentation
-        uses: mattnotmitt/doxygen-action@v1
-        with:
-          working-directory: docs
+
+      - name: Install Doxygen Dependencies
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz fonts-freefont-ttf
+          
+      - name: Generate docs
+        shell: bash
+        run: mkdir -p build && cd build && cmake -DDOCS_ONLY=on .. && make docs
+
       - name: Print warnings
         run: |
           if [[ -s "doxygen_warnings.txt" ]]; then
@@ -52,12 +63,19 @@ jobs:
             cat doxygen_warnings.txt
             exit -1
           fi
-      - name: Deploy Documentation
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'master' }}
+          
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/docs/html
+          path: docs/docs/html
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+        
   git_check:
     name: Run Git Check
     runs-on: ubuntu-latest
