@@ -1,13 +1,12 @@
 # FreeRTOS Emulator
 
 <p>
-  <a href="https://github.com/alxhoff/FreeRTOS-Emulator/actions">
-  <img src="https://github.com/alxhoff/FreeRTOS-Emulator/workflows/Build%20FreeRTOS-Emulator/badge.svg">
-  </a>
   <a href="https://github.com/alxhoff/FreeRTOS-Emulator/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-GPLv3-blue.svg" />
   </a>
 </p>
+
+[![Build FreeRTOS-Emulator](https://github.com/alxhoff/FreeRTOS-Emulator/actions/workflows/main.yml/badge.svg)](https://github.com/alxhoff/FreeRTOS-Emulator/actions/workflows/main.yml)
 
 An implementation of POSIX based FreeRTOS with the combination of SDL2 graphics. Aimed at providing an x86 emulation solution for teaching FreeRTOS to students without the need of embedded hardware. Used at the Technical University of Munich in the teaching of the "Embedded Systems Programming Lab".
 
