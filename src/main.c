@@ -236,7 +236,6 @@ void vDrawIP(unsigned char IP[4], unsigned int port)
     sprintf(buff, "%u", port);
     gfxDrawCenteredText(buff, PORT_X, OCTET_Y, Black);
 
-
     // sprintf(buff, "   ip         port");
     // gfxDrawCenteredText(buff, SCREEN_WIDTH / 2, OCTET_Y + 20, Black);
 }
@@ -394,7 +393,15 @@ void vSendTask(void *pvParameters)
         xSemaphoreGive(ip_and_port.lock);
     }
 
-    struct data_packet my_packet = {.my_int = 555, .my_string = "Hello via UDP"};
+    struct config_packet my_config_packet = { .packet_type =
+            PACKET_TYPE_CONFIG,
+            .config_byte = 0b10101010
+    };
+
+    struct data_packet my_data_packet = { .packet_type = PACKET_TYPE_DATA,
+               .my_int = 555,
+               .my_string = "Hello via UDP"
+    };
 
     while (1) {
         gfxEventFetchEvents(
@@ -407,7 +414,17 @@ void vSendTask(void *pvParameters)
 
         gfxDrawUpdateScreen(); // Refresh the screen to draw string
 
-        aIOSocketPut(UDP, addr, port, (char *)&my_packet, sizeof(struct data_packet));
+        printf("Sending config packet...");
+        aIOSocketPut(UDP, addr, port, (char *)&my_config_packet,
+                     sizeof(struct config_packet));
+        printf("Packet sent\n");
+
+        vTaskDelay(1000);
+
+        printf("Sending data packet...");
+        aIOSocketPut(UDP, addr, port, (char *)&my_data_packet,
+                     sizeof(struct data_packet));
+        printf("Packet sent\n");
 
         vTaskDelay(1000);
     }
@@ -415,9 +432,28 @@ void vSendTask(void *pvParameters)
 
 void UDPHandler(size_t read_size, char *buffer, void *args)
 {
-    struct data_packet *recv_packet = (struct data_packet *)buffer;
+    printf("Packet received\n");
 
-    printf("Recv int: %d and string: %s\n", recv_packet->my_int, recv_packet->my_string);
+    // Get first byte to check packet type
+    char packet_type = *buffer;
+
+    // Handle packet depending on type
+    switch (packet_type) {
+        case PACKET_TYPE_CONFIG: {
+            struct config_packet *config_packet =
+                (struct config_packet *)buffer;
+
+            printf("Recv config byte: %x\n", config_packet->config_byte);
+        } break;
+        case PACKET_TYPE_DATA: {
+            struct data_packet *data_packet = (struct data_packet *)buffer;
+
+            printf("Recv int: %d and string: %s\n", data_packet->my_int,
+                   data_packet->my_string);
+        } break;
+        default:
+            break;
+    }
 }
 
 void vRecvTask(void *pvParameters)
@@ -429,8 +465,7 @@ void vRecvTask(void *pvParameters)
         xSemaphoreGive(ip_and_port.lock);
     }
 
-    aIOOpenUDPSocket(NULL, port, UDP_BUFFER_SIZE,
-                     UDPHandler, NULL);
+    aIOOpenUDPSocket(NULL, port, UDP_BUFFER_SIZE, UDPHandler, NULL);
 
     gfxDrawBindThread();
 
