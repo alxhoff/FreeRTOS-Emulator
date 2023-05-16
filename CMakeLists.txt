@@ -14,8 +14,7 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             RESULT_VARIABLE GIT_SUBMOD_RESULT)
-        # git submodule update --remote
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --remote
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --remote --merge
             --merge)
         if(NOT GIT_SUBMOD_RESULT EQUAL "0")
             message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
@@ -39,7 +38,7 @@ else()
             VERBATIM
         )
     else()
-    
+
         set(CMAKE_EXPORT_COMPILE_COMMANDS ON )
         set(CMAKE_BUILD_TYPE "Debug")
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
