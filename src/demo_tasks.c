@@ -142,10 +142,6 @@ void vDemoTask2(void *pvParameters)
     xLastWakeTime = xTaskGetTickCount();
     prevWakeTime = xLastWakeTime;
 
-    wall_t *left_wall = NULL, *right_wall = NULL, *top_wall = NULL,
-            *bottom_wall = NULL;
-    vCreateWalls(&left_wall, &right_wall, &top_wall, &bottom_wall);
-
     while (1) {
         if (DrawSignal)
             if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
@@ -155,31 +151,17 @@ void vDemoTask2(void *pvParameters)
                 vGetButtonInput(); // Update global button data
 
                 vDrawClearScreen();
-                vDrawStaticItems();
-                vDrawWalls(left_wall, right_wall, top_wall,
-                           bottom_wall);
 
-                if (xSemaphoreTake(my_ball.lock,
-                                   portMAX_DELAY) == pdTRUE) {
-                    // Check if ball has made a collision
-                    if (gfxCheckBallCollisions(my_ball.ball,
-                                               NULL, NULL)) {
-                        prints("Collision\n");
-                    }
+                // Do my drawing here
+                //////
+                gfxDrawCircle(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, Red);
+                gfxDrawFilledBox(SCREEN_WIDTH/2 - 80, SCREEN_HEIGHT/2, 40, 20, Blue);
+                coord_t my_triangle_points[3] = {{.x = SCREEN_WIDTH/2 + 40, .y = SCREEN_HEIGHT/2 + 20}, //bottom left point
+                                                {.x = SCREEN_WIDTH/2 + 60, .y = SCREEN_HEIGHT/2}, // top point
+                                                {.x = SCREEN_WIDTH/2 + 80, .y = SCREEN_HEIGHT/2 + 20}}; // bottom right point
+                gfxDrawTriangle(my_triangle_points, Green);
 
-                    // Update the balls position now that possible collisions have
-                    // updated its speeds
-                    gfxUpdateBallPosition(
-                        my_ball.ball,
-                        xLastWakeTime - prevWakeTime);
-
-                    vDrawBall(my_ball.ball);
-
-                    xSemaphoreGive(my_ball.lock);
-                }
-
-                // Draw FPS in lower right corner
-                vDrawFPS();
+                //////
 
                 // Check for state change
                 vCheckStateInput();
