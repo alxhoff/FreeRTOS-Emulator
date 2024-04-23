@@ -32,7 +32,7 @@
 
 #define KEYCODE(CHAR) SDL_SCANCODE_##CHAR
 
-/// @brief Structure containing a loopup table containing all the keyboards'
+/// @brief Structure containing a lookup table containing all the keyboards'
 /// buttons states and a lock for accessing said table
 typedef struct buttons_buffer {
     unsigned char buttons[SDL_NUM_SCANCODES];

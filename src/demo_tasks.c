@@ -139,6 +139,11 @@ void vStateTwoExit(void)
 #define MOVING_RIGHT 1
 #define MOVING_LEFT 0
 
+#define INCREMENT_COUNT(BUTTON) if(buttons.buttons[SDL_SCANCODE_##BUTTON] && BUTTON##_prev != buttons.buttons[SDL_SCANCODE_##BUTTON]) { \
+                                    BUTTON##_count++;} \
+                                if(BUTTON##_prev != buttons.buttons[SDL_SCANCODE_##BUTTON]){ \
+                                    BUTTON##_prev = buttons.buttons[SDL_SCANCODE_##BUTTON];}
+
 void vDemoTask2(void *pvParameters)
 {
     TickType_t xLastWakeTime, prevWakeTime;
@@ -150,6 +155,10 @@ void vDemoTask2(void *pvParameters)
     const char my_string[] = "Hello world";
     int my_strings_length;
     gfxGetTextSize(my_string, &my_strings_length, NULL);
+
+    int W_count = 0, S_count = 0, A_count = 0, D_count = 0;
+    char W_prev = 0, S_prev = 0, A_prev = 0, D_prev = 0;
+    static char str[100] = { 0 };
 
     while (1) {
         if (DrawSignal)
@@ -192,6 +201,33 @@ void vDemoTask2(void *pvParameters)
                     moving_direction = MOVING_RIGHT;
                 }
 
+                if(xSemaphoreTake(buttons.lock, portMAX_DELAY) == pdTRUE){
+                    // Lock is obtained
+                    
+                    INCREMENT_COUNT(W);
+
+                    INCREMENT_COUNT(A);
+
+                    INCREMENT_COUNT(S);
+
+                    INCREMENT_COUNT(D);
+                    
+
+                    if(buttons.buttons[SDL_SCANCODE_R]){
+                        W_count = 0;
+                        A_count = 0;
+                        D_count = 0;
+                        S_count = 0;
+                    }
+
+                    xSemaphoreGive(buttons.lock); // giving back the lock
+                }
+
+                // Printing button counts
+                sprintf(str, "W: %d | S: %d | A: %d | D: %d",
+                    W_count, S_count, A_count, D_count);
+
+                gfxDrawText(str, SCREEN_WIDTH / 2, 50, Black);
                 //////
 
                 // Check for state change
