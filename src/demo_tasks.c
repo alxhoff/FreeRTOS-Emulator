@@ -136,11 +136,20 @@ void vStateTwoExit(void)
     vTaskSuspend(DemoTask2);
 }
 
+#define MOVING_RIGHT 1
+#define MOVING_LEFT 0
+
 void vDemoTask2(void *pvParameters)
 {
     TickType_t xLastWakeTime, prevWakeTime;
     xLastWakeTime = xTaskGetTickCount();
     prevWakeTime = xLastWakeTime;
+
+    int string_x = SCREEN_WIDTH/2;
+    char moving_direction = MOVING_RIGHT;
+    const char my_string[] = "Hello world";
+    int my_strings_length;
+    gfxGetTextSize(my_string, &my_strings_length, NULL);
 
     while (1) {
         if (DrawSignal)
@@ -160,6 +169,28 @@ void vDemoTask2(void *pvParameters)
                                                 {.x = SCREEN_WIDTH/2 + 60, .y = SCREEN_HEIGHT/2}, // top point
                                                 {.x = SCREEN_WIDTH/2 + 80, .y = SCREEN_HEIGHT/2 + 20}}; // bottom right point
                 gfxDrawTriangle(my_triangle_points, Green);
+
+                gfxDrawText("Hello world", string_x, SCREEN_HEIGHT/2 + 100, Black);
+
+                switch (moving_direction){
+                    case MOVING_LEFT:
+                        string_x--;
+                        break;
+                    case MOVING_RIGHT:
+                        string_x++;
+                        break;
+                }
+
+                //If we have hit a wall
+                if(string_x > SCREEN_WIDTH - my_strings_length){
+                    string_x = SCREEN_WIDTH - my_strings_length;
+                    moving_direction = MOVING_LEFT;
+                }
+
+                if (string_x < 0){
+                    string_x = 0;
+                    moving_direction = MOVING_RIGHT;
+                }
 
                 //////
 
