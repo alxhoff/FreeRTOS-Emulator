@@ -60,5 +60,6 @@ void vStateTwoEnter(void);
 /// @brief Exit function for state two of the state machine
 void vStateTwoExit(void);
 
+void vCreateMyCircleTasks(void);
 
 #endif // __DEMO_TASKS_H__

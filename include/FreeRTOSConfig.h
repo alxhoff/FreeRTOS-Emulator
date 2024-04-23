@@ -77,6 +77,8 @@
 #define configUSE_STATS_FORMATTING_FUNCTIONS 1
 #define configGENERATE_RUN_TIME_STATS   1
 #define configUSE_16_BIT_TICKS          0
+#define configSUPPORT_STATIC_ALLOCATION 1
+#define configTIMER_TASK_STACK_DEPTH            configMINIMAL_STACK_SIZE
 #define configIDLE_SHOULD_YIELD         1
 #define configUSE_CO_ROUTINES           1
 #define configUSE_MUTEXES               1
