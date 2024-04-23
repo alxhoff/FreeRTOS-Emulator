@@ -144,6 +144,9 @@ void vStateTwoExit(void)
                                 if(BUTTON##_prev != buttons.buttons[SDL_SCANCODE_##BUTTON]){ \
                                     BUTTON##_prev = buttons.buttons[SDL_SCANCODE_##BUTTON];}
 
+#define OFFSET_X(X) (mouse_x + X - SCREEN_WIDTH / 2)
+#define OFFSET_Y(Y) (mouse_y + Y - SCREEN_HEIGHT / 2)
+
 void vDemoTask2(void *pvParameters)
 {
     TickType_t xLastWakeTime, prevWakeTime;
@@ -168,18 +171,21 @@ void vDemoTask2(void *pvParameters)
 
                 vGetButtonInput(); // Update global button data
 
+                signed short mouse_x = gfxEventGetMouseX();
+                signed short mouse_y = gfxEventGetMouseY();
+
                 vDrawClearScreen();
 
                 // Do my drawing here
                 //////
-                gfxDrawCircle(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, Red);
-                gfxDrawFilledBox(SCREEN_WIDTH/2 - 80, SCREEN_HEIGHT/2, 40, 20, Blue);
-                coord_t my_triangle_points[3] = {{.x = SCREEN_WIDTH/2 + 40, .y = SCREEN_HEIGHT/2 + 20}, //bottom left point
-                                                {.x = SCREEN_WIDTH/2 + 60, .y = SCREEN_HEIGHT/2}, // top point
-                                                {.x = SCREEN_WIDTH/2 + 80, .y = SCREEN_HEIGHT/2 + 20}}; // bottom right point
+                gfxDrawCircle(OFFSET_X(SCREEN_WIDTH/2), OFFSET_Y(SCREEN_HEIGHT/2), 20, Red);
+                gfxDrawFilledBox(OFFSET_X(SCREEN_WIDTH/2 - 80), OFFSET_Y(SCREEN_HEIGHT/2), 40, 20, Blue);
+                coord_t my_triangle_points[3] = {{.x = OFFSET_X(SCREEN_WIDTH/2 + 40), .y = OFFSET_Y(SCREEN_HEIGHT/2 + 20)}, //bottom left point
+                                                {.x = OFFSET_X(SCREEN_WIDTH/2 + 60), .y = OFFSET_Y(SCREEN_HEIGHT/2)}, // top point
+                                                {.x = OFFSET_X(SCREEN_WIDTH/2 + 80), .y = OFFSET_Y(SCREEN_HEIGHT/2 + 20)}}; // bottom right point
                 gfxDrawTriangle(my_triangle_points, Green);
 
-                gfxDrawText("Hello world", string_x, SCREEN_HEIGHT/2 + 100, Black);
+                gfxDrawText("Hello world", OFFSET_X(string_x), OFFSET_Y(SCREEN_HEIGHT/2 + 100), Black);
 
                 switch (moving_direction){
                     case MOVING_LEFT:
@@ -227,7 +233,13 @@ void vDemoTask2(void *pvParameters)
                 sprintf(str, "W: %d | S: %d | A: %d | D: %d",
                     W_count, S_count, A_count, D_count);
 
-                gfxDrawText(str, SCREEN_WIDTH / 2, 50, Black);
+                gfxDrawText(str, OFFSET_X(SCREEN_WIDTH / 2), OFFSET_Y(50), Black);
+
+                sprintf(str, "Axis 1: %5d | Axis 2: %5d", gfxEventGetMouseX(),
+                    gfxEventGetMouseY());       
+
+                gfxDrawText(str, OFFSET_X(SCREEN_WIDTH / 2), OFFSET_Y(100), Black);
+
                 //////
 
                 // Check for state change
