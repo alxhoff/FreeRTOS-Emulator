@@ -60,10 +60,10 @@ else()
         include_directories(${SDL2_TTF_INCLUDE_DIRS})
 
         SET(PROJECT_INCLUDES
-            ${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/include
-            ${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix
+            # ${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/include
+            # ${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix
             ${PROJECT_SOURCE_DIR}/lib/Gfx/include
-            ${PROJECT_SOURCE_DIR}/lib/AsyncIO/include
+            # ${PROJECT_SOURCE_DIR}/lib/AsyncIO/include
             ${PROJECT_SOURCE_DIR}/lib/StateMachine/include
             ${PROJECT_SOURCE_DIR}/lib/tracer/include
             ${PROJECT_SOURCE_DIR}/lib/LL
@@ -76,13 +76,19 @@ else()
             "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/*.c"
             "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/GCC/Posix/*.c"
             "${PROJECT_SOURCE_DIR}/lib/FreeRTOS_Kernel/portable/MemMang/heap_3.c")
-        file(GLOB GFX_SOURCES "${PROJECT_SOURCE_DIR}/lib/Gfx/*.c")
+        file(GLOB GFX_SOURCES 
+            "${PROJECT_SOURCE_DIR}/lib/Gfx/gfx_utils.c"
+            "${PROJECT_SOURCE_DIR}/lib/Gfx/gfx_draw.c"
+            "${PROJECT_SOURCE_DIR}/lib/Gfx/gfx_font.c"
+            )
         file(GLOB STATE_MACHINE_SOURCES "${PROJECT_SOURCE_DIR}/lib/StateMachine/*.c")
         file(GLOB ASYNC_SOURCES "${PROJECT_SOURCE_DIR}/lib/AsyncIO/*.c")
         file(GLOB SIMULATOR_SOURCES "${PROJECT_SOURCE_DIR}/src/*.c")
 
         SET(PROJECT_SOURCES
-            ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES} ${STATE_MACHINE_SOURCES} ${ASYNC_SOURCES}
+            # ${SIMULATOR_SOURCES} ${FREERTOS_SOURCES} ${GFX_SOURCES} ${STATE_MACHINE_SOURCES} ${ASYNC_SOURCES}
+            ${SIMULATOR_SOURCES} ${GFX_SOURCES}
+
         )
 
         set(PROJECT_LIBRARIES
