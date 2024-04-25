@@ -42,6 +42,7 @@
 TaskHandle_t MainTaskHandle = NULL;
 TaskHandle_t LeftPaddleTaskHandle = NULL;
 TaskHandle_t RightPaddleTaskHandle = NULL;
+TaskHandle_t BallTaskHandle = NULL;
 StaticTask_t StaticTaskTCB;
 
 #define MY_STACK_SIZE 500
@@ -52,13 +53,27 @@ StaticTask_t StaticTaskTCB;
 #define LEFT_PADDLE_X SCREEN_MARGIN
 #define RIGHT_PADDLE_X (SCREEN_WIDTH - SCREEN_MARGIN - PADDLE_WIDTH)
 #define PADDLE_MOVEMENT_STEP 5
+#define BALL_HEIGHT 30
+#define BALL_WIDTH BALL_HEIGHT
+#define BALL_RADIUS (BALL_WIDTH/2)
+#define BALL_VELOCITY 1
+#define BALL_STARTING_X (SCREEN_WIDTH/2)
+#define BALL_STARTING_Y (SCREEN_HEIGHT/2)
 
-#define PADDLE_TASK_PERIOD 50
+#define PHYSICS_TASKS_PERIOD 20
 
 struct paddle {
 	xSemaphoreHandle lock;
 	unsigned int y;
 } left_paddle = { 0 }, right_paddle = { 0 };
+
+struct pongball{
+	xSemaphoreHandle lock;
+	unsigned int x;
+	unsigned int y;
+	int vx;
+	int vy;
+} ball = {.vx = BALL_VELOCITY};
 
 StackType_t my_stack[MY_STACK_SIZE];
 
@@ -70,6 +85,39 @@ void vStateOneEnter(void)
 void vStateOneExit(void)
 {
 	vTaskSuspend(MainTaskHandle);
+}
+
+void BallTask(void *pvParameters){
+
+	TickType_t last_wake_time = xTaskGetTickCount();
+
+	while (1){
+		TickType_t time_delta = xTaskGetTickCount() - last_wake_time;
+
+		if (ball.lock != NULL){
+			xSemaphoreTake(ball.lock, portMAX_DELAY);
+
+			// Update ball position from velocity
+			ball.x += time_delta * ball.vx;
+			ball.y += time_delta * ball.vy;
+
+			// Check for collisions
+			// Right paddle
+			if(right_paddle.lock != NULL){
+				xSemaphoreTake(right_paddle.lock, portMAX_DELAY);
+
+				// Right edge of the ball is > left edge of the wall
+				if( ball.x + BALL_WIDTH > RIGHT_PADDLE_X)
+					// Top edge of ball < bottom edge of wall && balls bottom edge is > walls top edge
+					if( ball.y < (right_paddle.y + PADDLE_HEIGHT) && (ball.y + BALL_HEIGHT) > right_paddle.y)
+						ball.vx *= -1;
+				xSemaphoreGive(right_paddle.lock);
+			}
+			xSemaphoreGive(ball.lock);
+		}
+		last_wake_time = xTaskGetTickCount();
+		vTaskDelay(pdMS_TO_TICKS(PHYSICS_TASKS_PERIOD)); // Block task for 50ms
+	}
 }
 
 void LeftPaddleTask(void *pvParameters)
@@ -101,7 +149,7 @@ void LeftPaddleTask(void *pvParameters)
 
 			xSemaphoreGive(buttons.lock); // give back the lock for buttons
 
-		vTaskDelay(pdMS_TO_TICKS(PADDLE_TASK_PERIOD)); // Block task for 50ms
+		vTaskDelay(pdMS_TO_TICKS(PHYSICS_TASKS_PERIOD)); // Block task for 50ms
 	}
 }
 
@@ -141,7 +189,7 @@ void RightPaddleTask(void *pvParameters)
 			xSemaphoreGive(
 				buttons.lock); // give back the lock for buttons
 
-			vTaskDelay(pdMS_TO_TICKS(PADDLE_TASK_PERIOD));
+			vTaskDelay(pdMS_TO_TICKS(PHYSICS_TASKS_PERIOD));
 	}
 	// never return
 }
@@ -151,6 +199,7 @@ void vCreateMyPaddleTasks(void)
 	// Setup code
 	left_paddle.lock = xSemaphoreCreateMutex();
 	right_paddle.lock = xSemaphoreCreateMutex();
+	ball.lock = xSemaphoreCreateMutex();
 
 	xTaskCreate(LeftPaddleTask, "Left Paddle Task", MY_STACK_SIZE, NULL,
 		    mainGENERIC_PRIORITY, &LeftPaddleTaskHandle);
@@ -159,6 +208,9 @@ void vCreateMyPaddleTasks(void)
 		xTaskCreateStatic(RightPaddleTask, "Right Paddle Task",
 				  MY_STACK_SIZE, NULL, mainGENERIC_PRIORITY,
 				  my_stack, &StaticTaskTCB);
+
+	xTaskCreate(BallTask, "Ball Task", MY_STACK_SIZE, NULL,
+		    mainGENERIC_PRIORITY, &BallTaskHandle);
 }
 
 void MainTask(void *pvParameters)
@@ -182,6 +234,16 @@ void MainTask(void *pvParameters)
 					gfxDrawFilledBox(RIGHT_PADDLE_X, (signed short)right_paddle.y, PADDLE_WIDTH, PADDLE_HEIGHT, Black);
 					xSemaphoreGive(right_paddle.lock);
 				}
+
+				if (ball.lock != NULL){
+					xSemaphoreTake(ball.lock, portMAX_DELAY);
+					// Draw the ball
+					gfxDrawCircle(ball.x, ball.y, BALL_RADIUS, Black);
+					xSemaphoreGive(ball.lock);
+				}
+					
+					
+
 				//////
 
 				// Check for state change
