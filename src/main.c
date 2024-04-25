@@ -45,7 +45,6 @@
 #include "buttons.h"
 #include "draw.h"
 
-
 #ifdef TRACE_FUNCTIONS
 #include "tracer.h"
 #endif
