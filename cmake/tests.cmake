@@ -61,7 +61,7 @@ if(ENABLE_ASTYLE)
         --suffix=none
         --pad-oper
         --unpad-paren
-        --break-closing-brackets
+        --break-closing-braces
         --align-pointer=name
         --align-reference=name
         --indent-preproc-define
@@ -74,7 +74,7 @@ if(ENABLE_ASTYLE)
         --min-conditional-indent=0
         --indent=spaces=4
         --close-templates
-        --add-brackets
+        --add-braces
         --break-after-logical
         ${CHECK_FILES}
     )
