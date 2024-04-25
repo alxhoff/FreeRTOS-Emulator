@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
         goto err_demotasks;
     }
 
-    vCreateMyCircleTasks();
+    vCreateMyPaddleTasks();
 
     /** SOCKETS */
     if (xCreateSocketTasks()) {
@@ -213,9 +213,6 @@ __attribute__((unused)) void vApplicationIdleHook(void)
 #endif
 }
 
-// void vApplicationGetIdleTaskMemory( StaticTask_t ** ppxIdleTaskTCBBuffer,
-//                                         StackType_t ** ppxIdleTaskStackBuffer,
-//                                         uint32_t * pulIdleTaskStackSize );
 /* configSUPPORT_STATIC_ALLOCATION is set to 1, so the application must provide an
 implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
 used by the Idle task. */

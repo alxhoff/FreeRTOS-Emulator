@@ -27,9 +27,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-extern TaskHandle_t DemoTask1;
-extern TaskHandle_t DemoTask2;
-extern TaskHandle_t DemoSendTask;
+extern TaskHandle_t MainTaskHandle;
 
 /// @brief Structure to be send via UDP, important is that
 /// that the structure is packed using __attribute__((__packed__))
@@ -51,15 +49,6 @@ void vStateOneEnter(void);
 /// @brief Exit function for state one of the state machine
 void vStateOneExit(void);
 
-/// @brief Init function for state two of the state machine
-void vStateTwoInit(void);
-
-/// @brief Enter function for state two of the state machine
-void vStateTwoEnter(void);
-
-/// @brief Exit function for state two of the state machine
-void vStateTwoExit(void);
-
-void vCreateMyCircleTasks(void);
+void vCreateMyPaddleTasks(void);
 
 #endif // __DEMO_TASKS_H__

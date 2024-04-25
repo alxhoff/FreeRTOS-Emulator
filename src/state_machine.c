@@ -42,10 +42,5 @@ int xStateMachineInit(void)
         return -1;
     }
 
-    if (xStatesAdd(vStateTwoInit, vStateTwoEnter, NULL, vStateTwoExit, STATE_TWO,
-                   "State Two")) {
-        return -1;
-    }
-
     return 0;
 }
