@@ -30,7 +30,6 @@
 #define mainGENERIC_STACK_SIZE ((unsigned short)2560)
 
 static TaskHandle_t DemoTask = NULL;
-static TaskHandle_t BufferSwap = NULL;
 
 SemaphoreHandle_t DrawSignal = NULL;
 
@@ -49,20 +48,6 @@ void xGetButtonInput(void)
     }
 }
 
-void vSwapBuffers(void *pvParameters)
-{
-    TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
-    const TickType_t frameratePeriod = 20;
-
-    while (1) {
-        gfxDrawUpdateScreen();
-        gfxEventFetchEvents(FETCH_EVENT_BLOCK);
-        xSemaphoreGive(DrawSignal);
-        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(frameratePeriod));
-    }
-}
-
 void vDemoTask(void *pvParameters)
 {
     // structure to store time retrieved from Linux kernel
@@ -77,52 +62,48 @@ void vDemoTask(void *pvParameters)
     gfxDrawBindThread();
 
     while (1) {
-        if (DrawSignal)
-            if (xSemaphoreTake(DrawSignal, portMAX_DELAY) ==
-                pdTRUE) {
-                gfxEventFetchEvents(
-                    FETCH_EVENT_NONBLOCK); // Query events backend for new events, ie. button presses
-                xGetButtonInput(); // Update global input
+        gfxEventFetchEvents(
+            FETCH_EVENT_NONBLOCK); // Query events backend for new events, ie. button presses
+        xGetButtonInput(); // Update global input
 
-                // `buttons` is a global shared variable and as such needs to be
-                // guarded with a mutex, mutex must be obtained before accessing the
-                // resource and given back when you're finished. If the mutex is not
-                // given back then no other task can access the reseource.
-                if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
-                    if (buttons.buttons[KEYCODE(
-                                            Q)]) { // Equiv to SDL_SCANCODE_Q
-                        exit(EXIT_SUCCESS);
-                    }
-                    xSemaphoreGive(buttons.lock);
-                }
-
-                gfxDrawClear(White); // Clear screen
-
-                clock_gettime(
-                    CLOCK_REALTIME,
-                    &the_time); // Get kernel real time
-
-                // Format our string into our char array
-                sprintf(our_time_string,
-                        "There has been %ld seconds since the Epoch. Press Q to quit",
-                        (long int)the_time.tv_sec);
-
-                // Get the width of the string on the screen so we can center it
-                // Returns 0 if width was successfully obtained
-                if (!gfxGetTextSize((char *)our_time_string,
-                                    &our_time_strings_width,
-                                    NULL))
-                    gfxDrawText(
-                        our_time_string,
-                        SCREEN_WIDTH / 2 -
-                        our_time_strings_width /
-                        2,
-                        SCREEN_HEIGHT / 2 -
-                        DEFAULT_FONT_SIZE / 2,
-                        TUMBlue);
-
-                gfxDrawUpdateScreen(); // Refresh the screen to draw string
+        // `buttons` is a global shared variable and as such needs to be
+        // guarded with a mutex, mutex must be obtained before accessing the
+        // resource and given back when you're finished. If the mutex is not
+        // given back then no other task can access the reseource.
+        if (xSemaphoreTake(buttons.lock, 0) == pdTRUE) {
+            if (buttons.buttons[KEYCODE(
+                                    Q)]) { // Equiv to SDL_SCANCODE_Q
+                exit(EXIT_SUCCESS);
             }
+            xSemaphoreGive(buttons.lock);
+        }
+
+        gfxDrawClear(White); // Clear screen
+
+        clock_gettime(
+            CLOCK_REALTIME,
+            &the_time); // Get kernel real time
+
+        // Format our string into our char array
+        sprintf(our_time_string,
+                "There has been %ld seconds since the Epoch. Press Q to quit",
+                (long int)the_time.tv_sec);
+
+        // Get the width of the string on the screen so we can center it
+        // Returns 0 if width was successfully obtained
+        if (!gfxGetTextSize((char *)our_time_string,
+                            &our_time_strings_width,
+                            NULL))
+            gfxDrawText(
+                our_time_string,
+                SCREEN_WIDTH / 2 -
+                our_time_strings_width /
+                2,
+                SCREEN_HEIGHT / 2 -
+                DEFAULT_FONT_SIZE / 2,
+                TUMBlue);
+
+        gfxDrawUpdateScreen(); // Refresh the screen to draw string
     }
 }
 
@@ -182,13 +163,6 @@ int main(int argc, char *argv[])
     if (xTaskCreate(vDemoTask, "DemoTask", mainGENERIC_STACK_SIZE * 2, NULL,
                     mainGENERIC_PRIORITY, &DemoTask) != pdPASS) {
         goto err_demotask;
-    }
-
-    if (xTaskCreate(vSwapBuffers, "BufferSwapTask",
-                    mainGENERIC_STACK_SIZE * 2, NULL, configMAX_PRIORITIES,
-                    &BufferSwap) != pdPASS) {
-        PRINT_TASK_ERROR("BufferSwapTask");
-        goto err_bufferswap;
     }
 
     vTaskStartScheduler();
