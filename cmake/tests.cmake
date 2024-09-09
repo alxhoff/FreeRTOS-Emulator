@@ -83,8 +83,13 @@ if(ENABLE_ASTYLE)
         ${CHECK_FILES}
     )
 
+    list(APPEND ASTYLE_VERSION
+        --version
+    )
+
     add_custom_target(
         format
+        COMMAND ${ASTYLE_BIN} ${ASTYLE_VERSION}
         COMMAND ${ASTYLE_BIN} ${ASTYLE_ARGS}
         COMMENT "running astyle"
     )

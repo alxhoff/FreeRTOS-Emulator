@@ -95,7 +95,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install SDL2 Dependencies
-        run: sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev astyle
+        run: |
+          sudo apt-get install -y libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-dev curl
+          curl -L https://sourceforge.net/projects/astyle/files/astyle/astyle%203.5/astyle-3.5.2.tar.bz2/download -o astyle.tar.bz2  
+          tar -xvjf astyle.tar.bz2
+          cd astyle/build/gcc
+          make
+          sudo make install
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure CMake
